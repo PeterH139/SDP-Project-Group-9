@@ -21,6 +21,8 @@ public class MotorTest {
 		
 		ls = new LightSensor(SensorPort.S1);
 		
+		// Testing Git push to upstream!
+		
 		while(!die){
 			//checkButtonPresses();
 			LCD.clear();
