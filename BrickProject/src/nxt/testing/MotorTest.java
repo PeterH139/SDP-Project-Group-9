@@ -21,42 +21,37 @@ public class MotorTest {
 		
 		ls = new LightSensor(SensorPort.S1);
 		
-		// Testing Git push to upstream!
-		
 		while(!die){
-			//checkButtonPresses();
+			checkButtonPresses();
 			LCD.clear();
 			System.out.println(ls.getLightValue());
 		}
 	}
 
 	private static void checkButtonPresses() {
-		switch (Button.waitForAnyPress()){
-		case Button.ID_LEFT:
+		if(Button.LEFT.isDown()){
 			if (!a.isMoving()){
 				a.forward();
 			} else {
 				a.flt();
 			}
-			break;
-		case Button.ID_RIGHT:
+		}
+		if (Button.RIGHT.isDown()){
 			if (!b.isMoving()){
 				b.forward();
 			} else {
 				b.flt();
 			}
-			break;
-		case Button.ID_ENTER:
+		}
+		if (Button.ENTER.isDown()){
 			if (!c.isMoving()){
 				c.forward();
 			} else {
 				c.flt();
 			}
-			break;
-		case Button.ID_ESCAPE:
+		}
+		if (Button.ESCAPE.isDown()){
 			die = true;
-			break;
 		}
 	}
-
 }
