@@ -6,8 +6,11 @@ import lejos.nxt.LightSensor;
 import lejos.nxt.Motor;
 import lejos.nxt.NXTRegulatedMotor;
 import lejos.nxt.SensorPort;
+ 
 
 public class Milestone1 {
+	
+	private static int WHITE_VALUE = 45;
 
 	private enum Location {
 		UNKNOWN, FACING_WALL, PARALLEL_TO_WALL, IN_CORNER
@@ -16,8 +19,7 @@ public class Milestone1 {
 	static NXTRegulatedMotor a = Motor.A;
 	static NXTRegulatedMotor b = Motor.B;
 	
-	static LightSensor lsLeft = new LightSensor(SensorPort.S1);
-	static LightSensor lsRight = new LightSensor(SensorPort.S2);
+	static LightSensor ls = new LightSensor(SensorPort.S1);
 	
 	static Location loc = Location.UNKNOWN;
 	private static boolean die = false;
@@ -28,21 +30,21 @@ public class Milestone1 {
 		calibrateValues();
 		while(!die){
 			// Check Sensor and button inputs
-			int leftReading = lsLeft.getLightValue();
-			int rightReading = lsRight.getLightValue();
+			int lightReading = ls.getLightValue();
 			if (Button.LEFT.isDown()){
 				calibrateValues();
 			} else if (Button.ESCAPE.isDown()){
 				die = true;
 			}
 			
+			movement(lightReading);
 			// Determine appropriate action, based upon location and sensor inputs.
-			switch (loc){
-			case UNKNOWN:
-			case FACING_WALL:
-			case PARALLEL_TO_WALL:
-			case IN_CORNER:
-			}
+//			switch (loc){
+//			case UNKNOWN:
+//			case FACING_WALL:
+//			case PARALLEL_TO_WALL:
+//			case IN_CORNER:
+//			}
 			
 			// Carry out action and update location.
 		}
@@ -53,16 +55,29 @@ public class Milestone1 {
 		LCD.drawString("Calibrate green...", 0, 2);
 		LCD.drawString("Use left sensor & press Enter", 0, 3);
 		Button.ENTER.waitForPressAndRelease();
-		lowLightValue = lsLeft.getLightValue();
+		lowLightValue = ls.getLightValue();
 		
 		LCD.clear();
 		LCD.drawString("Calibrate white...", 0, 2);
 		LCD.drawString("Use left sensor & press Enter", 0, 3);
 		Button.ENTER.waitForPressAndRelease();
-		highLightValue = lsLeft.getLightValue();
+		highLightValue = ls.getLightValue();
 		
 		LCD.drawString("Green: " + lowLightValue, 0, 2);
 		LCD.drawString("White: " + highLightValue, 0, 3);
 	}
+	
+	public static void movement(int lightValue) {
+		if (lightValue > WHITE_VALUE) {
+			a.stop();
+			b.stop();
+			a.rotate(15);
+			b.rotate(-15);
+		}
+		else {
+			a.forward();
+			b.forward();
+		}
 
+}
 }
