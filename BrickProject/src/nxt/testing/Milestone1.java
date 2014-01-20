@@ -10,7 +10,7 @@ import lejos.nxt.SensorPort;
 
 public class Milestone1 {
 	
-	private static int WHITE_VALUE = 45;
+	private static int WHITE_VALUE;
 
 	private enum Location {
 		UNKNOWN, FACING_WALL, PARALLEL_TO_WALL, IN_CORNER
@@ -65,6 +65,8 @@ public class Milestone1 {
 		
 		LCD.drawString("Green: " + lowLightValue, 0, 2);
 		LCD.drawString("White: " + highLightValue, 0, 3);
+		
+		WHITE_VALUE = (highLightValue + lowLightValue)/2;
 	}
 	
 	public static void movement(int lightValue) {
@@ -77,8 +79,10 @@ public class Milestone1 {
 			b.backward();
 		}
 		else {
-			a.setSpeed(a.getMaxSpeed());
-			b.setSpeed(b.getMaxSpeed());
+			a.stop();
+			b.stop();
+			a.setSpeed(a.getMaxSpeed()/3);
+			b.setSpeed(b.getMaxSpeed()/3);
 			a.forward();
 			b.forward();
 		}
