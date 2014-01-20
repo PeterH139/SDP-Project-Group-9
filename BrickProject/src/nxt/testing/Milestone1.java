@@ -73,16 +73,10 @@ public class Milestone1 {
 		if (lightValue > WHITE_VALUE) {
 			a.stop();
 			b.stop();
-			a.setSpeed(a.getMaxSpeed()/5);
-			b.setSpeed(b.getMaxSpeed()/5);
-			a.forward();
-			b.backward();
+			a.rotate(15, true);
+			b.rotate(-15, true);
 		}
 		else {
-			a.stop();
-			b.stop();
-			a.setSpeed(a.getMaxSpeed()/3);
-			b.setSpeed(b.getMaxSpeed()/3);
 			a.forward();
 			b.forward();
 		}
