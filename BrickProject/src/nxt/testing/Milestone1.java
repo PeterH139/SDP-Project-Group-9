@@ -36,8 +36,8 @@ public class Milestone1 {
 	private static boolean isWhiteRight, isWhiteLeft;
 	
 	public static void main(String[] args) {
-		leftMotor.setSpeed(leftMotor.getMaxSpeed()/5);
-		rightMotor.setSpeed(rightMotor.getMaxSpeed()/5);
+		leftMotor.setSpeed(leftMotor.getMaxSpeed()/20);
+		rightMotor.setSpeed(rightMotor.getMaxSpeed()/20);
 		calibrateValues();
 		while(!die){
 			// Check Sensor and button inputs
@@ -65,6 +65,7 @@ public class Milestone1 {
 				break;
 			case FACING_WALL:
 				if (isWhiteRight && isWhiteLeft){
+					pilot.travel(-50);
 					pilot.rotate(90);
 					pilot.forward();
 					loc = Location.PARALLEL_TO_WALL;

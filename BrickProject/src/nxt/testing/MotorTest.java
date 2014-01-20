@@ -7,6 +7,7 @@ import lejos.nxt.Motor;
 import lejos.nxt.NXTRegulatedMotor;
 import lejos.nxt.SensorPort;
 
+
 public class MotorTest {
 	
 	static NXTRegulatedMotor a = Motor.A;
