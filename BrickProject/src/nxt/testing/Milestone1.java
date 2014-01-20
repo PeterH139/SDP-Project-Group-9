@@ -24,13 +24,13 @@ public class Milestone1 {
 	
 	static final int TYRE_DIAMETER = 56;
 	static final int TRACK_WIDTH = 120;
-	static final double ROTATE_ANGLE = 2;
-	static NXTRegulatedMotor leftMotor = Motor.A;
-	static NXTRegulatedMotor rightMotor = Motor.B;
+	static final int TRAVEL_SPEED = 100;
+	static NXTRegulatedMotor leftMotor = Motor.B;
+	static NXTRegulatedMotor rightMotor = Motor.A;
 	static DifferentialPilot pilot = new DifferentialPilot(TYRE_DIAMETER, TRACK_WIDTH, leftMotor, rightMotor);
 	
 	static int thresholdValue;
-	static LightSensor lsLeft = new LightSensor(SensorPort.S1);
+	static LightSensor lsLeft = new LightSensor(SensorPort.S3);
 	static LightSensor lsRight = new LightSensor(SensorPort.S2);
 	static Location loc = Location.UNKNOWN;
 	static boolean die = false;
@@ -39,16 +39,14 @@ public class Milestone1 {
 	
 	
 	public static void main(String[] args) {
-		leftMotor.setSpeed(leftMotor.getMaxSpeed()/20);
-		rightMotor.setSpeed(rightMotor.getMaxSpeed()/20);
+		pilot.setTravelSpeed(TRAVEL_SPEED);
+		pilot.setRotateSpeed(pilot.getMaxRotateSpeed()/20);
+		
 		calibrateValues();
 		Point origin = brick.getLocation();
 		while(!die){
 			// Check Sensor and button inputs
-			int rightReading = lsRight.getLightValue();
-			int leftReading = lsLeft.getLightValue();
-			isWhiteRight = (rightReading > thresholdValue) ? true : false;
-			isWhiteLeft = (leftReading > thresholdValue) ? true : false;
+			checkSensors();
 			
 			if (Button.LEFT.isDown()){
 				calibrateValues();
@@ -68,6 +66,7 @@ public class Milestone1 {
 					pilot.forward();
 					if (isWhiteRight || isWhiteLeft){
 						rightHitFirst = isWhiteRight ? true : false;
+						haveMadeContact = true;
 					}
 				} else {
 					if (isWhiteRight && isWhiteLeft){
@@ -79,28 +78,27 @@ public class Milestone1 {
 				break;
 			case ON_EDGE:
 				if (first) start = brick.getLocation(); first = false;
-				while (isWhiteRight && isWhiteLeft){
-					if (rightHitFirst){
-						pilot.rotate(ROTATE_ANGLE);
+				if (rightHitFirst){
+						pilot.rotateLeft();
 					} else {
-						pilot.rotate(-ROTATE_ANGLE);
-					}
+						pilot.rotateRight();
 				}
+				while (isWhiteRight || isWhiteLeft){
+					checkSensors();
+				} 
 				pilot.forward();
 				loc = Location.PARALLEL_TO_WALL;
 				LCD.clear();
 				LCD.drawString("Paralell to wall!", 0, 2);
-				checkIfLost();
 				break;
 			case PARALLEL_TO_WALL:
 				if (first) start = brick.getLocation(); first = false;
-				if (isWhiteRight && isWhiteLeft){
+				if (isWhiteRight || isWhiteLeft){
 					pilot.stop();
 					loc = Location.ON_EDGE;
 					LCD.clear();
 					LCD.drawString("On Edge!", 0, 2);
 				} 
-				checkIfLost();
 			}
 			if (brick.getLocation() == start) {
 				float bearing = brick.relativeBearing(origin);
@@ -111,12 +109,11 @@ public class Milestone1 {
 		}
 	}
 
-	private static void checkIfLost() {
-		if (!(isWhiteRight || isWhiteLeft)){
-			loc = Location.UNKNOWN;
-			LCD.clear();
-			LCD.drawString("I'm Lost! :(", 0, 2);
-		}
+	private static void checkSensors() {
+		int rightReading = lsRight.readValue();
+		int leftReading = lsLeft.readValue();
+		isWhiteRight = (rightReading > thresholdValue) ? true : false;
+		isWhiteLeft = (leftReading > thresholdValue) ? true : false;
 	}
 
 	private static void calibrateValues() {
@@ -125,7 +122,7 @@ public class Milestone1 {
 		LCD.drawString("Use left sensor", 0, 3);
 		LCD.drawString("and Press ENTER", 0, 4);
 		Button.ENTER.waitForPressAndRelease();
-		lowLightValue = lsLeft.getLightValue();
+		lowLightValue = lsLeft.readValue();
 		Sound.playTone(1000, 200, 100);
 		
 		LCD.clear();
@@ -133,7 +130,7 @@ public class Milestone1 {
 		LCD.drawString("Use left sensor", 0, 3);
 		LCD.drawString("and Press ENTER", 0, 4);
 		Button.ENTER.waitForPressAndRelease();
-		highLightValue = lsLeft.getLightValue();        
+		highLightValue = lsLeft.readValue();      
 		Sound.playTone(1000, 200, 100);
 		
 		thresholdValue = (highLightValue + lowLightValue)/2;
