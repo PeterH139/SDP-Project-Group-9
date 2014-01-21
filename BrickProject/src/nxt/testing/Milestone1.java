@@ -79,17 +79,36 @@ public class Milestone1 {
 			case ON_EDGE:
 				if (first) start = brick.getLocation(); first = false;
 				if (rightHitFirst){
-						pilot.rotateLeft();
+						while (isWhiteRight && isWhiteLeft) {
+							pilot.rotateLeft(); 
+							checkSensors();
+							}
+						while (isWhiteRight && !isWhiteLeft) {
+							pilot.forward();
+							checkSensors();
+						}
+						while (!isWhiteRight && !isWhiteLeft) {
+							pilot.rotateRight();
+							checkSensors();
+						}
+						
 					} else {
-						pilot.rotateRight();
+						while (isWhiteRight && isWhiteLeft) {
+							pilot.rotateRight();
+							checkSensors();
+						}
+						while (!isWhiteRight && isWhiteLeft) {
+						    pilot.forward();
+						    checkSensors();
+						}
+						while (!isWhiteRight && !isWhiteLeft) {
+							pilot.rotateLeft();
+							checkSensors();
+						}
 				}
 				while (isWhiteRight || isWhiteLeft){
 					checkSensors();
 				} 
-				pilot.forward();
-				loc = Location.PARALLEL_TO_WALL;
-				LCD.clear();
-				LCD.drawString("Paralell to wall!", 0, 2);
 				break;
 			case PARALLEL_TO_WALL:
 				if (first) start = brick.getLocation(); first = false;
