@@ -11,7 +11,6 @@ import lejos.robotics.navigation.DifferentialPilot;
 import lejos.robotics.navigation.Pose;
 import lejos.geom.*;
  
-
 public class Milestone1 {
 	
 	private static Pose brick = new Pose();
@@ -52,6 +51,7 @@ public class Milestone1 {
 				loc = Location.UNKNOWN;
 				LCD.clear();
 				LCD.drawString("I'm Lost! :(", 0, 2);
+				haveMadeContact = false;
 			} else if (Button.ESCAPE.isDown()){
 				die = true;
 			}
@@ -81,56 +81,27 @@ public class Milestone1 {
 				if (brick.getLocation() == start) { pilot.stop(); }
 				else {
 				if (rightHitFirst){
-						while (isWhiteRight && isWhiteLeft) {
-							pilot.rotateLeft(); 
-							checkSensors();
-						}
-						while (isWhiteRight && !isWhiteLeft) {
-							pilot.forward();
-							checkSensors();
-						}
-						while (!isWhiteRight && !isWhiteLeft) {
-							pilot.rotateRight();
-							checkSensors();
-						}
-						
+						pilot.rotateLeft();	
 					} else {
-						while (isWhiteRight && isWhiteLeft) {
-							pilot.rotateRight();
-							checkSensors();
-						}
-						while (!isWhiteRight && isWhiteLeft) {
-						    pilot.forward();
-						    checkSensors();
-						}
-						while (!isWhiteRight && !isWhiteLeft) {
-							pilot.rotateLeft();
-							checkSensors();
-						}
+						pilot.rotateRight();
+					}
 					}
 				}
 				while (isWhiteRight || isWhiteLeft){
 					checkSensors();
 				} 
+				pilot.forward();
+				loc = Location.PARALLEL_TO_WALL;
 				break;
 				
 			case PARALLEL_TO_WALL:
 				
 				if (brick.getLocation() == start) { pilot.stop(); }
-				}	
-//				if (first) {start = brick.getLocation(); first = false;}
-//				if (isWhiteRight || isWhiteLeft){
-//					pilot.stop();
-//					loc = Location.ON_EDGE;
-//					LCD.clear();
-//					LCD.drawString("On Edge!", 0, 2);
-//				} 
-			}
-//			if (brick.getLocation() == start) {
-//				float bearing = brick.relativeBearing(origin);
-//				brick.rotateUpdate(bearing);
-//				float distance = brick.distanceTo(origin);
-//				brick.moveUpdate(distance);
+				if (first) start = brick.getLocation(); first = false;
+				if (isWhiteRight || isWhiteLeft){
+					pilot.stop();
+					loc = Location.ON_EDGE;
+				} 
 			}
 
 	private static void checkSensors() {
