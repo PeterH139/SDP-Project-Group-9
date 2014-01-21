@@ -75,23 +75,22 @@ public class Milestone1 {
 				}
 				break;
 			case ON_EDGE:
-					
 				if (first){ start = brick.getLocation(); first = false;}
 				LCD.drawString(start.toString(), 0, 3);
-				if (brick.getLocation() == start) { pilot.stop(); }
-				else {
-				if (rightHitFirst){
+				if (brick.getLocation() == start) { pilot.stop();
+				} else {
+					if (rightHitFirst){
 						pilot.rotateLeft();	
 					} else {
 						pilot.rotateRight();
 					}
-					}
+					
+					while (isWhiteRight || isWhiteLeft){
+						checkSensors();
+					} 
+					pilot.forward();
+					loc = Location.PARALLEL_TO_WALL;
 				}
-				while (isWhiteRight || isWhiteLeft){
-					checkSensors();
-				} 
-				pilot.forward();
-				loc = Location.PARALLEL_TO_WALL;
 				break;
 				
 			case PARALLEL_TO_WALL:
@@ -101,8 +100,10 @@ public class Milestone1 {
 				if (isWhiteRight || isWhiteLeft){
 					pilot.stop();
 					loc = Location.ON_EDGE;
-				} 
+				}
 			}
+		}
+	}
 
 	private static void checkSensors() {
 		int rightReading = lsRight.readValue();
