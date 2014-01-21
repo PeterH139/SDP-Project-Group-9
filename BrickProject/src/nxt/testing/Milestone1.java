@@ -113,13 +113,13 @@ public class Milestone1 {
 				} 
 				break;
 			case PARALLEL_TO_WALL:
-				if (first) start = brick.getLocation(); first = false;
-				if (isWhiteRight || isWhiteLeft){
-					pilot.stop();
-					loc = Location.ON_EDGE;
-					LCD.clear();
-					LCD.drawString("On Edge!", 0, 2);
-				} 
+//				if (first) start = brick.getLocation(); first = false;
+//				if (isWhiteRight || isWhiteLeft){
+//					pilot.stop();
+//					loc = Location.ON_EDGE;
+//					LCD.clear();
+//					LCD.drawString("On Edge!", 0, 2);
+//				} 
 			}
 			if (brick.getLocation() == start) {
 				float bearing = brick.relativeBearing(origin);
