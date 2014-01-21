@@ -39,7 +39,7 @@ public class Milestone1 {
 	
 	public static void main(String[] args) {
 		pilot.setTravelSpeed(TRAVEL_SPEED);
-		pilot.setRotateSpeed(pilot.getMaxRotateSpeed()/20);
+		pilot.setRotateSpeed(pilot.getMaxRotateSpeed()/40);
 		
 		calibrateValues();
 		while(!die){
@@ -84,7 +84,6 @@ public class Milestone1 {
 					} else {
 						pilot.rotateRight();
 					}
-					
 					while (isWhiteRight || isWhiteLeft){
 						checkSensors();
 					} 
