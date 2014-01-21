@@ -61,7 +61,6 @@ public class Milestone1 {
 			// Carry out action and update location.
 			switch (loc){
 			case UNKNOWN:
-				if (first) start = brick.getLocation(); first = false;
 				if (!haveMadeContact){
 					pilot.forward();
 					if (isWhiteRight || isWhiteLeft){
@@ -78,6 +77,8 @@ public class Milestone1 {
 				break;
 			case ON_EDGE:
 				if (first) start = brick.getLocation(); first = false;
+				if (brick.getLocation() == start) { pilot.stop(); }
+				else {
 				if (rightHitFirst){
 						while (isWhiteRight && isWhiteLeft) {
 							pilot.rotateLeft(); 
@@ -105,6 +106,7 @@ public class Milestone1 {
 							pilot.rotateLeft();
 							checkSensors();
 						}
+				}
 				}
 				while (isWhiteRight || isWhiteLeft){
 					checkSensors();
