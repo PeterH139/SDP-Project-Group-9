@@ -43,7 +43,6 @@ public class Milestone1 {
 		pilot.setRotateSpeed(pilot.getMaxRotateSpeed()/20);
 		
 		calibrateValues();
-		Point origin = brick.getLocation();
 		while(!die){
 			// Check Sensor and button inputs
 			checkSensors();
@@ -76,14 +75,16 @@ public class Milestone1 {
 				}
 				break;
 			case ON_EDGE:
-				if (first) start = brick.getLocation(); first = false;
+					
+				if (first){ start = brick.getLocation(); first = false;}
+				LCD.drawString(start.toString(), 0, 3);
 				if (brick.getLocation() == start) { pilot.stop(); }
 				else {
 				if (rightHitFirst){
 						while (isWhiteRight && isWhiteLeft) {
 							pilot.rotateLeft(); 
 							checkSensors();
-							}
+						}
 						while (isWhiteRight && !isWhiteLeft) {
 							pilot.forward();
 							checkSensors();
@@ -106,14 +107,18 @@ public class Milestone1 {
 							pilot.rotateLeft();
 							checkSensors();
 						}
-				}
+					}
 				}
 				while (isWhiteRight || isWhiteLeft){
 					checkSensors();
 				} 
 				break;
+				
 			case PARALLEL_TO_WALL:
-//				if (first) start = brick.getLocation(); first = false;
+				
+				if (brick.getLocation() == start) { pilot.stop(); }
+				}	
+//				if (first) {start = brick.getLocation(); first = false;}
 //				if (isWhiteRight || isWhiteLeft){
 //					pilot.stop();
 //					loc = Location.ON_EDGE;
@@ -121,14 +126,12 @@ public class Milestone1 {
 //					LCD.drawString("On Edge!", 0, 2);
 //				} 
 			}
-			if (brick.getLocation() == start) {
-				float bearing = brick.relativeBearing(origin);
-				brick.rotateUpdate(bearing);
-				float distance = brick.distanceTo(origin);
-				brick.moveUpdate(distance);
+//			if (brick.getLocation() == start) {
+//				float bearing = brick.relativeBearing(origin);
+//				brick.rotateUpdate(bearing);
+//				float distance = brick.distanceTo(origin);
+//				brick.moveUpdate(distance);
 			}
-		}
-	}
 
 	private static void checkSensors() {
 		int rightReading = lsRight.readValue();
