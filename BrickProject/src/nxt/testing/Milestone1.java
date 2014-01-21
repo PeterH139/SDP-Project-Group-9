@@ -11,7 +11,6 @@ import lejos.robotics.navigation.DifferentialPilot;
 import lejos.robotics.navigation.Pose;
 import lejos.geom.*;
  
-
 public class Milestone1 {
 	
 	private static Pose brick = new Pose();
@@ -53,6 +52,7 @@ public class Milestone1 {
 				loc = Location.UNKNOWN;
 				LCD.clear();
 				LCD.drawString("I'm Lost! :(", 0, 2);
+				haveMadeContact = false;
 			} else if (Button.ESCAPE.isDown()){
 				die = true;
 			}
@@ -71,8 +71,6 @@ public class Milestone1 {
 				} else {
 					if (isWhiteRight && isWhiteLeft){
 						loc = Location.ON_EDGE;
-						LCD.clear();
-						LCD.drawString("On Edge!", 0, 2);
 					}
 				}
 				break;
@@ -88,16 +86,12 @@ public class Milestone1 {
 				} 
 				pilot.forward();
 				loc = Location.PARALLEL_TO_WALL;
-				LCD.clear();
-				LCD.drawString("Paralell to wall!", 0, 2);
 				break;
 			case PARALLEL_TO_WALL:
 				if (first) start = brick.getLocation(); first = false;
 				if (isWhiteRight || isWhiteLeft){
 					pilot.stop();
 					loc = Location.ON_EDGE;
-					LCD.clear();
-					LCD.drawString("On Edge!", 0, 2);
 				} 
 			}
 			if (brick.getLocation() == start) {
