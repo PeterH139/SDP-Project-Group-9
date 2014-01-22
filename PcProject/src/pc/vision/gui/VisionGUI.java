@@ -468,6 +468,11 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 		}
 	}
 
+	public void sendWorldState(){
+		Graphics videoGraphics = videoDisplay.getGraphics();
+		videoGraphics.drawImage(frame, 0, 0, null);
+	}
+	
 //	@Override
 //	public void sendWorldState(WorldState worldState) {
 //		DecimalFormat df = new DecimalFormat();

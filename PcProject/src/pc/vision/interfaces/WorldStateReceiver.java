@@ -8,5 +8,8 @@ package pc.vision.interfaces;
  * @author Alex Adams (s1046358)
  */
 public interface WorldStateReceiver {
+
+	public void sendWorldState();
+	
 	//public void sendWorldState(WorldState worldState);
 }
