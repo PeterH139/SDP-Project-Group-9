@@ -44,7 +44,6 @@ import au.edu.jcu.v4l4j.V4L4JConstants;
 @SuppressWarnings("serial")
 public class ControlGUI2 extends JFrame {
 	// GUI elements
-
 	private final JPanel startStopQuitPanel = new JPanel();
 	private final JPanel optionsPanel = new JPanel();
 	private final JPanel simpleMovePanel = new JPanel();

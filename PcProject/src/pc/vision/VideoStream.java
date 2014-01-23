@@ -106,6 +106,9 @@ public class VideoStream {
 		try {
 			videoDev = new VideoDevice(videoDevice);
 			DeviceInfo deviceInfo = videoDev.getDeviceInfo();
+			System.out.println("Device Name: " + deviceInfo.getName());
+			System.out.println("Image Format List: " + deviceInfo.getFormatList().getNativeFormats().toString());
+			System.out.println("" + deviceInfo.getFormatList().getJPEGEncodableFormats());
 
 			if (deviceInfo.getFormatList().getNativeFormats().isEmpty()) {
 				throw new ImageFormatException(
@@ -113,6 +116,8 @@ public class VideoStream {
 			}
 			imageFormat = deviceInfo.getFormatList().getYUVEncodableFormat(0);
 
+
+			System.out.println("JPEG conversion supported: " + videoDev.supportJPEGConversion());
 			frameGrabber = videoDev.getJPEGFrameGrabber(width, height, channel,
 					videoStandard, compressionQuality, imageFormat);
 			frameGrabber.setCaptureCallback(frameGrabberCallback);

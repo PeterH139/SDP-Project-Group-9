@@ -4,7 +4,9 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import pc.vision.Kmeans;
+
+import javax.sound.midi.Receiver;
+
 import pc.vision.interfaces.VideoReceiver;
 import pc.vision.interfaces.VisionDebugReceiver;
 import pc.vision.interfaces.WorldStateReceiver;
@@ -389,6 +391,8 @@ public class Vision implements VideoReceiver {
 			receiver.sendDebugOverlay(debugOverlay);
 		//for (WorldStateReceiver receiver : worldStateReceivers)
 			//receiver.sendWorldState(worldState);
+		for (WorldStateReceiver reciever : worldStateReceivers)
+			reciever.sendWorldState();
 	}
 
 	/**
