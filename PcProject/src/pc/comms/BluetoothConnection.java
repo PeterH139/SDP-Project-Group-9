@@ -59,7 +59,7 @@ public class BluetoothConnection {
                 os = nxtComm.getOutputStream();
 
                 while (true) {
-                        byte[] res = receiveFromRobot();
+                        int[] res = receiveFromRobot();
                         boolean equals = true;
                         for (int i = 0; i < 4; i++) { // wait for ready signal
                                 if (res[i] != ROBOT_READY_CODE[i]) {
@@ -95,19 +95,26 @@ public class BluetoothConnection {
         }
     }
     
-    public byte[] receiveFromRobot() throws IOException {
+    public int[] receiveFromRobot() throws IOException {
         byte[] res = new byte[4];
         is.read(res);
-        return res;
+        int[] ret = { (int) (res[0]), (int) (res[1]), (int) (res[2]),
+                (int) (res[3]) };
+        return ret;
     }
     
     public static void main(String[] args){
     	BluetoothConnection con = new BluetoothConnection(
     			BtInfo.DEVICE_1_NAME, BtInfo.DEVICE_1_MAC);
     	try {
-			con.open();
+			con.open(); 
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
     }
+    
+    public boolean isMoving() {
+        // TODO Auto-generated method stub
+        return false;
+}
 }
