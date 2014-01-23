@@ -23,8 +23,8 @@ public class Milestone1 {
 	}
 	
 	static final int TYRE_DIAMETER = 56;
-	static final int TRACK_WIDTH = 120;
-	static final int TRAVEL_SPEED = 100;
+	static final int TRACK_WIDTH = 116;
+	static final int TRAVEL_SPEED = 90;
 	static NXTRegulatedMotor leftMotor = Motor.B;
 	static NXTRegulatedMotor rightMotor = Motor.A;
 	static DifferentialPilot pilot = new DifferentialPilot(TYRE_DIAMETER, TRACK_WIDTH, leftMotor, rightMotor);
@@ -36,15 +36,16 @@ public class Milestone1 {
 	static boolean die = false;
 	static int lowLightValue, highLightValue;
 	static boolean isWhiteRight, isWhiteLeft, haveMadeContact, rightHitFirst, leftHome;
-	static Move forwardMove = new Move(MoveType.TRAVEL, 200, 0, true);
-	static Move turnLeftMove = new Move(MoveType.ROTATE, 0, 120, true);
-	static Move turnRightMove = new Move(MoveType.ROTATE, 0, -120, true);
+	static Move forwardMove = new Move(MoveType.TRAVEL, 1000, 0, true);
+	static Move turnLeftMove = new Move(MoveType.ROTATE, 0, 90, true);
+	static Move turnRightMove = new Move(MoveType.ROTATE, 0, -90, true);
 	
 	
 	public static void main(String[] args) {
 		pilot.setTravelSpeed(TRAVEL_SPEED);
-		pilot.setRotateSpeed(pilot.getMaxRotateSpeed()/40);
+		pilot.setRotateSpeed(pilot.getMaxRotateSpeed()/35  );
 		leftHome = false;
+		boolean firstRound = false;
 		calibrateValues();
 		while(!die){
 			// Check Sensor and button inputs
@@ -63,7 +64,10 @@ public class Milestone1 {
 			LCD.clear();
 			LCD.drawString(pos.getPose().getX() + " " + pos.getPose().getY() , 0, 3);
 			LCD.drawString(start.getX() + " " + start.getY() , 0, 4);
+			LCD.drawString("firstRound: " + firstRound, 0, 5);
+			LCD.drawString("leftHome: " + leftHome, 0, 6);
 			
+			boolean xCheck = (pos.getPose().getX() <= start.getX() + 5) && (pos.getPose().getX() >= start.getX() -5);
 			// Determine appropriate action, based upon location and sensor inputs.
 			// Carry out action and update location.
 			switch (loc){
@@ -79,35 +83,33 @@ public class Milestone1 {
 				
 				break;
 			case ON_EDGE:
-				boolean xCheck = (pos.getPose().getX() <= start.getX() + 20) && (pos.getPose().getX() >= start.getX() -20);
-				boolean yCheck = (pos.getPose().getY() <= start.getY() + 20) && (pos.getPose().getY() >= start.getY() -20);
-				if (xCheck && yCheck && leftHome) { loc=Location.FINISHED; }
+				
+				if (xCheck && firstRound && leftHome) { loc=Location.FINISHED; }
 				  else {
 					if (rightHitFirst){
 						pilot.rotate(120, true);
-						pos.moveStarted(turnLeftMove, pilot);
 					} else {
-						pilot.rotate(120, true);
-						pos.moveStarted(turnRightMove, pilot);
+						pilot.rotate(-120, true);
 					}
 					while (isWhiteRight || isWhiteLeft){
 						checkSensors();
 					} 
 					if (first){ start = pos.getPose(); first = false;}
 					pilot.forward();
-					pos.moveStarted(forwardMove, pilot);
 					loc = Location.PARALLEL_TO_WALL;
 				}
 				break;
 				
 			case PARALLEL_TO_WALL:
-				xCheck = (pos.getPose().getX() <= start.getX() + 20) && (pos.getPose().getX() >= start.getX() -20);
-				yCheck = (pos.getPose().getY() <= start.getY() + 20) && (pos.getPose().getY() >= start.getY() -20);
-				if (xCheck && yCheck && leftHome) { 
+				if (xCheck && firstRound && leftHome) { 
 					loc = Location.FINISHED; 
 				}
-				if (pos.getPose().getX() >= (start.getX() + 100)) {
+				if ((pos.getPose().getX() >= (start.getX() + 100) || (pos.getPose().getX() <= start.getX() - 100))) {
 					leftHome = true;
+				}
+				if (xCheck && leftHome) {
+					firstRound = true;
+					leftHome = false;
 				}
 				if (isWhiteRight || isWhiteLeft){
 					loc = Location.ON_EDGE;
