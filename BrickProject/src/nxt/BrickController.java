@@ -25,6 +25,7 @@ public class BrickController {
 	
 	private final static int DO_NOTHING = 0;
     private final static int FORWARDS = 1;
+    private final static int STOP = 2;
     private final static int QUIT = 5;
     private final static int FORCEQUIT = 55;
 	
@@ -67,9 +68,16 @@ public class BrickController {
                         pilot.forward();
                         replytopc(opcode, os);
                         break;
-
+                case STOP:
+                		LCD.clear();
+                		LCD.drawString("Stop", 0, 2);
+                		LCD.refresh();
+                		pilot.stop();
+                		replytopc(opcode, os);
+                		break;
                 case QUIT: // Exit the loop, close connection
                         // Sound.twoBeeps();
+                		
                         break;
 
                 case FORCEQUIT:
@@ -86,6 +94,7 @@ public class BrickController {
             LCD.clear();
             LCD.drawString("Closing", 0, 2);
             LCD.refresh();
+            connection.close();
             Sound.playTone(1500, 400, 100);
             LCD.clear();
             Thread.sleep(200);
@@ -104,7 +113,7 @@ public class BrickController {
 	private static NXTConnection initializeBluetooth() throws IOException {
 		LCD.clear();
         LCD.drawString("Waiting for", 0, 2);
-        LCD.drawString("Bluetooth...", 0, 3);
+        LCD.drawString("Bluetooth..", 0, 3);
         NXTConnection connection = Bluetooth.waitForConnection();
         is = connection.openInputStream();
         os = connection.openOutputStream();

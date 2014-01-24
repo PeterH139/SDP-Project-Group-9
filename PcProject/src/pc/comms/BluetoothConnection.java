@@ -118,8 +118,8 @@ public class BluetoothConnection {
     	BufferedReader stdin = new BufferedReader( 
                 new InputStreamReader(System.in)); 
     	System.out.print("Enter first integer: "); 
-        int x = Integer.parseInt(stdin.readLine());
-       
+        int[] input = new int[4];
+        int x = 0;
     	BluetoothConnection con = new BluetoothConnection(
     			BtInfo.DEVICE_1_NAME, BtInfo.DEVICE_1_MAC);
     	try {
@@ -130,13 +130,25 @@ public class BluetoothConnection {
 		}
     	boolean die = false;
 		while(!die) {
+		System.out.println("Enter an integer: ");
 		x = Integer.parseInt(stdin.readLine());
-		int[] input = {x, 0, 0, 0};
-    	if (x == 1){
-    	con.sendToRobotSimple(input); } 
-    	else if (x == 5) {
+		input[0] = x;
+		input[1] = 0;
+		input[2] = 0;
+		input[3] = 0;
+    	con.sendToRobotSimple(input); 
+    	int [] receive_info = new int [4];
+    	try {
+             receive_info = con.receiveFromRobot();
+     } catch (IOException e) {
+             e.printStackTrace();
+     }
+    	System.out.println("Received from robot: " + receive_info[0] + " " + receive_info[1] + " " + receive_info[2] + " " + receive_info[3]);
+    	if (x == 5) {
     		die = true;}
-    	}
+		}
+
+    	
     }
     
     public boolean isMoving() {
