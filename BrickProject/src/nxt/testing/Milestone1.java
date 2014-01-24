@@ -36,9 +36,7 @@ public class Milestone1 {
 	static boolean die = false;
 	static int lowLightValue, highLightValue;
 	static boolean isWhiteRight, isWhiteLeft, haveMadeContact, rightHitFirst, leftHome;
-	static Move forwardMove = new Move(MoveType.TRAVEL, 1000, 0, true);
-	static Move turnLeftMove = new Move(MoveType.ROTATE, 0, 90, true);
-	static Move turnRightMove = new Move(MoveType.ROTATE, 0, -90, true);
+
 	
 	
 	public static void main(String[] args) {
