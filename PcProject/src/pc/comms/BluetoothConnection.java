@@ -1,7 +1,9 @@
 package pc.comms;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 
 import lejos.pc.comm.NXTComm;
@@ -102,15 +104,39 @@ public class BluetoothConnection {
                 (int) (res[3]) };
         return ret;
     }
+    public void sendToRobotSimple(int[] comm) throws IOException {
+        if (!connected)
+                return;
+        byte[] command = { (byte) comm[0], (byte) comm[1], (byte) comm[2],
+                        (byte) comm[3] };
+
+        os.write(command);
+        os.flush();
+}
     
-    public static void main(String[] args){
+    public static void main(String[] args) throws IOException{
+    	BufferedReader stdin = new BufferedReader( 
+                new InputStreamReader(System.in)); 
+    	System.out.print("Enter first integer: "); 
+        int x = Integer.parseInt(stdin.readLine());
+       
     	BluetoothConnection con = new BluetoothConnection(
     			BtInfo.DEVICE_1_NAME, BtInfo.DEVICE_1_MAC);
     	try {
 			con.open(); 
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+    	boolean die = false;
+		while(!die) {
+		x = Integer.parseInt(stdin.readLine());
+		int[] input = {x, 0, 0, 0};
+    	if (x == 1){
+    	con.sendToRobotSimple(input); } 
+    	else if (x == 5) {
+    		die = true;}
+    	}
     }
     
     public boolean isMoving() {
