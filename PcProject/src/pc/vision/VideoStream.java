@@ -118,8 +118,8 @@ public class VideoStream {
 
 
 			System.out.println("JPEG conversion supported: " + videoDev.supportJPEGConversion());
-			frameGrabber = videoDev.getJPEGFrameGrabber(width, height, channel,
-					videoStandard, compressionQuality, imageFormat);
+			frameGrabber = videoDev.getRGBFrameGrabber(width, height, channel,
+					videoStandard, imageFormat);
 			frameGrabber.setCaptureCallback(frameGrabberCallback);
 			frameGrabber.startCapture();
 

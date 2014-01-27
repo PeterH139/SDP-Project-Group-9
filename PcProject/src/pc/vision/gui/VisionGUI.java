@@ -469,6 +469,9 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 	}
 
 	public void sendWorldState(){
+		Graphics frameGraphics = frame.getGraphics();
+		frameGraphics.drawImage(debugOverlay, 0, 0, null);
+		
 		Graphics videoGraphics = videoDisplay.getGraphics();
 		videoGraphics.drawImage(frame, 0, 0, null);
 	}

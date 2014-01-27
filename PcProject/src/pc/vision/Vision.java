@@ -319,6 +319,7 @@ public class Vision implements VideoReceiver {
 				//ball.fixValues(worldState.getBallX(), worldState.getBallY());
 				ball.filterPoints(ballPoints);
 			} else {
+				ball = new Position(ballX, ballY);
 //				int ballrobot = worldState.whoHasTheBall();
 //				switch (ballrobot) {
 //				case 1: // Blue robot has the ball
