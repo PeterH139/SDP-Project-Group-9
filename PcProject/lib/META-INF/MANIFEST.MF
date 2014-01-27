@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Archiver-Version: Plexus Archiver
+Created-By: Apache Maven
+Built-By: cruisecontrol
+Build-Jdk: 1.6.0_18
+Description: BlueCove JSR-82 implementation, BlueZ Linux module
+Implementation-Build: 2.1.1-SNAPSHOT.62
+Implementation-Version: 2.1.1-SNAPSHOT
+License: GNU General Public License (GPL)
+

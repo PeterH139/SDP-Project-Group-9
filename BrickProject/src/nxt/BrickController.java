@@ -4,28 +4,23 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import nxt.brick.Movement;
+
 import lejos.nxt.Button;
 import lejos.nxt.LCD;
-import lejos.nxt.Motor;
-import lejos.nxt.NXTRegulatedMotor;
 import lejos.nxt.Sound;
 import lejos.nxt.comm.Bluetooth;
 import lejos.nxt.comm.NXTConnection;
-import lejos.robotics.navigation.DifferentialPilot;
 
 public class BrickController {
 	
 	private static boolean die = false;
-	static final int TYRE_DIAMETER = 56;
-	static final int TRACK_WIDTH = 116;
-	static final int TRAVEL_SPEED = 90;
-	static NXTRegulatedMotor leftMotor = Motor.B;
-	static NXTRegulatedMotor rightMotor = Motor.A;
-	static DifferentialPilot pilot = new DifferentialPilot(TYRE_DIAMETER, TRACK_WIDTH, leftMotor, rightMotor);
+	static Movement pilot = new Movement();
 	
 	private final static int DO_NOTHING = 0;
     private final static int FORWARDS = 1;
     private final static int STOP = 2;
+    private final static int KICK = 3;
     private final static int QUIT = 5;
     private final static int FORCEQUIT = 55;
 	
@@ -73,6 +68,12 @@ public class BrickController {
                 		LCD.drawString("Stop", 0, 2);
                 		LCD.refresh();
                 		pilot.stop();
+                		replytopc(opcode, os);
+                		break;
+                case KICK:
+                		LCD.clear();
+                		LCD.drawString("Kick", 0, 2);
+                		LCD.refresh();
                 		replytopc(opcode, os);
                 		break;
                 case QUIT: // Exit the loop, close connection
