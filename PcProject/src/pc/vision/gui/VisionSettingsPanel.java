@@ -41,7 +41,7 @@ class VisionSettingsPanel extends JPanel {
 	public static final int MOUSE_MODE_BLUE_T = 2;
 	public static final int MOUSE_MODE_YELLOW_T = 3;
 	public static final int MOUSE_MODE_GREEN_PLATES = 4;
-	public static final int MOUSE_MODE_GREY_CIRCLES = 5;
+	public static final int MOUSE_MODE_DIVISIONS = 5;
 	public static final int MOUSE_MODE_TARGET = 6;
 
 	// A PitchConstants class used to load/save constants for the pitch
@@ -157,7 +157,7 @@ class VisionSettingsPanel extends JPanel {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// Update which direction the other team's goal is in
-			int isLeft = rdbtnLeft.isSelected() ? 1 : 0;
+			//int isLeft = rdbtnLeft.isSelected() ? 1 : 0;
 			//worldState.setDirection(isLeft);
 			//worldState.setWeAreOnLeft(rdbtnLeft.isSelected());
 		}
@@ -651,7 +651,7 @@ class VisionSettingsPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				if (rdbtnMouseModeGreyCircles.isSelected())
-					setMouseMode(MOUSE_MODE_GREY_CIRCLES);
+					setMouseMode(MOUSE_MODE_DIVISIONS);
 			}
 		});
 
@@ -660,7 +660,7 @@ class VisionSettingsPanel extends JPanel {
 		gbc_mouseModeGreyCirclesLabel.insets = new Insets(0, 0, 5, 5);
 		gbc_mouseModeGreyCirclesLabel.gridx = 1;
 		gbc_mouseModeGreyCirclesLabel.gridy = 6;
-		JLabel mouseModeGreyCirclesLabel = new JLabel("Grey Circle Selection");
+		JLabel mouseModeGreyCirclesLabel = new JLabel("Pitch Dividers Selection");
 		mouseModeGreyCirclesLabel.setHorizontalAlignment(SwingConstants.LEFT);
 		mouseModeGreyCirclesLabel.addMouseListener(new MouseAdapter() {
 			@Override

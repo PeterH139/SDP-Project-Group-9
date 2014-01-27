@@ -69,6 +69,21 @@ public class PitchConstants {
 	private int bottomBuffer;
 	private int leftBuffer;
 	private int rightBuffer;
+	
+	// Holds the x values of the pitch divisions. Used when detecting the plates on the board.
+	private int[] dividers = new int[3];
+
+	public int[] getDividers() {
+		return dividers;
+	}
+	public void setDividers(int[] dividers) {
+		if (dividers.length != 3){
+			System.err.println("Dividers array not the right size to set!");
+		} else {
+			this.dividers = dividers;
+		}
+		
+	}
 
 	/**
 	 * Default constructor.
@@ -716,12 +731,16 @@ public class PitchConstants {
 				+ pitchNum);
 	}
 
+	public void saveConstants(int pitchNumber){
+		saveConstants(String.valueOf(pitchNumber));
+	}
+	
 	/**
 	 * Save the constants to a file.
 	 * 
 	 * @param fileName
 	 *            The file to save the constants to
-	 */
+	 */	
 	public void saveConstants(String fileName) {
 		try {
 			// Update the pitch dimensions file
@@ -731,6 +750,9 @@ public class PitchConstants {
 			pitchDimFile.write(String.valueOf(getBottomBuffer()) + "\n");
 			pitchDimFile.write(String.valueOf(getLeftBuffer()) + "\n");
 			pitchDimFile.write(String.valueOf(getRightBuffer()) + "\n");
+			pitchDimFile.write(String.valueOf(dividers[0]) + "\n");
+			pitchDimFile.write(String.valueOf(dividers[1]) + "\n");
+			pitchDimFile.write(String.valueOf(dividers[2]) + "\n");
 			pitchDimFile.close();
 
 			FileWriter pitchFile = new FileWriter(new File("constants/pitch"
@@ -792,6 +814,10 @@ public class PitchConstants {
 			this.bottomBuffer = scannerDim.nextInt();
 			this.leftBuffer = scannerDim.nextInt();
 			this.rightBuffer = scannerDim.nextInt();
+			
+			this.dividers[0] = scannerDim.nextInt();
+			this.dividers[1] = scannerDim.nextInt();
+			this.dividers[2] = scannerDim.nextInt();
 
 			scannerDim.close();
 		} catch (Exception e) {
@@ -848,7 +874,7 @@ public class PitchConstants {
 	public void loadDefaultConstants() {
 		// Iterate over the ball, blue robot, yellow robot, grey circles, and
 		// green plates in the order they're defined above.
-		for (int i = 0; i < 5; ++i) {
+		for (int i = 0; i < NUM_THRESHOLDS; ++i) {
 			this.redLower[i] = RGBMIN;
 			this.redUpper[i] = RGBMAX;
 			this.redInverted[i] = false;
@@ -874,5 +900,9 @@ public class PitchConstants {
 		this.bottomBuffer = 40;
 		this.leftBuffer = 20;
 		this.rightBuffer = 20;
+		
+		this.dividers[0] = 70;
+		this.dividers[1] = 120;
+		this.dividers[2] = 170;
 	}
 }

@@ -50,6 +50,7 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 	private int b;
 	private int c;
 	private int d;
+	private int currentDivider;
 
 	// Stored to only have rendering happen in one place
 	private BufferedImage frame;
@@ -61,7 +62,6 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 	boolean letterAdjustment = false;
 	boolean yellowPlateAdjustment = false;
 	boolean bluePlateAdjustment = false;
-	boolean greyCircleAdjustment = false;
 	boolean targetAdjustment = false;
 	int mouseX;
 	int mouseY;
@@ -202,7 +202,7 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 					mouseX = e.getX();
 					mouseY = e.getY();
 					break;
-				case VisionSettingsPanel.MOUSE_MODE_GREY_CIRCLES:
+				case VisionSettingsPanel.MOUSE_MODE_DIVISIONS:
 					videoDisplay.grabFocus();
 					mouseX = e.getX();
 					mouseY = e.getY();
@@ -241,7 +241,7 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 					mouseX = e.getX();
 					mouseY = e.getY();
 					break;
-				case VisionSettingsPanel.MOUSE_MODE_GREY_CIRCLES:
+				case VisionSettingsPanel.MOUSE_MODE_DIVISIONS:
 					mouseX = e.getX();
 					mouseY = e.getY();
 					break;
@@ -271,45 +271,26 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 						if (pitchNum != 2
 								&& pitchNum != JOptionPane.CLOSED_OPTION) {
 							System.out.println(pitchNum);
-							try {
-								int top = b;
-								int bottom = videoHeight - d - b;
-								int left = a;
-								int right = videoWidth - c - a;
+							int top = b;
+							int bottom = videoHeight - d - b;
+							int left = a;
+							int right = videoWidth - c - a;
 
-								if (top > 0 && bottom > 0 && left > 0
-										&& right > 0) {
-									// Update pitch constants
-									pitchConstants.setTopBuffer(top);
-									pitchConstants.setBottomBuffer(bottom);
-									pitchConstants.setLeftBuffer(left);
-									pitchConstants.setRightBuffer(right);
-
-									// Writing the new dimensions to file
-									FileWriter writer = new FileWriter(
-											new File("constants/pitch"
-													+ pitchNum + "Dimensions"));
-
-									writer.write("" + top + "\n");
-									writer.write("" + bottom + "\n");
-									writer.write("" + left + "\n");
-									writer.write("" + right + "\n");
-
-									writer.close();
-									System.out.println("Wrote pitch const");
-								} else {
-									System.out
-											.println("Pitch selection NOT succesful");
-								}
-								System.out.print("Top: " + top + " Bottom "
-										+ bottom);
-								System.out.println(" Right " + right + " Left "
-										+ left);
-							} catch (IOException e1) {
-								System.out
-										.println("Error writing pitch dimensions to file");
-								e1.printStackTrace();
+							if (top > 0 && bottom > 0 && left > 0
+									&& right > 0) {
+								// Update pitch constants
+								pitchConstants.setTopBuffer(top);
+								pitchConstants.setBottomBuffer(bottom);
+								pitchConstants.setLeftBuffer(left);
+								pitchConstants.setRightBuffer(right);
+								pitchConstants.saveConstants(pitchNum);
+							} else {
+								System.out.println("Pitch selection NOT succesful");
 							}
+							System.out.print("Top: " + top + " Bottom "
+									+ bottom);
+							System.out.println(" Right " + right + " Left "
+									+ left);
 
 							System.out.println("A: " + a + " B: " + b + " C: "
 									+ c + " D:" + d);
@@ -353,14 +334,14 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 						imageCenterY = selectorImage.getHeight(null) / 2;
 					}
 					break;
-				case VisionSettingsPanel.MOUSE_MODE_GREY_CIRCLES:
-					System.out.println("Grey mode");
-					greyCircleAdjustment = true;
-					currentFile = imgGreyCircle;
-					selectorImage = greyCircleSelectorImage;
-					// Get the center coordinates of the selector image in use
-					imageCenterX = selectorImage.getWidth(null) / 2;
-					imageCenterY = selectorImage.getHeight(null) / 2;
+				case VisionSettingsPanel.MOUSE_MODE_DIVISIONS:
+					System.out.println("Division selection mode");
+					int[] ds = pitchConstants.getDividers();
+					ds[currentDivider] = e.getX();
+					currentDivider++;
+					if (currentDivider == 3){
+						currentDivider = 0;
+					}
 					break;
 				case VisionSettingsPanel.MOUSE_MODE_TARGET:
 					System.out.println("target mode");
@@ -407,7 +388,7 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 		boolean mouseModeBlueT = settingsPanel.getMouseMode() == VisionSettingsPanel.MOUSE_MODE_BLUE_T;
 		boolean mouseModeYellowT = settingsPanel.getMouseMode() == VisionSettingsPanel.MOUSE_MODE_YELLOW_T;
 		boolean mouseModeGreenPlates = settingsPanel.getMouseMode() == VisionSettingsPanel.MOUSE_MODE_GREEN_PLATES;
-		boolean mouseModeGreyCircle = settingsPanel.getMouseMode() == VisionSettingsPanel.MOUSE_MODE_GREY_CIRCLES;
+		boolean mouseModeGreyCircle = settingsPanel.getMouseMode() == VisionSettingsPanel.MOUSE_MODE_DIVISIONS;
 		boolean mouseSelectTarget = settingsPanel.getMouseMode() == VisionSettingsPanel.MOUSE_MODE_TARGET; // moo
 		// If the colour selection mode is on (for colour calibration from the
 		// image)
@@ -421,12 +402,25 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 				|| mouseModeGreyCircle) {
 			// Show the colour selector image
 			if (letterAdjustment || yellowPlateAdjustment
-					|| bluePlateAdjustment || greyCircleAdjustment) {
+					|| bluePlateAdjustment) {
 				g2d.drawImage(selectorImage, mouseX, mouseY, null);
 			}
 			// Controlling the selector image
 			rotationControl(settingsPanel.getMouseMode());
 		}
+		
+		// Drawing the dividing lines
+		int[] ds = pitchConstants.getDividers();
+		int top = pitchConstants.getTopBuffer();
+		int bot = videoHeight - pitchConstants.getBottomBuffer();
+		debugGraphics.setColor(Color.WHITE);
+		debugGraphics.drawLine(ds[0], bot, ds[0], top);
+		debugGraphics.drawString("1", ds[0], bot+20);
+		debugGraphics.drawLine(ds[1], bot, ds[1], top);
+		debugGraphics.drawString("2", ds[1], bot+20);
+		debugGraphics.drawLine(ds[2], bot, ds[2], top);
+		debugGraphics.drawString("3", ds[2], bot+20);
+		
 		// Eliminating area around the pitch dimensions
 		if (!selectionActive) {
 			int a = pitchConstants.getLeftBuffer();
@@ -450,6 +444,7 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 			// Setting back normal settings
 			g2d.setComposite(originalComposite);
 		}
+		
 		if (settingsPanel.getMouseMode() == VisionSettingsPanel.MOUSE_MODE_PITCH_BOUNDARY) {
 			// Draw the line around the pitch dimensions
 			if (selectionActive) {
@@ -545,14 +540,13 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 		case (VisionSettingsPanel.MOUSE_MODE_GREEN_PLATES):
 			object = PitchConstants.GREEN;
 			break;
-		case (VisionSettingsPanel.MOUSE_MODE_GREY_CIRCLES):
+		case (VisionSettingsPanel.MOUSE_MODE_DIVISIONS):
 			object = PitchConstants.GREY;
 			break;
 		}
 
 		// Control the selector images using the keyboard
-		if (letterAdjustment || yellowPlateAdjustment || bluePlateAdjustment
-				|| greyCircleAdjustment) {
+		if (letterAdjustment || yellowPlateAdjustment || bluePlateAdjustment) {
 			if (adjust.equals("Up")) {
 				mouseY--;
 			} else if (adjust.equals("Down")) {
@@ -585,11 +579,6 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 					currentFile = imgBluePlate;
 				} else if (bluePlateAdjustment) {
 					bluePlateAdjustment = false;
-					extractedColourSettings = getColourRange(frame, object);
-					setColourRange(extractedColourSettings, object);
-					clearArrayOfLists(extractedColourSettings);
-				} else if (greyCircleAdjustment) {
-					greyCircleAdjustment = false;
 					extractedColourSettings = getColourRange(frame, object);
 					setColourRange(extractedColourSettings, object);
 					clearArrayOfLists(extractedColourSettings);
@@ -653,6 +642,7 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 		return colourSettings;
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public ArrayList<?>[] addColourValues(BufferedImage frame,
 			ArrayList[] colourSettings, int fromX, int toX, int fromY, int toY) {
 		int lx = (int) imageCenterX;
@@ -691,6 +681,7 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void setColourRange(ArrayList[] colourSettings, int object) {
 		/** Mean and Standard deviation calculations for the RGB and HSB values */
 		// RED LIST
