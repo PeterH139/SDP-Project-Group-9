@@ -1,6 +1,8 @@
 package pc.vision.gui;
 
+import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -14,17 +16,15 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
+import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import pc.vision.DistortionFix;
 import pc.vision.PitchConstants;
 import pc.vision.VideoStream;
+import pc.world.WorldState;
 //import world.state.WorldState;
-
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
-import javax.swing.SwingConstants;
 
 /**
  * Creates and maintains the swing-based Control GUI, which provides both
@@ -322,14 +322,14 @@ class VisionSettingsPanel extends JPanel {
 	 * @param pitchConstants
 	 *            A PitchConstants object to allow saving/loading of data.
 	 */
-//	public VisionSettingsPanel(WorldState worldState,
+	public VisionSettingsPanel(WorldState worldState,
+			final PitchConstants pitchConstants, final VideoStream vStream,
+			final DistortionFix distortionFix) {
+//	public VisionSettingsPanel(
 //			final PitchConstants pitchConstants, final VideoStream vStream,
 //			final DistortionFix distortionFix) {
-		public VisionSettingsPanel(
-				final PitchConstants pitchConstants, final VideoStream vStream,
-				final DistortionFix distortionFix) {
 		// Both state objects must not be null.
-		//assert (worldState != null) : "worldState is null";
+		assert (worldState != null) : "worldState is null";
 		assert (pitchConstants != null) : "pitchConstants is null";
 
 		//this.worldState = worldState;

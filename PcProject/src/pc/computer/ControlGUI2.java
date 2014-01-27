@@ -19,6 +19,13 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 
+import pc.vision.DistortionFix;
+import pc.vision.PitchConstants;
+import pc.vision.VideoStream;
+import pc.vision.Vision;
+import pc.vision.gui.VisionGUI;
+import pc.world.WorldState;
+import au.edu.jcu.v4l4j.V4L4JConstants;
 //import movement.RobotMover;
 //import strategy.calculations.GoalInfo;
 //import strategy.planning.DribbleBall5;
@@ -27,14 +34,8 @@ import javax.swing.UIManager;
 //import strategy.planning.Strategy;
 //import strategy.planning.StrategyInterface;
 //import utility.SafeSleep;
-import pc.vision.DistortionFix;
-import pc.vision.PitchConstants;
-import pc.vision.VideoStream;
-import pc.vision.Vision;
-import pc.vision.gui.VisionGUI;
 //import world.state.RobotType;
 //import world.state.WorldState;
-import au.edu.jcu.v4l4j.V4L4JConstants;
 
 //import communication.BluetoothCommunication;
 //import communication.BluetoothRobot;
@@ -114,6 +115,7 @@ public class ControlGUI2 extends JFrame {
 		PitchConstants pitchConstants = new PitchConstants(0);
 		//GoalInfo goalInfo = new GoalInfo(pitchConstants);
 		//WorldState worldState = new WorldState(goalInfo);
+		WorldState worldState = new WorldState();
 
 		// Default values for the main vision window
 		String videoDevice = "/dev/video0";
@@ -129,12 +131,10 @@ public class ControlGUI2 extends JFrame {
 			DistortionFix distortionFix = new DistortionFix(pitchConstants);
 
 			// Create a new Vision object to serve the main vision window
-			//Vision vision = new Vision(worldState, pitchConstants);
-			Vision vision = new Vision(pitchConstants);
+			Vision vision = new Vision(worldState, pitchConstants);
 
 			// Create the Control GUI for threshold setting/etc
-			//VisionGUI gui = new VisionGUI(width, height, worldState, pitchConstants, vStream, distortionFix);
-			VisionGUI gui = new VisionGUI(width, height, pitchConstants, vStream, distortionFix);
+			VisionGUI gui = new VisionGUI(width, height, worldState, pitchConstants, vStream, distortionFix);
 
 			vStream.addReceiver(distortionFix);
 			distortionFix.addReceiver(gui);

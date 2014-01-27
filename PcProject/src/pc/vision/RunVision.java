@@ -2,10 +2,11 @@ package pc.vision;
 
 import javax.swing.UIManager;
 
-//import strategy.calculations.GoalInfo;
 import pc.vision.gui.VisionGUI;
-//import world.state.WorldState;
+import pc.world.WorldState;
 import au.edu.jcu.v4l4j.V4L4JConstants;
+//import strategy.calculations.GoalInfo;
+//import world.state.WorldState;
 
 /**
  * The main class used to run the vision system. Creates the control GUI, and
@@ -30,7 +31,8 @@ public class RunVision {
 		// Default to main pitch
 		PitchConstants pitchConstants = new PitchConstants(0);
 		//GoalInfo goalInfo = new GoalInfo(pitchConstants);
-		//WorldState worldState = new WorldState(goalInfo);
+//		WorldState worldState = new WorldState(goalInfo);
+		WorldState worldState = new WorldState();
 
 		// Default values for the main vision window
 		String videoDevice = "/dev/video0";
@@ -47,13 +49,10 @@ public class RunVision {
 			DistortionFix distortionFix = new DistortionFix(pitchConstants);
 
 			// Create a new Vision object to serve the main vision window
-			//Vision vision = new Vision(worldState, pitchConstants);
-			Vision vision = new Vision(pitchConstants);
+			Vision vision = new Vision(worldState, pitchConstants);
 
 			// Create the Control GUI for threshold setting/etc
-//			VisionGUI gui = new VisionGUI(width, height, worldState,
-//					pitchConstants, vStream, distortionFix);
-			VisionGUI gui = new VisionGUI(width, height,
+			VisionGUI gui = new VisionGUI(width, height, worldState,
 					pitchConstants, vStream, distortionFix);
 
 			vStream.addReceiver(distortionFix);

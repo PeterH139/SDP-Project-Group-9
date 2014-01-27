@@ -1,5 +1,7 @@
 package pc.vision.interfaces;
 
+import pc.world.WorldState;
+
 //import world.state.WorldState;
 
 /**
@@ -9,7 +11,5 @@ package pc.vision.interfaces;
  */
 public interface WorldStateReceiver {
 
-	public void sendWorldState();
-	
-	//public void sendWorldState(WorldState worldState);
+	public void sendWorldState(WorldState worldState);
 }

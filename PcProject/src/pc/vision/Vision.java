@@ -5,11 +5,10 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
-import javax.sound.midi.Receiver;
-
 import pc.vision.interfaces.VideoReceiver;
 import pc.vision.interfaces.VisionDebugReceiver;
 import pc.vision.interfaces.WorldStateReceiver;
+import pc.world.WorldState;
 //import world.state.WorldState;
 
 /**
@@ -21,7 +20,7 @@ public class Vision implements VideoReceiver {
 
 	// Variables used in processing video
 	private final PitchConstants pitchConstants;
-	//private final WorldState worldState;
+	private final WorldState worldState;
 	private ArrayList<VisionDebugReceiver> visionDebugReceivers = new ArrayList<VisionDebugReceiver>();
 	private ArrayList<WorldStateReceiver> worldStateReceivers = new ArrayList<WorldStateReceiver>();
 
@@ -42,19 +41,18 @@ public class Vision implements VideoReceiver {
 	 * @param pitchConstants
 	 * 
 	 */
-	//public Vision(WorldState worldState, PitchConstants pitchConstants) {
-	public Vision(PitchConstants pitchConstants) {
+	public Vision(WorldState worldState, PitchConstants pitchConstants) {
 		// Set the state fields.
-		//this.worldState = worldState;
+		this.worldState = worldState;
 		this.pitchConstants = pitchConstants;
 	}
 
 	/**
 	 * @return The current world state
 	 */
-//	public WorldState getWorldState() {
-//		return worldState;
-//	}
+	public WorldState getWorldState() {
+		return worldState;
+	}
 
 	/**
 	 * Registers an object to receive the debug overlay from the vision system
@@ -347,16 +345,16 @@ public class Vision implements VideoReceiver {
 
 			/** Worldstate settings */
 			// TODO: Sort out all of the world state settings.
-//			worldState.setBallX(ball.getX());
-//			worldState.setBallY(ball.getY());
-//			worldState.setGreenX(green.getX());
-//			worldState.setGreenY(green.getY());
-//			worldState.setBlueX(blue.getX());
-//			worldState.setBlueY(blue.getY());
-//			worldState.setYellowX(yellow.getX());
-//			worldState.setYellowY(yellow.getY());
-//			worldState.setBlueOrientation(blueAngle);
-//			worldState.setYellowOrientation(yellowAngle);
+			worldState.setBallX(ball.getX());
+			worldState.setBallY(ball.getY());
+			worldState.setGreenX(green.getX());
+			worldState.setGreenY(green.getY());
+			worldState.setBlueX(blue.getX());
+			worldState.setBlueY(blue.getY());
+			worldState.setYellowX(yellow.getX());
+			worldState.setYellowY(yellow.getY());
+			worldState.setBlueOrientation(blueAngle);
+			worldState.setYellowOrientation(yellowAngle);
 //			worldState.update();
 //
 //			worldState.setOurRobot();
@@ -390,10 +388,9 @@ public class Vision implements VideoReceiver {
 
 		for (VisionDebugReceiver receiver : visionDebugReceivers)
 			receiver.sendDebugOverlay(debugOverlay);
-		//for (WorldStateReceiver receiver : worldStateReceivers)
-			//receiver.sendWorldState(worldState);
-		for (WorldStateReceiver reciever : worldStateReceivers)
-			reciever.sendWorldState();
+		for (WorldStateReceiver receiver : worldStateReceivers)
+			receiver.sendWorldState(worldState);
+
 	}
 
 	/**

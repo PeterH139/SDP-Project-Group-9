@@ -29,16 +29,13 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.event.MouseInputAdapter;
 
-import pc.computer.ControlGUI2;
-
 import pc.vision.DistortionFix;
 import pc.vision.PitchConstants;
-import pc.vision.Position;
 import pc.vision.VideoStream;
 import pc.vision.interfaces.VideoReceiver;
 import pc.vision.interfaces.VisionDebugReceiver;
 import pc.vision.interfaces.WorldStateReceiver;
-//import world.state.WorldState;
+import pc.world.WorldState;
 
 @SuppressWarnings("serial")
 public class VisionGUI extends JFrame implements VideoReceiver,
@@ -98,12 +95,12 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 		}
 	};
 
+	public VisionGUI(final int videoWidth, final int videoHeight,
+			WorldState worldState, final PitchConstants pitchConsts,
+			final VideoStream vStream, final DistortionFix distortionFix) {
 //	public VisionGUI(final int videoWidth, final int videoHeight,
-//			WorldState worldState, final PitchConstants pitchConsts,
+//								   final PitchConstants pitchConsts,
 //			final VideoStream vStream, final DistortionFix distortionFix) {
-		public VisionGUI(final int videoWidth, final int videoHeight,
-				final PitchConstants pitchConsts,
-				final VideoStream vStream, final DistortionFix distortionFix) {
 
 		super("Vision");
 		this.videoWidth = videoWidth;
@@ -141,9 +138,7 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 		this.videoDisplay.setSize(videoSize);
 		contentPane.add(videoDisplay);
 
-//		this.settingsPanel = new VisionSettingsPanel(worldState,
-//				pitchConstants, vStream, distortionFix);
-		this.settingsPanel = new VisionSettingsPanel(
+		this.settingsPanel = new VisionSettingsPanel(worldState,
 				pitchConstants, vStream, distortionFix);
 
 		settingsPanel.setLocation(videoSize.width, 0);
@@ -468,85 +463,85 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 		}
 	}
 
-	public void sendWorldState(){
-		Graphics frameGraphics = frame.getGraphics();
-		frameGraphics.drawImage(debugOverlay, 0, 0, null);
-		
-		Graphics videoGraphics = videoDisplay.getGraphics();
-		videoGraphics.drawImage(frame, 0, 0, null);
-	}
-	
-//	@Override
-//	public void sendWorldState(WorldState worldState) {
-//		DecimalFormat df = new DecimalFormat();
-//		df.setMaximumFractionDigits(2);
+//	public void sendWorldState(){
 //		Graphics frameGraphics = frame.getGraphics();
-//
-//		// Draw overlay on top of raw frame
 //		frameGraphics.drawImage(debugOverlay, 0, 0, null);
-//
-//		// Draw frame info and worldstate on top of the result
-//		// Display the FPS that the vision system is running at
-//		frameGraphics.setColor(Color.white);
-//		frameGraphics.drawString("Frame: " + frameCounter, 15, 15);
-//		frameGraphics.drawString("FPS: " + fps, 15, 30);
-//
-//		// Display Ball & Robot Positions
-//		frameGraphics.drawString("Ball:", 15, 45);
-//		frameGraphics.drawString("(" + worldState.getBallX() + ", "
-//				+ worldState.getBallY() + ")", 60, 45);
-//		frameGraphics.drawString(
-//				"vel: (" + df.format(worldState.getBallXVelocity()) + ", "
-//						+ df.format(worldState.getBallYVelocity()) + ")", 140,
-//				45);
-//
-//		frameGraphics.drawString("Blue:", 15, 60);
-//		frameGraphics.drawString("(" + worldState.getBlueX() + ", "
-//				+ worldState.getBlueY() + ")", 60, 60);
-//		frameGraphics.drawString(
-//				"vel: (" + df.format(worldState.getBlueXVelocity()) + ", "
-//						+ df.format(worldState.getBlueYVelocity()) + ")", 140,
-//				60);
-//		frameGraphics.drawString(
-//				"angle: "
-//						+ df.format(Math.toDegrees(worldState
-//								.getBlueOrientation())), 260, 60);
-//
-//		frameGraphics.drawString("Yellow:", 15, 75);
-//		frameGraphics.drawString("(" + worldState.getYellowX() + ", "
-//				+ worldState.getYellowY() + ")", 60, 75);
-//		frameGraphics.drawString(
-//				"vel: (" + df.format(worldState.getYellowXVelocity()) + ", "
-//						+ df.format(worldState.getYellowYVelocity()) + ")",
-//				140, 75);
-//		frameGraphics.drawString(
-//				"angle: "
-//						+ df.format(Math.toDegrees(worldState
-//								.getYellowOrientation())), 260, 75);
-//
-//		// Mark goals:
+//		
+//		Graphics videoGraphics = videoDisplay.getGraphics();
+//		videoGraphics.drawImage(frame, 0, 0, null);
+//	}
+	
+	@Override
+	public void sendWorldState(WorldState worldState) {
+		DecimalFormat df = new DecimalFormat();
+		df.setMaximumFractionDigits(2);
+		Graphics frameGraphics = frame.getGraphics();
+
+		// Draw overlay on top of raw frame
+		frameGraphics.drawImage(debugOverlay, 0, 0, null);
+
+		// Draw frame info and worldstate on top of the result
+		// Display the FPS that the vision system is running at
+		frameGraphics.setColor(Color.white);
+		frameGraphics.drawString("Frame: " + frameCounter, 15, 15);
+		frameGraphics.drawString("FPS: " + fps, 15, 30);
+
+		// Display Ball & Robot Positions
+		frameGraphics.drawString("Ball:", 15, 45);
+		frameGraphics.drawString("(" + worldState.getBallX() + ", "
+				+ worldState.getBallY() + ")", 60, 45);
+		frameGraphics.drawString(
+				"vel: (" + df.format(worldState.getBallXVelocity()) + ", "
+						+ df.format(worldState.getBallYVelocity()) + ")", 140,
+				45);
+
+		frameGraphics.drawString("Blue:", 15, 60);
+		frameGraphics.drawString("(" + worldState.getBlueX() + ", "
+				+ worldState.getBlueY() + ")", 60, 60);
+		frameGraphics.drawString(
+				"vel: (" + df.format(worldState.getBlueXVelocity()) + ", "
+						+ df.format(worldState.getBlueYVelocity()) + ")", 140,
+				60);
+		frameGraphics.drawString(
+				"angle: "
+						+ df.format(Math.toDegrees(worldState
+								.getBlueOrientation())), 260, 60);
+
+		frameGraphics.drawString("Yellow:", 15, 75);
+		frameGraphics.drawString("(" + worldState.getYellowX() + ", "
+				+ worldState.getYellowY() + ")", 60, 75);
+		frameGraphics.drawString(
+				"vel: (" + df.format(worldState.getYellowXVelocity()) + ", "
+						+ df.format(worldState.getYellowYVelocity()) + ")",
+				140, 75);
+		frameGraphics.drawString(
+				"angle: "
+						+ df.format(Math.toDegrees(worldState
+								.getYellowOrientation())), 260, 75);
+
+		// Mark goals:
 //		Position leftGoal = worldState.goalInfo.getLeftGoalCenter();
 //		Position rightGoal = worldState.goalInfo.getRightGoalCenter();
-//
+
 //		frameGraphics.setColor(Color.yellow);
 //		frameGraphics.drawOval(leftGoal.getX() - 2, leftGoal.getY() - 2, 4, 4);
 //		frameGraphics
 //				.drawOval(rightGoal.getX() - 2, rightGoal.getY() - 2, 4, 4);
-//
+
 //		Position leftGoalTop = worldState.goalInfo.getLeftGoalTop();
 //		Position leftGoalBottom = worldState.goalInfo.getLeftGoalBottom();
 //		frameGraphics.drawLine(leftGoalTop.getX(), leftGoalTop.getY(),
 //				leftGoalBottom.getX(), leftGoalBottom.getY());
-//
+
 //		Position rightGoalTop = worldState.goalInfo.getRightGoalTop();
 //		Position rightGoalBottom = worldState.goalInfo.getRightGoalBottom();
 //		frameGraphics.drawLine(rightGoalTop.getX(), rightGoalTop.getY(),
 //				rightGoalBottom.getX(), rightGoalBottom.getY());
-//
-//		// Draw overall composite to screen
-//		Graphics videoGraphics = videoDisplay.getGraphics();
-//		videoGraphics.drawImage(frame, 0, 0, null);
-//	}
+
+		// Draw overall composite to screen
+		Graphics videoGraphics = videoDisplay.getGraphics();
+		videoGraphics.drawImage(frame, 0, 0, null);
+	}
 
 	public void rotationControl(int mouseMode) {
 
