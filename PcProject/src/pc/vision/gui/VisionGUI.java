@@ -98,9 +98,6 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 	public VisionGUI(final int videoWidth, final int videoHeight,
 			WorldState worldState, final PitchConstants pitchConsts,
 			final VideoStream vStream, final DistortionFix distortionFix) {
-//	public VisionGUI(final int videoWidth, final int videoHeight,
-//								   final PitchConstants pitchConsts,
-//			final VideoStream vStream, final DistortionFix distortionFix) {
 
 		super("Vision");
 		this.videoWidth = videoWidth;
@@ -216,7 +213,6 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 					//WorldState.targetY = e.getY();
 					break;
 				}
-
 			}
 
 			public void mouseDragged(MouseEvent e) {
@@ -462,14 +458,6 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 			}
 		}
 	}
-
-//	public void sendWorldState(){
-//		Graphics frameGraphics = frame.getGraphics();
-//		frameGraphics.drawImage(debugOverlay, 0, 0, null);
-//		
-//		Graphics videoGraphics = videoDisplay.getGraphics();
-//		videoGraphics.drawImage(frame, 0, 0, null);
-//	}
 	
 	@Override
 	public void sendWorldState(WorldState worldState) {
@@ -584,7 +572,6 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 				rotation += 10;
 				rotateSelectorImage(Math.toRadians((double) rotation));
 			} else if (adjust.equals("Enter")) {
-
 				if (letterAdjustment) {
 					letterAdjustment = false;
 					extractedColourSettings = getColourRange(frame, object);
@@ -607,7 +594,6 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 					setColourRange(extractedColourSettings, object);
 					clearArrayOfLists(extractedColourSettings);
 				}
-
 			}
 			adjust = "";
 		}

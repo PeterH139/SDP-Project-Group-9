@@ -216,7 +216,7 @@ public class Vision implements VideoReceiver {
 		 * Position objects to hold the centre point of the ball, both Ts and
 		 */
 
-		Position ball = null;
+		Position ball;
 		Position green;
 		Position blue;
 		Position yellow;
@@ -227,11 +227,11 @@ public class Vision implements VideoReceiver {
 			yellowY /= numYellowPos;
 
 			yellow = new Position(yellowX, yellowY);
-			//yellow.fixValues(worldState.getYellowX(), worldState.getYellowY());
+			yellow.fixValues(worldState.getYellowX(), worldState.getYellowY());
 			yellow.filterPoints(yellowPoints);
 		} else {
-			//yellow = new Position(worldState.getYellowX(),
-			//		worldState.getYellowY());
+			yellow = new Position(worldState.getYellowX(),
+					worldState.getYellowY());
 			yellow = new Position(yellowX, yellowY); // temp
 		}
 
@@ -241,10 +241,10 @@ public class Vision implements VideoReceiver {
 			blueY /= numBluePos;
 
 			blue = new Position(blueX, blueY);
-			//blue.fixValues(worldState.getBlueX(), worldState.getBlueY());
+			blue.fixValues(worldState.getBlueX(), worldState.getBlueY());
 			blue.filterPoints(bluePoints);
 		} else {
-			//blue = new Position(worldState.getBlueX(), worldState.getBlueY());
+			blue = new Position(worldState.getBlueX(), worldState.getBlueY());
 			blue = new Position(blueX, blueY); // temp
 		}
 
@@ -255,16 +255,16 @@ public class Vision implements VideoReceiver {
 
 			green = new Position(greenX, greenY);
 			// TODO: move this to k-means stuff
-			// green.fixValues(worldState.getGreenX(), worldState.getGreenY());
-			// green.filterPoints(greenXPoints, greenYPoints);
+			green.fixValues(worldState.getGreenX(), worldState.getGreenY());
+			green.filterPoints(greenPoints);
 		} else {
-			//green = new Position(worldState.getGreenX(), worldState.getGreenY());
+			green = new Position(worldState.getGreenX(), worldState.getGreenY());
 			green = new Position(greenX, greenY); // temp
 		}
 
 		/** Processing the Green plates */
 
-		try {
+		
 			double sumSqrdError = Kmeans.sumSquaredError(greenPoints, green);
 
 			double blueAngle = 0;
@@ -274,47 +274,65 @@ public class Vision implements VideoReceiver {
 			// them
 			if (sumSqrdError > Kmeans.errortarget) {
 				/** TWO PLATES ON FIELD SCENARIO - RUN KMEANS */
-				double[] angles = differentiateBetweenPlates(frame,
-						debugOverlay, greenPoints, blue, yellow);
+				double[] angles;
+				try {
+					angles = differentiateBetweenPlates(frame,
+							debugOverlay, greenPoints, blue, yellow);
+					blueAngle = angles[0];
+					yellowAngle = angles[1];
+				} catch (NoAngleException e) {
+					debugGraphics.drawString(e.getMessage(), 15, 440);
+					// System.err.println(e.getClass().toString() + ": " +
+					// e.getMessage());
+					// e.printStackTrace(System.err);
+				}
 
-				blueAngle = angles[0];
-				yellowAngle = angles[1];
+				
 			} else {
 				/** ONE PLATE ON FIELD SCENARIO - NO KMEANS NEEDED */
-				double angle = findPlateAngle(frame, debugOverlay, green,
-						greenPoints);
+				double angle;
+				try {
+					angle = findPlateAngle(frame, debugOverlay, green,
+							greenPoints);
+					// If the single plate is blue, assign the angle to the blue
+					// plate
+					if (numBluePos > numYellowPos) {
+						blueAngle = angle;
+						bluePlateCentroid = green;
+					
+						// Set the other plate to some position off the pitch
+						yellowAngle = 0.0;
+						yellowPlateCentroid = new Position(0,0);
+						}
+					// Otherwise assign it to the yellow plate
+					else {
+						yellowAngle = angle;
+						yellowPlateCentroid = green;
+					
+						// Set the other plate to some position off the pitch
+						blueAngle = 0.0;
+						bluePlateCentroid = new Position(0,0);
+					}
+				} catch (NoAngleException e) {
+					debugGraphics.drawString(e.getMessage(), 15, 440);
+					// System.err.println(e.getClass().toString() + ": " +
+					// e.getMessage());
+					// e.printStackTrace(System.err);
+				}
 
-				// If the single plate is blue, assign the angle to the blue
-				// plate
-				if (numBluePos > numYellowPos) {
-					blueAngle = angle;
-					bluePlateCentroid = green;
-					
-					// Set the other plate to some position off the pitch
-					yellowAngle = 0.0;
-					yellowPlateCentroid = new Position(0,0);
-				}
-				// Otherwise assign it to the yellow plate
-				else {
-					yellowAngle = angle;
-					yellowPlateCentroid = green;
-					
-					// Set the other plate to some position off the pitch
-					blueAngle = 0.0;
-					bluePlateCentroid = new Position(0,0);
-				}
+				
 			}
 
 			/** Ball */
 			// If we have only found a few 'Ball' pixels, chances are that the
 			// ball
 			// has not actually been detected.
-			if (numBallPos > 15) {
+			if (numBallPos > 10) {
 				ballX /= numBallPos;
 				ballY /= numBallPos;
 
 				ball = new Position(ballX, ballY);
-				//ball.fixValues(worldState.getBallX(), worldState.getBallY());
+				ball.fixValues(worldState.getBallX(), worldState.getBallY());
 				ball.filterPoints(ballPoints);
 			} else {
 				ball = new Position(ballX, ballY);
@@ -379,12 +397,7 @@ public class Vision implements VideoReceiver {
 						worldState.getBallX(), 480);
 				debugGraphics.setColor(Color.white);
 			}
-		} catch (NoAngleException e) {
-			debugGraphics.drawString(e.getMessage(), 15, 440);
-			// System.err.println(e.getClass().toString() + ": " +
-			// e.getMessage());
-			// e.printStackTrace(System.err);
-		}
+		
 
 		for (VisionDebugReceiver receiver : visionDebugReceivers)
 			receiver.sendDebugOverlay(debugOverlay);

@@ -107,10 +107,6 @@ public class VideoStream {
 		try {
 			videoDev = new VideoDevice(videoDevice);
 			DeviceInfo deviceInfo = videoDev.getDeviceInfo();
-//			System.out.println("Device Name: " + deviceInfo.getName());
-//			System.out.println("Image Format List: " + deviceInfo.getFormatList().getNativeFormats().toString());
-//			System.out.println("" + deviceInfo.getFormatList().getJPEGEncodableFormats());
-//			System.out.println("JPEG conversion supported: " + videoDev.supportJPEGConversion());
 			
 			if (deviceInfo.getFormatList().getNativeFormats().isEmpty()) {
 				throw new ImageFormatException(
