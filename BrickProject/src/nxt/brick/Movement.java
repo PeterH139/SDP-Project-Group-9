@@ -33,7 +33,7 @@ public class Movement implements Controller {
         // TODO: potential changes to be made here due to different robots
         public static final int MAXIMUM_MOTOR_SPEED = 900;
         public static final int ACCELERATION = MAXIMUM_MOTOR_SPEED * 8;
-        public static final int GEAR_ERROR_RATIO = 2; // Gears cut our turns in half
+        public static final int GEAR_ERROR_RATIO = 3; // Gears cut our turns in half
 
 
         private volatile boolean isKicking = false;
@@ -80,10 +80,9 @@ public class Movement implements Controller {
          */
         
         @Override
-        public void kick() {
+        public void shoot() {
 
                 if (isKicking) {
-                	LCD.drawString("Preparing to kick", 0, 0);
                     return;
                 }
 
@@ -92,16 +91,15 @@ public class Movement implements Controller {
                 KICKER.setSpeed(MAXIMUM_MOTOR_SPEED);
 
                 // Move kicker back
-                LCD.drawString("moving back", 0, 1);
-                KICKER.rotateTo(-10);
+                KICKER.rotateTo(-4);
                 KICKER.waitComplete();
 
                 // Kick
-                KICKER.rotateTo(36);
+                KICKER.rotateTo(40);
                 KICKER.waitComplete();
 
                 // Reset
-                KICKER.rotateTo(-36);
+                KICKER.rotateTo(-10);
                 KICKER.waitComplete();
 
                 KICKER.flt();
@@ -109,6 +107,33 @@ public class Movement implements Controller {
                 isKicking = false;
         }
 
+        @Override
+        public void pass() {
+
+                if (isKicking) {
+                    return;
+                }
+
+                isKicking = true;
+
+                KICKER.setSpeed(MAXIMUM_MOTOR_SPEED/10);
+
+                // Move kicker back
+                KICKER.rotateTo(-4);
+                KICKER.waitComplete();
+
+                // Kick
+                KICKER.rotateTo(40);
+                KICKER.waitComplete();
+
+                // Reset
+                KICKER.rotateTo(-10);
+                KICKER.waitComplete();
+
+                KICKER.flt();
+
+                isKicking = false;
+        }
         public float getTravelDistance() {
                 return pilot.getMovementIncrement();
         }
@@ -186,21 +211,7 @@ public class Movement implements Controller {
         @Override
         public void rotate(int deg, int speed) {
                 pilot.setRotateSpeed(speed);
-                pilot.rotate(deg); // GEAR_ERROR_RATIO
-        }
-
-        @Override
-        public void penaltyKick() {
-                int turnAmount = 27;
-                if (Math.random() <= 0.5)
-                        turnAmount *= -1;
-                rotate(turnAmount, 180);
-                kick();
-        }
-
-        @Override
-        public void penaltyKickStraight() {
-                kick();
+                pilot.rotate(deg/GEAR_ERROR_RATIO); // GEAR_ERROR_RATIO
         }
 
         @Override

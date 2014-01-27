@@ -8,7 +8,7 @@ public class KickerTest {
 	
 	public static void main(String[] args) {
 		brick = new Movement();
-		brick.kick();
+		brick.shoot();
 	}
 
 }
