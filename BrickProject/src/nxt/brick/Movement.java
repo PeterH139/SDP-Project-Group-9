@@ -5,14 +5,15 @@ import lejos.nxt.NXTRegulatedMotor;
 import lejos.robotics.navigation.DifferentialPilot;
 
 /**
- * The Control class. Handles the actual driving and movement of the robot, once
- * BotCommunication has processed the commands.
+ * The Movement class. Handles the actual driving and movement of the robot, once
+ * BrickController has processed the commands.
  * 
  * That is -- defines the behaviour of the robot when it receives the command.
  * 
  * Adapted from SDP2013 groups 7 code -- original author sauliusl
  * 
  * @author Ross Grassie
+ * 
  */
 public class Movement extends DifferentialPilot {
 
@@ -25,8 +26,8 @@ public class Movement extends DifferentialPilot {
 	public int maxPilotSpeed = 900;					// 90
 
 	// TODO: potential changes to be made here due to different robots
-	public static final int MAXIMUM_MOTOR_SPEED = 900;
-	public static final int ACCELERATION = MAXIMUM_MOTOR_SPEED * 8;
+	public static final int MAXIMUM_KICKER_SPEED = 900;
+	public static final int ACCELERATION = MAXIMUM_KICKER_SPEED * 8;
 	public static final int GEAR_ERROR_RATIO = 3;
 
 	private volatile boolean isKicking = false;
@@ -40,7 +41,7 @@ public class Movement extends DifferentialPilot {
 		RIGHT_WHEEL.flt();
 	}
 
-	public void shoot() {
+	public void kick(int speed) {
 
 		if (isKicking) {
 			return;
@@ -48,34 +49,7 @@ public class Movement extends DifferentialPilot {
 
 		isKicking = true;
 
-		KICKER.setSpeed(MAXIMUM_MOTOR_SPEED);
-
-		// Move kicker back
-		KICKER.rotateTo(-4);
-		KICKER.waitComplete();
-
-		// Kick
-		KICKER.rotateTo(40);
-		KICKER.waitComplete();
-
-		// Reset
-		KICKER.rotateTo(-10);
-		KICKER.waitComplete();
-
-		KICKER.flt();
-
-		isKicking = false;
-	}
-
-	public void pass() {
-
-		if (isKicking) {
-			return;
-		}
-
-		isKicking = true;
-
-		KICKER.setSpeed(MAXIMUM_MOTOR_SPEED / 10);
+		KICKER.setSpeed(speed);
 
 		// Move kicker back
 		KICKER.rotateTo(-4);
@@ -109,10 +83,10 @@ public class Movement extends DifferentialPilot {
 	}
 
 	public void setWheelSpeeds(int leftWheelSpeed, int rightWheelSpeed) {
-		if (leftWheelSpeed > MAXIMUM_MOTOR_SPEED)
-			leftWheelSpeed = MAXIMUM_MOTOR_SPEED;
-		if (rightWheelSpeed > MAXIMUM_MOTOR_SPEED)
-			rightWheelSpeed = MAXIMUM_MOTOR_SPEED;
+		if (leftWheelSpeed > maxPilotSpeed)
+			leftWheelSpeed = maxPilotSpeed;
+		if (rightWheelSpeed > maxPilotSpeed)
+			rightWheelSpeed = maxPilotSpeed;
 
 		if (INVERSE_WHEELS) {
 			leftWheelSpeed *= -1;
@@ -123,7 +97,7 @@ public class Movement extends DifferentialPilot {
 	}
 
 	public int getMaximumWheelSpeed() {
-		return MAXIMUM_MOTOR_SPEED;
+		return maxPilotSpeed;
 	}
 
 	public boolean isReady() {
