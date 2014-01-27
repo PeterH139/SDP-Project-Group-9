@@ -4,18 +4,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import nxt.brick.Movement;
-
 import lejos.nxt.Button;
 import lejos.nxt.LCD;
 import lejos.nxt.Sound;
 import lejos.nxt.comm.Bluetooth;
 import lejos.nxt.comm.NXTConnection;
+import nxt.brick.Movement;
+import nxt.brick.Striker;
 
 public class BrickController {
 	
 	private static boolean die = false;
-	static Movement pilot = new Movement();
+	static Movement pilot = new Striker();
 	
 	private final static int DO_NOTHING = 0;
     private final static int FORWARDS = 1;

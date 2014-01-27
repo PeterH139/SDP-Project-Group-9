@@ -1,267 +1,178 @@
 package nxt.brick;
 
-import nxt.contoller.Controller;
-import lejos.nxt.LCD;
 import lejos.nxt.Motor;
 import lejos.nxt.NXTRegulatedMotor;
 import lejos.robotics.navigation.DifferentialPilot;
 
 /**
-* The Control class. Handles the actual driving and movement of the robot, once
-* BotCommunication has processed the commands.
-*
-* That is -- defines the behaviour of the robot when it receives the command.
-*
-* Adapted from SDP2013 groups 7 code -- original author sauliusl
-*
-* @author Ross Grassie
-*/
-public class Movement implements Controller {
-        
-		public int maxPilotSpeed = 20;
-		static final int TYRE_DIAMETER = 56;
-		static final int TRACK_WIDTH = 116;
-		static final int TRAVEL_SPEED = 90;
-    	static NXTRegulatedMotor LEFT_WHEEL = Motor.B;
-    	static NXTRegulatedMotor RIGHT_WHEEL = Motor.C;
-    	static NXTRegulatedMotor KICKER = Motor.A;
-    	static DifferentialPilot pilot = new DifferentialPilot(TYRE_DIAMETER, TRACK_WIDTH, LEFT_WHEEL, RIGHT_WHEEL);
+ * The Control class. Handles the actual driving and movement of the robot, once
+ * BotCommunication has processed the commands.
+ * 
+ * That is -- defines the behaviour of the robot when it receives the command.
+ * 
+ * Adapted from SDP2013 groups 7 code -- original author sauliusl
+ * 
+ * @author Ross Grassie
+ */
+public class Movement extends DifferentialPilot {
 
-        public final boolean INVERSE_WHEELS = false;
+	static NXTRegulatedMotor LEFT_WHEEL = Motor.B;
+	static NXTRegulatedMotor RIGHT_WHEEL = Motor.C;
+	static NXTRegulatedMotor KICKER = Motor.A;
+	static final int TYRE_DIAMETER = 56;
 
+	public final boolean INVERSE_WHEELS = false;
+	public int maxPilotSpeed = 900;					// 90
 
-        // TODO: potential changes to be made here due to different robots
-        public static final int MAXIMUM_MOTOR_SPEED = 900;
-        public static final int ACCELERATION = MAXIMUM_MOTOR_SPEED * 8;
-        public static final int GEAR_ERROR_RATIO = 3; // Gears cut our turns in half
+	// TODO: potential changes to be made here due to different robots
+	public static final int MAXIMUM_MOTOR_SPEED = 900;
+	public static final int ACCELERATION = MAXIMUM_MOTOR_SPEED * 8;
+	public static final int GEAR_ERROR_RATIO = 3;
 
+	private volatile boolean isKicking = false;
 
-        private volatile boolean isKicking = false;
+	public Movement(double trackWidth) {
+		super(TYRE_DIAMETER, trackWidth, LEFT_WHEEL, RIGHT_WHEEL);
+	}
 
-        public Movement() {
+	public void floatWheels() {
+		LEFT_WHEEL.flt();
+		RIGHT_WHEEL.flt();
+	}
 
-                pilot = new DifferentialPilot(TYRE_DIAMETER, TRACK_WIDTH, LEFT_WHEEL,
-                                RIGHT_WHEEL, INVERSE_WHEELS);
-                pilot.setTravelSpeed(maxPilotSpeed);
-                pilot.setRotateSpeed(45);
-                pilot.setAcceleration(ACCELERATION);
+	public void shoot() {
 
-        }
+		if (isKicking) {
+			return;
+		}
 
-        /*
-         * (non-Javadoc)
-         * 
-         * TODO: May not be necessary
-         *
-         * @see balle.brick.Controller#floatWheels()
-         */
-        @Override
-        public void floatWheels() {
-                LEFT_WHEEL.flt();
-                RIGHT_WHEEL.flt();
-        }
+		isKicking = true;
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see balle.brick.Controller#stop()
-         */
-        @Override
-        public void stop() {
-                pilot.setAcceleration(ACCELERATION * 2);
-                pilot.stop();
-                pilot.setAcceleration(ACCELERATION);
-        }
+		KICKER.setSpeed(MAXIMUM_MOTOR_SPEED);
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see balle.brick.Controller#kick()
-         */
-        
-        @Override
-        public void shoot() {
+		// Move kicker back
+		KICKER.rotateTo(-4);
+		KICKER.waitComplete();
 
-                if (isKicking) {
-                    return;
-                }
+		// Kick
+		KICKER.rotateTo(40);
+		KICKER.waitComplete();
 
-                isKicking = true;
+		// Reset
+		KICKER.rotateTo(-10);
+		KICKER.waitComplete();
 
-                KICKER.setSpeed(MAXIMUM_MOTOR_SPEED);
+		KICKER.flt();
 
-                // Move kicker back
-                KICKER.rotateTo(-4);
-                KICKER.waitComplete();
+		isKicking = false;
+	}
 
-                // Kick
-                KICKER.rotateTo(40);
-                KICKER.waitComplete();
+	public void pass() {
 
-                // Reset
-                KICKER.rotateTo(-10);
-                KICKER.waitComplete();
+		if (isKicking) {
+			return;
+		}
 
-                KICKER.flt();
+		isKicking = true;
 
-                isKicking = false;
-        }
+		KICKER.setSpeed(MAXIMUM_MOTOR_SPEED / 10);
 
-        @Override
-        public void pass() {
+		// Move kicker back
+		KICKER.rotateTo(-4);
+		KICKER.waitComplete();
 
-                if (isKicking) {
-                    return;
-                }
+		// Kick
+		KICKER.rotateTo(40);
+		KICKER.waitComplete();
 
-                isKicking = true;
+		// Reset
+		KICKER.rotateTo(-10);
+		KICKER.waitComplete();
 
-                KICKER.setSpeed(MAXIMUM_MOTOR_SPEED/10);
+		KICKER.flt();
 
-                // Move kicker back
-                KICKER.rotateTo(-4);
-                KICKER.waitComplete();
+		isKicking = false;
+	}
 
-                // Kick
-                KICKER.rotateTo(40);
-                KICKER.waitComplete();
+	private void setMotorSpeed(NXTRegulatedMotor motor, int speed) {
+		boolean forward = true;
+		if (speed < 0) {
+			forward = false;
+			speed = -1 * speed;
+		}
 
-                // Reset
-                KICKER.rotateTo(-10);
-                KICKER.waitComplete();
+		motor.setSpeed(speed);
+		if (forward)
+			motor.forward();
+		else
+			motor.backward();
+	}
 
-                KICKER.flt();
+	public void setWheelSpeeds(int leftWheelSpeed, int rightWheelSpeed) {
+		if (leftWheelSpeed > MAXIMUM_MOTOR_SPEED)
+			leftWheelSpeed = MAXIMUM_MOTOR_SPEED;
+		if (rightWheelSpeed > MAXIMUM_MOTOR_SPEED)
+			rightWheelSpeed = MAXIMUM_MOTOR_SPEED;
 
-                isKicking = false;
-        }
-        public float getTravelDistance() {
-                return pilot.getMovementIncrement();
-        }
+		if (INVERSE_WHEELS) {
+			leftWheelSpeed *= -1;
+			rightWheelSpeed *= -1;
+		}
+		setMotorSpeed(LEFT_WHEEL, leftWheelSpeed);
+		setMotorSpeed(RIGHT_WHEEL, rightWheelSpeed);
+	}
 
-        public void reset() {
-                pilot.reset();
-        }
+	public int getMaximumWheelSpeed() {
+		return MAXIMUM_MOTOR_SPEED;
+	}
 
-        private void setMotorSpeed(NXTRegulatedMotor motor, int speed) {
-                boolean forward = true;
-                if (speed < 0) {
-                        forward = false;
-                        speed = -1 * speed;
-                }
+	public boolean isReady() {
+		return true;
+	}
 
-                motor.setSpeed(speed);
-                if (forward)
-                        motor.forward();
-                else
-                        motor.backward();
-        }
+	public void connect() {
+	}
 
-        @Override
-        public void setWheelSpeeds(int leftWheelSpeed, int rightWheelSpeed) {
-                if (leftWheelSpeed > MAXIMUM_MOTOR_SPEED)
-                        leftWheelSpeed = MAXIMUM_MOTOR_SPEED;
-                if (rightWheelSpeed > MAXIMUM_MOTOR_SPEED)
-                        rightWheelSpeed = MAXIMUM_MOTOR_SPEED;
+	public void disconnect() {
+	}
 
-                if (INVERSE_WHEELS) {
-                        leftWheelSpeed *= -1;
-                        rightWheelSpeed *= -1;
-                }
-                setMotorSpeed(LEFT_WHEEL, leftWheelSpeed);
-                setMotorSpeed(RIGHT_WHEEL, rightWheelSpeed);
-        }
+	/*
+	 * TODO: potentially change or remove these as Tachometer appears to be
+	 * out-dated.
+	 * 
+	 * If altering look at the OdometryPoseProvider class
+	 * 
+	 */
+	public int getLeftTacho() {
+		return LEFT_WHEEL.getTachoCount();
+	}
 
-        @Override
-        public int getMaximumWheelSpeed() {
-                return MAXIMUM_MOTOR_SPEED;
-        }
+	public int getRightTacho() {
+		return RIGHT_WHEEL.getTachoCount();
+	}
 
-        @Override
-        public void backward(int speed) {
-                pilot.setTravelSpeed(speed);
-                // setWheelSpeeds(speed, speed);
-                pilot.backward();
-        }
+	public void resetLeftTacho() {
+		LEFT_WHEEL.resetTachoCount();
+	}
 
-        @Override
-        public void forward() {
-                pilot.setTravelSpeed(TRAVEL_SPEED);
-                pilot.forward();
+	public void resetRightTacho() {
+		RIGHT_WHEEL.resetTachoCount();
+	}
 
-        }
+	public int getLeftSpeed() {
+		return LEFT_WHEEL.getSpeed();
+	}
 
-        @Override
-        /*
-         * (non-Javadoc)
-         * 
-         * Don't think this code is necessary
-         * 
-         * @see nxt.contoller.Controller#forward(int, int)
-         */
-        public void forward(int left, int right) {
-                setWheelSpeeds(left, right);
-        }
+	public int getRightSpeed() {
+		return RIGHT_WHEEL.getSpeed();
+	}
 
-        /*
-         * TODO: potentially unnecessary code
-         * (non-Javadoc)
-         * 
-         * @see nxt.contoller.Controller#rotate(int, int)
-         */
-        @Override
-        public void rotate(int deg, int speed) {
-                pilot.setRotateSpeed(speed);
-                pilot.rotate(deg/GEAR_ERROR_RATIO); // GEAR_ERROR_RATIO
-        }
+	public void setLeftSpeed(int speed) {
+		setMotorSpeed(LEFT_WHEEL, speed);
+	}
 
-        @Override
-        public boolean isReady() {
-                return true;
-        }
-
-        @Override
-        public void connect() {
-        }
-
-        @Override
-        public void disconnect() {
-        }
-
-        /* TODO: potentially change or remove these as Tachometer appears to be out-dated.
-         * 		
-         * 		If altering look at the OdometryPoseProvider class 
-         * 
-         */
-        public int getLeftTacho() {
-                return LEFT_WHEEL.getTachoCount();
-        }
-
-        public int getRightTacho() {
-                return RIGHT_WHEEL.getTachoCount();
-        }
-
-        public void resetLeftTacho() {
-                LEFT_WHEEL.resetTachoCount();
-        }
-
-        public void resetRightTacho() {
-                RIGHT_WHEEL.resetTachoCount();
-        }
-
-        public int getLeftSpeed() {
-                return LEFT_WHEEL.getSpeed();
-        }
-
-        public int getRightSpeed() {
-                return RIGHT_WHEEL.getSpeed();
-        }
-
-        public void setLeftSpeed(int speed) {
-                setMotorSpeed(LEFT_WHEEL, speed);
-        }
-
-        public void setRightSpeed(int speed) {
-                setMotorSpeed(RIGHT_WHEEL, speed);
-        }
+	public void setRightSpeed(int speed) {
+		setMotorSpeed(RIGHT_WHEEL, speed);
+	}
 
 }
