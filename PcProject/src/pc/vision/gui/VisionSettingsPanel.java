@@ -325,9 +325,6 @@ class VisionSettingsPanel extends JPanel {
 	public VisionSettingsPanel(WorldState worldState,
 			final PitchConstants pitchConstants, final VideoStream vStream,
 			final DistortionFix distortionFix) {
-//	public VisionSettingsPanel(
-//			final PitchConstants pitchConstants, final VideoStream vStream,
-//			final DistortionFix distortionFix) {
 		// Both state objects must not be null.
 		assert (worldState != null) : "worldState is null";
 		assert (pitchConstants != null) : "pitchConstants is null";

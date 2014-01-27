@@ -373,10 +373,10 @@ public class Vision implements VideoReceiver {
 
 			if (!anyDebug) {
 				debugGraphics.setColor(Color.red);
-				//debugGraphics.drawLine(0, worldState.getBallY(), 640,
-						//worldState.getBallY());
-				//debugGraphics.drawLine(worldState.getBallX(), 0,
-						//worldState.getBallX(), 480);
+				debugGraphics.drawLine(0, worldState.getBallY(), 640,
+						worldState.getBallY());
+				debugGraphics.drawLine(worldState.getBallX(), 0,
+						worldState.getBallX(), 480);
 				debugGraphics.setColor(Color.white);
 			}
 		} catch (NoAngleException e) {

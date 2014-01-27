@@ -10,7 +10,6 @@ public class Cluster {
 	public Cluster(ArrayList<Position> cluster1, ArrayList<Position> cluster2,
 			Position mean1, Position mean2) {
 		this.clusters = new ArrayList[] { cluster1, cluster2 };
-
 		this.means = new Position[] { mean1, mean2 };
 	}
 

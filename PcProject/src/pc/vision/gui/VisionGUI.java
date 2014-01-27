@@ -641,33 +641,33 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 		if (object == PitchConstants.BLUE || object == PitchConstants.YELLOW) {
 			/** PROCESSING EITHER LETTER T */
 			// Process top part of the letter T
-			colourSettings = getColourValues(frame, colourSettings, 12, 35, 15,
+			colourSettings = addColourValues(frame, colourSettings, 12, 35, 15,
 					24);
 			// Process bottom part of the letter T
-			colourSettings = getColourValues(frame, colourSettings, 21, 30, 24,
+			colourSettings = addColourValues(frame, colourSettings, 21, 30, 24,
 					44);
 		} else if (object == PitchConstants.GREEN) {
 			/** PROCESSING EITHER OF THE GREEN PLATES */
 			// Process the top left quadrant of the green plate
-			colourSettings = getColourValues(frame, colourSettings, 0 + 15,
+			colourSettings = addColourValues(frame, colourSettings, 0 + 15,
 					10 + 15, 0 + 25, 15 + 25);
 			// Process the top right quadrant of the green plate
-			colourSettings = getColourValues(frame, colourSettings, 21 + 15,
+			colourSettings = addColourValues(frame, colourSettings, 21 + 15,
 					30 + 15, 0 + 25, 15 + 25);
 			// Process the bottom left quadrant of the green plate
-			colourSettings = getColourValues(frame, colourSettings, 0 + 15,
+			colourSettings = addColourValues(frame, colourSettings, 0 + 15,
 					10 + 15, 25 + 25, 50 + 25);
 			// Process the bottom right quadrant of the green plate
-			colourSettings = getColourValues(frame, colourSettings, 22 + 15,
+			colourSettings = addColourValues(frame, colourSettings, 22 + 15,
 					30 + 15, 25 + 25, 50 + 25);
 		} else if (object == PitchConstants.GREY) {
 			// Process the ball
-			colourSettings = getColourValues(frame, colourSettings, 0, 8, 0, 8);
+			colourSettings = addColourValues(frame, colourSettings, 0, 8, 0, 8);
 		}
 		return colourSettings;
 	}
 
-	public ArrayList<?>[] getColourValues(BufferedImage frame,
+	public ArrayList<?>[] addColourValues(BufferedImage frame,
 			ArrayList[] colourSettings, int fromX, int toX, int fromY, int toY) {
 		int lx = (int) imageCenterX;
 		int ly = (int) imageCenterY;

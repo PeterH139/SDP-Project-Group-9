@@ -70,8 +70,9 @@ public class VideoStream {
 
 				for (VideoReceiver receiver : videoReceivers)
 					receiver.sendFrame(frameBuffer, frameRate, frameCounter);
-			} else if (frameCounter > 3)
+			} else if (frameCounter > 3) {
 				ready = true;
+			}
 			++frameCounter;
 			frame.recycle();
 		}
@@ -106,20 +107,18 @@ public class VideoStream {
 		try {
 			videoDev = new VideoDevice(videoDevice);
 			DeviceInfo deviceInfo = videoDev.getDeviceInfo();
-			System.out.println("Device Name: " + deviceInfo.getName());
-			System.out.println("Image Format List: " + deviceInfo.getFormatList().getNativeFormats().toString());
-			System.out.println("" + deviceInfo.getFormatList().getJPEGEncodableFormats());
-
+//			System.out.println("Device Name: " + deviceInfo.getName());
+//			System.out.println("Image Format List: " + deviceInfo.getFormatList().getNativeFormats().toString());
+//			System.out.println("" + deviceInfo.getFormatList().getJPEGEncodableFormats());
+//			System.out.println("JPEG conversion supported: " + videoDev.supportJPEGConversion());
+			
 			if (deviceInfo.getFormatList().getNativeFormats().isEmpty()) {
 				throw new ImageFormatException(
 						"Unable to detect any native formats for the device!");
 			}
 			imageFormat = deviceInfo.getFormatList().getYUVEncodableFormat(0);
-
-
-			System.out.println("JPEG conversion supported: " + videoDev.supportJPEGConversion());
-			frameGrabber = videoDev.getRGBFrameGrabber(width, height, channel,
-					videoStandard, imageFormat);
+			frameGrabber = videoDev.getJPEGFrameGrabber(width, height, channel,
+					videoStandard, compressionQuality, imageFormat);
 			frameGrabber.setCaptureCallback(frameGrabberCallback);
 			frameGrabber.startCapture();
 
