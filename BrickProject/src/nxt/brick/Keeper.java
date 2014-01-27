@@ -14,5 +14,9 @@ public class Keeper extends Movement {
 	public Keeper() {
 		super(TRACK_WIDTH_KEEPER);
 	}
+	
+	public void pass() {
+		super.kick(MAXIMUM_KICKER_SPEED/4);
+	}
 
 }

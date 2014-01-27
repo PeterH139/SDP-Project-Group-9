@@ -14,5 +14,9 @@ public class Striker extends Movement {
 	public Striker() {
 		super(TRACK_WIDTH_STRIKER);
 	}
+	
+	public void shoot() {
+		super.kick(MAXIMUM_KICKER_SPEED);
+	}
 
 }

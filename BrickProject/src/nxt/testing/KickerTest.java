@@ -1,13 +1,12 @@
 package nxt.testing;
 
-import nxt.brick.Movement;
+import nxt.brick.Striker;;
 
 public class KickerTest {
 	
-	private static Movement brick;
+	private static Striker brick = new Striker();
 	
 	public static void main(String[] args) {
-		brick = new Movement(0);
 		brick.shoot();
 	}
 
