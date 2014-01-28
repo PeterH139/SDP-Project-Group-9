@@ -10,7 +10,7 @@ import java.util.Scanner;
  * A class that holds the constants for various values about the pitch, such as
  * thresholding values and dimension variables.
  * 
- * @author Alex Adams (s1046358)
+ * @author Alex Adams (s1046358), Peter Henderson (s1117205)
  */
 public class PitchConstants {
 	/** The number of objects there are thresholds for */
@@ -70,9 +70,9 @@ public class PitchConstants {
 	private int leftBuffer;
 	private int rightBuffer;
 	
+	
 	// Holds the x values of the pitch divisions. Used when detecting the plates on the board.
 	private int[] dividers = new int[3];
-
 	public int[] getDividers() {
 		return dividers;
 	}
@@ -82,9 +82,9 @@ public class PitchConstants {
 		} else {
 			this.dividers = dividers;
 		}
-		
 	}
 
+	
 	/**
 	 * Default constructor.
 	 * 

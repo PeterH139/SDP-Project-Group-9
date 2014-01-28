@@ -4,12 +4,12 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Collection;
 
 import pc.vision.interfaces.VideoReceiver;
 import pc.vision.interfaces.VisionDebugReceiver;
 import pc.vision.interfaces.WorldStateReceiver;
 import pc.world.WorldState;
-//import world.state.WorldState;
 
 /**
  * The main class for showing the video feed and processing the video data.
@@ -112,11 +112,72 @@ public class Vision implements VideoReceiver {
 		ArrayList<Position> greenPoints = new ArrayList<Position>();
 		ArrayList<Position> bluePoints = new ArrayList<Position>();
 		ArrayList<Position> yellowPoints = new ArrayList<Position>();
+		
+		// XXX: ADDED CODE FROM HERE *************************************************************
+		ArrayList<Position> blueAtkPoints = new ArrayList<Position>();
+		ArrayList<Position> blueDefPoints = new ArrayList<Position>();
+		ArrayList<Position> yellowAtkPoints = new ArrayList<Position>();
+		ArrayList<Position> yellowDefPoints = new ArrayList<Position>();
 
 		int topBuffer = pitchConstants.getTopBuffer();
 		int bottomBuffer = pitchConstants.getBottomBuffer();
 		int leftBuffer = pitchConstants.getLeftBuffer();
 		int rightBuffer = pitchConstants.getRightBuffer();
+		int[] dividers = pitchConstants.getDividers();
+		
+		// Detect the X,Y coords and rotations of the plates in each section.
+		// Use this loop to also track the pixels of the ball;
+		boolean leftBlueFirst = true; //TODO: calculate this from the appropriate location
+		int leftEdge,rightEdge;
+		for (int section = 0; section < 3; section++){
+			switch(section){
+			case 0:
+				leftEdge = leftBuffer;
+				rightEdge = dividers[0];
+				if (leftBlueFirst){
+					searchColumn(blueDefPoints, ballPoints, frame, 
+							debugOverlay, leftEdge, rightEdge, true);
+				} else {
+					searchColumn(yellowDefPoints, ballPoints, frame,
+							debugOverlay, leftEdge, rightEdge, false);
+				}
+				break;
+			case 1:
+				leftEdge = dividers[0];
+				rightEdge = dividers[1];
+				if (leftBlueFirst){
+					searchColumn(yellowAtkPoints, ballPoints, frame,
+							debugOverlay, leftEdge, rightEdge, false);
+				} else {
+					searchColumn(blueAtkPoints, ballPoints, frame,
+							debugOverlay, leftEdge, rightEdge, true);
+				}
+				break;
+			case 2:
+				leftEdge = dividers[1];
+				rightEdge = dividers[2];
+				if (leftBlueFirst){
+					searchColumn(blueAtkPoints, ballPoints, frame,
+							debugOverlay, leftEdge, rightEdge, true);
+				} else {
+					searchColumn(yellowAtkPoints, ballPoints, frame,
+							debugOverlay, leftEdge, rightEdge, false);
+				}
+				break;
+			case 3:
+				leftEdge = dividers[2];
+				rightEdge = dividers[3];
+				if (leftBlueFirst){
+					searchColumn(yellowDefPoints, ballPoints, frame,
+							debugOverlay, leftEdge, rightEdge, false);
+				} else {
+					searchColumn(blueDefPoints, ballPoints, frame,
+							debugOverlay, leftEdge, rightEdge, true);
+				}
+			}
+		}
+		//XXX: TO HERE ******************************************************************
+		
 
 		/**
 		 * Processing every pixel in the frame. For every pixel within the
@@ -124,18 +185,12 @@ public class Vision implements VideoReceiver {
 		 * Green plate, Grey circle
 		 */
 		for (int row = topBuffer; row < frame.getHeight() - bottomBuffer; row++) {
-			for (int column = leftBuffer; column < frame.getWidth()
-					- rightBuffer; column++) {
+			for (int column = leftBuffer; column < frame.getWidth() - rightBuffer; column++) {
 
 				// The RGB colours and hsv values for the current pixel.
 				Color c = new Color(frame.getRGB(column, row));
 				float hsbvals[] = new float[3];
 				Color.RGBtoHSB(c.getRed(), c.getBlue(), c.getGreen(), hsbvals);
-
-				if (pitchConstants.debugMode(PitchConstants.GREY)
-						&& isColour(c, hsbvals, GREY_CIRCLE)) {
-					debugOverlay.setRGB(column, row, 0xFFFF0099);
-				}
 
 				/** Checking if the pixel is a part of the Blue T */
 				if (isColour(c, hsbvals, BLUE_T)) {
@@ -254,7 +309,7 @@ public class Vision implements VideoReceiver {
 			greenY /= numGreenPos;
 
 			green = new Position(greenX, greenY);
-			// TODO: move this to k-means stuff
+			// move this to k-means stuff
 			green.fixValues(worldState.getGreenX(), worldState.getGreenY());
 			green.filterPoints(greenPoints);
 		} else {
@@ -327,7 +382,8 @@ public class Vision implements VideoReceiver {
 			// If we have only found a few 'Ball' pixels, chances are that the
 			// ball
 			// has not actually been detected.
-			if (numBallPos > 10) {
+			if (numBallPos > 15) 
+			{
 				ballX /= numBallPos;
 				ballY /= numBallPos;
 
@@ -362,7 +418,7 @@ public class Vision implements VideoReceiver {
 			yellow = DistortionFix.barrelCorrect(yellowPlateCentroid);
 
 			/** Worldstate settings */
-			// TODO: Sort out all of the world state settings.
+			// Sort out all of the world state settings.
 			worldState.setBallX(ball.getX());
 			worldState.setBallY(ball.getY());
 			worldState.setGreenX(green.getX());
@@ -404,6 +460,51 @@ public class Vision implements VideoReceiver {
 		for (WorldStateReceiver receiver : worldStateReceivers)
 			receiver.sendWorldState(worldState);
 
+	}
+
+	/**
+	 * Searches a particular column for a plate and updates its points IN PLACE.
+	 * Also searches for the pixels that make up the ball, and deals with setting 
+	 * the debugOverlay pixels as required.
+	 * 
+	 * @param platePoints - the ArrayList of points for the plate
+	 * @param ballPoints - the ArrayList of points for the ball
+	 * @param frame - the current frame of video
+	 * @param debugOverlay - the image that will be overlayed for debugging
+	 * @param leftEdge - The x value of the left edge of the section
+	 * @param rightEdge - The x value of the right edge of the section
+	 * @param isBlue - True iff we are searching for a blue plate
+	 * 
+	 * @author Peter Henderson (s1117205)
+	 */
+	private void searchColumn(ArrayList<Position> platePoints, ArrayList<Position> ballPoints,
+			BufferedImage frame, BufferedImage debugOverlay, 
+			int leftEdge, int rightEdge, boolean isBlue) {
+		
+		int topBuffer = pitchConstants.getTopBuffer();
+		int bottomBuffer = pitchConstants.getBottomBuffer();
+		int obj = isBlue ? BLUE_T : YELLOW_T;
+		int deb = isBlue ? PitchConstants.BLUE : PitchConstants.YELLOW;
+		
+		for (int row = topBuffer; row < frame.getHeight() - bottomBuffer; row++){
+			for (int column = leftEdge; column < rightEdge; column++){
+				Color c = new Color(frame.getRGB(column, row));
+				float hsbvals[] = new float[3];
+				Color.RGBtoHSB(c.getRed(), c.getBlue(), c.getGreen(), hsbvals);
+				
+				if (isColour(c, hsbvals, obj)){
+					platePoints.add(new Position(column,row));
+					if (pitchConstants.debugMode(deb)) {
+						debugOverlay.setRGB(column, row, 0xFFFF0099);
+					}
+				} else if (isColour(c, hsbvals, BALL)){
+					ballPoints.add(new Position(column,row));
+					if (pitchConstants.debugMode(PitchConstants.BALL)) {
+						debugOverlay.setRGB(column, row, 0xFF000000);
+					}
+				}
+			}
+		}
 	}
 
 	/**
@@ -475,9 +576,6 @@ public class Vision implements VideoReceiver {
 			break;
 		case BALL:
 			objectIdx = PitchConstants.BALL;
-			break;
-		case GREY_CIRCLE:
-			objectIdx = PitchConstants.GREY;
 			break;
 		case GREEN_PLATE:
 			objectIdx = PitchConstants.GREEN;
@@ -749,7 +847,7 @@ public class Vision implements VideoReceiver {
 		ArrayList<Position> cluster1 = kMeansRes.getCluster(0);
 		ArrayList<Position> cluster2 = kMeansRes.getCluster(1);
 
-		// TODO: DEBUGGING CODE
+		// DEBUGGING CODE
 		// Only display these markers in non-debug mode.
 		boolean anyDebug = false;
 		for (int i = 0; i < 5; ++i) {
