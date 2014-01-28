@@ -17,14 +17,18 @@ public class MovementTest {
 	
 	public static void main(String[] args) {
 		
-		striker.steer(10,90);
+		striker.rotate(120);
+		
+		//striker.steer(10,90);
+		
+		
 		
 		while (count < 50) {
 			LCD.drawString(striker.getLeftTacho() + " " + striker.getRightTacho(),0,1);
 			LCD.drawString(" Travelled: " + striker.getMovementIncrement(), 0, 2);
-			striker.forward();
+			striker.backward();
 
-			if (striker.getMovementIncrement() > 0.4) {
+			if (striker.getMovementIncrement() < -0.4) {
 				count++;
 			}
 			

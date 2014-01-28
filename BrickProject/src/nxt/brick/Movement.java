@@ -28,7 +28,7 @@ public class Movement extends DifferentialPilot {
 	// TODO: potential changes to be made here due to different robots
 	public static final int MAXIMUM_KICKER_SPEED = 900;
 	public static final int ACCELERATION = MAXIMUM_KICKER_SPEED * 8;
-	public static final int GEAR_ERROR_RATIO = 3;
+	public static final int GEAR_ERROR_RATIO = -5;
 
 	private volatile boolean isKicking = false;
 
@@ -52,18 +52,18 @@ public class Movement extends DifferentialPilot {
 		KICKER.setSpeed(speed);
 
 		// Move kicker back
-		KICKER.rotateTo(-4);
+		KICKER.rotateTo(-35/GEAR_ERROR_RATIO);
 		KICKER.waitComplete();
 
 		// Kick
-		KICKER.rotateTo(40);
+		KICKER.rotateTo(120/GEAR_ERROR_RATIO);
 		KICKER.waitComplete();
 
 		// Reset
-		KICKER.rotateTo(-10);
+		KICKER.rotateTo(-65/GEAR_ERROR_RATIO);
 		KICKER.waitComplete();
 
-		KICKER.flt();
+		//KICKER.flt();
 
 		isKicking = false;
 	}
