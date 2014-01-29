@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.Collection;
 
 import pc.vision.interfaces.VideoReceiver;
 import pc.vision.interfaces.VisionDebugReceiver;
@@ -79,8 +78,8 @@ public class Vision implements VideoReceiver {
 	 * robot orientations from it, and then displays the image (with some
 	 * additional graphics layered on top for debugging) in the vision frame.
 	 * 
-	 * @param image
-	 *            The image to process and then show.
+	 *  @param frame
+	 *  	      The image to process and then show.
 	 * @param frameRate
 	 *            The frame rate
 	 * @param counter
@@ -107,75 +106,57 @@ public class Vision implements VideoReceiver {
 		int blueX = 0;
 		int blueY = 0;
 		int numBluePos = 0;
-
-		ArrayList<Position> ballPoints = new ArrayList<Position>();
+		
 		ArrayList<Position> greenPoints = new ArrayList<Position>();
 		ArrayList<Position> bluePoints = new ArrayList<Position>();
 		ArrayList<Position> yellowPoints = new ArrayList<Position>();
 		
 		// XXX: ADDED CODE FROM HERE *************************************************************
+		ArrayList<Position> ballPoints = new ArrayList<Position>();
 		ArrayList<Position> blueAtkPoints = new ArrayList<Position>();
 		ArrayList<Position> blueDefPoints = new ArrayList<Position>();
 		ArrayList<Position> yellowAtkPoints = new ArrayList<Position>();
 		ArrayList<Position> yellowDefPoints = new ArrayList<Position>();
 
-		int topBuffer = pitchConstants.getTopBuffer();
-		int bottomBuffer = pitchConstants.getBottomBuffer();
 		int leftBuffer = pitchConstants.getLeftBuffer();
 		int rightBuffer = pitchConstants.getRightBuffer();
 		int[] dividers = pitchConstants.getDividers();
 		
-		// Detect the X,Y coords and rotations of the plates in each section.
-		// Use this loop to also track the pixels of the ball;
+		// Detect the X,Y coords and rotations of the plates in each section,
+		// also look for the points of the ball while looping over the frame to save time
 		boolean leftBlueFirst = true; //TODO: calculate this from the appropriate location
-		int leftEdge,rightEdge;
-		for (int section = 0; section < 3; section++){
-			switch(section){
-			case 0:
-				leftEdge = leftBuffer;
-				rightEdge = dividers[0];
-				if (leftBlueFirst){
-					searchColumn(blueDefPoints, ballPoints, frame, 
-							debugOverlay, leftEdge, rightEdge, true);
-				} else {
-					searchColumn(yellowDefPoints, ballPoints, frame,
-							debugOverlay, leftEdge, rightEdge, false);
-				}
-				break;
-			case 1:
-				leftEdge = dividers[0];
-				rightEdge = dividers[1];
-				if (leftBlueFirst){
-					searchColumn(yellowAtkPoints, ballPoints, frame,
-							debugOverlay, leftEdge, rightEdge, false);
-				} else {
-					searchColumn(blueAtkPoints, ballPoints, frame,
-							debugOverlay, leftEdge, rightEdge, true);
-				}
-				break;
-			case 2:
-				leftEdge = dividers[1];
-				rightEdge = dividers[2];
-				if (leftBlueFirst){
-					searchColumn(blueAtkPoints, ballPoints, frame,
-							debugOverlay, leftEdge, rightEdge, true);
-				} else {
-					searchColumn(yellowAtkPoints, ballPoints, frame,
-							debugOverlay, leftEdge, rightEdge, false);
-				}
-				break;
-			case 3:
-				leftEdge = dividers[2];
-				rightEdge = dividers[3];
-				if (leftBlueFirst){
-					searchColumn(yellowDefPoints, ballPoints, frame,
-							debugOverlay, leftEdge, rightEdge, false);
-				} else {
-					searchColumn(blueDefPoints, ballPoints, frame,
-							debugOverlay, leftEdge, rightEdge, true);
-				}
-			}
+		if (leftBlueFirst) {
+			//In order, ltr: Blue Defender, Yellow Attacker, Blue Attacker, Yellow Defender
+			searchColumn(blueDefPoints, ballPoints, frame, debugOverlay, leftBuffer, dividers[0], true);
+			searchColumn(yellowAtkPoints, ballPoints, frame, debugOverlay, dividers[0], dividers[1], false);
+			searchColumn(blueAtkPoints, ballPoints, frame, debugOverlay, dividers[1], dividers[2], true);
+			searchColumn(yellowDefPoints, ballPoints, frame, debugOverlay, dividers[2], rightBuffer, false);
+		} else {
+			//In order, ltr: Yellow Defender, Blue Attacker, Yellow Attacker, Blue Defender
+			searchColumn(yellowDefPoints, ballPoints, frame, debugOverlay, leftBuffer, dividers[0], false);
+			searchColumn(blueAtkPoints, ballPoints, frame, debugOverlay, dividers[0], dividers[1], true);
+			searchColumn(yellowAtkPoints, ballPoints, frame, debugOverlay, dividers[1], dividers[2], false);
+			searchColumn(blueDefPoints, ballPoints, frame, debugOverlay, dividers[2], rightBuffer, true);
 		}
+		
+		// Calculate the mean position of the points for each robot and the ball.
+		Position blueDef, blueAtk, yellowDef, yellowAtk, ball;
+		blueDef = calculatePosition(blueDefPoints);
+		blueAtk = calculatePosition(blueAtkPoints);
+		yellowDef = calculatePosition(yellowDefPoints);
+		yellowAtk = calculatePosition(yellowAtkPoints);
+		ball = calculatePosition(ballPoints);
+		
+		// TODO: Using the previous position values and the time between frames, 
+		// calculate the velocities of the robots and the ball.
+		Velocity blueDefVel, blueAtkVel, yellowDefVel, yellowAtkVel, ballVel;
+		
+		// TODO: Calculate the rotation of each of the robots.
+		float blueDefAngle, blueAtkAngle, yellowDefAngle, yellowAtkAngle;
+		
+		// TODO: Update the world state with the new values for position, velocity and rotation.
+		
+		
 		//XXX: TO HERE ******************************************************************
 		
 
@@ -184,7 +165,7 @@ public class Vision implements VideoReceiver {
 		 * pitch, test to see if it belongs to the ball, the Yellow T, Blue T,
 		 * Green plate, Grey circle
 		 */
-		for (int row = topBuffer; row < frame.getHeight() - bottomBuffer; row++) {
+		for (int row = pitchConstants.getTopBuffer(); row < frame.getHeight() - pitchConstants.getBottomBuffer(); row++) {
 			for (int column = leftBuffer; column < frame.getWidth() - rightBuffer; column++) {
 
 				// The RGB colours and hsv values for the current pixel.
@@ -271,7 +252,7 @@ public class Vision implements VideoReceiver {
 		 * Position objects to hold the centre point of the ball, both Ts and
 		 */
 
-		Position ball;
+		Position ball1;
 		Position green;
 		Position blue;
 		Position yellow;
@@ -387,11 +368,11 @@ public class Vision implements VideoReceiver {
 				ballX /= numBallPos;
 				ballY /= numBallPos;
 
-				ball = new Position(ballX, ballY);
-				ball.fixValues(worldState.getBallX(), worldState.getBallY());
-				ball.filterPoints(ballPoints);
+				ball1 = new Position(ballX, ballY);
+				ball1.fixValues(worldState.getBallX(), worldState.getBallY());
+				ball1.filterPoints(ballPoints);
 			} else {
-				ball = new Position(ballX, ballY);
+				ball1 = new Position(ballX, ballY);
 //				int ballrobot = worldState.whoHasTheBall();
 //				switch (ballrobot) {
 //				case 1: // Blue robot has the ball
@@ -410,17 +391,17 @@ public class Vision implements VideoReceiver {
 //				}
 			}
 
-			ballPoints = Position.removeOutliers(ballPoints, ball);
+			ballPoints = Position.removeOutliers(ballPoints, ball1);
 
-			ball = DistortionFix.barrelCorrect(ball);
+			ball1 = DistortionFix.barrelCorrect(ball1);
 			green = DistortionFix.barrelCorrect(green);
 			blue = DistortionFix.barrelCorrect(bluePlateCentroid);
 			yellow = DistortionFix.barrelCorrect(yellowPlateCentroid);
 
 			/** Worldstate settings */
 			// Sort out all of the world state settings.
-			worldState.setBallX(ball.getX());
-			worldState.setBallY(ball.getY());
+			worldState.setBallX(ball1.getX());
+			worldState.setBallY(ball1.getY());
 			worldState.setGreenX(green.getX());
 			worldState.setGreenY(green.getY());
 			worldState.setBlueX(blue.getX());
@@ -460,6 +441,32 @@ public class Vision implements VideoReceiver {
 		for (WorldStateReceiver receiver : worldStateReceivers)
 			receiver.sendWorldState(worldState);
 
+	}
+
+	// XXX: More added code from here ******************************************************************
+	
+	/**
+	 * Returns the mean position of a list of points.
+	 * 
+	 * @param points
+	 * @return the mean position of the points
+	 * 
+	 * @author Peter Henderson (s1117205)
+	 */
+	private Position calculatePosition(ArrayList<Position> points) {
+		if (points.size() < 10){
+			return new Position(0,0);
+		} else {
+			int xsum = 0;
+			int ysum = 0;
+			for (Position p : points){
+				xsum += p.getX();
+				ysum += p.getY();
+			}
+			int xmean = xsum / points.size();
+			int ymean = ysum / points.size();
+			return new Position (xmean, ymean);
+		}
 	}
 
 	/**
@@ -506,6 +513,8 @@ public class Vision implements VideoReceiver {
 			}
 		}
 	}
+	
+	// XXX: to here ***************************************************************************************
 
 	/**
 	 * Tests if an integer value is within bounds, or outside bounds if the
@@ -898,7 +907,7 @@ public class Vision implements VideoReceiver {
 	 *            The frame that is being processed
 	 * @param debugOverlay
 	 *            The debugging layer on top of the frame
-	 * @param plateCentroids
+	 * @param plateCentroid
 	 *            The centroid of the plate
 	 * @param points
 	 *            The points of the green pixels
