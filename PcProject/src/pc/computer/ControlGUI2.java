@@ -172,13 +172,13 @@ public class ControlGUI2 extends JFrame {
 	}
 
 	private void startMainPlanner() {
-		assert (strategyThread == null || !strategyThread.isAlive()) : "Strategy is already running";
+		assert (this.strategyThread == null || !this.strategyThread.isAlive()) : "Strategy is already running";
 		//strategy = new MainPlanner(worldState, mover);
 		//strategyThread = new Thread(strategy);
 		//strategyThread.start();
 	}
 
-	private void cleanQuit() {
+	private static void cleanQuit() {
 		//robot.clearBuff();
 		//if (robot.isConnected())
 		//	robot.disconnect();
@@ -194,12 +194,12 @@ public class ControlGUI2 extends JFrame {
 
 		this.setTitle("Group 4 control GUI");
 
-		op1field.setColumns(6);
-		op2field.setColumns(6);
-		op3field.setColumns(6);
-		op1field.setText("0");
-		op2field.setText("0");
-		op3field.setText("0");
+		this.op1field.setColumns(6);
+		this.op2field.setColumns(6);
+		this.op3field.setColumns(6);
+		this.op1field.setText("0");
+		this.op2field.setText("0");
+		this.op3field.setText("0");
 		// Auto-generated GUI code (made more readable)
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		this.getContentPane().setLayout(gridBagLayout);
@@ -210,15 +210,15 @@ public class ControlGUI2 extends JFrame {
 		gbc_startStopQuitPanel.insets = new Insets(0, 0, 5, 0);
 		gbc_startStopQuitPanel.gridx = 0;
 		gbc_startStopQuitPanel.gridy = 0;
-		this.getContentPane().add(startStopQuitPanel, gbc_startStopQuitPanel);
-		startStopQuitPanel.add(startButton);
-		startStopQuitPanel.add(stopButton);
-		startStopQuitPanel.add(resetButton);
-		startStopQuitPanel.add(quitButton);
-		startStopQuitPanel.add(forceQuitButton);
-		startStopQuitPanel.add(stratStartButton);
-		startStopQuitPanel.add(penaltyAtkButton);
-		startStopQuitPanel.add(penaltyDefButton);
+		this.getContentPane().add(this.startStopQuitPanel, gbc_startStopQuitPanel);
+		this.startStopQuitPanel.add(this.startButton);
+		this.startStopQuitPanel.add(this.stopButton);
+		this.startStopQuitPanel.add(this.resetButton);
+		this.startStopQuitPanel.add(this.quitButton);
+		this.startStopQuitPanel.add(this.forceQuitButton);
+		this.startStopQuitPanel.add(this.stratStartButton);
+		this.startStopQuitPanel.add(this.penaltyAtkButton);
+		this.startStopQuitPanel.add(this.penaltyDefButton);
 
 		GridBagConstraints gbc_simpleMoveTestPanel = new GridBagConstraints();
 		gbc_simpleMoveTestPanel.anchor = GridBagConstraints.NORTH;
@@ -227,68 +227,68 @@ public class ControlGUI2 extends JFrame {
 		gbc_simpleMoveTestPanel.gridx = 0;
 		gbc_simpleMoveTestPanel.gridy = 1;
 		// gbc_simpleMoveTestPanel.gridwidth = 2;
-		this.getContentPane().add(optionsPanel, gbc_simpleMoveTestPanel);
-		optionsPanel.add(op1label);
-		optionsPanel.add(op1field);
-		optionsPanel.add(op2label);
-		optionsPanel.add(op2field);
-		optionsPanel.add(op3label);
-		optionsPanel.add(op3field);
+		this.getContentPane().add(this.optionsPanel, gbc_simpleMoveTestPanel);
+		this.optionsPanel.add(this.op1label);
+		this.optionsPanel.add(this.op1field);
+		this.optionsPanel.add(this.op2label);
+		this.optionsPanel.add(this.op2field);
+		this.optionsPanel.add(this.op3label);
+		this.optionsPanel.add(this.op3field);
 
 		GridBagConstraints gbc_panel = new GridBagConstraints();
 		gbc_panel.insets = new Insets(0, 0, 5, 0);
 		gbc_panel.fill = GridBagConstraints.BOTH;
 		gbc_panel.gridx = 0;
 		gbc_panel.gridy = 2;
-		this.getContentPane().add(simpleMovePanel, gbc_panel);
-		simpleMovePanel.add(forwardButton);
-		simpleMovePanel.add(backwardButton);
-		simpleMovePanel.add(leftButton);
-		simpleMovePanel.add(rightButton);
-		simpleMovePanel.add(kickButton);
-		simpleMovePanel.add(dribblerStart);
-		simpleMovePanel.add(dribblerStop);
+		this.getContentPane().add(this.simpleMovePanel, gbc_panel);
+		this.simpleMovePanel.add(this.forwardButton);
+		this.simpleMovePanel.add(this.backwardButton);
+		this.simpleMovePanel.add(this.leftButton);
+		this.simpleMovePanel.add(this.rightButton);
+		this.simpleMovePanel.add(this.kickButton);
+		this.simpleMovePanel.add(this.dribblerStart);
+		this.simpleMovePanel.add(this.dribblerStop);
 
 		GridBagConstraints gbc_panel_1 = new GridBagConstraints();
 		gbc_panel_1.insets = new Insets(0, 0, 5, 0);
 		gbc_panel_1.fill = GridBagConstraints.BOTH;
 		gbc_panel_1.gridx = 0;
 		gbc_panel_1.gridy = 3;
-		this.getContentPane().add(complexMovePanel, gbc_panel_1);
-		complexMovePanel.add(rotateButton);
-		complexMovePanel.add(moveButton);
-		complexMovePanel.add(moveToButton);
-		complexMovePanel.add(rotateAndMoveButton);
+		this.getContentPane().add(this.complexMovePanel, gbc_panel_1);
+		this.complexMovePanel.add(this.rotateButton);
+		this.complexMovePanel.add(this.moveButton);
+		this.complexMovePanel.add(this.moveToButton);
+		this.complexMovePanel.add(this.rotateAndMoveButton);
 
 		GridBagConstraints gbc_panel_2 = new GridBagConstraints();
 		gbc_panel_2.insets = new Insets(0, 0, 5, 0);
 		gbc_panel_2.fill = GridBagConstraints.BOTH;
 		gbc_panel_2.gridx = 0;
 		gbc_panel_2.gridy = 4;
-		this.getContentPane().add(moveTargetPanel, gbc_panel_2);
-		moveTargetPanel.add(moveNoCollTarget);
-		moveTargetPanel.add(moveNoCollOppTarget);
+		this.getContentPane().add(this.moveTargetPanel, gbc_panel_2);
+		this.moveTargetPanel.add(this.moveNoCollTarget);
+		this.moveTargetPanel.add(this.moveNoCollOppTarget);
 
 		GridBagConstraints gbc_panel_3 = new GridBagConstraints();
 		gbc_panel_3.insets = new Insets(0, 0, 5, 0);
 		gbc_panel_3.fill = GridBagConstraints.BOTH;
 		gbc_panel_3.gridx = 0;
 		gbc_panel_3.gridy = 5;
-		this.getContentPane().add(moveTargetOptionsPanel, gbc_panel_3);
+		this.getContentPane().add(this.moveTargetOptionsPanel, gbc_panel_3);
 		op4field.setColumns(6);
 		op5field.setColumns(6);
 		op4field.setText("" + 100);
 		op5field.setText("" + 100);
-		moveTargetOptionsPanel.add(op4label);
-		moveTargetOptionsPanel.add(op4field);
-		moveTargetOptionsPanel.add(op5label);
-		moveTargetOptionsPanel.add(op5field);
+		this.moveTargetOptionsPanel.add(this.op4label);
+		this.moveTargetOptionsPanel.add(op4field);
+		this.moveTargetOptionsPanel.add(this.op5label);
+		this.moveTargetOptionsPanel.add(op5field);
 
-		complexMovePanel.add(dribbleButton);
+		this.complexMovePanel.add(this.dribbleButton);
 
 		this.addWindowListener(new ListenCloseWdw());
 
-		startButton.addActionListener(new ActionListener() {
+		this.startButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// if (strategyThread == null || !strategyThread.isAlive()) {
 				// Strategy.reset();
@@ -304,7 +304,7 @@ public class ControlGUI2 extends JFrame {
 			}
 		});
 
-		stopButton.addActionListener(new ActionListener() {
+		this.stopButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// Halt and clear active movements
 				//mover.interruptMove();
@@ -315,25 +315,25 @@ public class ControlGUI2 extends JFrame {
 //					e1.printStackTrace();
 //				}
 				// Stop the dribble thread if it's running
-				if (dribbleThread != null && dribbleThread.isAlive()) {
+				if (ControlGUI2.this.dribbleThread != null && ControlGUI2.this.dribbleThread.isAlive()) {
 					System.out.println("Killing dribble thread");
 					//DribbleBall5.die = true;
 					//mover.interruptMove();
 					try {
-						dribbleThread.join();
+						ControlGUI2.this.dribbleThread.join();
 					} catch (InterruptedException e1) {
 						e1.printStackTrace();
 					}
 				}
 				// Stop strategy if it's running
-				if (strategyThread != null && strategyThread.isAlive()) {
+				if (ControlGUI2.this.strategyThread != null && ControlGUI2.this.strategyThread.isAlive()) {
 					System.out.println("Killing strategy thread");
 					//DribbleBall5.die = true;
 					//Strategy.stop();
 					//strategy.kill();
 					try {
-						strategyThread.join(3000);
-						if (strategyThread.isAlive()) {
+						ControlGUI2.this.strategyThread.join(3000);
+						if (ControlGUI2.this.strategyThread.isAlive()) {
 							System.out.println("Strategy failed to stop");
 							cleanQuit();
 						}
@@ -348,7 +348,7 @@ public class ControlGUI2 extends JFrame {
 		});
 
 		// Run the strategy from here.
-		stratStartButton.addActionListener(new ActionListener() {
+		this.stratStartButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// Allow restart of strategies after previously killing all
 				// strategies
@@ -358,9 +358,9 @@ public class ControlGUI2 extends JFrame {
 			}
 		});
 
-		penaltyAtkButton.addActionListener(new ActionListener() {
+		this.penaltyAtkButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int angle = Integer.parseInt(op1field.getText());
+				int angle = Integer.parseInt(ControlGUI2.this.op1field.getText());
 				if (angle != 0) {
 					//int a = robot.rotate(angle);
 				}
@@ -382,7 +382,7 @@ public class ControlGUI2 extends JFrame {
 			}
 		});
 
-		penaltyDefButton.addActionListener(new ActionListener() {
+		this.penaltyDefButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				//strategy = new PenaltyDefense(worldState, mover);
 				//strategyThread = new Thread(strategy);
@@ -390,104 +390,104 @@ public class ControlGUI2 extends JFrame {
 			}
 		});
 
-		kickButton.addActionListener(new ActionListener() {
+		this.kickButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				//mover.kick();
 			}
 		});
 
-		dribblerStart.addActionListener(new ActionListener() {
+		this.dribblerStart.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int op1 = Integer.parseInt(op1field.getText());
+				int op1 = Integer.parseInt(ControlGUI2.this.op1field.getText());
 				//mover.dribble(op1);
 			}
 		});
 
-		dribblerStop.addActionListener(new ActionListener() {
+		this.dribblerStop.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				//mover.stopdribble();
 			}
 		});
 
-		forwardButton.addActionListener(new ActionListener() {
+		this.forwardButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int op1 = Integer.parseInt(op1field.getText());
+				int op1 = Integer.parseInt(ControlGUI2.this.op1field.getText());
 				//mover.move(0, op1);
 			}
 		});
 
-		backwardButton.addActionListener(new ActionListener() {
+		this.backwardButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int op1 = Integer.parseInt(op1field.getText());
+				int op1 = Integer.parseInt(ControlGUI2.this.op1field.getText());
 
 				//mover.move(0, -op1);
 			}
 		});
 
-		leftButton.addActionListener(new ActionListener() {
+		this.leftButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int op1 = Integer.parseInt(op1field.getText());
+				int op1 = Integer.parseInt(ControlGUI2.this.op1field.getText());
 
 				//mover.move(-op1, 0);
 			}
 		});
 
-		rightButton.addActionListener(new ActionListener() {
+		this.rightButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int op1 = Integer.parseInt(op1field.getText());
+				int op1 = Integer.parseInt(ControlGUI2.this.op1field.getText());
 
 				//mover.move(op1, 0);
 			}
 		});
 
-		dribbleButton.addActionListener(new ActionListener() {
+		this.dribbleButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (dribbleThread == null || !dribbleThread.isAlive()) {
-					dribbleThread = new DribbleBallThread();
-					dribbleThread.start();
+				if (ControlGUI2.this.dribbleThread == null || !ControlGUI2.this.dribbleThread.isAlive()) {
+					ControlGUI2.this.dribbleThread = new DribbleBallThread();
+					ControlGUI2.this.dribbleThread.start();
 				} else {
 					System.out.println("Dribble is already active!");
 				}
 			}
 		});
 
-		rotateButton.addActionListener(new ActionListener() {
+		this.rotateButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int angle = Integer.parseInt(op1field.getText());
+				int angle = Integer.parseInt(ControlGUI2.this.op1field.getText());
 
 				//mover.rotate(Math.toRadians(angle));
 			}
 		});
 
-		moveButton.addActionListener(new ActionListener() {
+		this.moveButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int op1 = Integer.parseInt(op1field.getText());
-				int op2 = Integer.parseInt(op2field.getText());
+				int op1 = Integer.parseInt(ControlGUI2.this.op1field.getText());
+				int op2 = Integer.parseInt(ControlGUI2.this.op2field.getText());
 
 				//mover.move(op1, op2);
 			}
 		});
 
-		moveToButton.addActionListener(new ActionListener() {
+		this.moveToButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int op1 = Integer.parseInt(op1field.getText());
-				int op2 = Integer.parseInt(op2field.getText());
+				int op1 = Integer.parseInt(ControlGUI2.this.op1field.getText());
+				int op2 = Integer.parseInt(ControlGUI2.this.op2field.getText());
 
 				//mover.moveToAndStop(op1, op2);
 			}
 		});
 
-		rotateAndMoveButton.addActionListener(new ActionListener() {
+		this.rotateAndMoveButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int op1 = Integer.parseInt(op1field.getText());
-				int op2 = Integer.parseInt(op2field.getText());
-				int op3 = Integer.parseInt(op3field.getText());
+				int op1 = Integer.parseInt(ControlGUI2.this.op1field.getText());
+				int op2 = Integer.parseInt(ControlGUI2.this.op2field.getText());
+				int op3 = Integer.parseInt(ControlGUI2.this.op3field.getText());
 
 				//robot.rotateMove(op1, op2, op3);
 			}
 		});
 
-		resetButton.addActionListener(new ActionListener() {
+		this.resetButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				System.out.println("Disconnecting...");
 				//Strategy.alldie = true;
@@ -523,7 +523,7 @@ public class ControlGUI2 extends JFrame {
 			}
 		});
 
-		quitButton.addActionListener(new ActionListener() {
+		this.quitButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				//Strategy.alldie = true;
@@ -541,7 +541,7 @@ public class ControlGUI2 extends JFrame {
 			}
 		});
 
-		forceQuitButton.addActionListener(new ActionListener() {
+		this.forceQuitButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				//Strategy.alldie = true;
 				// Kill the mover and wait for it to stop completely
@@ -561,13 +561,13 @@ public class ControlGUI2 extends JFrame {
 			}
 		});
 
-		moveNoCollTarget.addActionListener(new ActionListener() {
+		this.moveNoCollTarget.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				//mover.moveToAStar(Integer.parseInt(op4field.getText()), Integer.parseInt(op5field.getText()), false, true);
 			}
 		});
 
-		moveNoCollOppTarget.addActionListener(new ActionListener() {
+		this.moveNoCollOppTarget.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				//mover.moveToAStar(Integer.parseInt(op4field.getText()), Integer.parseInt(op5field.getText()), true, true);
 			}

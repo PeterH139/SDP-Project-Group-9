@@ -72,51 +72,51 @@ class VisionSettingsPanel extends JPanel {
 		@Override
 		public void stateChanged(ChangeEvent e) {
 			// Update the debug overlay settings
-			int index = tabPane.getSelectedIndex();
+			int index = VisionSettingsPanel.this.tabPane.getSelectedIndex();
 
 			switch (index) {
 			// Main tab
 			case (0):
 				// Disable all debug modes
-				pitchConstants.setDebugMode(PitchConstants.BALL, false);
-				pitchConstants.setDebugMode(PitchConstants.BLUE, false);
-				pitchConstants.setDebugMode(PitchConstants.YELLOW, false);
-				pitchConstants.setDebugMode(PitchConstants.GREY, false);
-				pitchConstants.setDebugMode(PitchConstants.GREEN, false);
+				VisionSettingsPanel.this.pitchConstants.setDebugMode(PitchConstants.BALL, false);
+				VisionSettingsPanel.this.pitchConstants.setDebugMode(PitchConstants.BLUE, false);
+				VisionSettingsPanel.this.pitchConstants.setDebugMode(PitchConstants.YELLOW, false);
+				VisionSettingsPanel.this.pitchConstants.setDebugMode(PitchConstants.GREY, false);
+				VisionSettingsPanel.this.pitchConstants.setDebugMode(PitchConstants.GREEN, false);
 				break;
 			// Camera tab
 			case (1):
 				// Disable all debug modes
-				pitchConstants.setDebugMode(PitchConstants.BALL, false);
-				pitchConstants.setDebugMode(PitchConstants.BLUE, false);
-				pitchConstants.setDebugMode(PitchConstants.YELLOW, false);
-				pitchConstants.setDebugMode(PitchConstants.GREY, false);
-				pitchConstants.setDebugMode(PitchConstants.GREEN, false);
+				VisionSettingsPanel.this.pitchConstants.setDebugMode(PitchConstants.BALL, false);
+				VisionSettingsPanel.this.pitchConstants.setDebugMode(PitchConstants.BLUE, false);
+				VisionSettingsPanel.this.pitchConstants.setDebugMode(PitchConstants.YELLOW, false);
+				VisionSettingsPanel.this.pitchConstants.setDebugMode(PitchConstants.GREY, false);
+				VisionSettingsPanel.this.pitchConstants.setDebugMode(PitchConstants.GREEN, false);
 				break;
 			// Ball tab
 			case (2):
 				// Enable only Ball debug mode
-				pitchConstants.setDebugMode(PitchConstants.BALL, true, false);
+				VisionSettingsPanel.this.pitchConstants.setDebugMode(PitchConstants.BALL, true, false);
 				break;
 			// Blue tab
 			case (3):
 				// Enable only Blue Robot debug mode
-				pitchConstants.setDebugMode(PitchConstants.BLUE, true, false);
+				VisionSettingsPanel.this.pitchConstants.setDebugMode(PitchConstants.BLUE, true, false);
 				break;
 			// Yellow tab
 			case (4):
 				// Enable only Yellow Robot debug mode
-				pitchConstants.setDebugMode(PitchConstants.YELLOW, true, false);
+				VisionSettingsPanel.this.pitchConstants.setDebugMode(PitchConstants.YELLOW, true, false);
 				break;
 			// Grey Circle tab
 			case (5):
 				// Enable only Grey Circle debug mode
-				pitchConstants.setDebugMode(PitchConstants.GREY, true, false);
+				VisionSettingsPanel.this.pitchConstants.setDebugMode(PitchConstants.GREY, true, false);
 				break;
 			// Green Plate tab
 			case (6):
 				// Enable only Green Plate debug mode
-				pitchConstants.setDebugMode(PitchConstants.GREEN, true, false);
+				VisionSettingsPanel.this.pitchConstants.setDebugMode(PitchConstants.GREEN, true, false);
 				break;
 			default:
 				System.err.println("VisionGUI: Invalid tab index");
@@ -132,10 +132,10 @@ class VisionSettingsPanel extends JPanel {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// Update the world state and pitch constants
-			int pitchNum = rdbtnPitch0.isSelected() ? 0 : 1;
+			int pitchNum = VisionSettingsPanel.this.rdbtnPitch0.isSelected() ? 0 : 1;
 			//worldState.setMainPitch(rdbtnPitch0.isSelected());
 			//worldState.setPitch(pitchNum);
-			pitchConstants.setPitchNum(pitchNum);
+			VisionSettingsPanel.this.pitchConstants.setPitchNum(pitchNum);
 			reloadSliderDefaults();
 		}
 	};
@@ -169,10 +169,10 @@ class VisionSettingsPanel extends JPanel {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// Update whether distortion is active
-			if (rdbtnDistortOn.isSelected()) {
-				distortionFix.setActive(true);
+			if (VisionSettingsPanel.this.rdbtnDistortOn.isSelected()) {
+				VisionSettingsPanel.this.distortionFix.setActive(true);
 			} else {
-				distortionFix.setActive(false);
+				VisionSettingsPanel.this.distortionFix.setActive(false);
 			}
 		}
 	};
@@ -183,10 +183,10 @@ class VisionSettingsPanel extends JPanel {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// Update whether debug overlay is active
-			if (rdbtnDebugOn.isSelected()) {
-				debugEnabled = true;
+			if (VisionSettingsPanel.this.rdbtnDebugOn.isSelected()) {
+				VisionSettingsPanel.this.debugEnabled = true;
 			} else {
-				debugEnabled = false;
+				VisionSettingsPanel.this.debugEnabled = false;
 			}
 		}
 	};
@@ -214,12 +214,12 @@ class VisionSettingsPanel extends JPanel {
 
 		@Override
 		public void stateChanged(ChangeEvent e) {
-			int[] lowerUpper = tabPanels[super.index].getRedSliderValues();
-			pitchConstants.setRedLower(super.index, Math.max(0, lowerUpper[0]));
-			pitchConstants.setRedUpper(super.index, lowerUpper[1]);
+			int[] lowerUpper = VisionSettingsPanel.this.tabPanels[super.index].getRedSliderValues();
+			VisionSettingsPanel.this.pitchConstants.setRedLower(super.index, Math.max(0, lowerUpper[0]));
+			VisionSettingsPanel.this.pitchConstants.setRedUpper(super.index, lowerUpper[1]);
 			
-			boolean inverted = tabPanels[super.index].isRedSliderInverted();
-			pitchConstants.setRedInverted(super.index, inverted);
+			boolean inverted = VisionSettingsPanel.this.tabPanels[super.index].isRedSliderInverted();
+			VisionSettingsPanel.this.pitchConstants.setRedInverted(super.index, inverted);
 		}
 	}
 
@@ -230,13 +230,13 @@ class VisionSettingsPanel extends JPanel {
 
 		@Override
 		public void stateChanged(ChangeEvent e) {
-			int[] lowerUpper = tabPanels[super.index].getGreenSliderValues();
-			pitchConstants.setGreenLower(super.index,
+			int[] lowerUpper = VisionSettingsPanel.this.tabPanels[super.index].getGreenSliderValues();
+			VisionSettingsPanel.this.pitchConstants.setGreenLower(super.index,
 					Math.max(0, lowerUpper[0]));
-			pitchConstants.setGreenUpper(super.index, lowerUpper[1]);
+			VisionSettingsPanel.this.pitchConstants.setGreenUpper(super.index, lowerUpper[1]);
 			
-			boolean inverted = tabPanels[super.index].isGreenSliderInverted();
-			pitchConstants.setGreenInverted(super.index, inverted);
+			boolean inverted = VisionSettingsPanel.this.tabPanels[super.index].isGreenSliderInverted();
+			VisionSettingsPanel.this.pitchConstants.setGreenInverted(super.index, inverted);
 		}
 	}
 
@@ -247,13 +247,13 @@ class VisionSettingsPanel extends JPanel {
 
 		@Override
 		public void stateChanged(ChangeEvent e) {
-			int[] lowerUpper = tabPanels[super.index].getBlueSliderValues();
-			pitchConstants
+			int[] lowerUpper = VisionSettingsPanel.this.tabPanels[super.index].getBlueSliderValues();
+			VisionSettingsPanel.this.pitchConstants
 					.setBlueLower(super.index, Math.max(0, lowerUpper[0]));
-			pitchConstants.setBlueUpper(super.index, lowerUpper[1]);
+			VisionSettingsPanel.this.pitchConstants.setBlueUpper(super.index, lowerUpper[1]);
 			
-			boolean inverted = tabPanels[super.index].isBlueSliderInverted();
-			pitchConstants.setBlueInverted(super.index, inverted);
+			boolean inverted = VisionSettingsPanel.this.tabPanels[super.index].isBlueSliderInverted();
+			VisionSettingsPanel.this.pitchConstants.setBlueInverted(super.index, inverted);
 		}
 	}
 
@@ -264,14 +264,14 @@ class VisionSettingsPanel extends JPanel {
 
 		@Override
 		public void stateChanged(ChangeEvent e) {
-			int[] lowerUpper = tabPanels[super.index].getHueSliderValues();
-			pitchConstants.setHueLower(super.index,
+			int[] lowerUpper = VisionSettingsPanel.this.tabPanels[super.index].getHueSliderValues();
+			VisionSettingsPanel.this.pitchConstants.setHueLower(super.index,
 					(float) Math.max(0, lowerUpper[0]) / 255.0f);
-			pitchConstants.setHueUpper(super.index,
+			VisionSettingsPanel.this.pitchConstants.setHueUpper(super.index,
 					(float) lowerUpper[1] / 255.0f);
 			
-			boolean inverted = tabPanels[super.index].isHueSliderInverted();
-			pitchConstants.setHueInverted(super.index, inverted);
+			boolean inverted = VisionSettingsPanel.this.tabPanels[super.index].isHueSliderInverted();
+			VisionSettingsPanel.this.pitchConstants.setHueInverted(super.index, inverted);
 		}
 	}
 
@@ -283,15 +283,15 @@ class VisionSettingsPanel extends JPanel {
 
 		@Override
 		public void stateChanged(ChangeEvent e) {
-			int[] lowerUpper = tabPanels[super.index]
+			int[] lowerUpper = VisionSettingsPanel.this.tabPanels[super.index]
 					.getSaturationSliderValues();
-			pitchConstants.setSaturationLower(super.index,
+			VisionSettingsPanel.this.pitchConstants.setSaturationLower(super.index,
 					(float) Math.max(0, lowerUpper[0]) / 255.0f);
-			pitchConstants.setSaturationUpper(super.index,
+			VisionSettingsPanel.this.pitchConstants.setSaturationUpper(super.index,
 					(float) lowerUpper[1] / 255.0f);
 			
-			boolean inverted = tabPanels[super.index].isSaturationSliderInverted();
-			pitchConstants.setSaturationInverted(super.index, inverted);
+			boolean inverted = VisionSettingsPanel.this.tabPanels[super.index].isSaturationSliderInverted();
+			VisionSettingsPanel.this.pitchConstants.setSaturationInverted(super.index, inverted);
 		}
 	}
 
@@ -302,14 +302,14 @@ class VisionSettingsPanel extends JPanel {
 
 		@Override
 		public void stateChanged(ChangeEvent e) {
-			int[] lowerUpper = tabPanels[super.index].getValueSliderValues();
-			pitchConstants.setValueLower(super.index,
+			int[] lowerUpper = VisionSettingsPanel.this.tabPanels[super.index].getValueSliderValues();
+			VisionSettingsPanel.this.pitchConstants.setValueLower(super.index,
 					(float) Math.max(0, lowerUpper[0]) / 255.0f);
-			pitchConstants.setValueUpper(super.index,
+			VisionSettingsPanel.this.pitchConstants.setValueUpper(super.index,
 					(float) lowerUpper[1] / 255.0f);
 			
-			boolean inverted = tabPanels[super.index].isValueSliderInverted();
-			pitchConstants.setValueInverted(super.index, inverted);
+			boolean inverted = VisionSettingsPanel.this.tabPanels[super.index].isValueSliderInverted();
+			VisionSettingsPanel.this.pitchConstants.setValueInverted(super.index, inverted);
 		}
 	}
 
@@ -337,38 +337,38 @@ class VisionSettingsPanel extends JPanel {
 						+ pitchConstants.getPitchNum() + "camera");
 
 		// The main (default) tab
-		mainTabPanel.setLayout(new BoxLayout(mainTabPanel, BoxLayout.Y_AXIS));
+		this.mainTabPanel.setLayout(new BoxLayout(this.mainTabPanel, BoxLayout.Y_AXIS));
 		setUpMainPanel();
 
 		// The five threshold tabs
 		for (int i = 0; i < PitchConstants.NUM_THRESHOLDS; ++i) {
-			tabPanels[i]
+			this.tabPanels[i]
 					.setRedSliderChangeListener(new RedSliderChangeListener(i));
-			tabPanels[i]
+			this.tabPanels[i]
 					.setGreenSliderChangeListener(new GreenSliderChangeListener(
 							i));
-			tabPanels[i]
+			this.tabPanels[i]
 					.setBlueSliderChangeListener(new BlueSliderChangeListener(i));
-			tabPanels[i]
+			this.tabPanels[i]
 					.setHueSliderChangeListener(new HueSliderChangeListener(i));
-			tabPanels[i]
+			this.tabPanels[i]
 					.setSaturationSliderChangeListener(new SaturationSliderChangeListener(
 							i));
-			tabPanels[i]
+			this.tabPanels[i]
 					.setValueSliderChangeListener(new ValueSliderChangeListener(
 							i));
 		}
 
-		tabPane.addTab("Main", mainTabPanel);
-		tabPane.addTab("Camera", camPanel);
-		tabPane.addTab("Ball", tabPanels[PitchConstants.BALL]);
-		tabPane.addTab("Blue Robot", tabPanels[PitchConstants.BLUE]);
-		tabPane.addTab("Yellow Robot", tabPanels[PitchConstants.YELLOW]);
-		tabPane.addTab("Grey Circles", tabPanels[PitchConstants.GREY]);
-		tabPane.addTab("Green Plates", tabPanels[PitchConstants.GREEN]);
+		this.tabPane.addTab("Main", this.mainTabPanel);
+		this.tabPane.addTab("Camera", this.camPanel);
+		this.tabPane.addTab("Ball", this.tabPanels[PitchConstants.BALL]);
+		this.tabPane.addTab("Blue Robot", this.tabPanels[PitchConstants.BLUE]);
+		this.tabPane.addTab("Yellow Robot", this.tabPanels[PitchConstants.YELLOW]);
+		this.tabPane.addTab("Grey Circles", this.tabPanels[PitchConstants.GREY]);
+		this.tabPane.addTab("Green Plates", this.tabPanels[PitchConstants.GREEN]);
 
-		tabPane.addChangeListener(tabChangeListener);
-		this.add(tabPane);
+		this.tabPane.addChangeListener(this.tabChangeListener);
+		this.add(this.tabPane);
 		this.setSize(this.getPreferredSize());
 
 		reloadSliderDefaults();
@@ -385,15 +385,15 @@ class VisionSettingsPanel extends JPanel {
 		pitchPanel.add(pitchLabel);
 
 		ButtonGroup pitchChoice = new ButtonGroup();
-		pitchChoice.add(rdbtnPitch0);
-		pitchChoice.add(rdbtnPitch1);
-		pitchPanel.add(rdbtnPitch0);
-		pitchPanel.add(rdbtnPitch1);
+		pitchChoice.add(this.rdbtnPitch0);
+		pitchChoice.add(this.rdbtnPitch1);
+		pitchPanel.add(this.rdbtnPitch0);
+		pitchPanel.add(this.rdbtnPitch1);
 
-		rdbtnPitch0.addActionListener(pitchActionListener);
-		rdbtnPitch1.addActionListener(pitchActionListener);
+		this.rdbtnPitch0.addActionListener(this.pitchActionListener);
+		this.rdbtnPitch1.addActionListener(this.pitchActionListener);
 
-		mainTabPanel.add(pitchPanel);
+		this.mainTabPanel.add(pitchPanel);
 
 		// Colour choice
 		JPanel colourPanel = new JPanel();
@@ -401,15 +401,15 @@ class VisionSettingsPanel extends JPanel {
 		colourPanel.add(colourLabel);
 
 		ButtonGroup colourChoice = new ButtonGroup();
-		colourChoice.add(rdbtnBlue);
-		colourPanel.add(rdbtnBlue);
-		colourChoice.add(rdbtnYellow);
-		colourPanel.add(rdbtnYellow);
+		colourChoice.add(this.rdbtnBlue);
+		colourPanel.add(this.rdbtnBlue);
+		colourChoice.add(this.rdbtnYellow);
+		colourPanel.add(this.rdbtnYellow);
 
-		rdbtnYellow.addActionListener(colourActionListener);
-		rdbtnBlue.addActionListener(colourActionListener);
+		this.rdbtnYellow.addActionListener(this.colourActionListener);
+		this.rdbtnBlue.addActionListener(this.colourActionListener);
 
-		mainTabPanel.add(colourPanel);
+		this.mainTabPanel.add(colourPanel);
 
 		// Direction choice
 		JPanel directionPanel = new JPanel();
@@ -417,15 +417,15 @@ class VisionSettingsPanel extends JPanel {
 		directionPanel.add(directionLabel);
 
 		ButtonGroup directionChoice = new ButtonGroup();
-		directionChoice.add(rdbtnLeft);
-		directionPanel.add(rdbtnLeft);
-		directionChoice.add(rdbtnRight);
-		directionPanel.add(rdbtnRight);
+		directionChoice.add(this.rdbtnLeft);
+		directionPanel.add(this.rdbtnLeft);
+		directionChoice.add(this.rdbtnRight);
+		directionPanel.add(this.rdbtnRight);
 
-		rdbtnRight.addActionListener(directionActionListener);
-		rdbtnLeft.addActionListener(directionActionListener);
+		this.rdbtnRight.addActionListener(this.directionActionListener);
+		this.rdbtnLeft.addActionListener(this.directionActionListener);
 
-		mainTabPanel.add(directionPanel);
+		this.mainTabPanel.add(directionPanel);
 
 		// Distortion
 		JPanel distortionPanel = new JPanel();
@@ -433,15 +433,15 @@ class VisionSettingsPanel extends JPanel {
 		distortionPanel.add(distortionLabel);
 
 		ButtonGroup distortionChoice = new ButtonGroup();
-		distortionChoice.add(rdbtnDistortOn);
-		distortionPanel.add(rdbtnDistortOn);
-		distortionChoice.add(rdbtnDistortOff);
-		distortionPanel.add(rdbtnDistortOff);
+		distortionChoice.add(this.rdbtnDistortOn);
+		distortionPanel.add(this.rdbtnDistortOn);
+		distortionChoice.add(this.rdbtnDistortOff);
+		distortionPanel.add(this.rdbtnDistortOff);
 
-		rdbtnDistortOn.addActionListener(distortionActionListener);
-		rdbtnDistortOff.addActionListener(distortionActionListener);
+		this.rdbtnDistortOn.addActionListener(this.distortionActionListener);
+		this.rdbtnDistortOff.addActionListener(this.distortionActionListener);
 
-		mainTabPanel.add(distortionPanel);
+		this.mainTabPanel.add(distortionPanel);
 
 		// Distortion
 		JPanel debugPanel = new JPanel();
@@ -449,15 +449,15 @@ class VisionSettingsPanel extends JPanel {
 		debugPanel.add(debugLabel);
 
 		ButtonGroup debugChoice = new ButtonGroup();
-		debugChoice.add(rdbtnDebugOn);
-		debugPanel.add(rdbtnDebugOn);
-		debugChoice.add(rdbtnDebugOff);
-		debugPanel.add(rdbtnDebugOff);
+		debugChoice.add(this.rdbtnDebugOn);
+		debugPanel.add(this.rdbtnDebugOn);
+		debugChoice.add(this.rdbtnDebugOff);
+		debugPanel.add(this.rdbtnDebugOff);
 
-		rdbtnDebugOn.addActionListener(debugActionListener);
-		rdbtnDebugOff.addActionListener(debugActionListener);
+		this.rdbtnDebugOn.addActionListener(this.debugActionListener);
+		this.rdbtnDebugOff.addActionListener(this.debugActionListener);
 
-		mainTabPanel.add(debugPanel);
+		this.mainTabPanel.add(debugPanel);
 
 		// Mouse mode selector
 		JPanel mouseModePanel = new JPanel();
@@ -479,13 +479,13 @@ class VisionSettingsPanel extends JPanel {
 		mouseModePanel.add(mouseModeLabel, gbc_mouseModeLabel);
 
 		ButtonGroup mouseModeChoice = new ButtonGroup();
-		mainTabPanel.add(mouseModePanel);
-		mouseModeChoice.add(rdbtnMouseModeOff);
-		mouseModeChoice.add(rdbtnMouseModePitch);
-		mouseModeChoice.add(rdbtnMouseModeBlue);
-		mouseModeChoice.add(rdbtnMouseModeYellow);
-		mouseModeChoice.add(rdbtnMouseModeGreenPlates);
-		mouseModeChoice.add(rdbtnMouseModeGreyCircles);
+		this.mainTabPanel.add(mouseModePanel);
+		mouseModeChoice.add(this.rdbtnMouseModeOff);
+		mouseModeChoice.add(this.rdbtnMouseModePitch);
+		mouseModeChoice.add(this.rdbtnMouseModeBlue);
+		mouseModeChoice.add(this.rdbtnMouseModeYellow);
+		mouseModeChoice.add(this.rdbtnMouseModeGreenPlates);
+		mouseModeChoice.add(this.rdbtnMouseModeGreyCircles);
 
 		GridBagConstraints gbc_rdbtnMouseModeOff = new GridBagConstraints();
 		gbc_rdbtnMouseModeOff.anchor = GridBagConstraints.EAST;
@@ -493,11 +493,11 @@ class VisionSettingsPanel extends JPanel {
 		gbc_rdbtnMouseModeOff.insets = new Insets(0, 0, 5, 5);
 		gbc_rdbtnMouseModeOff.gridx = 0;
 		gbc_rdbtnMouseModeOff.gridy = 1;
-		mouseModePanel.add(rdbtnMouseModeOff, gbc_rdbtnMouseModeOff);
-		rdbtnMouseModeOff.addActionListener(new ActionListener() {
+		mouseModePanel.add(this.rdbtnMouseModeOff, gbc_rdbtnMouseModeOff);
+		this.rdbtnMouseModeOff.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				if (rdbtnMouseModeOff.isSelected())
+				if (VisionSettingsPanel.this.rdbtnMouseModeOff.isSelected())
 					setMouseMode(MOUSE_MODE_OFF);
 			}
 		});
@@ -512,7 +512,7 @@ class VisionSettingsPanel extends JPanel {
 		mouseModeOffLabel.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				rdbtnMouseModeOff.doClick();
+				VisionSettingsPanel.this.rdbtnMouseModeOff.doClick();
 			}
 		});
 		mouseModePanel.add(mouseModeOffLabel, gbc_mouseModeOffLabel);
@@ -523,11 +523,11 @@ class VisionSettingsPanel extends JPanel {
 		gbc_rdbtnMouseModePitch.insets = new Insets(0, 0, 5, 5);
 		gbc_rdbtnMouseModePitch.gridx = 0;
 		gbc_rdbtnMouseModePitch.gridy = 2;
-		mouseModePanel.add(rdbtnMouseModePitch, gbc_rdbtnMouseModePitch);
-		rdbtnMouseModePitch.addActionListener(new ActionListener() {
+		mouseModePanel.add(this.rdbtnMouseModePitch, gbc_rdbtnMouseModePitch);
+		this.rdbtnMouseModePitch.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				if (rdbtnMouseModePitch.isSelected())
+				if (VisionSettingsPanel.this.rdbtnMouseModePitch.isSelected())
 					setMouseMode(MOUSE_MODE_PITCH_BOUNDARY);
 			}
 		});
@@ -542,7 +542,7 @@ class VisionSettingsPanel extends JPanel {
 		mouseModePitchLabel.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				rdbtnMouseModePitch.doClick();
+				VisionSettingsPanel.this.rdbtnMouseModePitch.doClick();
 			}
 		});
 		mouseModePanel.add(mouseModePitchLabel, gbc_mouseModePitchLabel);
@@ -553,11 +553,11 @@ class VisionSettingsPanel extends JPanel {
 		gbc_rdbtnMouseModeBlue.insets = new Insets(0, 0, 5, 5);
 		gbc_rdbtnMouseModeBlue.gridx = 0;
 		gbc_rdbtnMouseModeBlue.gridy = 3;
-		mouseModePanel.add(rdbtnMouseModeBlue, gbc_rdbtnMouseModeBlue);
-		rdbtnMouseModeBlue.addActionListener(new ActionListener() {
+		mouseModePanel.add(this.rdbtnMouseModeBlue, gbc_rdbtnMouseModeBlue);
+		this.rdbtnMouseModeBlue.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				if (rdbtnMouseModeBlue.isSelected())
+				if (VisionSettingsPanel.this.rdbtnMouseModeBlue.isSelected())
 					setMouseMode(MOUSE_MODE_BLUE_T);
 			}
 		});
@@ -572,7 +572,7 @@ class VisionSettingsPanel extends JPanel {
 		mouseModeBlueLabel.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				rdbtnMouseModeBlue.doClick();
+				VisionSettingsPanel.this.rdbtnMouseModeBlue.doClick();
 			}
 		});
 		mouseModePanel.add(mouseModeBlueLabel, gbc_mouseModeBlueLabel);
@@ -583,11 +583,11 @@ class VisionSettingsPanel extends JPanel {
 		gbc_rdbtnMouseModeYellow.fill = GridBagConstraints.VERTICAL;
 		gbc_rdbtnMouseModeYellow.gridx = 0;
 		gbc_rdbtnMouseModeYellow.gridy = 4;
-		mouseModePanel.add(rdbtnMouseModeYellow, gbc_rdbtnMouseModeYellow);
-		rdbtnMouseModeYellow.addActionListener(new ActionListener() {
+		mouseModePanel.add(this.rdbtnMouseModeYellow, gbc_rdbtnMouseModeYellow);
+		this.rdbtnMouseModeYellow.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				if (rdbtnMouseModeYellow.isSelected())
+				if (VisionSettingsPanel.this.rdbtnMouseModeYellow.isSelected())
 					setMouseMode(MOUSE_MODE_YELLOW_T);
 			}
 		});
@@ -602,7 +602,7 @@ class VisionSettingsPanel extends JPanel {
 		mouseModeYellowLabel.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				rdbtnMouseModeYellow.doClick();
+				VisionSettingsPanel.this.rdbtnMouseModeYellow.doClick();
 			}
 		});
 		mouseModePanel.add(mouseModeYellowLabel, gbc_mouseModeYellowLabel);
@@ -613,12 +613,12 @@ class VisionSettingsPanel extends JPanel {
 		gbc_rdbtnMouseModeGreenPlates.fill = GridBagConstraints.VERTICAL;
 		gbc_rdbtnMouseModeGreenPlates.gridx = 0;
 		gbc_rdbtnMouseModeGreenPlates.gridy = 5;
-		mouseModePanel.add(rdbtnMouseModeGreenPlates,
+		mouseModePanel.add(this.rdbtnMouseModeGreenPlates,
 				gbc_rdbtnMouseModeGreenPlates);
-		rdbtnMouseModeGreenPlates.addActionListener(new ActionListener() {
+		this.rdbtnMouseModeGreenPlates.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				if (rdbtnMouseModeGreenPlates.isSelected())
+				if (VisionSettingsPanel.this.rdbtnMouseModeGreenPlates.isSelected())
 					setMouseMode(MOUSE_MODE_GREEN_PLATES);
 			}
 		});
@@ -633,7 +633,7 @@ class VisionSettingsPanel extends JPanel {
 		mouseModeGreenPlatesLabel.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				rdbtnMouseModeGreenPlates.doClick();
+				VisionSettingsPanel.this.rdbtnMouseModeGreenPlates.doClick();
 			}
 		});
 		mouseModePanel.add(mouseModeGreenPlatesLabel,
@@ -645,12 +645,12 @@ class VisionSettingsPanel extends JPanel {
 		gbc_rdbtnMouseModeGreyCircles.fill = GridBagConstraints.VERTICAL;
 		gbc_rdbtnMouseModeGreyCircles.gridx = 0;
 		gbc_rdbtnMouseModeGreyCircles.gridy = 6;
-		mouseModePanel.add(rdbtnMouseModeGreyCircles,
+		mouseModePanel.add(this.rdbtnMouseModeGreyCircles,
 				gbc_rdbtnMouseModeGreyCircles);
-		rdbtnMouseModeGreyCircles.addActionListener(new ActionListener() {
+		this.rdbtnMouseModeGreyCircles.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				if (rdbtnMouseModeGreyCircles.isSelected())
+				if (VisionSettingsPanel.this.rdbtnMouseModeGreyCircles.isSelected())
 					setMouseMode(MOUSE_MODE_DIVISIONS);
 			}
 		});
@@ -665,7 +665,7 @@ class VisionSettingsPanel extends JPanel {
 		mouseModeGreyCirclesLabel.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				rdbtnMouseModeGreyCircles.doClick();
+				VisionSettingsPanel.this.rdbtnMouseModeGreyCircles.doClick();
 			}
 		});
 
@@ -675,11 +675,11 @@ class VisionSettingsPanel extends JPanel {
 		gbc_targetSelection.fill = GridBagConstraints.VERTICAL;
 		gbc_targetSelection.gridx = 0;
 		gbc_targetSelection.gridy = 7;
-		mouseModePanel.add(targetSelection, gbc_targetSelection);
-		targetSelection.addActionListener(new ActionListener() {
+		mouseModePanel.add(this.targetSelection, gbc_targetSelection);
+		this.targetSelection.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				if (targetSelection.isSelected())
+				if (VisionSettingsPanel.this.targetSelection.isSelected())
 					setMouseMode(MOUSE_MODE_TARGET);
 			}
 		});
@@ -694,7 +694,7 @@ class VisionSettingsPanel extends JPanel {
 		targetSelectionLabel.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				targetSelection.doClick();
+				VisionSettingsPanel.this.targetSelection.doClick();
 			}
 		});
 		mouseModePanel.add(targetSelectionLabel, gbc_targetSelectionLabel);
@@ -705,16 +705,16 @@ class VisionSettingsPanel extends JPanel {
 		// Save/load buttons
 		JPanel saveLoadPanel = new JPanel();
 
-		saveButton = new JButton("Save Settings");
-		saveButton.addMouseListener(new MouseAdapter() {
+		this.saveButton = new JButton("Save Settings");
+		this.saveButton.addMouseListener(new MouseAdapter() {
 			// Attempt to write all of the current thresholds to a file with a
 			// name
 			// based on the currently selected pitch.
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				int pitchNum = pitchConstants.getPitchNum();
+				int pitchNum = VisionSettingsPanel.this.pitchConstants.getPitchNum();
 
-				int result = JOptionPane.showConfirmDialog(saveButton,
+				int result = JOptionPane.showConfirmDialog(VisionSettingsPanel.this.saveButton,
 						"Are you sure you want to save current constants for pitch "
 								+ pitchNum + "?");
 
@@ -722,24 +722,24 @@ class VisionSettingsPanel extends JPanel {
 						|| result == JOptionPane.CANCEL_OPTION)
 					return;
 
-				pitchConstants.saveConstants(System.getProperty("user.dir")
+				VisionSettingsPanel.this.pitchConstants.saveConstants(System.getProperty("user.dir")
 						+ "/constants/pitch" + pitchNum);
-				camPanel.saveSettings(System.getProperty("user.dir")
+				VisionSettingsPanel.this.camPanel.saveSettings(System.getProperty("user.dir")
 						+ "/constants/pitch" + pitchNum + "camera");
 			}
 		});
 
-		saveLoadPanel.add(saveButton);
+		saveLoadPanel.add(this.saveButton);
 
-		loadButton = new JButton("Load Settings");
-		loadButton.addMouseListener(new MouseAdapter() {
+		this.loadButton = new JButton("Load Settings");
+		this.loadButton.addMouseListener(new MouseAdapter() {
 			// Override the current threshold settings from those set in
 			// the correct constants file for the current pitch.
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				int pitchNum = rdbtnPitch0.isSelected() ? 0 : 1;
+				int pitchNum = VisionSettingsPanel.this.rdbtnPitch0.isSelected() ? 0 : 1;
 
-				int result = JOptionPane.showConfirmDialog(loadButton,
+				int result = JOptionPane.showConfirmDialog(VisionSettingsPanel.this.loadButton,
 						"Are you sure you want to load "
 								+ "pre-saved constants for pitch " + pitchNum
 								+ "?");
@@ -748,28 +748,28 @@ class VisionSettingsPanel extends JPanel {
 						|| result == JOptionPane.CANCEL_OPTION)
 					return;
 
-				pitchConstants.setPitchNum(pitchNum);
-				camPanel.loadSettings(System.getProperty("user.dir")
+				VisionSettingsPanel.this.pitchConstants.setPitchNum(pitchNum);
+				VisionSettingsPanel.this.camPanel.loadSettings(System.getProperty("user.dir")
 						+ "/constants/pitch" + pitchNum + "camera");
 				reloadSliderDefaults();
 			}
 		});
 
-		saveLoadPanel.add(loadButton);
+		saveLoadPanel.add(this.loadButton);
 
-		mainTabPanel.add(saveLoadPanel);
+		this.mainTabPanel.add(saveLoadPanel);
 
 		try {
 			Thread.sleep(100);
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
 		}
-		rdbtnPitch0.doClick();
-		rdbtnBlue.doClick();
-		rdbtnLeft.doClick();
-		rdbtnDistortOff.doClick();
-		rdbtnDebugOn.doClick();
-		rdbtnMouseModeOff.doClick();
+		this.rdbtnPitch0.doClick();
+		this.rdbtnBlue.doClick();
+		this.rdbtnLeft.doClick();
+		this.rdbtnDistortOff.doClick();
+		this.rdbtnDebugOn.doClick();
+		this.rdbtnMouseModeOff.doClick();
 	}
 
 	/**
@@ -777,11 +777,11 @@ class VisionSettingsPanel extends JPanel {
 	 */
 	public void reloadSliderDefaults() {
 		for (int i = 0; i < PitchConstants.NUM_THRESHOLDS; ++i)
-			tabPanels[i].setSliderValues(i, pitchConstants);
+			this.tabPanels[i].setSliderValues(i, this.pitchConstants);
 	}
 
 	public int getMouseMode() {
-		return mouseMode;
+		return this.mouseMode;
 	}
 
 	public void setMouseMode(int mouseMode) {
@@ -789,6 +789,6 @@ class VisionSettingsPanel extends JPanel {
 	}
 
 	public boolean isDebugEnabled() {
-		return debugEnabled;
+		return this.debugEnabled;
 	}
 }

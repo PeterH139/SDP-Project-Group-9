@@ -28,7 +28,8 @@ public class Movement extends DifferentialPilot {
 	// TODO: potential changes to be made here due to different robots
 	public static final int MAXIMUM_KICKER_SPEED = 900;
 	public static final int ACCELERATION = MAXIMUM_KICKER_SPEED * 8;
-	public static final int GEAR_ERROR_RATIO = -5;
+	public static final int REVERSE_KICKER_DIRECTION = -1;
+	public static final int GEAR_ERROR_RATIO = 5 * REVERSE_KICKER_DIRECTION;
 
 	private volatile boolean isKicking = false;
 
@@ -36,18 +37,18 @@ public class Movement extends DifferentialPilot {
 		super(TYRE_DIAMETER, trackWidth, LEFT_WHEEL, RIGHT_WHEEL);
 	}
 
-	public void floatWheels() {
+	public static void floatWheels() {
 		LEFT_WHEEL.flt();
 		RIGHT_WHEEL.flt();
 	}
 
 	public void kick(int speed) {
 
-		if (isKicking) {
+		if (this.isKicking) {
 			return;
 		}
 
-		isKicking = true;
+		this.isKicking = true;
 
 		KICKER.setSpeed(speed);
 
@@ -65,10 +66,10 @@ public class Movement extends DifferentialPilot {
 
 		//KICKER.flt();
 
-		isKicking = false;
+		this.isKicking = false;
 	}
 
-	private void setMotorSpeed(NXTRegulatedMotor motor, int speed) {
+	private static void setMotorSpeed(NXTRegulatedMotor motor, int speed) {
 		boolean forward = true;
 		if (speed < 0) {
 			forward = false;
@@ -83,12 +84,12 @@ public class Movement extends DifferentialPilot {
 	}
 
 	public void setWheelSpeeds(int leftWheelSpeed, int rightWheelSpeed) {
-		if (leftWheelSpeed > maxPilotSpeed)
-			leftWheelSpeed = maxPilotSpeed;
-		if (rightWheelSpeed > maxPilotSpeed)
-			rightWheelSpeed = maxPilotSpeed;
+		if (leftWheelSpeed > this.maxPilotSpeed)
+			leftWheelSpeed = this.maxPilotSpeed;
+		if (rightWheelSpeed > this.maxPilotSpeed)
+			rightWheelSpeed = this.maxPilotSpeed;
 
-		if (INVERSE_WHEELS) {
+		if (this.INVERSE_WHEELS) {
 			leftWheelSpeed *= -1;
 			rightWheelSpeed *= -1;
 		}
@@ -97,7 +98,7 @@ public class Movement extends DifferentialPilot {
 	}
 
 	public int getMaximumWheelSpeed() {
-		return maxPilotSpeed;
+		return this.maxPilotSpeed;
 	}
 
 	public boolean isReady() {
@@ -105,9 +106,11 @@ public class Movement extends DifferentialPilot {
 	}
 
 	public void connect() {
+		//TODO Empty Block
 	}
 
 	public void disconnect() {
+		//TODO Empty Block
 	}
 
 	/*

@@ -44,13 +44,12 @@ public class BrickController {
                 byte[] byteBuffer = new byte[4];
                 is.read(byteBuffer);
                 
-             // We send 4 different numbers, use as options
+                // We send 4 different numbers, use as options
                 opcode = byteBuffer[0];
                 option1 = byteBuffer[1];
                 option2 = byteBuffer[2];
                 option3 = byteBuffer[3];
                 
-
                 if (opcode > 0)
                         LCD.drawString("opcode = " + opcode, 0, 2);
                 
@@ -76,11 +75,11 @@ public class BrickController {
                 		LCD.refresh();
                 		replytopc(opcode, os);
                 		break;
-                case QUIT: // Exit the loop, close connection
+                case QUIT: 
+                		// Exit the loop, close connection
                         // Sound.twoBeeps();
                 		
                         break;
-
                 case FORCEQUIT:
                         // Quit the brick. otherwise it'd loop back to
                         // waiting for connection.

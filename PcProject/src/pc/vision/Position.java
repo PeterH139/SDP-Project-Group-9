@@ -31,7 +31,7 @@ public class Position {
 	 * @return The x-coordinate of the object.
 	 */
 	public int getX() {
-		return x;
+		return this.x;
 	}
 
 	/**
@@ -50,7 +50,7 @@ public class Position {
 	 * @return The y-coordinate of the object.
 	 */
 	public int getY() {
-		return y;
+		return this.y;
 	}
 
 	/**
@@ -65,7 +65,7 @@ public class Position {
 	
 	@Override
 	public String toString() {
-		return "(" + x + ", " + y + ")";
+		return "(" + this.x + ", " + this.y + ")";
 	}
 
 	/**

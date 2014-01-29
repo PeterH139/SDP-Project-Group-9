@@ -74,7 +74,7 @@ public class PitchConstants {
 	// Holds the x values of the pitch divisions. Used when detecting the plates on the board.
 	private int[] dividers = new int[3];
 	public int[] getDividers() {
-		return dividers;
+		return this.dividers;
 	}
 	public void setDividers(int[] dividers) {
 		if (dividers.length != 3){
@@ -93,7 +93,7 @@ public class PitchConstants {
 	 */
 	public PitchConstants(int pitchNum) {
 		for (int i = 0; i < NUM_THRESHOLDS; ++i)
-			debug[i] = false;
+			this.debug[i] = false;
 		// Just call the setPitchNum method to load in the constants
 		setPitchNum(pitchNum);
 	}
@@ -107,7 +107,7 @@ public class PitchConstants {
 	 * @return The lower red threshold value
 	 */
 	public int getRedLower(int i) {
-		return redLower[i];
+		return this.redLower[i];
 	}
 
 	/**
@@ -132,7 +132,7 @@ public class PitchConstants {
 	 * @return The upper red threshold value
 	 */
 	public int getRedUpper(int i) {
-		return redUpper[i];
+		return this.redUpper[i];
 	}
 
 	/**
@@ -158,7 +158,7 @@ public class PitchConstants {
 	 * @return true if inverted, false otherwise
 	 */
 	public boolean isRedInverted(int i) {
-		return redInverted[i];
+		return this.redInverted[i];
 	}
 
 	/**
@@ -183,7 +183,7 @@ public class PitchConstants {
 	 * @return The lower green threshold value
 	 */
 	public int getGreenLower(int i) {
-		return greenLower[i];
+		return this.greenLower[i];
 	}
 
 	/**
@@ -208,7 +208,7 @@ public class PitchConstants {
 	 * @return The upper green threshold value
 	 */
 	public int getGreenUpper(int i) {
-		return greenUpper[i];
+		return this.greenUpper[i];
 	}
 
 	/**
@@ -234,7 +234,7 @@ public class PitchConstants {
 	 * @return true if inverted, false otherwise
 	 */
 	public boolean isGreenInverted(int i) {
-		return greenInverted[i];
+		return this.greenInverted[i];
 	}
 
 	/**
@@ -259,7 +259,7 @@ public class PitchConstants {
 	 * @return The lower blue threshold value
 	 */
 	public int getBlueLower(int i) {
-		return blueLower[i];
+		return this.blueLower[i];
 	}
 
 	/**
@@ -284,7 +284,7 @@ public class PitchConstants {
 	 * @return The upper blue threshold value
 	 */
 	public int getBlueUpper(int i) {
-		return blueUpper[i];
+		return this.blueUpper[i];
 	}
 
 	/**
@@ -310,7 +310,7 @@ public class PitchConstants {
 	 * @return true if inverted, false otherwise
 	 */
 	public boolean isBlueInverted(int i) {
-		return blueInverted[i];
+		return this.blueInverted[i];
 	}
 
 	/**
@@ -335,7 +335,7 @@ public class PitchConstants {
 	 * @return The lower hue threshold value
 	 */
 	public float getHueLower(int i) {
-		return hueLower[i];
+		return this.hueLower[i];
 	}
 
 	/**
@@ -360,7 +360,7 @@ public class PitchConstants {
 	 * @return The upper hue threshold value
 	 */
 	public float getHueUpper(int i) {
-		return hueUpper[i];
+		return this.hueUpper[i];
 	}
 
 	/**
@@ -386,7 +386,7 @@ public class PitchConstants {
 	 * @return true if inverted, false otherwise
 	 */
 	public boolean isHueInverted(int i) {
-		return hueInverted[i];
+		return this.hueInverted[i];
 	}
 
 	/**
@@ -412,7 +412,7 @@ public class PitchConstants {
 	 * @return The lower colour saturation threshold value
 	 */
 	public float getSaturationLower(int i) {
-		return saturationLower[i];
+		return this.saturationLower[i];
 	}
 
 	/**
@@ -439,7 +439,7 @@ public class PitchConstants {
 	 * @return The upper colour saturation threshold value
 	 */
 	public float getSaturationUpper(int i) {
-		return saturationUpper[i];
+		return this.saturationUpper[i];
 	}
 
 	/**
@@ -466,7 +466,7 @@ public class PitchConstants {
 	 * @return true if inverted, false otherwise
 	 */
 	public boolean isSaturationInverted(int i) {
-		return saturationInverted[i];
+		return this.saturationInverted[i];
 	}
 
 	/**
@@ -491,7 +491,7 @@ public class PitchConstants {
 	 * @return The lower colour value threshold value
 	 */
 	public float getValueLower(int i) {
-		return valueLower[i];
+		return this.valueLower[i];
 	}
 
 	/**
@@ -516,7 +516,7 @@ public class PitchConstants {
 	 * @return The upper colour value threshold value
 	 */
 	public float getValueUpper(int i) {
-		return valueUpper[i];
+		return this.valueUpper[i];
 	}
 
 	/**
@@ -542,7 +542,7 @@ public class PitchConstants {
 	 * @return true if inverted, false otherwise
 	 */
 	public boolean isValueInverted(int i) {
-		return valueInverted[i];
+		return this.valueInverted[i];
 	}
 
 	/**
@@ -564,7 +564,7 @@ public class PitchConstants {
 	 * @return the width of the pitch in pixels
 	 */
 	public int getPitchWidth() {
-		return (640 - rightBuffer - leftBuffer);
+		return (640 - this.rightBuffer - this.leftBuffer);
 	}
 
 	/**
@@ -573,7 +573,7 @@ public class PitchConstants {
 	 * @return the height of the pitch in pixels
 	 */
 	public int getPitchHeight() {
-		return (480 - bottomBuffer - topBuffer);
+		return (480 - this.bottomBuffer - this.topBuffer);
 	}
 
 	/**
@@ -583,7 +583,7 @@ public class PitchConstants {
 	 *         produced by the video device
 	 */
 	public int getTopBuffer() {
-		return topBuffer;
+		return this.topBuffer;
 	}
 
 	/**
@@ -603,7 +603,7 @@ public class PitchConstants {
 	 *         image produced by the video device
 	 */
 	public int getBottomBuffer() {
-		return bottomBuffer;
+		return this.bottomBuffer;
 	}
 
 	/**
@@ -623,7 +623,7 @@ public class PitchConstants {
 	 *         produced by the video device
 	 */
 	public int getLeftBuffer() {
-		return leftBuffer;
+		return this.leftBuffer;
 	}
 
 	/**
@@ -643,7 +643,7 @@ public class PitchConstants {
 	 *         image produced by the video device
 	 */
 	public int getRightBuffer() {
-		return rightBuffer;
+		return this.rightBuffer;
 	}
 
 	/**
@@ -728,7 +728,7 @@ public class PitchConstants {
 		this.pitchNum = newPitchNum;
 
 		loadConstants(System.getProperty("user.dir") + "/constants/pitch"
-				+ pitchNum);
+				+ this.pitchNum);
 	}
 
 	public void saveConstants(int pitchNumber){
@@ -745,18 +745,18 @@ public class PitchConstants {
 		try {
 			// Update the pitch dimensions file
 			FileWriter pitchDimFile = new FileWriter(new File("constants/pitch"
-					+ pitchNum + "Dimensions"));
+					+ this.pitchNum + "Dimensions"));
 			pitchDimFile.write(String.valueOf(getTopBuffer()) + "\n");
 			pitchDimFile.write(String.valueOf(getBottomBuffer()) + "\n");
 			pitchDimFile.write(String.valueOf(getLeftBuffer()) + "\n");
 			pitchDimFile.write(String.valueOf(getRightBuffer()) + "\n");
-			pitchDimFile.write(String.valueOf(dividers[0]) + "\n");
-			pitchDimFile.write(String.valueOf(dividers[1]) + "\n");
-			pitchDimFile.write(String.valueOf(dividers[2]) + "\n");
+			pitchDimFile.write(String.valueOf(this.dividers[0]) + "\n");
+			pitchDimFile.write(String.valueOf(this.dividers[1]) + "\n");
+			pitchDimFile.write(String.valueOf(this.dividers[2]) + "\n");
 			pitchDimFile.close();
 
 			FileWriter pitchFile = new FileWriter(new File("constants/pitch"
-					+ pitchNum));
+					+ this.pitchNum));
 
 			// Iterate over the ball, blue robot, yellow robot, grey circles,
 			// and green plates in the order they're defined above.

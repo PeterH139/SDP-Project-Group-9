@@ -34,12 +34,12 @@ public class BluetoothConnection {
      *            The MAC address of the Bluetooth device
      */
     public BluetoothConnection(String deviceName, String deviceMacAddress){
-    	nxtInfo = new NXTInfo(NXTCommFactory.BLUETOOTH,deviceName,deviceMacAddress);
+    	this.nxtInfo = new NXTInfo(NXTCommFactory.BLUETOOTH,deviceName,deviceMacAddress);
     	
     	Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
-                    if (connected) {
+                    if (BluetoothConnection.this.connected) {
                             close();
                     }
             }
@@ -48,7 +48,7 @@ public class BluetoothConnection {
 
 	public void open() throws IOException {
         try {
-                nxtComm = NXTCommFactory.createNXTComm(NXTCommFactory.BLUETOOTH);
+                this.nxtComm = NXTCommFactory.createNXTComm(NXTCommFactory.BLUETOOTH);
         } catch (NXTCommException e) {
                 System.err.println("Could not create connection: " + e.toString());
         }
@@ -56,9 +56,9 @@ public class BluetoothConnection {
         System.out.println("Attempting to connect to robot...");
 
         try {
-                nxtComm.open(nxtInfo);
-                is = nxtComm.getInputStream();
-                os = nxtComm.getOutputStream();
+                this.nxtComm.open(this.nxtInfo);
+                this.is = this.nxtComm.getInputStream();
+                this.os = this.nxtComm.getOutputStream();
 
                 while (true) {
                         int[] res = receiveFromRobot();
@@ -76,8 +76,8 @@ public class BluetoothConnection {
                         }
                 }
                 System.out.println("Connected to robot!");
-                robotReady = true;
-                connected = true;
+                this.robotReady = true;
+                this.connected = true;
         } catch (NXTCommException e) {
                 throw new IOException("Failed to connect: " + e.toString());
         } catch (InterruptedException e) {
@@ -87,10 +87,10 @@ public class BluetoothConnection {
 		
     public void close() {
         try {
-                connected = false;
-                is.close();
-                os.close();
-                nxtComm.close();
+                this.connected = false;
+                this.is.close();
+                this.os.close();
+                this.nxtComm.close();
         } catch (IOException e) {
                 System.err.println("Couldn't close Bluetooth connection: "
                                 + e.toString());
@@ -99,19 +99,19 @@ public class BluetoothConnection {
     
     public int[] receiveFromRobot() throws IOException {
         byte[] res = new byte[4];
-        is.read(res);
+        this.is.read(res);
         int[] ret = { (int) (res[0]), (int) (res[1]), (int) (res[2]),
                 (int) (res[3]) };
         return ret;
     }
     public void sendToRobotSimple(int[] comm) throws IOException {
-        if (!connected)
+        if (!this.connected)
                 return;
         byte[] command = { (byte) comm[0], (byte) comm[1], (byte) comm[2],
                         (byte) comm[3] };
 
-        os.write(command);
-        os.flush();
+        this.os.write(command);
+        this.os.flush();
 }
     
     public static void main(String[] args) throws IOException{

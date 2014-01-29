@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.Collection;
 
 import pc.vision.interfaces.VideoReceiver;
 import pc.vision.interfaces.VisionDebugReceiver;
@@ -51,7 +50,7 @@ public class Vision implements VideoReceiver {
 	 * @return The current world state
 	 */
 	public WorldState getWorldState() {
-		return worldState;
+		return this.worldState;
 	}
 
 	/**
@@ -61,7 +60,7 @@ public class Vision implements VideoReceiver {
 	 *            The object being registered
 	 */
 	public void addVisionDebugReceiver(VisionDebugReceiver receiver) {
-		visionDebugReceivers.add(receiver);
+		this.visionDebugReceivers.add(receiver);
 	}
 
 	/**
@@ -71,7 +70,7 @@ public class Vision implements VideoReceiver {
 	 *            The object being registered
 	 */
 	public void addWorldStateReceiver(WorldStateReceiver receiver) {
-		worldStateReceivers.add(receiver);
+		this.worldStateReceivers.add(receiver);
 	}
 
 	/**
@@ -119,11 +118,11 @@ public class Vision implements VideoReceiver {
 		ArrayList<Position> yellowAtkPoints = new ArrayList<Position>();
 		ArrayList<Position> yellowDefPoints = new ArrayList<Position>();
 
-		int topBuffer = pitchConstants.getTopBuffer();
-		int bottomBuffer = pitchConstants.getBottomBuffer();
-		int leftBuffer = pitchConstants.getLeftBuffer();
-		int rightBuffer = pitchConstants.getRightBuffer();
-		int[] dividers = pitchConstants.getDividers();
+		int topBuffer = this.pitchConstants.getTopBuffer();
+		int bottomBuffer = this.pitchConstants.getBottomBuffer();
+		int leftBuffer = this.pitchConstants.getLeftBuffer();
+		int rightBuffer = this.pitchConstants.getRightBuffer();
+		int[] dividers = this.pitchConstants.getDividers();
 		
 		// Detect the X,Y coords and rotations of the plates in each section.
 		// Use this loop to also track the pixels of the ball;
@@ -193,7 +192,7 @@ public class Vision implements VideoReceiver {
 				Color.RGBtoHSB(c.getRed(), c.getBlue(), c.getGreen(), hsbvals);
 
 				/** Checking if the pixel is a part of the Blue T */
-				if (isColour(c, hsbvals, BLUE_T)) {
+				if (isColour(c, hsbvals, this.BLUE_T)) {
 					blueX += column;
 					blueY += row;
 					numBluePos++;
@@ -205,13 +204,13 @@ public class Vision implements VideoReceiver {
 					 * we're looking at, for debugging and to help with
 					 * threshold setting.
 					 */
-					if (pitchConstants.debugMode(PitchConstants.BLUE)) {
+					if (this.pitchConstants.debugMode(PitchConstants.BLUE)) {
 						debugOverlay.setRGB(column, row, 0xFFFF0099);
 					}
 				}
 
 				/** Checking if the pixel is a part of the Yellow T */
-				if (isColour(c, hsbvals, YELLOW_T)) {
+				if (isColour(c, hsbvals, this.YELLOW_T)) {
 					yellowX += column;
 					yellowY += row;
 					numYellowPos++;
@@ -223,13 +222,13 @@ public class Vision implements VideoReceiver {
 					 * we're looking at, for debugging and to help with
 					 * threshold setting.
 					 */
-					if (pitchConstants.debugMode(PitchConstants.YELLOW)) {
+					if (this.pitchConstants.debugMode(PitchConstants.YELLOW)) {
 						debugOverlay.setRGB(column, row, 0xFFFF0099);
 					}
 				}
 
 				/** Checking if the pixel is a part of the Green Plate */
-				if (isColour(c, hsbvals, GREEN_PLATE)) {
+				if (isColour(c, hsbvals, this.GREEN_PLATE)) {
 					greenX += column;
 					greenY += row;
 					numGreenPos++;
@@ -241,13 +240,13 @@ public class Vision implements VideoReceiver {
 					 * we're looking at, for debugging and to help with
 					 * threshold setting.
 					 */
-					if (pitchConstants.debugMode(PitchConstants.GREEN)) {
+					if (this.pitchConstants.debugMode(PitchConstants.GREEN)) {
 						debugOverlay.setRGB(column, row, 0xFFFF0099);
 					}
 				}
 
 				/** Checking if the pixel is a part of the Ball */
-				if (isColour(c, hsbvals, BALL)) {
+				if (isColour(c, hsbvals, this.BALL)) {
 					ballX += column;
 					ballY += row;
 					numBallPos++;
@@ -259,7 +258,7 @@ public class Vision implements VideoReceiver {
 					 * looking at, for debugging and to help with threshold
 					 * setting.
 					 */
-					if (pitchConstants.debugMode(PitchConstants.BALL)) {
+					if (this.pitchConstants.debugMode(PitchConstants.BALL)) {
 						debugOverlay.setRGB(column, row, 0xFF000000);
 					}
 				}
@@ -282,11 +281,11 @@ public class Vision implements VideoReceiver {
 			yellowY /= numYellowPos;
 
 			yellow = new Position(yellowX, yellowY);
-			yellow.fixValues(worldState.getYellowX(), worldState.getYellowY());
+			yellow.fixValues(this.worldState.getYellowX(), this.worldState.getYellowY());
 			yellow.filterPoints(yellowPoints);
 		} else {
-			yellow = new Position(worldState.getYellowX(),
-					worldState.getYellowY());
+			yellow = new Position(this.worldState.getYellowX(),
+					this.worldState.getYellowY());
 			yellow = new Position(yellowX, yellowY); // temp
 		}
 
@@ -296,10 +295,10 @@ public class Vision implements VideoReceiver {
 			blueY /= numBluePos;
 
 			blue = new Position(blueX, blueY);
-			blue.fixValues(worldState.getBlueX(), worldState.getBlueY());
+			blue.fixValues(this.worldState.getBlueX(), this.worldState.getBlueY());
 			blue.filterPoints(bluePoints);
 		} else {
-			blue = new Position(worldState.getBlueX(), worldState.getBlueY());
+			blue = new Position(this.worldState.getBlueX(), this.worldState.getBlueY());
 			blue = new Position(blueX, blueY); // temp
 		}
 
@@ -310,10 +309,10 @@ public class Vision implements VideoReceiver {
 
 			green = new Position(greenX, greenY);
 			// move this to k-means stuff
-			green.fixValues(worldState.getGreenX(), worldState.getGreenY());
+			green.fixValues(this.worldState.getGreenX(), this.worldState.getGreenY());
 			green.filterPoints(greenPoints);
 		} else {
-			green = new Position(worldState.getGreenX(), worldState.getGreenY());
+			green = new Position(this.worldState.getGreenX(), this.worldState.getGreenY());
 			green = new Position(greenX, greenY); // temp
 		}
 
@@ -353,20 +352,20 @@ public class Vision implements VideoReceiver {
 					// plate
 					if (numBluePos > numYellowPos) {
 						blueAngle = angle;
-						bluePlateCentroid = green;
+						this.bluePlateCentroid = green;
 					
 						// Set the other plate to some position off the pitch
 						yellowAngle = 0.0;
-						yellowPlateCentroid = new Position(0,0);
+						this.yellowPlateCentroid = new Position(0,0);
 						}
 					// Otherwise assign it to the yellow plate
 					else {
 						yellowAngle = angle;
-						yellowPlateCentroid = green;
+						this.yellowPlateCentroid = green;
 					
 						// Set the other plate to some position off the pitch
 						blueAngle = 0.0;
-						bluePlateCentroid = new Position(0,0);
+						this.bluePlateCentroid = new Position(0,0);
 					}
 				} catch (NoAngleException e) {
 					debugGraphics.drawString(e.getMessage(), 15, 440);
@@ -388,7 +387,7 @@ public class Vision implements VideoReceiver {
 				ballY /= numBallPos;
 
 				ball = new Position(ballX, ballY);
-				ball.fixValues(worldState.getBallX(), worldState.getBallY());
+				ball.fixValues(this.worldState.getBallX(), this.worldState.getBallY());
 				ball.filterPoints(ballPoints);
 			} else {
 				ball = new Position(ballX, ballY);
@@ -414,21 +413,21 @@ public class Vision implements VideoReceiver {
 
 			ball = DistortionFix.barrelCorrect(ball);
 			green = DistortionFix.barrelCorrect(green);
-			blue = DistortionFix.barrelCorrect(bluePlateCentroid);
-			yellow = DistortionFix.barrelCorrect(yellowPlateCentroid);
+			blue = DistortionFix.barrelCorrect(this.bluePlateCentroid);
+			yellow = DistortionFix.barrelCorrect(this.yellowPlateCentroid);
 
 			/** Worldstate settings */
 			// Sort out all of the world state settings.
-			worldState.setBallX(ball.getX());
-			worldState.setBallY(ball.getY());
-			worldState.setGreenX(green.getX());
-			worldState.setGreenY(green.getY());
-			worldState.setBlueX(blue.getX());
-			worldState.setBlueY(blue.getY());
-			worldState.setYellowX(yellow.getX());
-			worldState.setYellowY(yellow.getY());
-			worldState.setBlueOrientation(blueAngle);
-			worldState.setYellowOrientation(yellowAngle);
+			this.worldState.setBallX(ball.getX());
+			this.worldState.setBallY(ball.getY());
+			this.worldState.setGreenX(green.getX());
+			this.worldState.setGreenY(green.getY());
+			this.worldState.setBlueX(blue.getX());
+			this.worldState.setBlueY(blue.getY());
+			this.worldState.setYellowX(yellow.getX());
+			this.worldState.setYellowY(yellow.getY());
+			this.worldState.setBlueOrientation(blueAngle);
+			this.worldState.setYellowOrientation(yellowAngle);
 //			worldState.update();
 //
 //			worldState.setOurRobot();
@@ -439,7 +438,7 @@ public class Vision implements VideoReceiver {
 			// Only display these markers in non-debug mode.
 			boolean anyDebug = false;
 			for (int i = 0; i < 5; ++i) {
-				if (pitchConstants.debugMode(i)) {
+				if (this.pitchConstants.debugMode(i)) {
 					anyDebug = true;
 					break;
 				}
@@ -447,18 +446,18 @@ public class Vision implements VideoReceiver {
 
 			if (!anyDebug) {
 				debugGraphics.setColor(Color.red);
-				debugGraphics.drawLine(0, worldState.getBallY(), 640,
-						worldState.getBallY());
-				debugGraphics.drawLine(worldState.getBallX(), 0,
-						worldState.getBallX(), 480);
+				debugGraphics.drawLine(0, this.worldState.getBallY(), 640,
+						this.worldState.getBallY());
+				debugGraphics.drawLine(this.worldState.getBallX(), 0,
+						this.worldState.getBallX(), 480);
 				debugGraphics.setColor(Color.white);
 			}
 		
 
-		for (VisionDebugReceiver receiver : visionDebugReceivers)
+		for (VisionDebugReceiver receiver : this.visionDebugReceivers)
 			receiver.sendDebugOverlay(debugOverlay);
-		for (WorldStateReceiver receiver : worldStateReceivers)
-			receiver.sendWorldState(worldState);
+		for (WorldStateReceiver receiver : this.worldStateReceivers)
+			receiver.sendWorldState(this.worldState);
 
 	}
 
@@ -481,9 +480,9 @@ public class Vision implements VideoReceiver {
 			BufferedImage frame, BufferedImage debugOverlay, 
 			int leftEdge, int rightEdge, boolean isBlue) {
 		
-		int topBuffer = pitchConstants.getTopBuffer();
-		int bottomBuffer = pitchConstants.getBottomBuffer();
-		int obj = isBlue ? BLUE_T : YELLOW_T;
+		int topBuffer = this.pitchConstants.getTopBuffer();
+		int bottomBuffer = this.pitchConstants.getBottomBuffer();
+		int obj = isBlue ? this.BLUE_T : this.YELLOW_T;
 		int deb = isBlue ? PitchConstants.BLUE : PitchConstants.YELLOW;
 		
 		for (int row = topBuffer; row < frame.getHeight() - bottomBuffer; row++){
@@ -494,12 +493,12 @@ public class Vision implements VideoReceiver {
 				
 				if (isColour(c, hsbvals, obj)){
 					platePoints.add(new Position(column,row));
-					if (pitchConstants.debugMode(deb)) {
+					if (this.pitchConstants.debugMode(deb)) {
 						debugOverlay.setRGB(column, row, 0xFFFF0099);
 					}
-				} else if (isColour(c, hsbvals, BALL)){
+				} else if (isColour(c, hsbvals, this.BALL)){
 					ballPoints.add(new Position(column,row));
-					if (pitchConstants.debugMode(PitchConstants.BALL)) {
+					if (this.pitchConstants.debugMode(PitchConstants.BALL)) {
 						debugOverlay.setRGB(column, row, 0xFF000000);
 					}
 				}
@@ -543,7 +542,7 @@ public class Vision implements VideoReceiver {
 	 *            true if the range is inverted, false otherwise
 	 * @return true if the value is within bounds, false otherwise
 	 */
-	private boolean checkBounds(float value, float lower, float upper,
+	private static boolean checkBounds(float value, float lower, float upper,
 			boolean inverted) {
 		if (!inverted)
 			return (lower <= value && value <= upper);
@@ -582,29 +581,29 @@ public class Vision implements VideoReceiver {
 		}
 
 		return checkBounds(colour.getRed(),
-				pitchConstants.getRedLower(objectIdx),
-				pitchConstants.getRedUpper(objectIdx),
-				pitchConstants.isRedInverted(objectIdx))
+				this.pitchConstants.getRedLower(objectIdx),
+				this.pitchConstants.getRedUpper(objectIdx),
+				this.pitchConstants.isRedInverted(objectIdx))
 				&& checkBounds(colour.getGreen(),
-						pitchConstants.getGreenLower(objectIdx),
-						pitchConstants.getGreenUpper(objectIdx),
-						pitchConstants.isGreenInverted(objectIdx))
+						this.pitchConstants.getGreenLower(objectIdx),
+						this.pitchConstants.getGreenUpper(objectIdx),
+						this.pitchConstants.isGreenInverted(objectIdx))
 				&& checkBounds(colour.getBlue(),
-						pitchConstants.getBlueLower(objectIdx),
-						pitchConstants.getBlueUpper(objectIdx),
-						pitchConstants.isBlueInverted(objectIdx))
+						this.pitchConstants.getBlueLower(objectIdx),
+						this.pitchConstants.getBlueUpper(objectIdx),
+						this.pitchConstants.isBlueInverted(objectIdx))
 				&& checkBounds(hsbvals[0],
-						pitchConstants.getHueLower(objectIdx),
-						pitchConstants.getHueUpper(objectIdx),
-						pitchConstants.isHueInverted(objectIdx))
+						this.pitchConstants.getHueLower(objectIdx),
+						this.pitchConstants.getHueUpper(objectIdx),
+						this.pitchConstants.isHueInverted(objectIdx))
 				&& checkBounds(hsbvals[1],
-						pitchConstants.getSaturationLower(objectIdx),
-						pitchConstants.getSaturationUpper(objectIdx),
-						pitchConstants.isSaturationInverted(objectIdx))
+						this.pitchConstants.getSaturationLower(objectIdx),
+						this.pitchConstants.getSaturationUpper(objectIdx),
+						this.pitchConstants.isSaturationInverted(objectIdx))
 				&& checkBounds(hsbvals[2],
-						pitchConstants.getValueLower(objectIdx),
-						pitchConstants.getValueUpper(objectIdx),
-						pitchConstants.isValueInverted(objectIdx));
+						this.pitchConstants.getValueLower(objectIdx),
+						this.pitchConstants.getValueUpper(objectIdx),
+						this.pitchConstants.isValueInverted(objectIdx));
 	}
 
 	/**
@@ -851,7 +850,7 @@ public class Vision implements VideoReceiver {
 		// Only display these markers in non-debug mode.
 		boolean anyDebug = false;
 		for (int i = 0; i < 5; ++i) {
-			if (pitchConstants.debugMode(i)) {
+			if (this.pitchConstants.debugMode(i)) {
 				anyDebug = true;
 				break;
 			}
@@ -885,8 +884,8 @@ public class Vision implements VideoReceiver {
 		double yellowAngle = findPlateAngle(frame, debugOverlay, plate2mean,
 				cluster2);
 
-		bluePlateCentroid = plate1mean;
-		yellowPlateCentroid = plate2mean;
+		this.bluePlateCentroid = plate1mean;
+		this.yellowPlateCentroid = plate2mean;
 
 		return new double[] { blueAngle, yellowAngle };
 	}
@@ -951,7 +950,7 @@ public class Vision implements VideoReceiver {
 				colourHSV = Color.RGBtoHSB(colour.getRed(), colour.getGreen(),
 						colour.getBlue(), null);
 
-				if (isColour(colour, colourHSV, GREY_CIRCLE)) {
+				if (isColour(colour, colourHSV, this.GREY_CIRCLE)) {
 					++searchPt1GreyPoints;
 				}
 			}
@@ -968,7 +967,7 @@ public class Vision implements VideoReceiver {
 				colourHSV = Color.RGBtoHSB(colour.getRed(), colour.getGreen(),
 						colour.getBlue(), null);
 
-				if (isColour(colour, colourHSV, GREY_CIRCLE)) {
+				if (isColour(colour, colourHSV, this.GREY_CIRCLE)) {
 					++searchPt2GreyPoints;
 				}
 			}

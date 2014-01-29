@@ -34,7 +34,7 @@ public class DistortionFix implements VideoReceiver {
 	 * @return true if the correction is active, false otherwise
 	 */
 	public boolean isActive() {
-		return active;
+		return this.active;
 	}
 
 	/**
@@ -174,12 +174,12 @@ public class DistortionFix implements VideoReceiver {
 
 		// If the distortion overlay is active, apply it
 		if (isActive()) {
-			int topBuffer = pitchConstants.getTopBuffer();
+			int topBuffer = this.pitchConstants.getTopBuffer();
 			int bottomBuffer = frame.getHeight()
-					- pitchConstants.getBottomBuffer();
-			int leftBuffer = pitchConstants.getLeftBuffer();
+					- this.pitchConstants.getBottomBuffer();
+			int leftBuffer = this.pitchConstants.getLeftBuffer();
 			int rightBuffer = frame.getWidth()
-					- pitchConstants.getRightBuffer();
+					- this.pitchConstants.getRightBuffer();
 
 			processedFrame = removeBarrelDistortion(frame, leftBuffer,
 					rightBuffer, topBuffer, bottomBuffer);
@@ -188,7 +188,7 @@ public class DistortionFix implements VideoReceiver {
 		else
 			processedFrame = frame;
 
-		for (VideoReceiver receiver : videoReceivers)
+		for (VideoReceiver receiver : this.videoReceivers)
 			receiver.sendFrame(processedFrame, frameRate, frameCounter);
 	}
 }
