@@ -196,8 +196,8 @@ public class Position {
 	 * @return The squared euclidean distance between the two points.
 	 */
 	public static int sqrdEuclidDist(Position p1, Position p2) {
-		int xDiff = p2.getX() - p1.getX();
-		int yDiff = p2.getY() - p1.getY();
+		int xDiff = (p2.getX() - p1.getX());
+		int yDiff = (p2.getY() - p1.getY());
 
 		return xDiff * xDiff + yDiff * yDiff;
 	}

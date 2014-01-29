@@ -7,105 +7,105 @@ public class WorldState {
 	int greenX, greenY;
 	int yellowX, yellowY;
 	
-	public int getGreenX() {
-		return this.greenX;
-	}
-	public void setGreenX(int greenX) {
-		this.greenX = greenX;
-	}
-	public int getGreenY() {
-		return this.greenY;
-	}
-	public void setGreenY(int greenY) {
-		this.greenY = greenY;
-	}
 	double ballXVelocity, ballYVelocity;
 	double blueXVelocity, blueYVelocity, blueOrientation;
 	double yellowXVelocity, yellowYVelocity, yellowOrientation;
-	
 	public int getBallX() {
-		return this.ballX;
+		return ballX;
 	}
 	public void setBallX(int ballX) {
 		this.ballX = ballX;
 	}
 	public int getBallY() {
-		return this.ballY;
+		return ballY;
 	}
 	public void setBallY(int ballY) {
 		this.ballY = ballY;
 	}
-	public double getBallXVelocity() {
-		return this.ballXVelocity;
-	}
-	public void setBallXVelocity(double ballXVelocity) {
-		this.ballXVelocity = ballXVelocity;
-	}
-	public double getBallYVelocity() {
-		return this.ballYVelocity;
-	}
-	public void setBallYVelocity(double ballYVelocity) {
-		this.ballYVelocity = ballYVelocity;
-	}
 	public int getBlueX() {
-		return this.blueX;
+		return blueX;
 	}
 	public void setBlueX(int blueX) {
 		this.blueX = blueX;
 	}
 	public int getBlueY() {
-		return this.blueY;
+		return blueY;
 	}
 	public void setBlueY(int blueY) {
 		this.blueY = blueY;
 	}
-	public double getBlueXVelocity() {
-		return this.blueXVelocity;
+	public int getGreenX() {
+		return greenX;
 	}
-	public void setBlueXVelocity(double blueXVelocity) {
-		this.blueXVelocity = blueXVelocity;
+	public void setGreenX(int greenX) {
+		this.greenX = greenX;
 	}
-	public double getBlueYVelocity() {
-		return this.blueYVelocity;
+	public int getGreenY() {
+		return greenY;
 	}
-	public void setBlueYVelocity(double blueYVelocity) {
-		this.blueYVelocity = blueYVelocity;
-	}
-	public double getBlueOrientation() {
-		return this.blueOrientation;
-	}
-	public void setBlueOrientation(double blueOrientation) {
-		this.blueOrientation = blueOrientation;
+	public void setGreenY(int greenY) {
+		this.greenY = greenY;
 	}
 	public int getYellowX() {
-		return this.yellowX;
+		return yellowX;
 	}
 	public void setYellowX(int yellowX) {
 		this.yellowX = yellowX;
 	}
 	public int getYellowY() {
-		return this.yellowY;
+		return yellowY;
 	}
 	public void setYellowY(int yellowY) {
 		this.yellowY = yellowY;
 	}
+	public double getBallXVelocity() {
+		return ballXVelocity;
+	}
+	public void setBallXVelocity(double ballXVelocity) {
+		this.ballXVelocity = ballXVelocity;
+	}
+	public double getBallYVelocity() {
+		return ballYVelocity;
+	}
+	public void setBallYVelocity(double ballYVelocity) {
+		this.ballYVelocity = ballYVelocity;
+	}
+	public double getBlueXVelocity() {
+		return blueXVelocity;
+	}
+	public void setBlueXVelocity(double blueXVelocity) {
+		this.blueXVelocity = blueXVelocity;
+	}
+	public double getBlueYVelocity() {
+		return blueYVelocity;
+	}
+	public void setBlueYVelocity(double blueYVelocity) {
+		this.blueYVelocity = blueYVelocity;
+	}
+	public double getBlueOrientation() {
+		return blueOrientation;
+	}
+	public void setBlueOrientation(double blueOrientation) {
+		this.blueOrientation = blueOrientation;
+	}
 	public double getYellowXVelocity() {
-		return this.yellowXVelocity;
+		return yellowXVelocity;
 	}
 	public void setYellowXVelocity(double yellowXVelocity) {
 		this.yellowXVelocity = yellowXVelocity;
 	}
 	public double getYellowYVelocity() {
-		return this.yellowYVelocity;
+		return yellowYVelocity;
 	}
 	public void setYellowYVelocity(double yellowYVelocity) {
 		this.yellowYVelocity = yellowYVelocity;
 	}
 	public double getYellowOrientation() {
-		return this.yellowOrientation;
+		return yellowOrientation;
 	}
 	public void setYellowOrientation(double yellowOrientation) {
 		this.yellowOrientation = yellowOrientation;
 	}
+	
 
 }

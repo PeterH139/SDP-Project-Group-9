@@ -69,7 +69,7 @@ public class DistortionFix implements VideoReceiver {
 	 *            Bottom buffer
 	 * @return A new image with no barrel distortion
 	 */
-	public BufferedImage removeBarrelDistortion(BufferedImage image, int left,
+	public static BufferedImage removeBarrelDistortion(BufferedImage image, int left,
 			int right, int top, int bottom) {
 
 		BufferedImage newImage = new BufferedImage(width, height,

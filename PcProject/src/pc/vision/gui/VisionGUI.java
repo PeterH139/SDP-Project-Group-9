@@ -488,8 +488,8 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 				60);
 		frameGraphics.drawString(
 				"angle: "
-						+ df.format(Math.toDegrees(worldState
-								.getBlueOrientation())), 260, 60);
+						+ df.format(worldState
+								.getBlueOrientation()), 260, 60);
 
 		frameGraphics.drawString("Yellow:", 15, 75);
 		frameGraphics.drawString("(" + worldState.getYellowX() + ", "
@@ -500,8 +500,8 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 				140, 75);
 		frameGraphics.drawString(
 				"angle: "
-						+ df.format(Math.toDegrees(worldState
-								.getYellowOrientation())), 260, 75);
+						+ df.format(worldState
+								.getYellowOrientation()), 260, 75);
 
 		// Mark goals:
 //		Position leftGoal = worldState.goalInfo.getLeftGoalCenter();
