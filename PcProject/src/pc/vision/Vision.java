@@ -77,14 +77,14 @@ public class Vision implements VideoReceiver {
 	 * robot orientations from it, and then displays the image (with some
 	 * additional graphics layered on top for debugging) in the vision frame.
 	 * 
-	 *  @param frame
+	 * @param frame
 	 *  	      The image to process and then show.
-	 * @param frameRate
-	 *            The frame rate
+	 * @param delta
+	 *            The time between frames in seconds
 	 * @param counter
 	 *            The index of the current frame
 	 */
-	public void sendFrame(BufferedImage frame, int frameRate, int counter) {
+	public void sendFrame(BufferedImage frame, float delta, int counter) {
 		BufferedImage debugOverlay = new BufferedImage(frame.getWidth(),
 				frame.getHeight(), BufferedImage.TYPE_INT_ARGB);
 		Graphics debugGraphics = debugOverlay.getGraphics();
@@ -155,9 +155,13 @@ public class Vision implements VideoReceiver {
 		
 		// TODO: Using the previous position values and the time between frames, 
 		// calculate the velocities of the robots and the ball.
-		
 		// Can be completed once Dimitar has implemented the world model section - Peter
+		// **Temp code below**
 		Velocity blueDefVel, blueAtkVel, yellowDefVel, yellowAtkVel, ballVel;
+		float xdiff = blueAtk.getX() - worldState.getBlueX();
+		float ydiff = blueAtk.getY() - worldState.getBlueY();
+		blueAtkVel = new Velocity(xdiff/delta, ydiff/delta);
+		System.out.println("x: "+ blueAtkVel.getX() + " y: " + blueAtkVel.getY());
 		
 		// Calculate the rotation of each of the robots.
 		float blueDefAngle, blueAtkAngle, yellowDefAngle, yellowAtkAngle;
@@ -168,13 +172,14 @@ public class Vision implements VideoReceiver {
 		
 		// TODO: Update the world state with the new values for position, velocity and rotation.
 		// **RELATIVE TO THE ORIGIN FOR POSITION**
-		
-		//The following code is temporary until Dimitar finished the world model section - Peter
+		// The following code is temporary until Dimitar finished the world model section - Peter
 		worldState.setBallX(ball.getX());
 		worldState.setBallY(ball.getY());
 		worldState.setBlueX(blueAtk.getX());
 		worldState.setBlueY(blueAtk.getY());
 		worldState.setBlueOrientation(blueAtkAngle);
+		worldState.setBlueXVelocity(blueAtkVel.getX());
+		worldState.setBlueYVelocity(blueAtkVel.getY());
 		worldState.setYellowX(yellowAtk.getX());
 		worldState.setYellowY(yellowAtk.getY());
 		worldState.setYellowOrientation(yellowAtkAngle);

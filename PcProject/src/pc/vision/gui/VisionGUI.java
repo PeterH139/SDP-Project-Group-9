@@ -53,7 +53,7 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 
 	// Stored to only have rendering happen in one place
 	private BufferedImage frame;
-	private int fps;
+	private float delta;
 	private int frameCounter;
 	private BufferedImage debugOverlay;
 
@@ -365,9 +365,9 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 	}
 
 	@Override
-	public void sendFrame(BufferedImage frame, int fps, int frameCounter) {
+	public void sendFrame(BufferedImage frame, float delta, int frameCounter) {
 		this.frame = frame;
-		this.fps = fps;
+		this.delta = delta;
 		this.frameCounter = frameCounter;
 	}
 
@@ -468,7 +468,7 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 		// Display the FPS that the vision system is running at
 		frameGraphics.setColor(Color.white);
 		frameGraphics.drawString("Frame: " + this.frameCounter, 15, 15);
-		frameGraphics.drawString("FPS: " + this.fps, 15, 30);
+		frameGraphics.drawString("FPS: " + 1/this.delta, 15, 30);
 
 		// Display Ball & Robot Positions
 		frameGraphics.drawString("Ball:", 15, 45);

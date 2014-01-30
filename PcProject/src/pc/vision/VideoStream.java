@@ -60,7 +60,7 @@ public class VideoStream {
 		public void nextFrame(VideoFrame frame) {
 			// Calculate frame rate based on time between calls
 			long thisFrame = System.currentTimeMillis();
-			int frameRate = (int) (1000 / (thisFrame - VideoStream.this.lastFrame));
+			float delta = (thisFrame - VideoStream.this.lastFrame) / 1000f;
 			VideoStream.this.lastFrame = thisFrame;
 
 			// Wait for video device to initialise properly before reading
@@ -69,7 +69,7 @@ public class VideoStream {
 				BufferedImage frameBuffer = frame.getBufferedImage();
 
 				for (VideoReceiver receiver : VideoStream.this.videoReceivers)
-					receiver.sendFrame(frameBuffer, frameRate, VideoStream.this.frameCounter);
+					receiver.sendFrame(frameBuffer, delta, VideoStream.this.frameCounter);
 			} else if (VideoStream.this.frameCounter > 3) {
 				VideoStream.this.ready = true;
 			}

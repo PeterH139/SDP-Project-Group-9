@@ -163,13 +163,13 @@ public class DistortionFix implements VideoReceiver {
 	 * 
 	 * @param frame
 	 *            The frame being sent
-	 * @param frameRate
-	 *            The current frame rate
+	 * @param delta
+	 *            The time between frames
 	 * @param frameCounter
 	 *            The current frame index
 	 */
 	@Override
-	public void sendFrame(BufferedImage frame, int frameRate, int frameCounter) {
+	public void sendFrame(BufferedImage frame, float delta, int frameCounter) {
 		BufferedImage processedFrame;
 
 		// If the distortion overlay is active, apply it
@@ -189,6 +189,6 @@ public class DistortionFix implements VideoReceiver {
 			processedFrame = frame;
 
 		for (VideoReceiver receiver : this.videoReceivers)
-			receiver.sendFrame(processedFrame, frameRate, frameCounter);
+			receiver.sendFrame(processedFrame, delta, frameCounter);
 	}
 }
