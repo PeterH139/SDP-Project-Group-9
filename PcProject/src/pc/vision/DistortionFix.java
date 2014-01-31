@@ -34,7 +34,7 @@ public class DistortionFix implements VideoReceiver {
 	 * @return true if the correction is active, false otherwise
 	 */
 	public boolean isActive() {
-		return active;
+		return this.active;
 	}
 
 	/**
@@ -69,7 +69,7 @@ public class DistortionFix implements VideoReceiver {
 	 *            Bottom buffer
 	 * @return A new image with no barrel distortion
 	 */
-	public BufferedImage removeBarrelDistortion(BufferedImage image, int left,
+	public static BufferedImage removeBarrelDistortion(BufferedImage image, int left,
 			int right, int top, int bottom) {
 
 		BufferedImage newImage = new BufferedImage(width, height,
@@ -163,23 +163,23 @@ public class DistortionFix implements VideoReceiver {
 	 * 
 	 * @param frame
 	 *            The frame being sent
-	 * @param frameRate
-	 *            The current frame rate
+	 * @param delta
+	 *            The time between frames
 	 * @param frameCounter
 	 *            The current frame index
 	 */
 	@Override
-	public void sendFrame(BufferedImage frame, int frameRate, int frameCounter) {
+	public void sendFrame(BufferedImage frame, float delta, int frameCounter) {
 		BufferedImage processedFrame;
 
 		// If the distortion overlay is active, apply it
 		if (isActive()) {
-			int topBuffer = pitchConstants.getTopBuffer();
+			int topBuffer = this.pitchConstants.getTopBuffer();
 			int bottomBuffer = frame.getHeight()
-					- pitchConstants.getBottomBuffer();
-			int leftBuffer = pitchConstants.getLeftBuffer();
+					- this.pitchConstants.getBottomBuffer();
+			int leftBuffer = this.pitchConstants.getLeftBuffer();
 			int rightBuffer = frame.getWidth()
-					- pitchConstants.getRightBuffer();
+					- this.pitchConstants.getRightBuffer();
 
 			processedFrame = removeBarrelDistortion(frame, leftBuffer,
 					rightBuffer, topBuffer, bottomBuffer);
@@ -188,7 +188,7 @@ public class DistortionFix implements VideoReceiver {
 		else
 			processedFrame = frame;
 
-		for (VideoReceiver receiver : videoReceivers)
-			receiver.sendFrame(processedFrame, frameRate, frameCounter);
+		for (VideoReceiver receiver : this.videoReceivers)
+			receiver.sendFrame(processedFrame, delta, frameCounter);
 	}
 }

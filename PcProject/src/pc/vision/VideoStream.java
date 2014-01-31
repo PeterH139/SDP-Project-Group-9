@@ -60,20 +60,20 @@ public class VideoStream {
 		public void nextFrame(VideoFrame frame) {
 			// Calculate frame rate based on time between calls
 			long thisFrame = System.currentTimeMillis();
-			int frameRate = (int) (1000 / (thisFrame - lastFrame));
-			lastFrame = thisFrame;
+			float delta = (thisFrame - VideoStream.this.lastFrame) / 1000f;
+			VideoStream.this.lastFrame = thisFrame;
 
 			// Wait for video device to initialise properly before reading
 			// frames
-			if (ready) {
+			if (VideoStream.this.ready) {
 				BufferedImage frameBuffer = frame.getBufferedImage();
 
-				for (VideoReceiver receiver : videoReceivers)
-					receiver.sendFrame(frameBuffer, frameRate, frameCounter);
-			} else if (frameCounter > 3) {
-				ready = true;
+				for (VideoReceiver receiver : VideoStream.this.videoReceivers)
+					receiver.sendFrame(frameBuffer, delta, VideoStream.this.frameCounter);
+			} else if (VideoStream.this.frameCounter > 3) {
+				VideoStream.this.ready = true;
 			}
-			++frameCounter;
+			++VideoStream.this.frameCounter;
 			frame.recycle();
 		}
 	};
@@ -105,21 +105,21 @@ public class VideoStream {
 		this.compressionQuality = compressionQuality;
 
 		try {
-			videoDev = new VideoDevice(videoDevice);
-			DeviceInfo deviceInfo = videoDev.getDeviceInfo();
+			this.videoDev = new VideoDevice(videoDevice);
+			DeviceInfo deviceInfo = this.videoDev.getDeviceInfo();
 			
 			if (deviceInfo.getFormatList().getNativeFormats().isEmpty()) {
 				throw new ImageFormatException(
 						"Unable to detect any native formats for the device!");
 			}
-			imageFormat = deviceInfo.getFormatList().getYUVEncodableFormat(0);
-			frameGrabber = videoDev.getJPEGFrameGrabber(width, height, channel,
-					videoStandard, compressionQuality, imageFormat);
-			frameGrabber.setCaptureCallback(frameGrabberCallback);
-			frameGrabber.startCapture();
+			this.imageFormat = deviceInfo.getFormatList().getYUVEncodableFormat(0);
+			this.frameGrabber = this.videoDev.getJPEGFrameGrabber(width, height, channel,
+					videoStandard, compressionQuality, this.imageFormat);
+			this.frameGrabber.setCaptureCallback(this.frameGrabberCallback);
+			this.frameGrabber.startCapture();
 
-			this.width = frameGrabber.getWidth();
-			this.height = frameGrabber.getHeight();
+			this.width = this.frameGrabber.getWidth();
+			this.height = this.frameGrabber.getHeight();
 		} catch (V4L4JException e) {
 			System.err.println("Couldn't initialise the frame grabber: "
 					+ e.getMessage());
@@ -130,7 +130,7 @@ public class VideoStream {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
 			public void run() {
-				frameGrabber.stopCapture();
+				VideoStream.this.frameGrabber.stopCapture();
 			}
 		});
 	}
@@ -145,11 +145,11 @@ public class VideoStream {
 	 *             the new settings
 	 */
 	private void reinitialiseFrameGrabber() throws V4L4JException {
-		frameGrabber.stopCapture();
-		frameGrabber = videoDev.getJPEGFrameGrabber(width, height, channel,
-				videoStandard, compressionQuality, imageFormat);
-		frameGrabber.setCaptureCallback(frameGrabberCallback);
-		frameGrabber.startCapture();
+		this.frameGrabber.stopCapture();
+		this.frameGrabber = this.videoDev.getJPEGFrameGrabber(this.width, this.height, this.channel,
+				this.videoStandard, this.compressionQuality, this.imageFormat);
+		this.frameGrabber.setCaptureCallback(this.frameGrabberCallback);
+		this.frameGrabber.startCapture();
 	}
 
 	/**
@@ -250,7 +250,7 @@ public class VideoStream {
 	 * @return The saturation setting for the video device
 	 */
 	public int getSaturation() {
-		return saturation;
+		return this.saturation;
 	}
 
 	/**
@@ -269,7 +269,7 @@ public class VideoStream {
 	 * @return The brightness setting for the video device
 	 */
 	public int getBrightness() {
-		return brightness;
+		return this.brightness;
 	}
 
 	/**
@@ -287,7 +287,7 @@ public class VideoStream {
 	 * @return The contrast setting for the video device
 	 */
 	public int getContrast() {
-		return contrast;
+		return this.contrast;
 	}
 
 	/**
@@ -305,7 +305,7 @@ public class VideoStream {
 	 * @return The hue setting for the video device
 	 */
 	public int getHue() {
-		return hue;
+		return this.hue;
 	}
 
 	/**
@@ -323,7 +323,7 @@ public class VideoStream {
 	 * @return The Chroma Gain setting for the video device
 	 */
 	public int getChromaGain() {
-		return chroma_gain;
+		return this.chroma_gain;
 	}
 
 	/**
@@ -341,7 +341,7 @@ public class VideoStream {
 	 * @return The Chroma AGC setting for the video device
 	 */
 	public boolean getChromaAGC() {
-		return (chroma_agc == 1) ? true : false;
+		return (this.chroma_agc == 1) ? true : false;
 	}
 
 	/**
@@ -360,27 +360,27 @@ public class VideoStream {
 	 */
 	public void updateVideoDeviceSettings() {
 		try {
-			List<Control> controls = videoDev.getControlList().getList();
+			List<Control> controls = this.videoDev.getControlList().getList();
 			for (Control c : controls) {
 				if (c.getName().equals("Contrast"))
-					c.setValue(contrast);
+					c.setValue(this.contrast);
 				else if (c.getName().equals("Brightness"))
-					c.setValue(brightness);
+					c.setValue(this.brightness);
 				else if (c.getName().equals("Hue"))
-					c.setValue(hue);
+					c.setValue(this.hue);
 				else if (c.getName().equals("Saturation"))
-					c.setValue(saturation);
+					c.setValue(this.saturation);
 				else if (c.getName().equals("Chroma Gain"))
-					c.setValue(chroma_gain);
+					c.setValue(this.chroma_gain);
 				else if (c.getName().equals("Chroma AGC"))
-					c.setValue(chroma_agc);
+					c.setValue(this.chroma_agc);
 			}
 		} catch (V4L4JException e) {
 			System.err.println("Cannot set video device settings: "
 					+ e.getMessage());
 			e.printStackTrace();
 		}
-		videoDev.releaseControlList();
+		this.videoDev.releaseControlList();
 	}
 
 	/**

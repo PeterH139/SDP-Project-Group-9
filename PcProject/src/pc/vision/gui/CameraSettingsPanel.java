@@ -37,8 +37,8 @@ class CameraSettingsPanel extends JPanel {
 	private final int brightnessMax = 255;
 	private final JPanel brightnessPanel = new JPanel();
 	private final JLabel brightnessLabel = new JLabel("Brightness:");
-	private final JSlider brightnessSlider = new JSlider(brightnessMin,
-			brightnessMax + 1);
+	private final JSlider brightnessSlider = new JSlider(this.brightnessMin,
+			this.brightnessMax + 1);
 
 	/**
 	 * A ChangeListener to update the video stream's brightness setting when the
@@ -47,9 +47,9 @@ class CameraSettingsPanel extends JPanel {
 	private class BrightnessChangeListener implements ChangeListener {
 		@Override
 		public void stateChanged(ChangeEvent e) {
-			vStream.setBrightness(Math.min(brightnessMax,
-					brightnessSlider.getValue()));
-			vStream.updateVideoDeviceSettings();
+			CameraSettingsPanel.this.vStream.setBrightness(Math.min(CameraSettingsPanel.this.brightnessMax,
+					CameraSettingsPanel.this.brightnessSlider.getValue()));
+			CameraSettingsPanel.this.vStream.updateVideoDeviceSettings();
 		}
 	}
 
@@ -57,7 +57,7 @@ class CameraSettingsPanel extends JPanel {
 	private final int contrastMax = 127;
 	private final JPanel contrastPanel = new JPanel();
 	private final JLabel contrastLabel = new JLabel("Contrast:");
-	private JSlider contrastSlider = new JSlider(contrastMin, contrastMax + 1);
+	private JSlider contrastSlider = new JSlider(this.contrastMin, this.contrastMax + 1);
 
 	/**
 	 * A ChangeListener to update the video stream's contrast setting when the
@@ -66,8 +66,8 @@ class CameraSettingsPanel extends JPanel {
 	private class ContrastChangeListener implements ChangeListener {
 		@Override
 		public void stateChanged(ChangeEvent e) {
-			vStream.setContrast(Math.min(contrastMax, contrastSlider.getValue()));
-			vStream.updateVideoDeviceSettings();
+			CameraSettingsPanel.this.vStream.setContrast(Math.min(CameraSettingsPanel.this.contrastMax, CameraSettingsPanel.this.contrastSlider.getValue()));
+			CameraSettingsPanel.this.vStream.updateVideoDeviceSettings();
 		}
 	}
 
@@ -75,8 +75,8 @@ class CameraSettingsPanel extends JPanel {
 	private final int saturationMax = 127;
 	private final JPanel saturationPanel = new JPanel();
 	private final JLabel saturationLabel = new JLabel("Saturation:");
-	private JSlider saturationSlider = new JSlider(saturationMin,
-			saturationMax + 1);
+	private JSlider saturationSlider = new JSlider(this.saturationMin,
+			this.saturationMax + 1);
 
 	/**
 	 * A ChangeListener to update the video stream's saturation setting when the
@@ -85,9 +85,9 @@ class CameraSettingsPanel extends JPanel {
 	private class SaturationChangeListener implements ChangeListener {
 		@Override
 		public void stateChanged(ChangeEvent e) {
-			vStream.setSaturation(Math.min(saturationMax,
-					saturationSlider.getValue()));
-			vStream.updateVideoDeviceSettings();
+			CameraSettingsPanel.this.vStream.setSaturation(Math.min(CameraSettingsPanel.this.saturationMax,
+					CameraSettingsPanel.this.saturationSlider.getValue()));
+			CameraSettingsPanel.this.vStream.updateVideoDeviceSettings();
 		}
 	}
 
@@ -95,7 +95,7 @@ class CameraSettingsPanel extends JPanel {
 	private final int hueMax = 127;
 	private final JPanel huePanel = new JPanel();
 	private final JLabel hueLabel = new JLabel("Hue:");
-	private JSlider hueSlider = new JSlider(hueMin, hueMax + 1);
+	private JSlider hueSlider = new JSlider(this.hueMin, this.hueMax + 1);
 
 	/**
 	 * A ChangeListener to update the video stream's hue setting when the hue
@@ -104,8 +104,8 @@ class CameraSettingsPanel extends JPanel {
 	private class HueChangeListener implements ChangeListener {
 		@Override
 		public void stateChanged(ChangeEvent e) {
-			vStream.setHue(Math.min(hueMax, hueSlider.getValue()));
-			vStream.updateVideoDeviceSettings();
+			CameraSettingsPanel.this.vStream.setHue(Math.min(CameraSettingsPanel.this.hueMax, CameraSettingsPanel.this.hueSlider.getValue()));
+			CameraSettingsPanel.this.vStream.updateVideoDeviceSettings();
 		}
 	}
 
@@ -113,8 +113,8 @@ class CameraSettingsPanel extends JPanel {
 	private final int chromaGainMax = 127;
 	private final JPanel chromaGainPanel = new JPanel();
 	private final JLabel chromaGainLabel = new JLabel("Chroma Gain:");
-	private final JSlider chromaGainSlider = new JSlider(chromaGainMin,
-			chromaGainMax + 1);
+	private final JSlider chromaGainSlider = new JSlider(this.chromaGainMin,
+			this.chromaGainMax + 1);
 
 	/**
 	 * A ChangeListener to update the video stream's chroma gain setting when
@@ -123,9 +123,9 @@ class CameraSettingsPanel extends JPanel {
 	private class ChromaGainChangeListener implements ChangeListener {
 		@Override
 		public void stateChanged(ChangeEvent e) {
-			vStream.setChromaGain(Math.min(chromaGainMax,
-					chromaGainSlider.getValue()));
-			vStream.updateVideoDeviceSettings();
+			CameraSettingsPanel.this.vStream.setChromaGain(Math.min(CameraSettingsPanel.this.chromaGainMax,
+					CameraSettingsPanel.this.chromaGainSlider.getValue()));
+			CameraSettingsPanel.this.vStream.updateVideoDeviceSettings();
 		}
 	}
 
@@ -139,12 +139,12 @@ class CameraSettingsPanel extends JPanel {
 	private class ChromaAGCActionListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			if (chromaAGCCheckBox.isSelected())
-				vStream.setChromaAGC(true);
+			if (CameraSettingsPanel.this.chromaAGCCheckBox.isSelected())
+				CameraSettingsPanel.this.vStream.setChromaAGC(true);
 			else
-				vStream.setChromaAGC(false);
+				CameraSettingsPanel.this.vStream.setChromaAGC(false);
 
-			vStream.updateVideoDeviceSettings();
+			CameraSettingsPanel.this.vStream.updateVideoDeviceSettings();
 		}
 	}
 
@@ -153,39 +153,39 @@ class CameraSettingsPanel extends JPanel {
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		this.vStream = vStream;
 
-		initialiseSlider(brightnessSlider, 16, 64);
-		brightnessSlider.addChangeListener(new BrightnessChangeListener());
-		brightnessPanel.add(brightnessLabel);
-		brightnessPanel.add(brightnessSlider);
-		this.add(brightnessPanel);
+		initialiseSlider(this.brightnessSlider, 16, 64);
+		this.brightnessSlider.addChangeListener(new BrightnessChangeListener());
+		this.brightnessPanel.add(this.brightnessLabel);
+		this.brightnessPanel.add(this.brightnessSlider);
+		this.add(this.brightnessPanel);
 
-		initialiseSlider(contrastSlider, 8, 32);
-		contrastSlider.addChangeListener(new ContrastChangeListener());
-		contrastPanel.add(contrastLabel);
-		contrastPanel.add(contrastSlider);
-		this.add(contrastPanel);
+		initialiseSlider(this.contrastSlider, 8, 32);
+		this.contrastSlider.addChangeListener(new ContrastChangeListener());
+		this.contrastPanel.add(this.contrastLabel);
+		this.contrastPanel.add(this.contrastSlider);
+		this.add(this.contrastPanel);
 
-		initialiseSlider(saturationSlider, 8, 32);
-		saturationSlider.addChangeListener(new SaturationChangeListener());
-		saturationPanel.add(saturationLabel);
-		saturationPanel.add(saturationSlider);
-		this.add(saturationPanel);
+		initialiseSlider(this.saturationSlider, 8, 32);
+		this.saturationSlider.addChangeListener(new SaturationChangeListener());
+		this.saturationPanel.add(this.saturationLabel);
+		this.saturationPanel.add(this.saturationSlider);
+		this.add(this.saturationPanel);
 
-		initialiseSlider(hueSlider, 16, 64);
-		hueSlider.addChangeListener(new HueChangeListener());
-		huePanel.add(hueLabel);
-		huePanel.add(hueSlider);
-		this.add(huePanel);
+		initialiseSlider(this.hueSlider, 16, 64);
+		this.hueSlider.addChangeListener(new HueChangeListener());
+		this.huePanel.add(this.hueLabel);
+		this.huePanel.add(this.hueSlider);
+		this.add(this.huePanel);
 
-		initialiseSlider(chromaGainSlider, 8, 32);
-		chromaGainSlider.addChangeListener(new ChromaGainChangeListener());
-		chromaGainPanel.add(chromaGainLabel);
-		chromaGainPanel.add(chromaGainSlider);
-		this.add(chromaGainPanel);
+		initialiseSlider(this.chromaGainSlider, 8, 32);
+		this.chromaGainSlider.addChangeListener(new ChromaGainChangeListener());
+		this.chromaGainPanel.add(this.chromaGainLabel);
+		this.chromaGainPanel.add(this.chromaGainSlider);
+		this.add(this.chromaGainPanel);
 
-		chromaAGCCheckBox.addActionListener(new ChromaAGCActionListener());
-		chromaAGCPanel.add(chromaAGCCheckBox);
-		this.add(chromaAGCPanel);
+		this.chromaAGCCheckBox.addActionListener(new ChromaAGCActionListener());
+		this.chromaAGCPanel.add(this.chromaAGCCheckBox);
+		this.add(this.chromaAGCPanel);
 
 		loadSettings(settingsFile);
 	}
@@ -219,12 +219,12 @@ class CameraSettingsPanel extends JPanel {
 	public void saveSettings(String fileName) {
 		try {
 			FileWriter file = new FileWriter(new File(fileName));
-			file.write(String.valueOf(vStream.getBrightness()) + "\n");
-			file.write(String.valueOf(vStream.getContrast()) + "\n");
-			file.write(String.valueOf(vStream.getSaturation()) + "\n");
-			file.write(String.valueOf(vStream.getHue()) + "\n");
-			file.write(String.valueOf(vStream.getChromaGain()) + "\n");
-			file.write(String.valueOf(vStream.getChromaAGC()) + "\n");
+			file.write(String.valueOf(this.vStream.getBrightness()) + "\n");
+			file.write(String.valueOf(this.vStream.getContrast()) + "\n");
+			file.write(String.valueOf(this.vStream.getSaturation()) + "\n");
+			file.write(String.valueOf(this.vStream.getHue()) + "\n");
+			file.write(String.valueOf(this.vStream.getChromaGain()) + "\n");
+			file.write(String.valueOf(this.vStream.getChromaAGC()) + "\n");
 			file.close();
 		} catch (IOException e) {
 			System.err
@@ -248,28 +248,28 @@ class CameraSettingsPanel extends JPanel {
 			int data = 0;
 
 			data = reader.nextInt();
-			brightnessSlider.setValue(data);
-			vStream.setBrightness(data);
+			this.brightnessSlider.setValue(data);
+			this.vStream.setBrightness(data);
 
 			data = reader.nextInt();
-			contrastSlider.setValue(data);
-			vStream.setContrast(data);
+			this.contrastSlider.setValue(data);
+			this.vStream.setContrast(data);
 
 			data = reader.nextInt();
-			saturationSlider.setValue(data);
-			vStream.setSaturation(data);
+			this.saturationSlider.setValue(data);
+			this.vStream.setSaturation(data);
 
 			data = reader.nextInt();
-			hueSlider.setValue(data);
-			vStream.setHue(data);
+			this.hueSlider.setValue(data);
+			this.vStream.setHue(data);
 
 			data = reader.nextInt();
-			chromaGainSlider.setValue(data);
-			vStream.setChromaGain(data);
+			this.chromaGainSlider.setValue(data);
+			this.vStream.setChromaGain(data);
 
 			boolean chromaAGC = reader.nextBoolean();
-			chromaAGCCheckBox.setSelected(chromaAGC);
-			vStream.setChromaAGC(chromaAGC);
+			this.chromaAGCCheckBox.setSelected(chromaAGC);
+			this.vStream.setChromaAGC(chromaAGC);
 			
 			reader.close();
 		} catch (Exception e) {
@@ -279,31 +279,31 @@ class CameraSettingsPanel extends JPanel {
 			return;
 		}
 
-		vStream.updateVideoDeviceSettings();
+		this.vStream.updateVideoDeviceSettings();
 	}
 
 	/**
 	 * Loads default video device settings in the event loadSettings fails
 	 */
 	private void loadDefaultSettings() {
-		brightnessSlider.setValue(DEFAULT_BRIGHTNESS);
-		vStream.setBrightness(DEFAULT_BRIGHTNESS);
+		this.brightnessSlider.setValue(DEFAULT_BRIGHTNESS);
+		this.vStream.setBrightness(DEFAULT_BRIGHTNESS);
 
-		contrastSlider.setValue(DEFAULT_CONTRAST);
-		vStream.setContrast(DEFAULT_CONTRAST);
+		this.contrastSlider.setValue(DEFAULT_CONTRAST);
+		this.vStream.setContrast(DEFAULT_CONTRAST);
 
-		saturationSlider.setValue(DEFAULT_SATURATION);
-		vStream.setSaturation(DEFAULT_SATURATION);
+		this.saturationSlider.setValue(DEFAULT_SATURATION);
+		this.vStream.setSaturation(DEFAULT_SATURATION);
 
-		hueSlider.setValue(DEFAULT_HUE);
-		vStream.setHue(DEFAULT_HUE);
+		this.hueSlider.setValue(DEFAULT_HUE);
+		this.vStream.setHue(DEFAULT_HUE);
 
-		chromaGainSlider.setValue(DEFAULT_CHROMA_GAIN);
-		vStream.setChromaGain(DEFAULT_CHROMA_GAIN);
+		this.chromaGainSlider.setValue(DEFAULT_CHROMA_GAIN);
+		this.vStream.setChromaGain(DEFAULT_CHROMA_GAIN);
 
-		chromaAGCCheckBox.setSelected(DEFAULT_CHROMA_AGC);
-		vStream.setChromaAGC(DEFAULT_CHROMA_AGC);
+		this.chromaAGCCheckBox.setSelected(DEFAULT_CHROMA_AGC);
+		this.vStream.setChromaAGC(DEFAULT_CHROMA_AGC);
 
-		vStream.updateVideoDeviceSettings();
+		this.vStream.updateVideoDeviceSettings();
 	}
 }

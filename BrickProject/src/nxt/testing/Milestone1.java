@@ -25,7 +25,7 @@ public class Milestone1 {
 	static final int TYRE_DIAMETER = 56;
 	static final int TRACK_WIDTH = 116;
 	static final int TRAVEL_SPEED = 90;
-	static final long ROUND_TIME = 62000;
+	static final long ROUND_TIME = 52500;
 	static NXTRegulatedMotor leftMotor = Motor.B;
 	static NXTRegulatedMotor rightMotor = Motor.A;
 	static DifferentialPilot pilot = new DifferentialPilot(TYRE_DIAMETER, TRACK_WIDTH, leftMotor, rightMotor);
@@ -105,6 +105,19 @@ public class Milestone1 {
 					else {
 						leftMotor.setSpeed(90);
 						rightMotor.setSpeed(100);
+						leftMotor.forward();
+						rightMotor.forward();
+					}
+					
+					if (rightHitFirst) {
+						leftMotor.setSpeed(200);
+						rightMotor.setSpeed(180);
+						leftMotor.forward();
+						rightMotor.forward();
+					}
+					else {
+						leftMotor.setSpeed(180);
+						rightMotor.setSpeed(200);
 						leftMotor.forward();
 						rightMotor.forward();
 					}

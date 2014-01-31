@@ -22,9 +22,9 @@ public class MovementTest {
 		while (count < 50) {
 			LCD.drawString(striker.getLeftTacho() + " " + striker.getRightTacho(),0,1);
 			LCD.drawString(" Travelled: " + striker.getMovementIncrement(), 0, 2);
-			striker.forward();
+			striker.backward();
 
-			if (striker.getMovementIncrement() > 0.4) {
+			if (striker.getMovementIncrement() < -0.4) {
 				count++;
 			}
 			

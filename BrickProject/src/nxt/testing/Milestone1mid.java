@@ -97,14 +97,16 @@ public class Milestone1mid {
 					} 
 					if (first){ start = pos.getPose(); first = false;}
 					if (rightHitFirst) {
-						leftMotor.setSpeed(100);
-						rightMotor.setSpeed(90);
+
+						leftMotor.setSpeed(200);
+						rightMotor.setSpeed(180);
+
 						leftMotor.forward();
 						rightMotor.forward();
 					}
 					else {
-						leftMotor.setSpeed(90);
-						rightMotor.setSpeed(100);
+						leftMotor.setSpeed(180);
+						rightMotor.setSpeed(200);
 						leftMotor.forward();
 						rightMotor.forward();
 					}

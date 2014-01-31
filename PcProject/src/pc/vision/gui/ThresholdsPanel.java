@@ -64,36 +64,36 @@ class ThresholdsPanel extends JPanel {
 		super();
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
-		redSlider = new InvertibleRangeSlider(redMin, redMax + 1);
-		redPanel.add(redLabel);
-		redPanel.add(redSlider);
-		this.add(redPanel);
+		this.redSlider = new InvertibleRangeSlider(this.redMin, this.redMax + 1);
+		this.redPanel.add(this.redLabel);
+		this.redPanel.add(this.redSlider);
+		this.add(this.redPanel);
 
-		greenSlider = new InvertibleRangeSlider(greenMin, greenMax + 1);
-		greenPanel.add(greenLabel);
-		greenPanel.add(greenSlider);
-		this.add(greenPanel);
+		this.greenSlider = new InvertibleRangeSlider(this.greenMin, this.greenMax + 1);
+		this.greenPanel.add(this.greenLabel);
+		this.greenPanel.add(this.greenSlider);
+		this.add(this.greenPanel);
 
-		blueSlider = new InvertibleRangeSlider(blueMin, blueMax + 1);
-		bluePanel.add(blueLabel);
-		bluePanel.add(blueSlider);
-		this.add(bluePanel);
+		this.blueSlider = new InvertibleRangeSlider(this.blueMin, this.blueMax + 1);
+		this.bluePanel.add(this.blueLabel);
+		this.bluePanel.add(this.blueSlider);
+		this.add(this.bluePanel);
 
-		hueSlider = new InvertibleRangeSlider(hueMin, hueMax + 1);
-		huePanel.add(hueLabel);
-		huePanel.add(hueSlider);
-		this.add(huePanel);
+		this.hueSlider = new InvertibleRangeSlider(this.hueMin, this.hueMax + 1);
+		this.huePanel.add(this.hueLabel);
+		this.huePanel.add(this.hueSlider);
+		this.add(this.huePanel);
 
-		saturationSlider = new InvertibleRangeSlider(saturationMin,
-				saturationMax + 1);
-		saturationPanel.add(saturationLabel);
-		saturationPanel.add(saturationSlider);
-		this.add(saturationPanel);
+		this.saturationSlider = new InvertibleRangeSlider(this.saturationMin,
+				this.saturationMax + 1);
+		this.saturationPanel.add(this.saturationLabel);
+		this.saturationPanel.add(this.saturationSlider);
+		this.add(this.saturationPanel);
 
-		valueSlider = new InvertibleRangeSlider(valueMin, valueMax + 1);
-		valuePanel.add(valueLabel);
-		valuePanel.add(valueSlider);
-		this.add(valuePanel);
+		this.valueSlider = new InvertibleRangeSlider(this.valueMin, this.valueMax + 1);
+		this.valuePanel.add(this.valueLabel);
+		this.valuePanel.add(this.valueSlider);
+		this.add(this.valuePanel);
 	}
 
 	/**
@@ -102,8 +102,8 @@ class ThresholdsPanel extends JPanel {
 	 * @return An int[] in the format {lower, upper}
 	 */
 	public int[] getRedSliderValues() {
-		int[] lowerUpper = new int[] { redSlider.getLowerValue(),
-				redSlider.getUpperValue() };
+		int[] lowerUpper = new int[] { this.redSlider.getLowerValue(),
+				this.redSlider.getUpperValue() };
 		return lowerUpper;
 	}
 
@@ -116,8 +116,8 @@ class ThresholdsPanel extends JPanel {
 	 *            The new upper value
 	 */
 	public void setRedSliderValues(int lower, int upper) {
-		redSlider.setLowerValue(lower);
-		redSlider.setUpperValue(upper);
+		this.redSlider.setLowerValue(lower);
+		this.redSlider.setUpperValue(upper);
 	}
 
 	/**
@@ -126,7 +126,7 @@ class ThresholdsPanel extends JPanel {
 	 * @return true if it is inverted, false otherwise
 	 */
 	public boolean isRedSliderInverted() {
-		return redSlider.isInverted();
+		return this.redSlider.isInverted();
 	}
 
 	/**
@@ -136,7 +136,7 @@ class ThresholdsPanel extends JPanel {
 	 *            true if it should be inverted, false otherwise
 	 */
 	public void setRedSliderInverted(boolean inverted) {
-		redSlider.setInverted(inverted);
+		this.redSlider.setInverted(inverted);
 	}
 
 	/**
@@ -145,8 +145,8 @@ class ThresholdsPanel extends JPanel {
 	 * @return An int[] in the format {lower, upper}
 	 */
 	public int[] getGreenSliderValues() {
-		int[] lowerUpper = new int[] { greenSlider.getLowerValue(),
-				greenSlider.getUpperValue() };
+		int[] lowerUpper = new int[] { this.greenSlider.getLowerValue(),
+				this.greenSlider.getUpperValue() };
 		return lowerUpper;
 	}
 
@@ -159,8 +159,8 @@ class ThresholdsPanel extends JPanel {
 	 *            The new upper value
 	 */
 	public void setGreenSliderValues(int lower, int upper) {
-		greenSlider.setLowerValue(lower);
-		greenSlider.setUpperValue(upper);
+		this.greenSlider.setLowerValue(lower);
+		this.greenSlider.setUpperValue(upper);
 	}
 
 	/**
@@ -169,7 +169,7 @@ class ThresholdsPanel extends JPanel {
 	 * @return true if it is inverted, false otherwise
 	 */
 	public boolean isGreenSliderInverted() {
-		return greenSlider.isInverted();
+		return this.greenSlider.isInverted();
 	}
 
 	/**
@@ -179,7 +179,7 @@ class ThresholdsPanel extends JPanel {
 	 *            true if it should be inverted, false otherwise
 	 */
 	public void setGreenSliderInverted(boolean inverted) {
-		greenSlider.setInverted(inverted);
+		this.greenSlider.setInverted(inverted);
 	}
 
 	/**
@@ -188,8 +188,8 @@ class ThresholdsPanel extends JPanel {
 	 * @return An int[] in the format {lower, upper}
 	 */
 	public int[] getBlueSliderValues() {
-		int[] lowerUpper = new int[] { blueSlider.getLowerValue(),
-				blueSlider.getUpperValue() };
+		int[] lowerUpper = new int[] { this.blueSlider.getLowerValue(),
+				this.blueSlider.getUpperValue() };
 		return lowerUpper;
 	}
 
@@ -202,8 +202,8 @@ class ThresholdsPanel extends JPanel {
 	 *            The new upper value
 	 */
 	public void setBlueSliderValues(int lower, int upper) {
-		blueSlider.setLowerValue(lower);
-		blueSlider.setUpperValue(upper);
+		this.blueSlider.setLowerValue(lower);
+		this.blueSlider.setUpperValue(upper);
 	}
 
 	/**
@@ -212,7 +212,7 @@ class ThresholdsPanel extends JPanel {
 	 * @return true if it is inverted, false otherwise
 	 */
 	public boolean isBlueSliderInverted() {
-		return blueSlider.isInverted();
+		return this.blueSlider.isInverted();
 	}
 
 	/**
@@ -222,7 +222,7 @@ class ThresholdsPanel extends JPanel {
 	 *            true if it should be inverted, false otherwise
 	 */
 	public void setBlueSliderInverted(boolean inverted) {
-		blueSlider.setInverted(inverted);
+		this.blueSlider.setInverted(inverted);
 	}
 
 	/**
@@ -231,8 +231,8 @@ class ThresholdsPanel extends JPanel {
 	 * @return An int[] in the format {lower, upper}
 	 */
 	public int[] getHueSliderValues() {
-		int[] lowerUpper = new int[] { hueSlider.getLowerValue(),
-				hueSlider.getUpperValue() };
+		int[] lowerUpper = new int[] { this.hueSlider.getLowerValue(),
+				this.hueSlider.getUpperValue() };
 		return lowerUpper;
 	}
 
@@ -245,8 +245,8 @@ class ThresholdsPanel extends JPanel {
 	 *            The new upper value
 	 */
 	public void setHueSliderValues(int lower, int upper) {
-		hueSlider.setLowerValue(lower);
-		hueSlider.setUpperValue(upper);
+		this.hueSlider.setLowerValue(lower);
+		this.hueSlider.setUpperValue(upper);
 	}
 	
 	/**
@@ -255,7 +255,7 @@ class ThresholdsPanel extends JPanel {
 	 * @return true if it is inverted, false otherwise
 	 */
 	public boolean isHueSliderInverted() {
-		return hueSlider.isInverted();
+		return this.hueSlider.isInverted();
 	}
 
 	/**
@@ -265,7 +265,7 @@ class ThresholdsPanel extends JPanel {
 	 *            true if it should be inverted, false otherwise
 	 */
 	public void setHueSliderInverted(boolean inverted) {
-		hueSlider.setInverted(inverted);
+		this.hueSlider.setInverted(inverted);
 	}
 
 	/**
@@ -274,8 +274,8 @@ class ThresholdsPanel extends JPanel {
 	 * @return An int[] in the format {lower, upper}
 	 */
 	public int[] getSaturationSliderValues() {
-		int[] lowerUpper = new int[] { saturationSlider.getLowerValue(),
-				saturationSlider.getUpperValue() };
+		int[] lowerUpper = new int[] { this.saturationSlider.getLowerValue(),
+				this.saturationSlider.getUpperValue() };
 		return lowerUpper;
 	}
 
@@ -288,8 +288,8 @@ class ThresholdsPanel extends JPanel {
 	 *            The new upper value
 	 */
 	public void setSaturationSliderValues(int lower, int upper) {
-		saturationSlider.setLowerValue(lower);
-		saturationSlider.setUpperValue(upper);
+		this.saturationSlider.setLowerValue(lower);
+		this.saturationSlider.setUpperValue(upper);
 	}
 	
 	/**
@@ -298,7 +298,7 @@ class ThresholdsPanel extends JPanel {
 	 * @return true if it is inverted, false otherwise
 	 */
 	public boolean isSaturationSliderInverted() {
-		return saturationSlider.isInverted();
+		return this.saturationSlider.isInverted();
 	}
 
 	/**
@@ -308,7 +308,7 @@ class ThresholdsPanel extends JPanel {
 	 *            true if it should be inverted, false otherwise
 	 */
 	public void setSaturationSliderInverted(boolean inverted) {
-		saturationSlider.setInverted(inverted);
+		this.saturationSlider.setInverted(inverted);
 	}
 
 	/**
@@ -317,8 +317,8 @@ class ThresholdsPanel extends JPanel {
 	 * @return An int[] in the format {lower, upper}
 	 */
 	public int[] getValueSliderValues() {
-		int[] lowerUpper = new int[] { valueSlider.getLowerValue(),
-				valueSlider.getUpperValue() };
+		int[] lowerUpper = new int[] { this.valueSlider.getLowerValue(),
+				this.valueSlider.getUpperValue() };
 		return lowerUpper;
 	}
 
@@ -331,8 +331,8 @@ class ThresholdsPanel extends JPanel {
 	 *            The new upper value
 	 */
 	public void setValueSliderValues(int lower, int upper) {
-		valueSlider.setLowerValue(lower);
-		valueSlider.setUpperValue(upper);
+		this.valueSlider.setLowerValue(lower);
+		this.valueSlider.setUpperValue(upper);
 	}
 	
 	/**
@@ -341,7 +341,7 @@ class ThresholdsPanel extends JPanel {
 	 * @return true if it is inverted, false otherwise
 	 */
 	public boolean isValueSliderInverted() {
-		return valueSlider.isInverted();
+		return this.valueSlider.isInverted();
 	}
 
 	/**
@@ -351,7 +351,7 @@ class ThresholdsPanel extends JPanel {
 	 *            true if it should be inverted, false otherwise
 	 */
 	public void setValueSliderInverted(boolean inverted) {
-		valueSlider.setInverted(inverted);
+		this.valueSlider.setInverted(inverted);
 	}
 
 	/**
@@ -399,8 +399,8 @@ class ThresholdsPanel extends JPanel {
 	 *            The ChangeListener
 	 */
 	public void setRedSliderChangeListener(ChangeListener listener) {
-		assert (redSlider.getChangeListeners().length == 0);
-		redSlider.addChangeListener(listener);
+		assert (this.redSlider.getChangeListeners().length == 0);
+		this.redSlider.addChangeListener(listener);
 	}
 
 	/**
@@ -410,8 +410,8 @@ class ThresholdsPanel extends JPanel {
 	 *            The ChangeListener
 	 */
 	public void setGreenSliderChangeListener(ChangeListener listener) {
-		assert (greenSlider.getChangeListeners().length == 0);
-		greenSlider.addChangeListener(listener);
+		assert (this.greenSlider.getChangeListeners().length == 0);
+		this.greenSlider.addChangeListener(listener);
 	}
 
 	/**
@@ -421,8 +421,8 @@ class ThresholdsPanel extends JPanel {
 	 *            The ChangeListener
 	 */
 	public void setBlueSliderChangeListener(ChangeListener listener) {
-		assert (blueSlider.getChangeListeners().length == 0);
-		blueSlider.addChangeListener(listener);
+		assert (this.blueSlider.getChangeListeners().length == 0);
+		this.blueSlider.addChangeListener(listener);
 	}
 
 	/**
@@ -432,8 +432,8 @@ class ThresholdsPanel extends JPanel {
 	 *            The ChangeListener
 	 */
 	public void setHueSliderChangeListener(ChangeListener listener) {
-		assert (hueSlider.getChangeListeners().length == 0);
-		hueSlider.addChangeListener(listener);
+		assert (this.hueSlider.getChangeListeners().length == 0);
+		this.hueSlider.addChangeListener(listener);
 	}
 
 	/**
@@ -443,8 +443,8 @@ class ThresholdsPanel extends JPanel {
 	 *            The ChangeListener
 	 */
 	public void setSaturationSliderChangeListener(ChangeListener listener) {
-		assert (saturationSlider.getChangeListeners().length == 0);
-		saturationSlider.addChangeListener(listener);
+		assert (this.saturationSlider.getChangeListeners().length == 0);
+		this.saturationSlider.addChangeListener(listener);
 	}
 
 	/**
@@ -454,7 +454,7 @@ class ThresholdsPanel extends JPanel {
 	 *            The ChangeListener
 	 */
 	public void setValueSliderChangeListener(ChangeListener listener) {
-		assert (valueSlider.getChangeListeners().length == 0);
-		valueSlider.addChangeListener(listener);
+		assert (this.valueSlider.getChangeListeners().length == 0);
+		this.valueSlider.addChangeListener(listener);
 	}
 }

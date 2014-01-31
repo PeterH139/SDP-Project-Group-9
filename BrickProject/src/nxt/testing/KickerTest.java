@@ -1,7 +1,7 @@
 package nxt.testing;
 
 import nxt.brick.Movement;
-import nxt.brick.Striker;;
+import nxt.brick.Striker;
 
 public class KickerTest {
 	
