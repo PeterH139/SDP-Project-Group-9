@@ -27,10 +27,12 @@ public class Movement extends DifferentialPilot {
 
 	// TODO: potential changes to be made here due to different robots
 	public static final int MAXIMUM_KICKER_SPEED = 900;
+	public static final int MEDIUM_KICKER_SPEED = 600;
+	public static final int LOW_KICKER_SPEED = 300;
 	public static final int ACCELERATION = MAXIMUM_KICKER_SPEED * 8;
 	public static final int GEAR_ERROR_RATIO = 3;
 
-	private volatile boolean isKicking = false;
+	private static volatile boolean isKicking = false;
 
 	public Movement(double trackWidth) {
 		super(TYRE_DIAMETER, trackWidth, LEFT_WHEEL, RIGHT_WHEEL);
@@ -41,7 +43,7 @@ public class Movement extends DifferentialPilot {
 		RIGHT_WHEEL.flt();
 	}
 
-	public void kick(int speed) {
+	public static void kick(int speed) {
 
 		if (isKicking) {
 			return;

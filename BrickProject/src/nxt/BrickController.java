@@ -74,6 +74,17 @@ public class BrickController {
                 		LCD.clear();
                 		LCD.drawString("Kick", 0, 2);
                 		LCD.refresh();
+                		int kickerSpeed = 900;
+                		if (option1 == 1) {
+                			kickerSpeed = Movement.MAXIMUM_KICKER_SPEED;
+                		}
+                		else if (option1 == 2) {
+                			kickerSpeed = Movement.MEDIUM_KICKER_SPEED;
+                		}
+                		else if (option1 == 3) {
+                			kickerSpeed = Movement.LOW_KICKER_SPEED;               					
+                		}
+                		Movement.kick(kickerSpeed);
                 		replytopc(opcode, os);
                 		break;
                 case QUIT: // Exit the loop, close connection

@@ -13,7 +13,7 @@ import lejos.robotics.navigation.Move;
 import lejos.robotics.navigation.Move.MoveType;
 import lejos.robotics.navigation.Pose;
  
-public class Milestone1 {
+public class Milestone1mid {
 	
 	private static Pose start = new Pose();
 	private static boolean first = true;
@@ -25,7 +25,7 @@ public class Milestone1 {
 	static final int TYRE_DIAMETER = 56;
 	static final int TRACK_WIDTH = 116;
 	static final int TRAVEL_SPEED = 90;
-	static final long ROUND_TIME = 62000;
+	static final long ROUND_TIME = 75000;
 	static NXTRegulatedMotor leftMotor = Motor.B;
 	static NXTRegulatedMotor rightMotor = Motor.A;
 	static DifferentialPilot pilot = new DifferentialPilot(TYRE_DIAMETER, TRACK_WIDTH, leftMotor, rightMotor);
