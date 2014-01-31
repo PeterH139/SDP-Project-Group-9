@@ -29,7 +29,7 @@ public class BrickController {
 
 	public static void main(String[] args) {
 		
-	while(!die) {
+	while(!die && !(Button.ESCAPE.isDown())) {
 		try {
 			
 		
@@ -87,7 +87,9 @@ public class BrickController {
                 		Movement.kick(kickerSpeed);
                 		replytopc(opcode, os);
                 		break;
-                case QUIT: // Exit the loop, close connection
+                case QUIT: 
+                	LCD.clear();
+            		LCD.drawString("Quit", 0, 2);// Exit the loop, close connection
                         // Sound.twoBeeps();
                 		
                         break;
