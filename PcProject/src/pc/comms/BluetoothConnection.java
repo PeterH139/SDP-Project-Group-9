@@ -120,6 +120,7 @@ public class BluetoothConnection {
     	System.out.print("Enter first integer: "); 
         int[] input = new int[4];
         int x = 0;
+        int y = 0;
     	BluetoothConnection con = new BluetoothConnection(
     			BtInfo.DEVICE_1_NAME, BtInfo.DEVICE_1_MAC);
     	try {
@@ -130,10 +131,12 @@ public class BluetoothConnection {
 		}
     	boolean die = false;
 		while(!die) {
-		System.out.println("Enter an integer: ");
+		System.out.println("Enter an opcode: ");
 		x = Integer.parseInt(stdin.readLine());
+		System.out.println("Enter an option1: ");
+		y = Integer.parseInt(stdin.readLine());
 		input[0] = x;
-		input[1] = 0;
+		input[1] = y;
 		input[2] = 0;
 		input[3] = 0;
     	con.sendToRobotSimple(input); 
