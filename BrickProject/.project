@@ -20,4 +20,24 @@
 		<nature>org.lejos.nxt.ldt.leJOSNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
+	<filteredResources>
+		<filter>
+			<id>1391283101885</id>
+			<name></name>
+			<type>6</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-false-false-*.nxj</arguments>
+			</matcher>
+		</filter>
+		<filter>
+			<id>1391283101891</id>
+			<name></name>
+			<type>6</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-false-false-*.nxd</arguments>
+			</matcher>
+		</filter>
+	</filteredResources>
 </projectDescription>
