@@ -70,6 +70,14 @@ public class BrickCommServer {
 		brickOutput.writeInt(speed);
 		brickOutput.flush();
 	}
+	public void robotCatch() throws IOException {
+		brickOutput.writeInt(RobotOpcode.CATCH);
+		brickOutput.flush();
+	}
+	public void robotPrepCatch() throws IOException {
+		brickOutput.writeInt(RobotOpcode.APPROACHING_BALL);
+		brickOutput.flush();
+	}
 	
 	public void robotRotate(boolean clockwise) throws IOException {
 		brickOutput.writeInt(clockwise ? RobotOpcode.ROTATE_RIGHT : RobotOpcode.ROTATE_LEFT);
@@ -136,6 +144,12 @@ public class BrickCommServer {
 					break;
 				case KeyEvent.VK_SPACE:
 					BrickCommServer.this.robotKick(600);
+					break;
+				case KeyEvent.VK_1:
+					BrickCommServer.this.robotPrepCatch();
+					break;
+				case KeyEvent.VK_2:
+					BrickCommServer.this.robotCatch();
 					break;
 				case KeyEvent.VK_LEFT:
 					BrickCommServer.this.robotRotate(false);
