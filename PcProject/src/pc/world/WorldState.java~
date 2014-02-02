@@ -188,6 +188,7 @@ public class WorldState {
 	
 	/**
 	 * Returns the enemy defender robot object
+	 * returns null if the model is locked 
 	 */
 	public MovingObject GetEnemyDefenderRobot(){
 		return this.enemyDefenderRobot;
