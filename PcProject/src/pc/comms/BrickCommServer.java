@@ -24,23 +24,52 @@ public class BrickCommServer {
 	NXTComm comm;
 	DataInputStream brickInput;
 	DataOutputStream brickOutput;
-	
+
 	public BrickCommServer() {
 	}
-	
-	public void connect(NXTInfo brickInfo) {
+
+	public void connect(NXTInfo brickInfo) throws NXTCommException {
+		comm = NXTCommFactory.createNXTComm(brickInfo.protocol);
+		if (!comm.open(brickInfo))
+			return;
+		brickInput = new DataInputStream(comm.getInputStream());
+		brickOutput = new DataOutputStream(comm.getOutputStream());
+	}
+
+	public void guiConnect(NXTInfo brickInfo) throws NXTCommException {
+		JFrame window = new JFrame("Connecting");
+		window.setSize(400, 150);
+		window.setResizable(false);
+		window.setLocationRelativeTo(null);
+		window.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		String protocol = brickInfo.protocol == NXTCommFactory.BLUETOOTH ? "Bluetooth"
+				: "USB";
+		JLabel label = new JLabel("Connecting to " + brickInfo.name + " via "
+				+ protocol, JLabel.CENTER);
+		window.add(label);
+		window.setVisible(true);
 		try {
-			comm = NXTCommFactory.createNXTComm(brickInfo.protocol);
-			if (!comm.open(brickInfo))
-				return;
-			brickInput = new DataInputStream(comm.getInputStream());
-			brickOutput = new DataOutputStream(comm.getOutputStream());
-		}
-		catch (NXTCommException e) {
-			e.printStackTrace();
+			while (true) {
+				try {
+					connect(brickInfo);
+					break;
+				} catch (NXTCommException e) {
+					int result = JOptionPane.showConfirmDialog(window,
+							"Connection failed. Retry?\n\n" + e.getMessage()
+									+ "\n\n" + e.getCause(),
+							"Connection failed", JOptionPane.YES_NO_OPTION,
+							JOptionPane.ERROR_MESSAGE);
+					if (result == JOptionPane.YES_OPTION)
+						continue;
+					throw e;
+				}
+			}
+		} finally {
+			window.setVisible(false);
+			window.dispose();
 		}
 	}
-	
+
 	public void close() {
 		try {
 			if (comm != null)
@@ -49,33 +78,34 @@ public class BrickCommServer {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void robotStop() throws IOException {
 		brickOutput.writeInt(RobotOpcode.STOP);
 		brickOutput.flush();
 	}
-	
+
 	public void robotForwards() throws IOException {
 		brickOutput.writeInt(RobotOpcode.FORWARDS);
 		brickOutput.flush();
 	}
-	
+
 	public void robotBackwards() throws IOException {
 		brickOutput.writeInt(RobotOpcode.BACKWARDS);
 		brickOutput.flush();
 	}
-	
+
 	public void robotKick(int speed) throws IOException {
 		brickOutput.writeInt(RobotOpcode.KICK);
 		brickOutput.writeInt(speed);
 		brickOutput.flush();
 	}
-	
+
 	public void robotRotate(boolean clockwise) throws IOException {
-		brickOutput.writeInt(clockwise ? RobotOpcode.ROTATE_RIGHT : RobotOpcode.ROTATE_LEFT);
+		brickOutput.writeInt(clockwise ? RobotOpcode.ROTATE_RIGHT
+				: RobotOpcode.ROTATE_LEFT);
 		brickOutput.flush();
 	}
-	
+
 	public void robotRotateBy(int angle) throws IOException {
 		brickOutput.writeInt(RobotOpcode.ROTATE_BY);
 		brickOutput.writeInt(angle);
@@ -83,27 +113,28 @@ public class BrickCommServer {
 		brickInput.readBoolean();
 	}
 
-	public void robotArcForwards(double arcRadius, int distance) throws IOException {
+	public void robotArcForwards(double arcRadius, int distance)
+			throws IOException {
 		brickOutput.writeInt(RobotOpcode.ARC_FORWARDS);
 		brickOutput.writeDouble(arcRadius);
 		brickOutput.writeInt(distance);
 		brickOutput.flush();
 	}
-	
+
 	public void robotTravel(int distance) throws IOException {
 		brickOutput.writeInt(RobotOpcode.TRAVEL);
 		brickOutput.writeInt(distance);
 		brickOutput.flush();
 		brickInput.readBoolean();
 	}
-	
-	public static void main(String[] args) {
+
+	public static void main(String[] args) throws NXTCommException {
 		BrickCommServer bcs = new BrickCommServer();
-		bcs.connect(BtInfo.MEOW);
+		bcs.guiConnect(BtInfo.MEOW);
 		GUIClient client = bcs.new GUIClient();
 		client.setVisible(true);
 	}
-	
+
 	public class GUIClient extends JFrame implements KeyListener {
 		public GUIClient() {
 			setTitle("Robot controller");
@@ -116,11 +147,12 @@ public class BrickCommServer {
 					BrickCommServer.this.close();
 				}
 			});
-			
-			JLabel label = new JLabel("Use arrow keys to control the robot.", JLabel.CENTER);
+
+			JLabel label = new JLabel("Use arrow keys to control the robot.",
+					JLabel.CENTER);
 			label.setFocusable(true);
 			add(label);
-			
+
 			label.addKeyListener(this);
 		}
 
@@ -144,8 +176,7 @@ public class BrickCommServer {
 					BrickCommServer.this.robotRotate(true);
 					break;
 				}
-			}
-			catch (IOException e) {
+			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
