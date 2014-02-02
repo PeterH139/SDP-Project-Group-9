@@ -48,7 +48,7 @@ public class Movement extends DifferentialPilot {
 		KICKER.rotateTo(-60/GEAR_ERROR_RATIO);
 	}
 	public void liftKicker() {
-		KICKER.rotateTo(80/GEAR_ERROR_RATIO);
+		KICKER.rotateTo(100/GEAR_ERROR_RATIO);
 	}
 	public void kick(int speed) {
 

@@ -47,6 +47,7 @@ public class BrickCommClient {
 	private void handleCatch() {
 		System.out.println("Catch");
 		rc.getMovementController().catchBall();
+		kickerState = 0;
 	}
 	
 	private void handleForwards() {
