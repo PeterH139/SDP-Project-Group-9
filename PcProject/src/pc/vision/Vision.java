@@ -2,9 +2,11 @@ package pc.vision;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
+import pc.vision.interfaces.ObjectRecogniser;
 import pc.vision.interfaces.VideoReceiver;
 import pc.vision.interfaces.VisionDebugReceiver;
 import pc.vision.interfaces.WorldStateReceiver;
@@ -22,6 +24,7 @@ public class Vision implements VideoReceiver {
 	private final WorldState worldState;
 	private ArrayList<VisionDebugReceiver> visionDebugReceivers = new ArrayList<VisionDebugReceiver>();
 	private ArrayList<WorldStateReceiver> worldStateReceivers = new ArrayList<WorldStateReceiver>();
+	private ArrayList<ObjectRecogniser> recognisers = new ArrayList<ObjectRecogniser>();
 
 	private final int YELLOW_T = 0;
 	private final int BLUE_T = 1;
@@ -57,7 +60,11 @@ public class Vision implements VideoReceiver {
 	public void addWorldStateReceiver(WorldStateReceiver receiver) {
 		this.worldStateReceivers.add(receiver);
 	}
-
+	
+	public void addRecogniser(ObjectRecogniser recogniser) {
+		this.recognisers.add(recogniser);
+	}
+	
 	/**
 	 * Processes an input image, extracting the ball and robot positions and
 	 * robot orientations from it, and then displays the image (with some
@@ -73,98 +80,10 @@ public class Vision implements VideoReceiver {
 	public void sendFrame(BufferedImage frame, float delta, int counter) {
 		BufferedImage debugOverlay = new BufferedImage(frame.getWidth(),
 				frame.getHeight(), BufferedImage.TYPE_INT_ARGB);
-		Graphics debugGraphics = debugOverlay.getGraphics();
-
-		ArrayList<Position> ballPoints = new ArrayList<Position>();
+		Graphics2D debugGraphics = (Graphics2D) debugOverlay.getGraphics();
 		
-		ArrayList<Position> baPoints = new ArrayList<Position>(); // Blue Attacker
-		ArrayList<Position> bdPoints = new ArrayList<Position>(); // Blue Defender
-		ArrayList<Position> yaPoints = new ArrayList<Position>(); // Yellow Attacker
-		ArrayList<Position> ydPoints = new ArrayList<Position>(); // Yellow Defender
-		
-		int leftBuffer = this.pitchConstants.getLeftBuffer();
-		int rightBuffer = this.pitchConstants.getRightBuffer();
-		int[] dividers = this.pitchConstants.getDividers();
-		
-		// Detect the X,Y coords and rotations of the plates in each section,
-		// also look for the points of the ball while looping over the frame to save time
-		boolean leftBlueFirst = true; //TODO: calculate this from the appropriate location
-		if (leftBlueFirst) {
-			//In order, ltr: Blue Defender, Yellow Attacker, Blue Attacker, Yellow Defender
-//			searchColumn(bdPoints, ballPoints, frame, debugOverlay, leftBuffer, dividers[0], true);
-//			searchColumn(yaPoints, ballPoints, frame, debugOverlay, dividers[0], dividers[1], false);
-//			searchColumn(baPoints, ballPoints, frame, debugOverlay, dividers[1], dividers[2], true);
-//			searchColumn(ydPoints, ballPoints, frame, debugOverlay, dividers[2], frame.getWidth()-rightBuffer, false);
-			searchColumn(yaPoints, ballPoints, frame, debugOverlay, leftBuffer, frame.getWidth()-rightBuffer, false);
-		} else {
-			//In order, ltr: Yellow Defender, Blue Attacker, Yellow Attacker, Blue Defender
-			searchColumn(ydPoints, ballPoints, frame, debugOverlay, leftBuffer, dividers[0], false);
-			searchColumn(baPoints, ballPoints, frame, debugOverlay, dividers[0], dividers[1], true);
-			searchColumn(yaPoints, ballPoints, frame, debugOverlay, dividers[1], dividers[2], false);
-			searchColumn(bdPoints, ballPoints, frame, debugOverlay, dividers[2], frame.getWidth()-rightBuffer, true);
-		}
-		
-		// Calculate the mean position of the points for each robot and the ball.
-		Position blueDef, blueAtk, yellowDef, yellowAtk, ball;
-		blueDef = calculatePosition(bdPoints);
-		blueAtk = calculatePosition(baPoints);
-		yellowDef = calculatePosition(ydPoints);
-		yellowAtk = calculatePosition(yaPoints);
-		ball = calculatePosition(ballPoints);
-		// Debugging Graphics
-		debugGraphics.setColor(Color.CYAN);
-		debugGraphics.drawRect(blueDef.getX()-2, blueDef.getY()-2, 4, 4);
-		debugGraphics.drawRect(blueAtk.getX()-2, blueAtk.getY()-2, 4, 4);
-		debugGraphics.drawRect(yellowDef.getX()-2, yellowDef.getY(), 4, 4);
-		debugGraphics.drawRect(yellowAtk.getX()-2, yellowAtk.getY(), 4, 4);		
-		
-		// TODO: Using the previous position values and the time between frames, 
-		// calculate the velocities of the robots and the ball.
-		// Can be completed once Dimitar has implemented the world model section - Peter
-		// **Temp code below**
-		Velocity blueDefVel, blueAtkVel, yellowDefVel, yellowAtkVel, ballVel;
-		float xdiff = blueAtk.getX() - worldState.getBlueX();
-		float ydiff = blueAtk.getY() - worldState.getBlueY();
-		blueAtkVel = new Velocity(xdiff/delta, ydiff/delta);
-		//System.out.println("x: "+ blueAtkVel.getX() + " y: " + blueAtkVel.getY());
-		
-		// Calculate the rotation of each of the robots.
-		float blueDefAngle, blueAtkAngle, yellowDefAngle, yellowAtkAngle;
-		blueDefAngle = calculateAngle(frame, debugOverlay, blueDef, 14);
-		blueAtkAngle = calculateAngle(frame, debugOverlay, blueAtk, 14);
-		yellowDefAngle = calculateAngle(frame, debugOverlay, yellowDef, 14);
-		yellowAtkAngle = calculateAngle(frame, debugOverlay, yellowAtk, 14);
-		
-		// TODO: Update the world state with the new values for position, velocity and rotation.
-		// **RELATIVE TO THE ORIGIN FOR POSITION**
-		// The following code is temporary until Dimitar finished the world model section - Peter
-		worldState.setBallX(ball.getX());
-		worldState.setBallY(ball.getY());
-		worldState.setBlueX(blueAtk.getX());
-		worldState.setBlueY(blueAtk.getY());
-		worldState.setBlueOrientation(blueAtkAngle);
-		worldState.setBlueXVelocity(blueAtkVel.getX());
-		worldState.setBlueYVelocity(blueAtkVel.getY());
-		worldState.setYellowX(yellowAtk.getX());
-		worldState.setYellowY(yellowAtk.getY());
-		worldState.setYellowOrientation(yellowAtkAngle);
-
-		// Only display these markers in non-debug mode.
-		boolean anyDebug = false;
-		for (int i = 0; i < 5; ++i) {
-			if (this.pitchConstants.debugMode(i)) {
-				anyDebug = true;
-				break;
-			}
-		}
-
-		if (!anyDebug) {
-			debugGraphics.setColor(Color.red);
-			debugGraphics.drawLine(0, this.worldState.getBallY(), 640,
-					this.worldState.getBallY());
-			debugGraphics.drawLine(this.worldState.getBallX(), 0,
-					this.worldState.getBallX(), 480);
-			debugGraphics.setColor(Color.white);
+		for (ObjectRecogniser recogniser : recognisers) {
+			recogniser.processFrame(frame, debugGraphics, debugOverlay);
 		}
 		
 		for (VisionDebugReceiver receiver : this.visionDebugReceivers)
@@ -185,7 +104,7 @@ public class Vision implements VideoReceiver {
 	 * 
 	 * @author Peter Henderson (s1117205)
 	 */
-	private float calculateAngle(BufferedImage frame, BufferedImage debugOverlay, Position pos, int margin){
+	public float calculateAngle(BufferedImage frame, BufferedImage debugOverlay, Position pos, int margin){
 		int cumulativeGreyX = 0;
 		int cumulativeGreyY = 0;
 		int numGreyPoints = 0;
@@ -246,7 +165,7 @@ public class Vision implements VideoReceiver {
 	 * 
 	 * @author Peter Henderson (s1117205)
 	 */
-	private Position calculatePosition(ArrayList<Position> points) {
+	public Position calculatePosition(ArrayList<Position> points) {
 		if (points.size() < 10){
 			return new Position(0,0);
 		} else {
@@ -277,7 +196,7 @@ public class Vision implements VideoReceiver {
 	 * 
 	 * @author Peter Henderson (s1117205)
 	 */
-	private void searchColumn(ArrayList<Position> colourPoints, ArrayList<Position> ballPoints,
+	public void searchColumn(ArrayList<Position> colourPoints, ArrayList<Position> ballPoints,
 			BufferedImage frame, BufferedImage debugOverlay, 
 			int leftEdge, int rightEdge, boolean isBlue) {
 		

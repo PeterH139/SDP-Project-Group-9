@@ -6,6 +6,10 @@ import pc.comms.BrickCommServer;
 import pc.comms.BtInfo;
 import pc.strategy.TargetFollowerStrategy;
 import pc.vision.gui.VisionGUI;
+import pc.vision.gui.tools.ColourThresholdConfigTool;
+import pc.vision.gui.tools.DefaultTool;
+import pc.vision.recognisers.BallRecogniser;
+import pc.vision.recognisers.RobotRecogniser;
 import pc.world.WorldState;
 import au.edu.jcu.v4l4j.V4L4JConstants;
 //import strategy.calculations.GoalInfo;
@@ -33,8 +37,8 @@ public class RunVision {
 		}
 		// Default to main pitch
 		PitchConstants pitchConstants = new PitchConstants(0);
-		//GoalInfo goalInfo = new GoalInfo(pitchConstants);
-//		WorldState worldState = new WorldState(goalInfo);
+		// GoalInfo goalInfo = new GoalInfo(pitchConstants);
+		// WorldState worldState = new WorldState(goalInfo);
 		WorldState worldState = new WorldState();
 
 		// Default values for the main vision window
@@ -46,9 +50,9 @@ public class RunVision {
 		int compressionQuality = 100;
 
 		try {
-			BrickCommServer bcs = new BrickCommServer();
-			bcs.guiConnect(BtInfo.MEOW);
-			
+			// BrickCommServer bcs = new BrickCommServer();
+			// bcs.guiConnect(BtInfo.MEOW);
+
 			VideoStream vStream = new VideoStream(videoDevice, width, height,
 					channel, videoStandard, compressionQuality);
 
@@ -57,19 +61,30 @@ public class RunVision {
 			// Create a new Vision object to serve the main vision window
 			Vision vision = new Vision(worldState, pitchConstants);
 
+			vision.addRecogniser(new BallRecogniser(vision, worldState,
+					pitchConstants));
+			vision.addRecogniser(new RobotRecogniser(vision, worldState,
+					pitchConstants));
+
 			// Create the Control GUI for threshold setting/etc
 			VisionGUI gui = new VisionGUI(width, height, worldState,
 					pitchConstants, vStream, distortionFix);
-			
-			TargetFollowerStrategy tfs = new TargetFollowerStrategy(bcs);
-			tfs.startControlThread();
-			
+
+			// gui.addTool(new DefaultTool(gui), "Default");
+			gui.addTool(new ColourThresholdConfigTool(gui, worldState,
+					pitchConstants, vStream, distortionFix), "Legacy config");
+
+			// TargetFollowerStrategy tfs = new TargetFollowerStrategy(bcs);
+			// tfs.startControlThread();
+
 			vStream.addReceiver(distortionFix);
 			vStream.addReceiver(vision);
 			distortionFix.addReceiver(gui);
 			vision.addVisionDebugReceiver(gui);
 			vision.addWorldStateReceiver(gui);
-			vision.addWorldStateReceiver(tfs);
+			// vision.addWorldStateReceiver(tfs);
+
+			gui.setVisible(true);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

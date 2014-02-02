@@ -35,7 +35,7 @@ import pc.world.WorldState;
  * @author Alex Adams (s1046358) - heavy refactoring & improvements
  */
 @SuppressWarnings("serial")
-class VisionSettingsPanel extends JPanel {
+public class VisionSettingsPanel extends JPanel {
 	public static final int MOUSE_MODE_OFF = 0;
 	public static final int MOUSE_MODE_PITCH_BOUNDARY = 1;
 	public static final int MOUSE_MODE_BLUE_T = 2;

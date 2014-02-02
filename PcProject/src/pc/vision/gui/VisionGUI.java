@@ -3,7 +3,6 @@ package pc.vision.gui;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Composite;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -23,9 +22,16 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
+import javax.swing.BoxLayout;
+import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.event.MouseInputAdapter;
 
 import pc.vision.DistortionFix;
@@ -83,8 +89,12 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 	ArrayList<Integer> yList = new ArrayList<Integer>();
 
 	private final PitchConstants pitchConstants;
-	private final VisionSettingsPanel settingsPanel;
+	public VisionSettingsPanel settingsPanel;
 	private final JPanel videoDisplay = new JPanel();
+	
+	private final JList<ToolWrapper> toolList;
+	private ToolWrapper currentToolWrapper;
+	
 	private final WindowAdapter windowAdapter = new WindowAdapter() {
 		@Override
 		public void windowClosing(WindowEvent e) {
@@ -125,39 +135,35 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 			e.printStackTrace();
 		}
 
-		Container contentPane = this.getContentPane();
+		getContentPane().setLayout(
+				new BoxLayout(getContentPane(), BoxLayout.X_AXIS));
 
 		Dimension videoSize = new Dimension(videoWidth, videoHeight);
-		BufferedImage blankInitialiser = new BufferedImage(videoWidth,
-				videoHeight, BufferedImage.TYPE_INT_RGB);
-		getContentPane().setLayout(null);
-		this.videoDisplay.setLocation(0, 0);
-		this.videoDisplay.setMinimumSize(videoSize);
-		this.videoDisplay.setSize(videoSize);
-		contentPane.add(this.videoDisplay);
+		this.videoDisplay.setPreferredSize(videoSize);
+		getContentPane().add(this.videoDisplay);
 
-		this.settingsPanel = new VisionSettingsPanel(worldState,
-				this.pitchConstants, vStream, distortionFix);
+		//getContentPane().add(Box.createHorizontalStrut(10));
 
-		this.settingsPanel.setLocation(videoSize.width, 0);
-		contentPane.add(this.settingsPanel);
+		toolList = new JList<ToolWrapper>(new DefaultListModel<ToolWrapper>());
+		toolList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		toolList.addListSelectionListener(new ListSelectionListener() {
+			
+			@Override
+			public void valueChanged(ListSelectionEvent event) {
+				handleToolChange();
+			}
+		});
+		JScrollPane listScroller = new JScrollPane(toolList);
+		listScroller.setPreferredSize(new Dimension(150, 0));
+		getContentPane().add(listScroller);
 
-		this.setVisible(true);
-		this.getGraphics().drawImage(blankInitialiser, 0, 0, null);
+		//this.settingsPanel = new VisionSettingsPanel(worldState,
+		//		this.pitchConstants, vStream, distortionFix);
+		//getContentPane().add(this.settingsPanel);
 
-		this.settingsPanel.setSize(this.settingsPanel.getPreferredSize());
-		Dimension frameSize = new Dimension(videoWidth
-				+ this.settingsPanel.getPreferredSize().width, Math.max(
-				videoHeight, this.settingsPanel.getPreferredSize().height));
-		contentPane.setSize(frameSize);
-		this.setSize(frameSize.width + 8, frameSize.height + 30);
-		// Wait for size to actually be set before setting resizable to false.
-		try {
-			Thread.sleep(200);
-		} catch (InterruptedException e1) {
-			e1.printStackTrace();
-		}
-		this.setResizable(false);
+		setResizable(false);
+		pack();
+
 		this.videoDisplay.setFocusable(true);
 		this.videoDisplay.addKeyListener(new KeyListener() {
 			public void keyPressed(KeyEvent ke) {
@@ -384,6 +390,30 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 
 		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		this.addWindowListener(this.windowAdapter);
+	}
+
+	private void handleToolChange() {
+		ToolWrapper tw = toolList.getSelectedValue();
+		if (tw == currentToolWrapper)
+			return;
+		if (currentToolWrapper != null && !currentToolWrapper.tool.deactivate()) {
+			// If deactivate() returns false, we want to keep the current tool
+			toolList.setSelectedValue(currentToolWrapper, true);
+			return;
+		}
+		currentToolWrapper = tw;
+		if (currentToolWrapper != null)
+			currentToolWrapper.tool.activate();
+	}
+
+	public void addTool(GUITool tool, String name) {
+		DefaultListModel<ToolWrapper> model = (DefaultListModel<ToolWrapper>) toolList
+				.getModel();
+		model.addElement(new ToolWrapper(tool, name));
+	}
+	
+	public JPanel getVideoDisplay() {
+		return videoDisplay;
 	}
 
 	@Override
@@ -871,4 +901,17 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 		return (double) (sum) / points.size();
 	}
 
+	private class ToolWrapper {
+		public GUITool tool;
+		public String name;
+		
+		public ToolWrapper(GUITool tool, String name) {
+			this.tool = tool;
+			this.name = name;
+		}
+
+		public String toString() {
+			return name;
+		}
+	}
 }
