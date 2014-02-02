@@ -140,11 +140,7 @@ public class WorldState {
 		this.moveR = moveR;
 	}
 	//#region new world model representation
-	
-	/* Tracks locked/unlocked state of the world model 
-	 * */
-	private boolean lock; 
-	
+		
 	//Our team robots
 	//Defender
 	private MovingObject defenderRobot;
@@ -176,7 +172,6 @@ public class WorldState {
 	 */
 	WorldState(Pitch field){
 		this.playingField = field;
-		this.lock = false;
 	}
 	
 	/** Constructor, use it for inital world model initialization once
@@ -189,7 +184,6 @@ public class WorldState {
 		this.enemyAttackerRobot = enemyAttackerRobot;
 		this.enemyDefenderRobot = enemyDefenderRobot;
 		this.ball = ball;
-		this.lock = false;
 	}
 	
 	/**
@@ -197,12 +191,7 @@ public class WorldState {
 	 * returns null if the model is locked 
 	 */
 	public MovingObject GetEnemyDefenderRobot(){
-		if(lock == true){
-			return null;
-		}
-		else{
-			return this.enemyDefenderRobot;
-		}
+		return this.enemyDefenderRobot;
 	}
 	
 	/**
@@ -210,12 +199,7 @@ public class WorldState {
 	 * returns null if the model is locked 
 	 */
 	public MovingObject GetEnemyAttackerRobot(){
-		if(lock == true){
-			return null;
-		}
-		else{
-			return this.enemyAttackerRobot;
-		}
+		return this.enemyAttackerRobot;
 	}
 	
 	/**
@@ -223,12 +207,7 @@ public class WorldState {
 	 * returns null if the model is locked 
 	 */
 	public MovingObject GetDefenderRobot(){
-		if(lock == true){
-			return null;
-		}
-		else{
-			return this.defenderRobot;
-		}
+		return this.defenderRobot;
 	}
 	
 	/**
@@ -236,12 +215,7 @@ public class WorldState {
 	 * returns null if the model is locked 
 	 */
 	public MovingObject GetAttackerRobot(){
-		if(lock == true){
-			return null;
-		}
-		else{
-			return this.attackerRobot;
-		}
+		return this.attackerRobot;
 	}
 	
 	/**
@@ -249,25 +223,28 @@ public class WorldState {
 	 * returns null if the model is locked 
 	 */
 	public MovingObject GetBall(){
-		if(lock == true){
-			return null;
-		}
-		else{
-			return this.ball;
-		}
+		return this.ball;
 	}
 	
 	 /** Returns the pitch object
 	 * returns null if the model is locked 
 	 */
 	public Pitch GetPitch(){
-		if(lock == true){
-			return null;
-		}
-		else{
-			return this.playingField;
-		}
+		return this.playingField;		
 	}
+	
+	/**
+	 * Updates the field with data for moving objects: the robots and the ball
+	 */
+	public void UpdateField(MovingObject enemyAttackerRobot, MovingObject enemyDefenderRobot, MovingObject attackerRobot, MovingObject defenderRobot, MovingObject ball){
+		//the actual update
+		this.defenderRobot = defenderRobot;
+		this.attackerRobot = attackerRobot;
+		this.enemyAttackerRobot = enemyAttackerRobot;
+		this.enemyDefenderRobot = enemyDefenderRobot;
+		this.ball = ball;
+	}
+
 	
 	//#endregion
 	
