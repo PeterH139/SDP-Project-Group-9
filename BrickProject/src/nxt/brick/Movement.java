@@ -44,8 +44,13 @@ public class Movement extends DifferentialPilot {
 		RIGHT_WHEEL.flt();
 		KICKER.flt();
 	}
-
-	public static void kick(int speed) {
+	public void catchBall() {
+		KICKER.rotateTo(-60/GEAR_ERROR_RATIO);
+	}
+	public void liftKicker() {
+		KICKER.rotateTo(100/GEAR_ERROR_RATIO);
+	}
+	public void kick(int speed) {
 
 		if (isKicking) {
 			return;

@@ -11,4 +11,6 @@ public class RobotOpcode {
 	public static final int ARC_FORWARDS = 8;
 	public static final int KICK = 9;
 	public static final int QUIT = 10;
+	public static final int CATCH = 11;
+	public static final int APPROACHING_BALL = 12;
 }
