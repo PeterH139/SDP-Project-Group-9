@@ -46,6 +46,9 @@ public class RunVision {
 		int compressionQuality = 100;
 
 		try {
+			BrickCommServer bcs = new BrickCommServer();
+			bcs.guiConnect(BtInfo.MEOW);
+			
 			VideoStream vStream = new VideoStream(videoDevice, width, height,
 					channel, videoStandard, compressionQuality);
 
@@ -57,9 +60,6 @@ public class RunVision {
 			// Create the Control GUI for threshold setting/etc
 			VisionGUI gui = new VisionGUI(width, height, worldState,
 					pitchConstants, vStream, distortionFix);
-			
-			BrickCommServer bcs = new BrickCommServer();
-			bcs.connect(BtInfo.MEOW);
 			
 			TargetFollowerStrategy tfs = new TargetFollowerStrategy(bcs);
 			tfs.startControlThread();
