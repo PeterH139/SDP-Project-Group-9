@@ -42,6 +42,7 @@ public class Movement extends DifferentialPilot {
 	public static void floatWheels() {
 		LEFT_WHEEL.flt();
 		RIGHT_WHEEL.flt();
+		KICKER.flt();
 	}
 
 	public static void kick(int speed) {

@@ -167,7 +167,7 @@ public class ControlGUI2 extends JFrame {
 //			}
 //		}
 
-		System.out.println("Robot ready!");
+//		System.out.println("Robot ready!");
 
 	}
 

@@ -7,6 +7,9 @@ public class WorldState {
 	int greenX, greenY;
 	int yellowX, yellowY;
 	
+	int robotTargetX, robotTargetY;
+	double moveX, moveY, moveR;
+	
 	double ballXVelocity, ballYVelocity;
 	double blueXVelocity, blueYVelocity, blueOrientation;
 	double yellowXVelocity, yellowYVelocity, yellowOrientation;
@@ -105,6 +108,36 @@ public class WorldState {
 	}
 	public void setYellowOrientation(double yellowOrientation) {
 		this.yellowOrientation = yellowOrientation;
+	}
+	public int getRobotTargetX() {
+		return robotTargetX;
+	}
+	public void setRobotTargetX(int robotTargetX) {
+		this.robotTargetX = robotTargetX;
+	}
+	public int getRobotTargetY() {
+		return robotTargetY;
+	}
+	public void setRobotTargetY(int robotTargetY) {
+		this.robotTargetY = robotTargetY;
+	}
+	public double getMoveX() {
+		return moveX;
+	}
+	public void setMoveX(double moveX) {
+		this.moveX = moveX;
+	}
+	public double getMoveY() {
+		return moveY;
+	}
+	public void setMoveY(double moveY) {
+		this.moveY = moveY;
+	}
+	public double getMoveR() {
+		return moveR;
+	}
+	public void setMoveR(double moveR) {
+		this.moveR = moveR;
 	}
 	
 

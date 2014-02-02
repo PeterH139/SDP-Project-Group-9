@@ -95,7 +95,7 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 	};
 
 	public VisionGUI(final int videoWidth, final int videoHeight,
-			WorldState worldState, final PitchConstants pitchConsts,
+			final WorldState worldState, final PitchConstants pitchConsts,
 			final VideoStream vStream, final DistortionFix distortionFix) {
 
 		super("Vision");
@@ -106,8 +106,10 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 		this.pitchConstants = pitchConsts;
 		this.a = this.pitchConstants.getLeftBuffer();
 		this.b = this.pitchConstants.getTopBuffer();
-		this.c = this.videoWidth - this.pitchConstants.getRightBuffer() - this.a;
-		this.d = this.videoHeight - this.pitchConstants.getBottomBuffer() - this.b;
+		this.c = this.videoWidth - this.pitchConstants.getRightBuffer()
+				- this.a;
+		this.d = this.videoHeight - this.pitchConstants.getBottomBuffer()
+				- this.b;
 
 		try {
 			// Image T
@@ -145,8 +147,8 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 
 		this.settingsPanel.setSize(this.settingsPanel.getPreferredSize());
 		Dimension frameSize = new Dimension(videoWidth
-				+ this.settingsPanel.getPreferredSize().width, Math.max(videoHeight,
-				this.settingsPanel.getPreferredSize().height));
+				+ this.settingsPanel.getPreferredSize().width, Math.max(
+				videoHeight, this.settingsPanel.getPreferredSize().height));
 		contentPane.setSize(frameSize);
 		this.setSize(frameSize.width + 8, frameSize.height + 30);
 		// Wait for size to actually be set before setting resizable to false.
@@ -159,7 +161,7 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 		this.videoDisplay.setFocusable(true);
 		this.videoDisplay.addKeyListener(new KeyListener() {
 			public void keyPressed(KeyEvent ke) {
-				//TODO Empty Block
+				// TODO Empty Block
 			}
 
 			public void keyReleased(KeyEvent ke) {
@@ -167,7 +169,7 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 			}
 
 			public void keyTyped(KeyEvent e) {
-				//TODO Empty Block
+				// TODO Empty Block
 			}
 		});
 
@@ -210,8 +212,8 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 					break;
 				case VisionSettingsPanel.MOUSE_MODE_TARGET:
 					VisionGUI.this.videoDisplay.grabFocus();
-					//WorldState.targetX = e.getX();
-					//WorldState.targetY = e.getY();
+					worldState.setRobotTargetX(e.getX());
+					worldState.setRobotTargetY(e.getY());
 					break;
 				}
 			}
@@ -221,14 +223,19 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 				case VisionSettingsPanel.MOUSE_MODE_OFF:
 					break;
 				case VisionSettingsPanel.MOUSE_MODE_PITCH_BOUNDARY:
-					this.selection.setBounds((int) Math.min(VisionGUI.this.anchor.x, e.getX()),
+					this.selection.setBounds(
+							(int) Math.min(VisionGUI.this.anchor.x, e.getX()),
 							(int) Math.min(VisionGUI.this.anchor.y, e.getY()),
 							(int) Math.abs(e.getX() - VisionGUI.this.anchor.x),
 							(int) Math.abs(e.getY() - VisionGUI.this.anchor.y));
-					VisionGUI.this.a = (int) Math.min(VisionGUI.this.anchor.x, e.getX());
-					VisionGUI.this.b = (int) Math.min(VisionGUI.this.anchor.y, e.getY());
-					VisionGUI.this.c = (int) Math.abs(e.getX() - VisionGUI.this.anchor.x);
-					VisionGUI.this.d = (int) Math.abs(e.getY() - VisionGUI.this.anchor.y);
+					VisionGUI.this.a = (int) Math.min(VisionGUI.this.anchor.x,
+							e.getX());
+					VisionGUI.this.b = (int) Math.min(VisionGUI.this.anchor.y,
+							e.getY());
+					VisionGUI.this.c = (int) Math.abs(e.getX()
+							- VisionGUI.this.anchor.x);
+					VisionGUI.this.d = (int) Math.abs(e.getY()
+							- VisionGUI.this.anchor.y);
 					break;
 				case VisionSettingsPanel.MOUSE_MODE_BLUE_T:
 					VisionGUI.this.mouseX = e.getX();
@@ -273,37 +280,53 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 								&& pitchNum != JOptionPane.CLOSED_OPTION) {
 							System.out.println(pitchNum);
 							int top = VisionGUI.this.b;
-							int bottom = videoHeight - VisionGUI.this.d - VisionGUI.this.b;
+							int bottom = videoHeight - VisionGUI.this.d
+									- VisionGUI.this.b;
 							int left = VisionGUI.this.a;
-							int right = videoWidth - VisionGUI.this.c - VisionGUI.this.a;
+							int right = videoWidth - VisionGUI.this.c
+									- VisionGUI.this.a;
 
-							if (top > 0 && bottom > 0 && left > 0
-									&& right > 0) {
+							if (top > 0 && bottom > 0 && left > 0 && right > 0) {
 								// Update pitch constants
 								VisionGUI.this.pitchConstants.setTopBuffer(top);
-								VisionGUI.this.pitchConstants.setBottomBuffer(bottom);
-								VisionGUI.this.pitchConstants.setLeftBuffer(left);
-								VisionGUI.this.pitchConstants.setRightBuffer(right);
-								VisionGUI.this.pitchConstants.saveConstants(pitchNum);
+								VisionGUI.this.pitchConstants
+										.setBottomBuffer(bottom);
+								VisionGUI.this.pitchConstants
+										.setLeftBuffer(left);
+								VisionGUI.this.pitchConstants
+										.setRightBuffer(right);
+								VisionGUI.this.pitchConstants
+										.saveConstants(pitchNum);
 							} else {
-								System.out.println("Pitch selection NOT succesful");
+								System.out
+										.println("Pitch selection NOT succesful");
 							}
 							System.out.print("Top: " + top + " Bottom "
 									+ bottom);
 							System.out.println(" Right " + right + " Left "
 									+ left);
 
-							System.out.println("A: " + VisionGUI.this.a + " B: " + VisionGUI.this.b + " C: "
-									+ VisionGUI.this.c + " D:" + VisionGUI.this.d);
+							System.out.println("A: " + VisionGUI.this.a
+									+ " B: " + VisionGUI.this.b + " C: "
+									+ VisionGUI.this.c + " D:"
+									+ VisionGUI.this.d);
 						} else if (pitchNum == JOptionPane.CLOSED_OPTION
 								|| pitchNum == 2) {
 							System.out.println("Closed option picked");
-							VisionGUI.this.a = VisionGUI.this.pitchConstants.getLeftBuffer();
-							VisionGUI.this.b = VisionGUI.this.pitchConstants.getTopBuffer();
-							VisionGUI.this.c = videoWidth - VisionGUI.this.pitchConstants.getRightBuffer()
-									- VisionGUI.this.pitchConstants.getLeftBuffer();
-							VisionGUI.this.d = videoHeight - VisionGUI.this.pitchConstants.getTopBuffer()
-									- VisionGUI.this.pitchConstants.getBottomBuffer();
+							VisionGUI.this.a = VisionGUI.this.pitchConstants
+									.getLeftBuffer();
+							VisionGUI.this.b = VisionGUI.this.pitchConstants
+									.getTopBuffer();
+							VisionGUI.this.c = videoWidth
+									- VisionGUI.this.pitchConstants
+											.getRightBuffer()
+									- VisionGUI.this.pitchConstants
+											.getLeftBuffer();
+							VisionGUI.this.d = videoHeight
+									- VisionGUI.this.pitchConstants
+											.getTopBuffer()
+									- VisionGUI.this.pitchConstants
+											.getBottomBuffer();
 						}
 						repaint();
 					}
@@ -313,16 +336,20 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 					VisionGUI.this.selectorImage = VisionGUI.this.letterTSelectorImage;
 					VisionGUI.this.currentFile = VisionGUI.this.imgLetterT;
 					// Get the center coordinates of the selector image in use
-					VisionGUI.this.imageCenterX = VisionGUI.this.selectorImage.getWidth(null) / 2;
-					VisionGUI.this.imageCenterY = VisionGUI.this.selectorImage.getHeight(null) / 2;
+					VisionGUI.this.imageCenterX = VisionGUI.this.selectorImage
+							.getWidth(null) / 2;
+					VisionGUI.this.imageCenterY = VisionGUI.this.selectorImage
+							.getHeight(null) / 2;
 					break;
 				case VisionSettingsPanel.MOUSE_MODE_YELLOW_T:
 					VisionGUI.this.letterAdjustment = true;
 					VisionGUI.this.currentFile = VisionGUI.this.imgLetterT;
 					VisionGUI.this.selectorImage = VisionGUI.this.letterTSelectorImage;
 					// Get the center coordinates of the selector image in use
-					VisionGUI.this.imageCenterX = VisionGUI.this.selectorImage.getWidth(null) / 2;
-					VisionGUI.this.imageCenterY = VisionGUI.this.selectorImage.getHeight(null) / 2;
+					VisionGUI.this.imageCenterX = VisionGUI.this.selectorImage
+							.getWidth(null) / 2;
+					VisionGUI.this.imageCenterY = VisionGUI.this.selectorImage
+							.getHeight(null) / 2;
 					break;
 				case VisionSettingsPanel.MOUSE_MODE_GREEN_PLATES:
 					if (!VisionGUI.this.bluePlateAdjustment) {
@@ -331,8 +358,10 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 						VisionGUI.this.selectorImage = VisionGUI.this.yellowPlateSelectorImage;
 						// Get the center coordinates of the selector image in
 						// use
-						VisionGUI.this.imageCenterX = VisionGUI.this.selectorImage.getWidth(null) / 2;
-						VisionGUI.this.imageCenterY = VisionGUI.this.selectorImage.getHeight(null) / 2;
+						VisionGUI.this.imageCenterX = VisionGUI.this.selectorImage
+								.getWidth(null) / 2;
+						VisionGUI.this.imageCenterY = VisionGUI.this.selectorImage
+								.getHeight(null) / 2;
 					}
 					break;
 				case VisionSettingsPanel.MOUSE_MODE_DIVISIONS:
@@ -340,18 +369,11 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 					int[] ds = VisionGUI.this.pitchConstants.getDividers();
 					ds[VisionGUI.this.currentDivider] = e.getX();
 					VisionGUI.this.currentDivider++;
-					if (VisionGUI.this.currentDivider == 3){
+					if (VisionGUI.this.currentDivider == 3) {
 						VisionGUI.this.currentDivider = 0;
 					}
 					break;
 				case VisionSettingsPanel.MOUSE_MODE_TARGET:
-					System.out.println("target mode");
-					VisionGUI.this.targetAdjustment = true;
-					VisionGUI.this.currentFile = VisionGUI.this.imgGreyCircle;
-					VisionGUI.this.selectorImage = VisionGUI.this.greyCircleSelectorImage;
-					// Get the center coordinates of the selector image in use
-					VisionGUI.this.imageCenterX = VisionGUI.this.selectorImage.getWidth(null) / 2;
-					VisionGUI.this.imageCenterY = VisionGUI.this.selectorImage.getHeight(null) / 2;
 					break;
 				}
 			}
@@ -394,9 +416,9 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 		// If the colour selection mode is on (for colour calibration from the
 		// image)
 		if (mouseSelectTarget) {
-			//g2d.drawOval(WorldState.targetX, WorldState.targetY, 5, 5);
-			//ControlGUI2.op4field.setText("" + WorldState.targetX);
-			//ControlGUI2.op5field.setText("" + WorldState.targetY);
+			// g2d.drawOval(WorldState.targetX, WorldState.targetY, 5, 5);
+			// ControlGUI2.op4field.setText("" + WorldState.targetX);
+			// ControlGUI2.op5field.setText("" + WorldState.targetY);
 		}
 
 		if (mouseModeBlueT || mouseModeYellowT || mouseModeGreenPlates
@@ -404,30 +426,32 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 			// Show the colour selector image
 			if (this.letterAdjustment || this.yellowPlateAdjustment
 					|| this.bluePlateAdjustment) {
-				g2d.drawImage(this.selectorImage, this.mouseX, this.mouseY, null);
+				g2d.drawImage(this.selectorImage, this.mouseX, this.mouseY,
+						null);
 			}
 			// Controlling the selector image
 			rotationControl(this.settingsPanel.getMouseMode());
 		}
-		
+
 		// Drawing the dividing lines
 		int[] ds = this.pitchConstants.getDividers();
 		int top = this.pitchConstants.getTopBuffer();
 		int bot = this.videoHeight - this.pitchConstants.getBottomBuffer();
 		debugGraphics.setColor(Color.WHITE);
 		debugGraphics.drawLine(ds[0], bot, ds[0], top);
-		debugGraphics.drawString("1", ds[0], bot+20);
+		debugGraphics.drawString("1", ds[0], bot + 20);
 		debugGraphics.drawLine(ds[1], bot, ds[1], top);
-		debugGraphics.drawString("2", ds[1], bot+20);
+		debugGraphics.drawString("2", ds[1], bot + 20);
 		debugGraphics.drawLine(ds[2], bot, ds[2], top);
-		debugGraphics.drawString("3", ds[2], bot+20);
-		
+		debugGraphics.drawString("3", ds[2], bot + 20);
+
 		// Eliminating area around the pitch dimensions
 		if (!this.selectionActive) {
 			int a = this.pitchConstants.getLeftBuffer();
 			int b = this.pitchConstants.getTopBuffer();
 			int c = this.videoWidth - this.pitchConstants.getRightBuffer() - a;
-			int d = this.videoHeight - this.pitchConstants.getBottomBuffer() - b;
+			int d = this.videoHeight - this.pitchConstants.getBottomBuffer()
+					- b;
 			// Making the pitch surroundings transparent
 			Composite originalComposite = g2d.getComposite();
 			int type = AlphaComposite.SRC_OVER;
@@ -439,13 +463,14 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 			// Rectangle covering the LEFT
 			debugGraphics.fillRect(0, b, a, this.videoHeight);
 			// Rectangle covering the BOTTOM
-			debugGraphics.fillRect(a + c, b, this.videoWidth - a, this.videoHeight - b);
+			debugGraphics.fillRect(a + c, b, this.videoWidth - a,
+					this.videoHeight - b);
 			// Rectangle covering the RIGHT
 			debugGraphics.fillRect(a, b + d, c, this.videoHeight - d);
 			// Setting back normal settings
 			g2d.setComposite(originalComposite);
 		}
-		
+
 		if (this.settingsPanel.getMouseMode() == VisionSettingsPanel.MOUSE_MODE_PITCH_BOUNDARY) {
 			// Draw the line around the pitch dimensions
 			if (this.selectionActive) {
@@ -454,7 +479,7 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 			}
 		}
 	}
-	
+
 	@Override
 	public void sendWorldState(WorldState worldState) {
 		DecimalFormat df = new DecimalFormat();
@@ -468,7 +493,7 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 		// Display the FPS that the vision system is running at
 		frameGraphics.setColor(Color.white);
 		frameGraphics.drawString("Frame: " + this.frameCounter, 15, 15);
-		frameGraphics.drawString("FPS: " + 1/this.delta, 15, 30);
+		frameGraphics.drawString("FPS: " + 1 / this.delta, 15, 30);
 
 		// Display Ball & Robot Positions
 		frameGraphics.drawString("Ball:", 15, 45);
@@ -486,10 +511,10 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 				"vel: (" + df.format(worldState.getBlueXVelocity()) + ", "
 						+ df.format(worldState.getBlueYVelocity()) + ")", 140,
 				60);
-		frameGraphics.drawString(
-				"angle: "
-						+ df.format(worldState
-								.getBlueOrientation()), 260, 60);
+		frameGraphics
+				.drawString(
+						"angle: " + df.format(worldState.getBlueOrientation()),
+						260, 60);
 
 		frameGraphics.drawString("Yellow:", 15, 75);
 		frameGraphics.drawString("(" + worldState.getYellowX() + ", "
@@ -499,28 +524,46 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 						+ df.format(worldState.getYellowYVelocity()) + ")",
 				140, 75);
 		frameGraphics.drawString(
-				"angle: "
-						+ df.format(worldState
-								.getYellowOrientation()), 260, 75);
+				"angle: " + df.format(worldState.getYellowOrientation()), 260,
+				75);
+
+		frameGraphics.setColor(Color.BLUE);
+		final int radius = 5;
+		frameGraphics.drawOval(worldState.getRobotTargetX() - radius,
+				worldState.getRobotTargetY() - radius, 2 * radius, 2 * radius);
+
+		if (worldState.getMoveR() != 0) {
+			frameGraphics.setColor(Color.MAGENTA);
+			if (Math.abs(worldState.getMoveR()) < 1000) {
+				int r = (int) Math.abs(worldState.getMoveR());
+				frameGraphics.drawOval((int) worldState.getMoveX() - r,
+						(int) worldState.getMoveY() - r, 2 * r, 2 * r);
+			} else {
+				frameGraphics.drawLine(worldState.getYellowX(),
+						worldState.getYellowY(), worldState.getRobotTargetX(),
+						worldState.getRobotTargetY());
+			}
+		}
 
 		// Mark goals:
-//		Position leftGoal = worldState.goalInfo.getLeftGoalCenter();
-//		Position rightGoal = worldState.goalInfo.getRightGoalCenter();
+		// Position leftGoal = worldState.goalInfo.getLeftGoalCenter();
+		// Position rightGoal = worldState.goalInfo.getRightGoalCenter();
 
-//		frameGraphics.setColor(Color.yellow);
-//		frameGraphics.drawOval(leftGoal.getX() - 2, leftGoal.getY() - 2, 4, 4);
-//		frameGraphics
-//				.drawOval(rightGoal.getX() - 2, rightGoal.getY() - 2, 4, 4);
+		// frameGraphics.setColor(Color.yellow);
+		// frameGraphics.drawOval(leftGoal.getX() - 2, leftGoal.getY() - 2, 4,
+		// 4);
+		// frameGraphics
+		// .drawOval(rightGoal.getX() - 2, rightGoal.getY() - 2, 4, 4);
 
-//		Position leftGoalTop = worldState.goalInfo.getLeftGoalTop();
-//		Position leftGoalBottom = worldState.goalInfo.getLeftGoalBottom();
-//		frameGraphics.drawLine(leftGoalTop.getX(), leftGoalTop.getY(),
-//				leftGoalBottom.getX(), leftGoalBottom.getY());
+		// Position leftGoalTop = worldState.goalInfo.getLeftGoalTop();
+		// Position leftGoalBottom = worldState.goalInfo.getLeftGoalBottom();
+		// frameGraphics.drawLine(leftGoalTop.getX(), leftGoalTop.getY(),
+		// leftGoalBottom.getX(), leftGoalBottom.getY());
 
-//		Position rightGoalTop = worldState.goalInfo.getRightGoalTop();
-//		Position rightGoalBottom = worldState.goalInfo.getRightGoalBottom();
-//		frameGraphics.drawLine(rightGoalTop.getX(), rightGoalTop.getY(),
-//				rightGoalBottom.getX(), rightGoalBottom.getY());
+		// Position rightGoalTop = worldState.goalInfo.getRightGoalTop();
+		// Position rightGoalBottom = worldState.goalInfo.getRightGoalBottom();
+		// frameGraphics.drawLine(rightGoalTop.getX(), rightGoalTop.getY(),
+		// rightGoalBottom.getX(), rightGoalBottom.getY());
 
 		// Draw overall composite to screen
 		Graphics videoGraphics = this.videoDisplay.getGraphics();
@@ -547,7 +590,8 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 		}
 
 		// Control the selector images using the keyboard
-		if (this.letterAdjustment || this.yellowPlateAdjustment || this.bluePlateAdjustment) {
+		if (this.letterAdjustment || this.yellowPlateAdjustment
+				|| this.bluePlateAdjustment) {
 			if (this.adjust.equals("Up")) {
 				this.mouseY--;
 			} else if (this.adjust.equals("Down")) {
@@ -569,18 +613,21 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 			} else if (this.adjust.equals("Enter")) {
 				if (this.letterAdjustment) {
 					this.letterAdjustment = false;
-					this.extractedColourSettings = getColourRange(this.frame, object);
+					this.extractedColourSettings = getColourRange(this.frame,
+							object);
 					setColourRange(this.extractedColourSettings, object);
 					clearArrayOfLists(this.extractedColourSettings);
 				} else if (this.yellowPlateAdjustment) {
 					this.yellowPlateAdjustment = false;
 					this.bluePlateAdjustment = true;
-					this.extractedColourSettings = getColourRange(this.frame, object);
+					this.extractedColourSettings = getColourRange(this.frame,
+							object);
 					this.selectorImage = this.bluePlateSelectorImage;
 					this.currentFile = this.imgBluePlate;
 				} else if (this.bluePlateAdjustment) {
 					this.bluePlateAdjustment = false;
-					this.extractedColourSettings = getColourRange(this.frame, object);
+					this.extractedColourSettings = getColourRange(this.frame,
+							object);
 					setColourRange(this.extractedColourSettings, object);
 					clearArrayOfLists(this.extractedColourSettings);
 				}
@@ -611,8 +658,8 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 		ArrayList<Float> hueList = new ArrayList<Float>();
 		ArrayList<Float> satList = new ArrayList<Float>();
 		ArrayList<Float> valList = new ArrayList<Float>();
-		ArrayList<?>[] colourSettings = { redList, greenList, blueList, hueList,
-				satList, valList };
+		ArrayList<?>[] colourSettings = { redList, greenList, blueList,
+				hueList, satList, valList };
 
 		if (object == PitchConstants.BLUE || object == PitchConstants.YELLOW) {
 			/** PROCESSING EITHER LETTER T */
@@ -653,16 +700,18 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 			for (int y = fromY - ly; y < toY - ly; y++) {
 
 				// Getting the colour from pixels subject to rotation
-				double xR = x * Math.cos(Math.toRadians((double) this.rotation)) - y
+				double xR = x
+						* Math.cos(Math.toRadians((double) this.rotation)) - y
 						* Math.sin(Math.toRadians((double) this.rotation));
-				double yR = x * Math.sin(Math.toRadians((double) this.rotation)) + y
+				double yR = x
+						* Math.sin(Math.toRadians((double) this.rotation)) + y
 						* Math.cos(Math.toRadians((double) this.rotation));
 
 				this.xList.add(this.mouseX + lx + (int) xR);
 				this.yList.add(this.mouseY + ly + (int) yR);
 
-				Color c = new Color(frame.getRGB(this.mouseX + lx + (int) xR, this.mouseY
-						+ ly + (int) yR));
+				Color c = new Color(frame.getRGB(this.mouseX + lx + (int) xR,
+						this.mouseY + ly + (int) yR));
 
 				float[] hsbvals = Color.RGBtoHSB(c.getRed(), c.getGreen(),
 						c.getBlue(), null);

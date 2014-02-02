@@ -2,6 +2,9 @@ package pc.vision;
 
 import javax.swing.UIManager;
 
+import pc.comms.BrickCommServer;
+import pc.comms.BtInfo;
+import pc.strategy.TargetFollowerStrategy;
 import pc.vision.gui.VisionGUI;
 import pc.world.WorldState;
 import au.edu.jcu.v4l4j.V4L4JConstants;
@@ -54,12 +57,19 @@ public class RunVision {
 			// Create the Control GUI for threshold setting/etc
 			VisionGUI gui = new VisionGUI(width, height, worldState,
 					pitchConstants, vStream, distortionFix);
-
+			
+			BrickCommServer bcs = new BrickCommServer();
+			bcs.connect(BtInfo.MEOW);
+			
+			TargetFollowerStrategy tfs = new TargetFollowerStrategy(bcs);
+			tfs.startControlThread();
+			
 			vStream.addReceiver(distortionFix);
 			vStream.addReceiver(vision);
 			distortionFix.addReceiver(gui);
 			vision.addVisionDebugReceiver(gui);
 			vision.addWorldStateReceiver(gui);
+			vision.addWorldStateReceiver(tfs);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

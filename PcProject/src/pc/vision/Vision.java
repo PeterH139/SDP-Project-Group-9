@@ -88,13 +88,14 @@ public class Vision implements VideoReceiver {
 		
 		// Detect the X,Y coords and rotations of the plates in each section,
 		// also look for the points of the ball while looping over the frame to save time
-		boolean leftBlueFirst = false; //TODO: calculate this from the appropriate location
+		boolean leftBlueFirst = true; //TODO: calculate this from the appropriate location
 		if (leftBlueFirst) {
 			//In order, ltr: Blue Defender, Yellow Attacker, Blue Attacker, Yellow Defender
-			searchColumn(bdPoints, ballPoints, frame, debugOverlay, leftBuffer, dividers[0], true);
-			searchColumn(yaPoints, ballPoints, frame, debugOverlay, dividers[0], dividers[1], false);
-			searchColumn(baPoints, ballPoints, frame, debugOverlay, dividers[1], dividers[2], true);
-			searchColumn(ydPoints, ballPoints, frame, debugOverlay, dividers[2], frame.getWidth()-rightBuffer, false);
+//			searchColumn(bdPoints, ballPoints, frame, debugOverlay, leftBuffer, dividers[0], true);
+//			searchColumn(yaPoints, ballPoints, frame, debugOverlay, dividers[0], dividers[1], false);
+//			searchColumn(baPoints, ballPoints, frame, debugOverlay, dividers[1], dividers[2], true);
+//			searchColumn(ydPoints, ballPoints, frame, debugOverlay, dividers[2], frame.getWidth()-rightBuffer, false);
+			searchColumn(yaPoints, ballPoints, frame, debugOverlay, leftBuffer, frame.getWidth()-rightBuffer, false);
 		} else {
 			//In order, ltr: Yellow Defender, Blue Attacker, Yellow Attacker, Blue Defender
 			searchColumn(ydPoints, ballPoints, frame, debugOverlay, leftBuffer, dividers[0], false);
@@ -125,14 +126,14 @@ public class Vision implements VideoReceiver {
 		float xdiff = blueAtk.getX() - worldState.getBlueX();
 		float ydiff = blueAtk.getY() - worldState.getBlueY();
 		blueAtkVel = new Velocity(xdiff/delta, ydiff/delta);
-		System.out.println("x: "+ blueAtkVel.getX() + " y: " + blueAtkVel.getY());
+		//System.out.println("x: "+ blueAtkVel.getX() + " y: " + blueAtkVel.getY());
 		
 		// Calculate the rotation of each of the robots.
 		float blueDefAngle, blueAtkAngle, yellowDefAngle, yellowAtkAngle;
-		blueDefAngle = calculateAngle(frame, debugOverlay, blueDef, 15);
-		blueAtkAngle = calculateAngle(frame, debugOverlay, blueAtk, 15);
-		yellowDefAngle = calculateAngle(frame, debugOverlay, yellowDef, 15);
-		yellowAtkAngle = calculateAngle(frame, debugOverlay, yellowAtk, 15);
+		blueDefAngle = calculateAngle(frame, debugOverlay, blueDef, 14);
+		blueAtkAngle = calculateAngle(frame, debugOverlay, blueAtk, 14);
+		yellowDefAngle = calculateAngle(frame, debugOverlay, yellowDef, 14);
+		yellowAtkAngle = calculateAngle(frame, debugOverlay, yellowAtk, 14);
 		
 		// TODO: Update the world state with the new values for position, velocity and rotation.
 		// **RELATIVE TO THE ORIGIN FOR POSITION**
@@ -221,18 +222,18 @@ public class Vision implements VideoReceiver {
 		
 		// Find the mean and return the angle from there to pos
 		if (numGreyPoints > 0){
-			int greyXMean = cumulativeGreyX / numGreyPoints;
-			int greyYMean = cumulativeGreyY / numGreyPoints;
+			double greyXMean = 1.0 * cumulativeGreyX / numGreyPoints;
+			double greyYMean = 1.0 * cumulativeGreyY / numGreyPoints;
 			
 			// Debugging Code
 			debugOverlay.getGraphics().drawOval(startColumn, startRow, 2*margin, 2*margin);
-			debugOverlay.getGraphics().drawRect(greyXMean-2,greyYMean-2, 4, 4);
+			debugOverlay.getGraphics().drawRect((int)greyXMean-2,(int)greyYMean-2, 4, 4);
 			
 			float angle = (float) Math.toDegrees(Math.atan2(pos.getY()-greyYMean, pos.getX()-greyXMean));
 			
 			return (angle < 0) ? (angle+360) : angle; 
 		} else {
-			System.err.println("Can't find any grey points for position: " + pos.toString());
+			//System.err.println("Can't find any grey points for position: " + pos.toString());
 			return 0;
 		}		
 	}
