@@ -26,7 +26,8 @@ public class BrickController {
 	
 	private static InputStream is;
 	private static OutputStream os;
-
+	RobotController rc;
+	
 	public static void main(String[] args) {
 		
 	while(!die && !(Button.ESCAPE.isDown())) {
@@ -83,7 +84,7 @@ public class BrickController {
                 		else if (option1 == 3) {
                 			kickerSpeed = Movement.LOW_KICKER_SPEED;               					
                 		}
-                		Movement.kick(kickerSpeed);
+                		//rc.getMovementController().kick(kickerSpeed);
                 		replytopc(opcode, os);
                 		break;
                 case QUIT: 
