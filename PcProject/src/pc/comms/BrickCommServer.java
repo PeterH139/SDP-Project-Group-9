@@ -121,6 +121,14 @@ public class BrickCommServer {
 		brickOutput.flush();
 		brickInput.readBoolean();
 	}
+	
+	// TODO: may be subject to change if manoeuvre doesn't work as expected
+	public void robotManoeuvre(int angle) throws IOException {
+		brickOutput.writeInt(RobotOpcode.MANOEUVRE);
+		brickOutput.writeInt(angle);
+		brickOutput.flush();
+		brickInput.readBoolean();
+	}
 
 	public void robotArcForwards(double arcRadius, int distance)
 			throws IOException {
@@ -139,7 +147,7 @@ public class BrickCommServer {
 
 	public static void main(String[] args) throws NXTCommException {
 		BrickCommServer bcs = new BrickCommServer();
-		bcs.guiConnect(BtInfo.group10);
+		bcs.guiConnect(BtInfo.MEOW);
 		GUIClient client = bcs.new GUIClient();
 		client.setVisible(true);
 	}
@@ -176,7 +184,7 @@ public class BrickCommServer {
 					BrickCommServer.this.robotBackwards();
 					break;
 				case KeyEvent.VK_SPACE:
-					BrickCommServer.this.robotKick(900);
+					BrickCommServer.this.robotKick(600);
 					break;
 				case KeyEvent.VK_1:
 					BrickCommServer.this.robotPrepCatch();

@@ -22,8 +22,7 @@ public class Movement extends DifferentialPilot {
 	static NXTRegulatedMotor KICKER = Motor.A;
 	static final int TYRE_DIAMETER = 56;
 
-	public final boolean INVERSE_WHEELS = false;
-	public int maxPilotSpeed = 900;					// 90
+	public int maxPilotSpeed = 900;					// 90 for tests
 
 	// TODO: potential changes to be made here due to different robots
 	public static final int MAXIMUM_KICKER_SPEED = 900;
@@ -77,6 +76,26 @@ public class Movement extends DifferentialPilot {
 		isKicking = false;
 	}
 
+	public void manoeuvre(double angle) {
+		float leftWheelSpeed = maxPilotSpeed;
+		float rightWheelSpeed = maxPilotSpeed;
+		if (angle > 0) {
+			if (angle > 90) {
+				angle = 90;
+			}
+			leftWheelSpeed = (float) (leftWheelSpeed * (90-angle)/90);
+			LEFT_WHEEL.setSpeed(leftWheelSpeed);
+		}
+		if (angle < 0) {
+			if (angle < -90) {
+				angle = -90;
+			}
+			rightWheelSpeed = (float) (rightWheelSpeed * (90+angle)/90);
+			RIGHT_WHEEL.setSpeed(rightWheelSpeed);
+		}
+		forward();
+	}
+
 	private static void setMotorSpeed(NXTRegulatedMotor motor, int speed) {
 		boolean forward = true;
 		if (speed < 0) {
@@ -96,11 +115,7 @@ public class Movement extends DifferentialPilot {
 			leftWheelSpeed = this.maxPilotSpeed;
 		if (rightWheelSpeed > this.maxPilotSpeed)
 			rightWheelSpeed = this.maxPilotSpeed;
-
-		if (this.INVERSE_WHEELS) {
-			leftWheelSpeed *= -1;
-			rightWheelSpeed *= -1;
-		}
+		
 		setMotorSpeed(LEFT_WHEEL, leftWheelSpeed);
 		setMotorSpeed(RIGHT_WHEEL, rightWheelSpeed);
 	}
@@ -111,14 +126,6 @@ public class Movement extends DifferentialPilot {
 
 	public boolean isReady() {
 		return true;
-	}
-
-	public void connect() {
-		//TODO Empty Block
-	}
-
-	public void disconnect() {
-		//TODO Empty Block
 	}
 
 	/*

@@ -3,7 +3,7 @@ package nxt.testing;
 import nxt.brick.Movement;
 import nxt.brick.Striker;
 
-public class KickerTest {
+public class Milestone2 {
 	
 	private static Striker brick = new Striker();
 	

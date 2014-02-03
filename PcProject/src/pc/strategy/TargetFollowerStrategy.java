@@ -63,9 +63,9 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 		synchronized (controlThread) {
 			controlThread.rotateBy = 0;
 			controlThread.travelDist = 0;
-			
+
 			if (Math.abs(ang1) > Math.PI / 16) {
-				controlThread.rotateBy = (int) Math.toDegrees(-ang1 * 0.8);
+				controlThread.rotateBy =  (int) targetRad;   //(int) Math.toDegrees(-ang1 * 0.8);
 			}
 			else {
 				controlThread.travelDist = (int) (dist * 3);
@@ -82,22 +82,49 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 			setDaemon(true);
 		}
 
+//		@Override
+//		public void run() {
+//			try {
+//				while (true) {
+//					int rotateBy, travelDist;
+//					synchronized (this) {
+//						rotateBy = this.rotateBy;
+//						travelDist = this.travelDist;
+//					}
+//					if (rotateBy != 0) {
+//						brick.robotRotateBy(rotateBy);
+//					}
+//					else if (travelDist != 0) {
+//						brick.robotTravel(travelDist);
+//					}
+//					Thread.sleep(300);
+//				}
+//			}
+//			catch (IOException e) {
+//				e.printStackTrace();
+//			} catch (InterruptedException e) {
+//				e.printStackTrace();
+//			}
+//		}
+//		
+		
 		@Override
 		public void run() {
 			try {
 				while (true) {
-					int rotateBy, travelDist;
+					int travelDist, angleToBall;
 					synchronized (this) {
-						rotateBy = this.rotateBy;
-						travelDist = this.travelDist;
+					angleToBall = this.rotateBy;
+					travelDist = this.travelDist;
+					if (angleToBall != 0) {
+						brick.robotManoeuvre(angleToBall);
+						if (travelDist != 0) {
+							brick.robotTravel(travelDist);
+						}
+						
 					}
-					if (rotateBy != 0) {
-						brick.robotRotateBy(rotateBy);
+					Thread.sleep(300);
 					}
-					else if (travelDist != 0) {
-						brick.robotTravel(travelDist);
-					}
-					Thread.sleep(150);
 				}
 			}
 			catch (IOException e) {
@@ -105,7 +132,7 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-		}
 
+	}
 	}
 }
