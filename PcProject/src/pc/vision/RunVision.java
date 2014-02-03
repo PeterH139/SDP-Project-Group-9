@@ -10,6 +10,7 @@ import pc.comms.BtInfo;
 import pc.strategy.TargetFollowerStrategy;
 import pc.vision.gui.VisionGUI;
 import pc.vision.gui.tools.ColourThresholdConfigTool;
+import pc.vision.gui.tools.HistogramTool;
 import pc.vision.recognisers.BallRecogniser;
 import pc.vision.recognisers.RobotRecogniser;
 import pc.world.WorldState;
@@ -70,21 +71,23 @@ public class RunVision {
 				}
 			});
 
-			// gui.addTool(new DefaultTool(gui), "Default");
+			// Create a new Vision object to serve the main vision window
+			Vision vision = new Vision(worldState, pitchConstants);
+
 			ColourThresholdConfigTool ctct = new ColourThresholdConfigTool(gui, worldState,
 					pitchConstants, vStream, distortionFix);
 			gui.addTool(ctct, "Legacy config");
+			vision.addRecogniser(ctct.new PitchBoundsDebugDisplay());
+			vision.addRecogniser(ctct.new DividerLineDebugDisplay());
 			
-
-			// Create a new Vision object to serve the main vision window
-			Vision vision = new Vision(worldState, pitchConstants);
+			HistogramTool histogramTool = new HistogramTool(gui);
+			gui.addTool(histogramTool, "Histogram analyser");
+			vision.addRecogniser(histogramTool);
 
 //			vision.addRecogniser(new BallRecogniser(vision, worldState,
 //					pitchConstants));
 //			vision.addRecogniser(new RobotRecogniser(vision, worldState,
 //					pitchConstants));
-			vision.addRecogniser(ctct.new PitchBoundsDebugDisplay());
-			vision.addRecogniser(ctct.new DividerLineDebugDisplay());
 			
 //			TargetFollowerStrategy tfs = new TargetFollowerStrategy(bcs);
 //			tfs.startControlThread();
