@@ -2,6 +2,7 @@ package pc.vision;
 
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,7 +44,8 @@ public class VideoStream {
 
 	private ArrayList<VideoReceiver> videoReceivers = new ArrayList<VideoReceiver>();
 	// Used to calculate FPS
-	private long lastFrame = System.currentTimeMillis();
+	private ArrayDeque<Long> frameTimes = new ArrayDeque<Long>();
+	private static final int FPS_AVERAGE_WINDOW = 25;
 
 	private final CaptureCallback frameGrabberCallback = new CaptureCallback() {
 		public void exceptionReceived(V4L4JException e) {
@@ -59,9 +61,12 @@ public class VideoStream {
 		 */
 		public void nextFrame(VideoFrame frame) {
 			// Calculate frame rate based on time between calls
-			long thisFrame = System.currentTimeMillis();
-			float delta = (thisFrame - VideoStream.this.lastFrame) / 1000f;
-			VideoStream.this.lastFrame = thisFrame;
+			frameTimes.addLast(System.currentTimeMillis());
+			if (frameTimes.size() > FPS_AVERAGE_WINDOW)
+				frameTimes.removeFirst();
+			float delta = frameTimes.isEmpty() ? 0
+					: (frameTimes.getLast() - frameTimes.getFirst())
+							/ ((frameTimes.size() - 1) * 1000f);
 
 			// Wait for video device to initialise properly before reading
 			// frames
@@ -69,7 +74,8 @@ public class VideoStream {
 				BufferedImage frameBuffer = frame.getBufferedImage();
 
 				for (VideoReceiver receiver : VideoStream.this.videoReceivers)
-					receiver.sendFrame(frameBuffer, delta, VideoStream.this.frameCounter);
+					receiver.sendFrame(frameBuffer, delta,
+							VideoStream.this.frameCounter);
 			} else if (VideoStream.this.frameCounter > 3) {
 				VideoStream.this.ready = true;
 			}
@@ -107,14 +113,16 @@ public class VideoStream {
 		try {
 			this.videoDev = new VideoDevice(videoDevice);
 			DeviceInfo deviceInfo = this.videoDev.getDeviceInfo();
-			
+
 			if (deviceInfo.getFormatList().getNativeFormats().isEmpty()) {
 				throw new ImageFormatException(
 						"Unable to detect any native formats for the device!");
 			}
-			this.imageFormat = deviceInfo.getFormatList().getYUVEncodableFormat(0);
-			this.frameGrabber = this.videoDev.getJPEGFrameGrabber(width, height, channel,
-					videoStandard, compressionQuality, this.imageFormat);
+			this.imageFormat = deviceInfo.getFormatList()
+					.getYUVEncodableFormat(0);
+			this.frameGrabber = this.videoDev.getJPEGFrameGrabber(width,
+					height, channel, videoStandard, compressionQuality,
+					this.imageFormat);
 			this.frameGrabber.setCaptureCallback(this.frameGrabberCallback);
 			this.frameGrabber.startCapture();
 
@@ -126,7 +134,7 @@ public class VideoStream {
 			e.printStackTrace();
 			System.exit(1);
 		}
-		
+
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
 			public void run() {
@@ -146,8 +154,9 @@ public class VideoStream {
 	 */
 	private void reinitialiseFrameGrabber() throws V4L4JException {
 		this.frameGrabber.stopCapture();
-		this.frameGrabber = this.videoDev.getJPEGFrameGrabber(this.width, this.height, this.channel,
-				this.videoStandard, this.compressionQuality, this.imageFormat);
+		this.frameGrabber = this.videoDev.getJPEGFrameGrabber(this.width,
+				this.height, this.channel, this.videoStandard,
+				this.compressionQuality, this.imageFormat);
 		this.frameGrabber.setCaptureCallback(this.frameGrabberCallback);
 		this.frameGrabber.startCapture();
 	}

@@ -26,10 +26,10 @@ public class Vision implements VideoReceiver {
 	private ArrayList<WorldStateReceiver> worldStateReceivers = new ArrayList<WorldStateReceiver>();
 	private ArrayList<ObjectRecogniser> recognisers = new ArrayList<ObjectRecogniser>();
 
-	private final int YELLOW_T = 0;
-	private final int BLUE_T = 1;
-	private final int BALL = 2;
-	private final int GREY_CIRCLE = 3;
+	public static final int YELLOW_T = 0;
+	public static final int BLUE_T = 1;
+	public static final int BALL = 2;
+	public static final int GREY_CIRCLE = 3;
 
 	public Vision(WorldState worldState, PitchConstants pitchConstants) {
 		// Set the state fields.
@@ -262,7 +262,7 @@ public class Vision implements VideoReceiver {
 	 *            true if the range is inverted, false otherwise
 	 * @return true if the value is within bounds, false otherwise
 	 */
-	private static boolean checkBounds(float value, float lower, float upper,
+	public static boolean checkBounds(float value, float lower, float upper,
 			boolean inverted) {
 		if (!inverted)
 			return (lower <= value && value <= upper);
