@@ -104,7 +104,6 @@ public class RobotRecogniser implements ObjectRecogniser {
 		blueAtkAngle = vision.calculateAngle(frame, debugOverlay, blueAtk, 14);
 		yellowDefAngle = vision.calculateAngle(frame, debugOverlay, yellowDef, 14);
 		yellowAtkAngle = vision.calculateAngle(frame, debugOverlay, yellowAtk, 14);
-
 		// TODO: Update the world state with the new values for position,
 		// velocity and rotation.
 		// **RELATIVE TO THE ORIGIN FOR POSITION**
@@ -115,9 +114,9 @@ public class RobotRecogniser implements ObjectRecogniser {
 		worldState.setBlueOrientation(blueAtkAngle);
 		//worldState.setBlueXVelocity(blueAtkVel.getX());
 		//worldState.setBlueYVelocity(blueAtkVel.getY());
-		worldState.setYellowX(yellowAtk.getX());
-		worldState.setYellowY(yellowAtk.getY());
-		worldState.setYellowOrientation(yellowAtkAngle);
+		worldState.setYellowX(yellowDef.getX());
+		worldState.setYellowY(yellowDef.getY());
+		worldState.setYellowOrientation(yellowDefAngle);
 	}
 
 }

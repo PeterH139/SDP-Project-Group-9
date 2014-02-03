@@ -4,6 +4,7 @@ import javax.swing.UIManager;
 
 import pc.comms.BrickCommServer;
 import pc.comms.BtInfo;
+import pc.strategy.InterceptorStrategy;
 import pc.strategy.TargetFollowerStrategy;
 import pc.vision.gui.VisionGUI;
 import pc.vision.gui.tools.ColourThresholdConfigTool;
@@ -76,8 +77,8 @@ public class RunVision {
 			 TargetFollowerStrategy tfs = new TargetFollowerStrategy(bcs);
 			 tfs.startControlThread();
 			
-//			   InterceptorStrategy ic = new InterceptorStrategy(bcs);
-//			   ic.startControlThread();
+			   InterceptorStrategy ic = new InterceptorStrategy(bcs);
+			   ic.startControlThread();
 			   
 
 			vStream.addReceiver(distortionFix);
@@ -85,7 +86,7 @@ public class RunVision {
 			distortionFix.addReceiver(gui);
 			vision.addVisionDebugReceiver(gui);
 			vision.addWorldStateReceiver(gui);
-			vision.addWorldStateReceiver(tfs);
+			vision.addWorldStateReceiver(ic);
 
 			gui.setVisible(true);
 		} catch (Exception e) {
