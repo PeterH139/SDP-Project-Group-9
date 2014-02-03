@@ -265,7 +265,6 @@ public class ColourThresholdConfigTool implements GUITool {
 		gui.getVideoDisplay().addMouseMotionListener(mouseSelector);
 
 		Rectangle mainWindowBounds = gui.getBounds();
-		System.out.println(mainWindowBounds.y);
 		subWindow.setLocation(mainWindowBounds.x + mainWindowBounds.width,
 				mainWindowBounds.y);
 		subWindow.pack();
