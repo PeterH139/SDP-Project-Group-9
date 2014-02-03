@@ -11,12 +11,14 @@ import lejos.pc.comm.NXTInfo;
 public class BtInfo {
 
 	public static final String DEVICE_1_NAME = "MEOW";
-	public static final String DEVICE_2_NAME = "";
+	public static final String DEVICE_2_NAME = "group10";
 
 	public static final String DEVICE_1_MAC = "0016530A284F";
 	public static final String DEVICE_2_MAC = "";
 
 	public static final NXTInfo MEOW = new NXTInfo(NXTCommFactory.BLUETOOTH,
 			"MEOW", "0016530A284F");
+	public static final NXTInfo group10 = new NXTInfo(NXTCommFactory.BLUETOOTH,
+			"group10", "001653077601");
 
 }

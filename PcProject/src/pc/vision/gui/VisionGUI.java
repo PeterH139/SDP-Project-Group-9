@@ -92,7 +92,7 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 	public VisionSettingsPanel settingsPanel;
 	private final JPanel videoDisplay = new JPanel();
 	
-	private final JList<ToolWrapper> toolList;
+	private final JList toolList;
 	private ToolWrapper currentToolWrapper;
 	
 	private final WindowAdapter windowAdapter = new WindowAdapter() {
@@ -144,7 +144,7 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 
 		//getContentPane().add(Box.createHorizontalStrut(10));
 
-		toolList = new JList<ToolWrapper>(new DefaultListModel<ToolWrapper>());
+		toolList = new JList(new DefaultListModel());
 		toolList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		toolList.addListSelectionListener(new ListSelectionListener() {
 			
@@ -393,7 +393,7 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 	}
 
 	private void handleToolChange() {
-		ToolWrapper tw = toolList.getSelectedValue();
+		ToolWrapper tw = (ToolWrapper) toolList.getSelectedValue();
 		if (tw == currentToolWrapper)
 			return;
 		if (currentToolWrapper != null && !currentToolWrapper.tool.deactivate()) {
@@ -407,7 +407,7 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 	}
 
 	public void addTool(GUITool tool, String name) {
-		DefaultListModel<ToolWrapper> model = (DefaultListModel<ToolWrapper>) toolList
+		DefaultListModel model = (DefaultListModel) toolList
 				.getModel();
 		model.addElement(new ToolWrapper(tool, name));
 	}

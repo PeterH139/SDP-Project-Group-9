@@ -139,7 +139,7 @@ public class BrickCommServer {
 
 	public static void main(String[] args) throws NXTCommException {
 		BrickCommServer bcs = new BrickCommServer();
-		bcs.guiConnect(BtInfo.MEOW);
+		bcs.guiConnect(BtInfo.group10);
 		GUIClient client = bcs.new GUIClient();
 		client.setVisible(true);
 	}
@@ -176,7 +176,7 @@ public class BrickCommServer {
 					BrickCommServer.this.robotBackwards();
 					break;
 				case KeyEvent.VK_SPACE:
-					BrickCommServer.this.robotKick(600);
+					BrickCommServer.this.robotKick(900);
 					break;
 				case KeyEvent.VK_1:
 					BrickCommServer.this.robotPrepCatch();
