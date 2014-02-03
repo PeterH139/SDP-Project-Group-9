@@ -46,6 +46,7 @@ import au.edu.jcu.v4l4j.V4L4JConstants;
 
 @SuppressWarnings("serial")
 public class ControlGUI2 extends JFrame {
+	
 	// GUI elements
 	private final JPanel startStopQuitPanel = new JPanel();
 	private final JPanel optionsPanel = new JPanel();
@@ -134,13 +135,12 @@ public class ControlGUI2 extends JFrame {
 			Vision vision = new Vision(worldState, pitchConstants);
 
 			// Create the Control GUI for threshold setting/etc
-			VisionGUI gui = new VisionGUI(width, height, worldState, pitchConstants, vStream, distortionFix);
+			VisionGUI gui = new VisionGUI(width, height);
 
 			vStream.addReceiver(distortionFix);
 			distortionFix.addReceiver(gui);
 			distortionFix.addReceiver(vision);
 			vision.addVisionDebugReceiver(gui);
-			vision.addWorldStateReceiver(gui);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

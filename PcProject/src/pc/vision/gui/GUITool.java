@@ -11,4 +11,13 @@ public interface GUITool {
 	 * @return Return false to cancel tool change.
 	 */
 	public boolean deactivate();
+
+	/**
+	 * This method should release GUI resources that
+	 * may prevent the VM from shutting down.
+	 * 
+	 * In most cases it needs to call dispose() on any
+	 * frames the tool has created.
+	 */
+	public void dispose();
 }

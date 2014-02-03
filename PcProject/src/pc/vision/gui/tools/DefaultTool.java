@@ -21,4 +21,8 @@ public class DefaultTool implements GUITool {
 		return true;
 	}
 
+	@Override
+	public void dispose() {
+	}
+
 }

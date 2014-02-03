@@ -135,12 +135,12 @@ public class VideoStream {
 			System.exit(1);
 		}
 
-		Runtime.getRuntime().addShutdownHook(new Thread() {
+		/*Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
 			public void run() {
 				VideoStream.this.frameGrabber.stopCapture();
 			}
-		});
+		});*/
 	}
 
 	/**
@@ -159,6 +159,10 @@ public class VideoStream {
 				this.compressionQuality, this.imageFormat);
 		this.frameGrabber.setCaptureCallback(this.frameGrabberCallback);
 		this.frameGrabber.startCapture();
+	}
+	
+	public void shutdown() {
+		this.frameGrabber.stopCapture();
 	}
 
 	/**

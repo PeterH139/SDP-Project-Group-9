@@ -1,10 +1,12 @@
 package pc.vision;
 
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+
 import javax.swing.UIManager;
 
 import pc.comms.BrickCommServer;
 import pc.comms.BtInfo;
-import pc.strategy.InterceptorStrategy;
 import pc.strategy.TargetFollowerStrategy;
 import pc.vision.gui.VisionGUI;
 import pc.vision.gui.tools.ColourThresholdConfigTool;
@@ -50,43 +52,51 @@ public class RunVision {
 		int compressionQuality = 100;
 
 		try {
-			 BrickCommServer bcs = new BrickCommServer();
-			 bcs.guiConnect(BtInfo.group10);
+//			BrickCommServer bcs = new BrickCommServer();
+//			bcs.guiConnect(BtInfo.group10);
 
-			VideoStream vStream = new VideoStream(videoDevice, width, height,
+			final VideoStream vStream = new VideoStream(videoDevice, width, height,
 					channel, videoStandard, compressionQuality);
 
 			DistortionFix distortionFix = new DistortionFix(pitchConstants);
 
+			// Create the Control GUI for threshold setting/etc
+			VisionGUI gui = new VisionGUI(width, height);
+			
+			gui.addWindowListener(new WindowAdapter() {
+				@Override
+				public void windowClosed(WindowEvent e) {
+					vStream.shutdown();
+				}
+			});
+
+			// gui.addTool(new DefaultTool(gui), "Default");
+			ColourThresholdConfigTool ctct = new ColourThresholdConfigTool(gui, worldState,
+					pitchConstants, vStream, distortionFix);
+			gui.addTool(ctct, "Legacy config");
+			
+
 			// Create a new Vision object to serve the main vision window
 			Vision vision = new Vision(worldState, pitchConstants);
 
-			vision.addRecogniser(new BallRecogniser(vision, worldState,
-					pitchConstants));
-			vision.addRecogniser(new RobotRecogniser(vision, worldState,
-					pitchConstants));
-
-			// Create the Control GUI for threshold setting/etc
-			VisionGUI gui = new VisionGUI(width, height, worldState,
-					pitchConstants, vStream, distortionFix);
-
-			// gui.addTool(new DefaultTool(gui), "Default");
-			gui.addTool(new ColourThresholdConfigTool(gui, worldState,
-					pitchConstants, vStream, distortionFix), "Legacy config");
-//
-			 TargetFollowerStrategy tfs = new TargetFollowerStrategy(bcs);
-			 tfs.startControlThread();
+//			vision.addRecogniser(new BallRecogniser(vision, worldState,
+//					pitchConstants));
+//			vision.addRecogniser(new RobotRecogniser(vision, worldState,
+//					pitchConstants));
+			vision.addRecogniser(ctct.new PitchBoundsDebugDisplay());
+			vision.addRecogniser(ctct.new DividerLineDebugDisplay());
 			
-			   InterceptorStrategy ic = new InterceptorStrategy(bcs);
-			   ic.startControlThread();
-			   
+//			TargetFollowerStrategy tfs = new TargetFollowerStrategy(bcs);
+//			tfs.startControlThread();
+
+			// InterceptorStrategy ic = new InterceptorStrategy(bcs);
+			// ic.startControlThread();
 
 			vStream.addReceiver(distortionFix);
 			vStream.addReceiver(vision);
 			distortionFix.addReceiver(gui);
 			vision.addVisionDebugReceiver(gui);
-			vision.addWorldStateReceiver(gui);
-			vision.addWorldStateReceiver(ic);
+			// vision.addWorldStateReceiver(ic);
 
 			gui.setVisible(true);
 		} catch (Exception e) {
