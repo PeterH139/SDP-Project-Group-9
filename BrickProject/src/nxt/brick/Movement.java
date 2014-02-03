@@ -25,7 +25,7 @@ public class Movement extends DifferentialPilot {
 	public int maxPilotSpeed = 900;					// 90 for tests
 
 	// TODO: potential changes to be made here due to different robots
-	public static final int MAXIMUM_KICKER_SPEED = 900;
+	public static final int MAXIMUM_KICKER_SPEED = (int) KICKER.getMaxSpeed();
 	public static final int MEDIUM_KICKER_SPEED = 600;
 	public static final int LOW_KICKER_SPEED = 300;
 	public static final int ACCELERATION = MAXIMUM_KICKER_SPEED * 8;
@@ -60,8 +60,8 @@ public class Movement extends DifferentialPilot {
 		KICKER.setSpeed(speed);
 
 		// Move kicker back
-		KICKER.rotateTo(-35/GEAR_ERROR_RATIO);
-		KICKER.waitComplete();
+		//KICKER.rotateTo(-35/GEAR_ERROR_RATIO);
+		//KICKER.waitComplete();
 
 		// Kick
 		KICKER.rotateTo(120/GEAR_ERROR_RATIO);
@@ -74,6 +74,14 @@ public class Movement extends DifferentialPilot {
 		//KICKER.flt();
 
 		isKicking = false;
+	}
+	
+	public void movingKick(int speed) {
+		isKicking = true;
+		while(isKicking) {
+			
+			forward();
+		}
 	}
 
 	public void manoeuvre(double angle) {
