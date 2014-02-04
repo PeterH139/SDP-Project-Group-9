@@ -24,8 +24,8 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 	public void sendWorldState(WorldState worldState) {
 		int robotX = worldState.getYellowX(), robotY = worldState.getYellowY();
 		double robotO = worldState.getYellowOrientation();
-		int targetX = worldState.getRobotTargetX(), targetY = worldState
-				.getRobotTargetY();
+		int targetX = worldState.getBallX(), targetY = worldState
+				.getBallY();
 
 		if (targetX == 0 || targetY == 0 || robotX == 0 || robotY == 0
 				|| robotO == 0
@@ -65,7 +65,7 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 			controlThread.travelDist = 0;
 
 			if (Math.abs(ang1) > Math.PI / 16) {
-				controlThread.rotateBy =  (int) targetRad;   //(int) Math.toDegrees(-ang1 * 0.8);
+				controlThread.rotateBy =  (int) Math.toDegrees(-ang1 * 0.8);
 			}
 			else {
 				controlThread.travelDist = (int) (dist * 3);
@@ -82,49 +82,22 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 			setDaemon(true);
 		}
 
-//		@Override
-//		public void run() {
-//			try {
-//				while (true) {
-//					int rotateBy, travelDist;
-//					synchronized (this) {
-//						rotateBy = this.rotateBy;
-//						travelDist = this.travelDist;
-//					}
-//					if (rotateBy != 0) {
-//						brick.robotRotateBy(rotateBy);
-//					}
-//					else if (travelDist != 0) {
-//						brick.robotTravel(travelDist);
-//					}
-//					Thread.sleep(300);
-//				}
-//			}
-//			catch (IOException e) {
-//				e.printStackTrace();
-//			} catch (InterruptedException e) {
-//				e.printStackTrace();
-//			}
-//		}
-//		
-		
 		@Override
 		public void run() {
 			try {
 				while (true) {
-					int travelDist, angleToBall;
+					int rotateBy, travelDist;
 					synchronized (this) {
-					angleToBall = this.rotateBy;
-					travelDist = this.travelDist;
-					if (angleToBall != 0) {
-						brick.robotManoeuvre(angleToBall);
-						if (travelDist != 0) {
-							brick.robotTravel(travelDist);
-						}
-						
+						rotateBy = this.rotateBy;
+						travelDist = this.travelDist;
+					}
+					if (rotateBy != 0) {
+						brick.robotRotateBy(rotateBy);
+					}
+					else if (travelDist != 0) {
+						brick.robotTravel(travelDist);
 					}
 					Thread.sleep(300);
-					}
 				}
 			}
 			catch (IOException e) {
@@ -132,7 +105,34 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-
-	}
+		}
+		
+		
+//		@Override
+//		public void run() {
+//			try {
+//				while (true) {
+//					int travelDist, angleToBall;
+//					synchronized (this) {
+//					angleToBall = this.rotateBy;
+//					travelDist = this.travelDist;
+//					if (angleToBall != 0) {
+//						brick.robotRotateBy(angleToBall);
+//						if (travelDist != 0) {
+//							brick.robotTravel(travelDist);
+//						}
+//						
+//					}
+//					Thread.sleep(300);
+//					}
+//				}
+//			}
+//			catch (IOException e) {
+//				e.printStackTrace();
+//			} catch (InterruptedException e) {
+//				e.printStackTrace();
+//			}
+//
+//	}
 	}
 }

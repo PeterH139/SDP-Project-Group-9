@@ -7,6 +7,7 @@ import javax.swing.UIManager;
 
 import pc.comms.BrickCommServer;
 import pc.comms.BtInfo;
+import pc.strategy.InterceptorStrategy;
 import pc.strategy.TargetFollowerStrategy;
 import pc.vision.gui.VisionGUI;
 import pc.vision.gui.tools.ColourThresholdConfigTool;
@@ -53,8 +54,8 @@ public class RunVision {
 		int compressionQuality = 100;
 
 		try {
-//			BrickCommServer bcs = new BrickCommServer();
-//			bcs.guiConnect(BtInfo.group10);
+			BrickCommServer bcs = new BrickCommServer();
+			bcs.guiConnect(BtInfo.MEOW);
 
 			final VideoStream vStream = new VideoStream(videoDevice, width, height,
 					channel, videoStandard, compressionQuality);
@@ -84,22 +85,22 @@ public class RunVision {
 			gui.addTool(histogramTool, "Histogram analyser");
 			vision.addRecogniser(histogramTool);
 
-//			vision.addRecogniser(new BallRecogniser(vision, worldState,
-//					pitchConstants));
-//			vision.addRecogniser(new RobotRecogniser(vision, worldState,
-//					pitchConstants));
-			
+			vision.addRecogniser(new BallRecogniser(vision, worldState,
+					pitchConstants));
+			vision.addRecogniser(new RobotRecogniser(vision, worldState,
+					pitchConstants));
+//			
 //			TargetFollowerStrategy tfs = new TargetFollowerStrategy(bcs);
 //			tfs.startControlThread();
-
-			// InterceptorStrategy ic = new InterceptorStrategy(bcs);
-			// ic.startControlThread();
+//
+			 InterceptorStrategy ic = new InterceptorStrategy(bcs);
+			 ic.startControlThread();
 
 			vStream.addReceiver(distortionFix);
 			vStream.addReceiver(vision);
 			distortionFix.addReceiver(gui);
 			vision.addVisionDebugReceiver(gui);
-			// vision.addWorldStateReceiver(ic);
+			 vision.addWorldStateReceiver(ic);
 
 			gui.setVisible(true);
 		} catch (Exception e) {
