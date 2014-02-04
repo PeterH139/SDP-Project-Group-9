@@ -1,8 +1,11 @@
 package pc.strategy;
 
 import java.io.IOException;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 import pc.comms.BrickCommServer;
+import pc.vision.Position;
 import pc.vision.interfaces.WorldStateReceiver;
 import pc.world.WorldState;
 
@@ -10,7 +13,7 @@ public class InterceptorStrategy implements WorldStateReceiver {
 
 	private BrickCommServer brick;
 	private ControlThread controlThread;
-	private boolean forward;
+	private Deque<Position> ballPositions = new ArrayDeque<Position>();
 
 	public InterceptorStrategy(BrickCommServer brick) {
 		this.brick = brick;
@@ -25,80 +28,64 @@ public class InterceptorStrategy implements WorldStateReceiver {
 	public void sendWorldState(WorldState worldState) {
 		int robotX = worldState.getYellowX(), robotY = worldState.getYellowY();
 		double robotO = worldState.getYellowOrientation();
-		int ballX1 = worldState.getBallX(), ballY1 = worldState
-				.getBallY();
-		try {
-		wait(100);
-		}
-		catch (Exception e) {
-			System.out.println("waiting error: " + e);
-		}
-		int ballX2 = worldState.getBallX(), ballY2 = worldState
-				.getBallY();
-		
-		double slope = (ballY2 - ballY1)/ ((ballX2- ballX1) + 0.0001);
+		ballPositions.addLast(new Position(worldState.getBallX(), worldState
+				.getBallY()));
+		if (ballPositions.size() > 5)
+			ballPositions.removeFirst();
+
+		Position ball5FramesAgo = ballPositions.getFirst();
+		int ballX1 = ball5FramesAgo.getX(), ballY1 = ball5FramesAgo.getY();
+
+		int ballX2 = worldState.getBallX(), ballY2 = worldState.getBallY();
+
+		double slope = (ballY2 - ballY1) / ((ballX2 - ballX1) + 0.0001);
 		double c = ballY1 - slope * ballX1;
-		
+
 		int targetY = (int) (slope * robotX + c);
-		if (targetY > robotY)
-		{
-			forward = true;
-		}
-		else {
-			forward = false;
-		}
-		
-		if (robotX == 0 || targetY == 0 || robotY == 0
-				|| robotO == 0
+		System.out.println(targetY);
+		System.out.println(robotY);
+
+		if (robotX == 0 || targetY == 0 || robotY == 0 || robotO == 0
 				|| Math.hypot(0, robotY - targetY) < 10) {
-			worldState.setMoveR(0);
 			synchronized (controlThread) {
 				controlThread.rotateBy = 0;
 				controlThread.travelDist = 0;
 			}
 			return;
 		}
-//		double robotRad = Math.toRadians(robotO);
-//		double targetRad = Math.atan2(targetY - robotY, robotX - robotX);
-//
-//		if (robotRad > Math.PI)
-//			robotRad -= 2 * Math.PI;
-//
-//		double ang1 = targetRad - robotRad;
-//		while (ang1 > Math.PI)
-//			ang1 -= 2 * Math.PI;
-//		while (ang1 < -Math.PI)
-//			ang1 += 2 * Math.PI;
-//		
-		double dist = Math.hypot(robotX - robotX, robotY - targetY);
+		double robotRad = Math.toRadians(robotO);
+		//
+		// if (robotRad > Math.PI)
+		// robotRad -= 2 * Math.PI;
+		//
+		// while (ang1 > Math.PI)
+		// ang1 -= 2 * Math.PI;
+		// while (ang1 < -Math.PI)
+		// ang1 ang1 += 2 * Math.PI;
+		//
+		int dist;
+		int rotateBy = 0;
 
- 
+		if (robotRad > Math.PI)
+			robotRad -= 2 * Math.PI;
+		if (robotRad > 0) {
+			rotateBy = -(int) Math.toDegrees(Math.PI / 2 - robotRad);
+			dist = targetY - robotY;
+		} else {
+			rotateBy = -(int) Math.toDegrees(-Math.PI / 2 - robotRad);
+			dist = robotY - targetY;
+		}
+		if (Math.abs(rotateBy) < 5) {
+			rotateBy = 0;
+		}
+		else {
+			dist = 0;
+		}
+
 		synchronized (controlThread) {
-			controlThread.rotateBy = 0;
-			controlThread.travelDist = 0;
-//			if (Math.abs(ang1) > Math.PI / 2) {
-//				if (ang1 > 0) {
-//				ang1 = (Math.PI / 2) - ang1; }
-//				else {
-//				ang1 = Math.abs(ang1) - (Math.PI / 2);
-//				}
-//				forward = false;
-//			}
-//			else {
-//				forward = true;
-//			}
-//			if (Math.abs(ang1) > Math.PI / 16) {
-//				controlThread.rotateBy = (int) Math.toDegrees(ang1 * 0.8);
-//			}
-//			else {
-			if (forward == true) {
-			 controlThread.rotateBy = 1;
-			}
-			else {
-				controlThread.rotateBy = 0;
-			}
-				controlThread.travelDist = (int) (dist * 3);
-//			}
+			controlThread.rotateBy = rotateBy;
+			controlThread.travelDist = (int) (dist * 3);
+
 		}
 	}
 
@@ -120,18 +107,14 @@ public class InterceptorStrategy implements WorldStateReceiver {
 						rotateBy = this.rotateBy;
 						travelDist = this.travelDist;
 					}
-					if (travelDist > 5) {
-					if (rotateBy == 1) {
-						brick.robotTravel(-travelDist); 
+					if (rotateBy != 0) {
+						brick.robotRotateBy(rotateBy);
+					} else if (travelDist != 0) {
+						brick.robotTravel(travelDist);
 					}
-					else if (rotateBy == 0) {
-						brick.robotTravel(travelDist); 
-					}
-					}
-					Thread.sleep(50);
+					Thread.sleep(400);
 				}
-			}
-			catch (IOException e) {
+			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
