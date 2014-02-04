@@ -46,7 +46,7 @@ public class BrickCommClient {
 	}
 	private void handleCatch() {
 		System.out.println("Catch");
-		rc.getMovementController().catchBall();
+		rc.getMovementController().resetKicker();
 		kickerState = 0;
 	}
 	
