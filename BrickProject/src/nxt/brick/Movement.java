@@ -36,6 +36,9 @@ public class Movement extends DifferentialPilot {
 
 	public Movement(double trackWidth) {
 		super(TYRE_DIAMETER, trackWidth, LEFT_WHEEL, RIGHT_WHEEL);
+		KICKER.rotate(-40);
+		KICKER.flt();
+		KICKER.resetTachoCount();
 	}
 
 	public static void floatWheels() {
@@ -43,11 +46,11 @@ public class Movement extends DifferentialPilot {
 		RIGHT_WHEEL.flt();
 		KICKER.flt();
 	}
-	public void catchBall() {
-		KICKER.rotateTo(-60/GEAR_ERROR_RATIO);
+	public void resetKicker() {
+		KICKER.rotateTo(0/GEAR_ERROR_RATIO);
 	}
 	public void liftKicker() {
-		KICKER.rotateTo(100/GEAR_ERROR_RATIO);
+		KICKER.rotateTo(45/GEAR_ERROR_RATIO);
 	}
 	public void kick(int speed) {
 
@@ -56,30 +59,20 @@ public class Movement extends DifferentialPilot {
 		}
 
 		isKicking = true;
-
+		
 		KICKER.setSpeed(speed);
 
-		// Move kicker back
-		//KICKER.rotateTo(-35/GEAR_ERROR_RATIO);
-		//KICKER.waitComplete();
-
 		// Kick
-		KICKER.rotateTo(120/GEAR_ERROR_RATIO);
-		KICKER.waitComplete();
-
+		liftKicker();
 		// Reset
-		KICKER.rotateTo(-65/GEAR_ERROR_RATIO);
-		KICKER.waitComplete();
-
-		//KICKER.flt();
-
+		resetKicker();
+		
 		isKicking = false;
 	}
 	
 	public void movingKick(int speed) {
 		isKicking = true;
 		while(isKicking) {
-			
 			forward();
 		}
 	}
