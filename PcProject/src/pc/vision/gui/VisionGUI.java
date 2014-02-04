@@ -50,11 +50,11 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 	private final WindowAdapter windowAdapter = new WindowAdapter() {
 		@Override
 		public void windowClosing(WindowEvent e) {
-			if (currentToolWrapper == null)
-				dispose();
-			else if (currentToolWrapper.tool.deactivate()) {
-				// Tool deactivate function may prevent from closing
-				currentToolWrapper.tool.dispose();
+			// Tool deactivate function may prevent from closing
+			if (currentToolWrapper == null || currentToolWrapper.tool.deactivate()) {
+				DefaultListModel dlm = (DefaultListModel) toolList.getModel();
+				for (int i = 0; i < dlm.size(); i++)
+					((ToolWrapper) dlm.get(i)).tool.dispose();
 				dispose();
 			}
 		}
