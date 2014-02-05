@@ -55,7 +55,7 @@ public class RunVision {
 
 		try {
 			BrickCommServer bcs = new BrickCommServer();
-			bcs.guiConnect(BtInfo.MEOW);
+			bcs.guiConnect(BtInfo.group10);
 
 			final VideoStream vStream = new VideoStream(videoDevice, width, height,
 					channel, videoStandard, compressionQuality);

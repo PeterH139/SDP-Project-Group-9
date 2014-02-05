@@ -104,7 +104,7 @@ public class BrickCommClient {
 	
 	private void handleTravel() throws IOException {
 		int distance = pcInput.readInt();
-		rc.getMovementController().travel(distance);
+		rc.getMovementController().travel(distance, false);	
 		pcOutput.writeBoolean(true);
 		pcOutput.flush();
 	}
