@@ -5,6 +5,12 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.UIManager;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+
 import pc.comms.BrickCommServer;
 import pc.comms.BtInfo;
 import pc.strategy.InterceptorStrategy;
@@ -26,14 +32,31 @@ import au.edu.jcu.v4l4j.V4L4JConstants;
  * @author s0840449
  */
 public class RunVision {
+	static Options cmdLineOptions;
+
+	static {
+		cmdLineOptions = new Options();
+		cmdLineOptions.addOption("nobluetooth", false,
+				"Disable Bluetooth support");
+	}
+
 	/**
 	 * The main method for the class. Creates the control GUI, and initialises
 	 * the image processing.
 	 * 
 	 * @param args
-	 *            Program arguments. Not used.
+	 *            Program arguments.
 	 */
 	public static void main(String[] args) {
+		CommandLine cmdLine;
+		try {
+			CommandLineParser parser = new GnuParser();
+			cmdLine = parser.parse(cmdLineOptions, args);
+		} catch (ParseException e) {
+			System.err.println(e.getMessage());
+			return;
+		}
+
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception e) {
@@ -53,18 +76,23 @@ public class RunVision {
 		int videoStandard = V4L4JConstants.STANDARD_PAL;
 		int compressionQuality = 100;
 
-		try {
-			BrickCommServer bcs = new BrickCommServer();
-			bcs.guiConnect(BtInfo.group10);
+		final boolean enableBluetooth = !cmdLine.hasOption("nobluetooth");
 
-			final VideoStream vStream = new VideoStream(videoDevice, width, height,
-					channel, videoStandard, compressionQuality);
+		try {
+			BrickCommServer bcs = null;
+			if (enableBluetooth) {
+				bcs = new BrickCommServer();
+				bcs.guiConnect(BtInfo.group10);
+			}
+
+			final VideoStream vStream = new VideoStream(videoDevice, width,
+					height, channel, videoStandard, compressionQuality);
 
 			DistortionFix distortionFix = new DistortionFix(pitchConstants);
 
 			// Create the Control GUI for threshold setting/etc
 			VisionGUI gui = new VisionGUI(width, height);
-			
+
 			gui.addWindowListener(new WindowAdapter() {
 				@Override
 				public void windowClosed(WindowEvent e) {
@@ -75,12 +103,12 @@ public class RunVision {
 			// Create a new Vision object to serve the main vision window
 			Vision vision = new Vision(worldState, pitchConstants);
 
-			ColourThresholdConfigTool ctct = new ColourThresholdConfigTool(gui, worldState,
-					pitchConstants, vStream, distortionFix);
+			ColourThresholdConfigTool ctct = new ColourThresholdConfigTool(gui,
+					worldState, pitchConstants, vStream, distortionFix);
 			gui.addTool(ctct, "Legacy config");
 			vision.addRecogniser(ctct.new PitchBoundsDebugDisplay());
 			vision.addRecogniser(ctct.new DividerLineDebugDisplay());
-			
+
 			HistogramTool histogramTool = new HistogramTool(gui);
 			gui.addTool(histogramTool, "Histogram analyser");
 			vision.addRecogniser(histogramTool);
@@ -89,18 +117,20 @@ public class RunVision {
 					pitchConstants));
 			vision.addRecogniser(new RobotRecogniser(vision, worldState,
 					pitchConstants));
-//			
-//			TargetFollowerStrategy tfs = new TargetFollowerStrategy(bcs);
-//			tfs.startControlThread();
-//
-			 InterceptorStrategy ic = new InterceptorStrategy(bcs);
-			 ic.startControlThread();
+			//
+			// TargetFollowerStrategy tfs = new TargetFollowerStrategy(bcs);
+			// tfs.startControlThread();
+			//
+			if (enableBluetooth) {
+				InterceptorStrategy ic = new InterceptorStrategy(bcs);
+				ic.startControlThread();
+				vision.addWorldStateReceiver(ic);
+			}
 
 			vStream.addReceiver(distortionFix);
 			vStream.addReceiver(vision);
 			distortionFix.addReceiver(gui);
 			vision.addVisionDebugReceiver(gui);
-			 vision.addWorldStateReceiver(ic);
 
 			gui.setVisible(true);
 		} catch (Exception e) {
