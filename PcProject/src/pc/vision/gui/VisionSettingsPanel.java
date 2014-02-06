@@ -17,8 +17,6 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import pc.vision.DistortionFix;
 import pc.vision.PitchConstants;
@@ -65,65 +63,6 @@ public class VisionSettingsPanel extends JPanel {
 	private final JTabbedPane tabPane = new JTabbedPane();
 	private final JPanel mainTabPanel = new JPanel();
 	private final CameraSettingsPanel camPanel;
-	private final ThresholdsPanel[] tabPanels = new ThresholdsPanel[] {
-			new ThresholdsPanel(), new ThresholdsPanel(),
-			new ThresholdsPanel(), new ThresholdsPanel(), new ThresholdsPanel() };
-	private final ChangeListener tabChangeListener = new ChangeListener() {
-		@Override
-		public void stateChanged(ChangeEvent e) {
-			// Update the debug overlay settings
-			int index = VisionSettingsPanel.this.tabPane.getSelectedIndex();
-
-			switch (index) {
-			// Main tab
-			case (0):
-				// Disable all debug modes
-				VisionSettingsPanel.this.pitchConstants.setDebugMode(PitchConstants.BALL, false);
-				VisionSettingsPanel.this.pitchConstants.setDebugMode(PitchConstants.BLUE, false);
-				VisionSettingsPanel.this.pitchConstants.setDebugMode(PitchConstants.YELLOW, false);
-				VisionSettingsPanel.this.pitchConstants.setDebugMode(PitchConstants.GREY, false);
-				VisionSettingsPanel.this.pitchConstants.setDebugMode(PitchConstants.GREEN, false);
-				break;
-			// Camera tab
-			case (1):
-				// Disable all debug modes
-				VisionSettingsPanel.this.pitchConstants.setDebugMode(PitchConstants.BALL, false);
-				VisionSettingsPanel.this.pitchConstants.setDebugMode(PitchConstants.BLUE, false);
-				VisionSettingsPanel.this.pitchConstants.setDebugMode(PitchConstants.YELLOW, false);
-				VisionSettingsPanel.this.pitchConstants.setDebugMode(PitchConstants.GREY, false);
-				VisionSettingsPanel.this.pitchConstants.setDebugMode(PitchConstants.GREEN, false);
-				break;
-			// Ball tab
-			case (2):
-				// Enable only Ball debug mode
-				VisionSettingsPanel.this.pitchConstants.setDebugMode(PitchConstants.BALL, true, false);
-				break;
-			// Blue tab
-			case (3):
-				// Enable only Blue Robot debug mode
-				VisionSettingsPanel.this.pitchConstants.setDebugMode(PitchConstants.BLUE, true, false);
-				break;
-			// Yellow tab
-			case (4):
-				// Enable only Yellow Robot debug mode
-				VisionSettingsPanel.this.pitchConstants.setDebugMode(PitchConstants.YELLOW, true, false);
-				break;
-			// Grey Circle tab
-			case (5):
-				// Enable only Grey Circle debug mode
-				VisionSettingsPanel.this.pitchConstants.setDebugMode(PitchConstants.GREY, true, false);
-				break;
-			// Green Plate tab
-			case (6):
-				// Enable only Green Plate debug mode
-				VisionSettingsPanel.this.pitchConstants.setDebugMode(PitchConstants.GREEN, true, false);
-				break;
-			default:
-				System.err.println("VisionGUI: Invalid tab index");
-				System.exit(1);
-			}
-		}
-	};
 
 	// Radio buttons and their change listeners
 	private final JRadioButton rdbtnPitch0 = new JRadioButton("Main");
@@ -136,7 +75,6 @@ public class VisionSettingsPanel extends JPanel {
 			//worldState.setMainPitch(rdbtnPitch0.isSelected());
 			//worldState.setPitch(pitchNum);
 			VisionSettingsPanel.this.pitchConstants.setPitchNum(pitchNum);
-			reloadSliderDefaults();
 		}
 	};
 
@@ -199,120 +137,6 @@ public class VisionSettingsPanel extends JPanel {
 	private final JRadioButton rdbtnMouseModeGreyCircles = new JRadioButton();
 	private final JRadioButton targetSelection = new JRadioButton();
 
-	private abstract class BaseSliderChangeListener implements ChangeListener {
-		protected int index;
-
-		public BaseSliderChangeListener(int index) {
-			this.index = index;
-		}
-	}
-
-	private class RedSliderChangeListener extends BaseSliderChangeListener {
-		public RedSliderChangeListener(int index) {
-			super(index);
-		}
-
-		@Override
-		public void stateChanged(ChangeEvent e) {
-			int[] lowerUpper = VisionSettingsPanel.this.tabPanels[super.index].getRedSliderValues();
-			VisionSettingsPanel.this.pitchConstants.setRedLower(super.index, Math.max(0, lowerUpper[0]));
-			VisionSettingsPanel.this.pitchConstants.setRedUpper(super.index, lowerUpper[1]);
-			
-			boolean inverted = VisionSettingsPanel.this.tabPanels[super.index].isRedSliderInverted();
-			VisionSettingsPanel.this.pitchConstants.setRedInverted(super.index, inverted);
-		}
-	}
-
-	private class GreenSliderChangeListener extends BaseSliderChangeListener {
-		public GreenSliderChangeListener(int index) {
-			super(index);
-		}
-
-		@Override
-		public void stateChanged(ChangeEvent e) {
-			int[] lowerUpper = VisionSettingsPanel.this.tabPanels[super.index].getGreenSliderValues();
-			VisionSettingsPanel.this.pitchConstants.setGreenLower(super.index,
-					Math.max(0, lowerUpper[0]));
-			VisionSettingsPanel.this.pitchConstants.setGreenUpper(super.index, lowerUpper[1]);
-			
-			boolean inverted = VisionSettingsPanel.this.tabPanels[super.index].isGreenSliderInverted();
-			VisionSettingsPanel.this.pitchConstants.setGreenInverted(super.index, inverted);
-		}
-	}
-
-	private class BlueSliderChangeListener extends BaseSliderChangeListener {
-		public BlueSliderChangeListener(int index) {
-			super(index);
-		}
-
-		@Override
-		public void stateChanged(ChangeEvent e) {
-			int[] lowerUpper = VisionSettingsPanel.this.tabPanels[super.index].getBlueSliderValues();
-			VisionSettingsPanel.this.pitchConstants
-					.setBlueLower(super.index, Math.max(0, lowerUpper[0]));
-			VisionSettingsPanel.this.pitchConstants.setBlueUpper(super.index, lowerUpper[1]);
-			
-			boolean inverted = VisionSettingsPanel.this.tabPanels[super.index].isBlueSliderInverted();
-			VisionSettingsPanel.this.pitchConstants.setBlueInverted(super.index, inverted);
-		}
-	}
-
-	private class HueSliderChangeListener extends BaseSliderChangeListener {
-		public HueSliderChangeListener(int index) {
-			super(index);
-		}
-
-		@Override
-		public void stateChanged(ChangeEvent e) {
-			int[] lowerUpper = VisionSettingsPanel.this.tabPanels[super.index].getHueSliderValues();
-			VisionSettingsPanel.this.pitchConstants.setHueLower(super.index,
-					(float) Math.max(0, lowerUpper[0]) / 255.0f);
-			VisionSettingsPanel.this.pitchConstants.setHueUpper(super.index,
-					(float) lowerUpper[1] / 255.0f);
-			
-			boolean inverted = VisionSettingsPanel.this.tabPanels[super.index].isHueSliderInverted();
-			VisionSettingsPanel.this.pitchConstants.setHueInverted(super.index, inverted);
-		}
-	}
-
-	private class SaturationSliderChangeListener extends
-			BaseSliderChangeListener {
-		public SaturationSliderChangeListener(int index) {
-			super(index);
-		}
-
-		@Override
-		public void stateChanged(ChangeEvent e) {
-			int[] lowerUpper = VisionSettingsPanel.this.tabPanels[super.index]
-					.getSaturationSliderValues();
-			VisionSettingsPanel.this.pitchConstants.setSaturationLower(super.index,
-					(float) Math.max(0, lowerUpper[0]) / 255.0f);
-			VisionSettingsPanel.this.pitchConstants.setSaturationUpper(super.index,
-					(float) lowerUpper[1] / 255.0f);
-			
-			boolean inverted = VisionSettingsPanel.this.tabPanels[super.index].isSaturationSliderInverted();
-			VisionSettingsPanel.this.pitchConstants.setSaturationInverted(super.index, inverted);
-		}
-	}
-
-	private class ValueSliderChangeListener extends BaseSliderChangeListener {
-		public ValueSliderChangeListener(int index) {
-			super(index);
-		}
-
-		@Override
-		public void stateChanged(ChangeEvent e) {
-			int[] lowerUpper = VisionSettingsPanel.this.tabPanels[super.index].getValueSliderValues();
-			VisionSettingsPanel.this.pitchConstants.setValueLower(super.index,
-					(float) Math.max(0, lowerUpper[0]) / 255.0f);
-			VisionSettingsPanel.this.pitchConstants.setValueUpper(super.index,
-					(float) lowerUpper[1] / 255.0f);
-			
-			boolean inverted = VisionSettingsPanel.this.tabPanels[super.index].isValueSliderInverted();
-			VisionSettingsPanel.this.pitchConstants.setValueInverted(super.index, inverted);
-		}
-	}
-
 	/**
 	 * Default constructor.
 	 * 
@@ -340,38 +164,11 @@ public class VisionSettingsPanel extends JPanel {
 		this.mainTabPanel.setLayout(new BoxLayout(this.mainTabPanel, BoxLayout.Y_AXIS));
 		setUpMainPanel();
 
-		// The five threshold tabs
-		for (int i = 0; i < PitchConstants.NUM_THRESHOLDS; ++i) {
-			this.tabPanels[i]
-					.setRedSliderChangeListener(new RedSliderChangeListener(i));
-			this.tabPanels[i]
-					.setGreenSliderChangeListener(new GreenSliderChangeListener(
-							i));
-			this.tabPanels[i]
-					.setBlueSliderChangeListener(new BlueSliderChangeListener(i));
-			this.tabPanels[i]
-					.setHueSliderChangeListener(new HueSliderChangeListener(i));
-			this.tabPanels[i]
-					.setSaturationSliderChangeListener(new SaturationSliderChangeListener(
-							i));
-			this.tabPanels[i]
-					.setValueSliderChangeListener(new ValueSliderChangeListener(
-							i));
-		}
-
 		this.tabPane.addTab("Main", this.mainTabPanel);
 		this.tabPane.addTab("Camera", this.camPanel);
-		this.tabPane.addTab("Ball", this.tabPanels[PitchConstants.BALL]);
-		this.tabPane.addTab("Blue Robot", this.tabPanels[PitchConstants.BLUE]);
-		this.tabPane.addTab("Yellow Robot", this.tabPanels[PitchConstants.YELLOW]);
-		this.tabPane.addTab("Grey Circles", this.tabPanels[PitchConstants.GREY]);
-		this.tabPane.addTab("Green Plates", this.tabPanels[PitchConstants.GREEN]);
 
-		this.tabPane.addChangeListener(this.tabChangeListener);
 		this.add(this.tabPane);
 		this.setSize(this.getPreferredSize());
-
-		reloadSliderDefaults();
 	}
 
 	/**
@@ -486,6 +283,7 @@ public class VisionSettingsPanel extends JPanel {
 		mouseModeChoice.add(this.rdbtnMouseModeYellow);
 		mouseModeChoice.add(this.rdbtnMouseModeGreenPlates);
 		mouseModeChoice.add(this.rdbtnMouseModeGreyCircles);
+		mouseModeChoice.add(this.targetSelection);
 
 		GridBagConstraints gbc_rdbtnMouseModeOff = new GridBagConstraints();
 		gbc_rdbtnMouseModeOff.anchor = GridBagConstraints.EAST;
@@ -751,7 +549,6 @@ public class VisionSettingsPanel extends JPanel {
 				VisionSettingsPanel.this.pitchConstants.setPitchNum(pitchNum);
 				VisionSettingsPanel.this.camPanel.loadSettings(System.getProperty("user.dir")
 						+ "/constants/pitch" + pitchNum + "camera");
-				reloadSliderDefaults();
 			}
 		});
 
@@ -770,14 +567,6 @@ public class VisionSettingsPanel extends JPanel {
 		this.rdbtnDistortOff.doClick();
 		this.rdbtnDebugOn.doClick();
 		this.rdbtnMouseModeOff.doClick();
-	}
-
-	/**
-	 * Reloads the default values for the sliders from the PitchConstants file.
-	 */
-	public void reloadSliderDefaults() {
-		for (int i = 0; i < PitchConstants.NUM_THRESHOLDS; ++i)
-			this.tabPanels[i].setSliderValues(i, this.pitchConstants);
 	}
 
 	public int getMouseMode() {

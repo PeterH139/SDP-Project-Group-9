@@ -69,8 +69,8 @@ public class DistortionFix implements VideoReceiver {
 	 *            Bottom buffer
 	 * @return A new image with no barrel distortion
 	 */
-	public static BufferedImage removeBarrelDistortion(BufferedImage image, int left,
-			int right, int top, int bottom) {
+	public static BufferedImage removeBarrelDistortion(BufferedImage image,
+			int left, int right, int top, int bottom) {
 
 		BufferedImage newImage = new BufferedImage(width, height,
 				BufferedImage.TYPE_INT_RGB);
@@ -174,12 +174,10 @@ public class DistortionFix implements VideoReceiver {
 
 		// If the distortion overlay is active, apply it
 		if (isActive()) {
-			int topBuffer = this.pitchConstants.getTopBuffer();
-			int bottomBuffer = frame.getHeight()
-					- this.pitchConstants.getBottomBuffer();
-			int leftBuffer = this.pitchConstants.getLeftBuffer();
-			int rightBuffer = frame.getWidth()
-					- this.pitchConstants.getRightBuffer();
+			int topBuffer = this.pitchConstants.getPitchTop();
+			int bottomBuffer = topBuffer + this.pitchConstants.getPitchHeight();
+			int leftBuffer = this.pitchConstants.getPitchLeft();
+			int rightBuffer = leftBuffer + this.pitchConstants.getPitchWidth();
 
 			processedFrame = removeBarrelDistortion(frame, leftBuffer,
 					rightBuffer, topBuffer, bottomBuffer);

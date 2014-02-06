@@ -40,6 +40,10 @@ public class InvertibleRangeSlider extends JPanel {
 	public void setUpperValue(int value) {
 		this.slider.setUpperValue(value);
 	}
+	
+	public void setValues(int lowerValue, int upperValue) {
+		this.slider.setValues(lowerValue, upperValue);
+	}
 
 	public boolean isInverted() {
 		return this.invertCheckBox.isSelected();

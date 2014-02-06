@@ -37,7 +37,7 @@ import javax.swing.JSlider;
  * </p>
  */
 @SuppressWarnings("serial")
-class RangeSlider extends JSlider {	
+class RangeSlider extends JSlider {
 	/**
 	 * Constructs a RangeSlider with default minimum and maximum values of 0 and
 	 * 100.
@@ -162,5 +162,10 @@ class RangeSlider extends JSlider {
 
 		// Set extent to set upper value.
 		setExtent(newExtent);
+	}
+
+	public void setValues(int lowerValue, int upperValue) {
+		getModel().setRangeProperties(lowerValue, upperValue - lowerValue,
+				getMinimum(), getMaximum(), getValueIsAdjusting());
 	}
 }

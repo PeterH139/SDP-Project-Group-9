@@ -14,7 +14,6 @@ import org.apache.commons.cli.ParseException;
 import pc.comms.BrickCommServer;
 import pc.comms.BtInfo;
 import pc.strategy.InterceptorStrategy;
-import pc.strategy.TargetFollowerStrategy;
 import pc.vision.gui.VisionGUI;
 import pc.vision.gui.tools.ColourThresholdConfigTool;
 import pc.vision.gui.tools.HistogramTool;
@@ -63,11 +62,11 @@ public class RunVision {
 			e.printStackTrace();
 		}
 		// Default to main pitch
-		PitchConstants pitchConstants = new PitchConstants(0);
+		final PitchConstants pitchConstants = new PitchConstants(0);
 		// GoalInfo goalInfo = new GoalInfo(pitchConstants);
 		// WorldState worldState = new WorldState(goalInfo);
 		WorldState worldState = new WorldState();
-
+		
 		// Default values for the main vision window
 		String videoDevice = "/dev/video0";
 		int width = VideoStream.FRAME_WIDTH;
@@ -109,7 +108,7 @@ public class RunVision {
 			vision.addRecogniser(ctct.new PitchBoundsDebugDisplay());
 			vision.addRecogniser(ctct.new DividerLineDebugDisplay());
 
-			HistogramTool histogramTool = new HistogramTool(gui);
+			HistogramTool histogramTool = new HistogramTool(gui, pitchConstants);
 			gui.addTool(histogramTool, "Histogram analyser");
 			vision.addRecogniser(histogramTool);
 

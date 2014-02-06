@@ -54,18 +54,18 @@ public class Vision implements VideoReceiver {
 	public void addWorldStateReceiver(WorldStateReceiver receiver) {
 		this.worldStateReceivers.add(receiver);
 	}
-	
+
 	public void addRecogniser(ObjectRecogniser recogniser) {
 		this.recognisers.add(recogniser);
 	}
-	
+
 	/**
 	 * Processes an input image, extracting the ball and robot positions and
 	 * robot orientations from it, and then displays the image (with some
 	 * additional graphics layered on top for debugging) in the vision frame.
 	 * 
 	 * @param frame
-	 *  	      The image to process and then show.
+	 *            The image to process and then show.
 	 * @param delta
 	 *            The time between frames in seconds
 	 * @param counter
@@ -76,10 +76,10 @@ public class Vision implements VideoReceiver {
 				frame.getHeight(), BufferedImage.TYPE_INT_ARGB);
 		Graphics2D debugGraphics = (Graphics2D) debugOverlay.getGraphics();
 		
-		int top = pitchConstants.getTopBuffer();
-		int left = pitchConstants.getLeftBuffer();
-		int right = frame.getWidth() - pitchConstants.getRightBuffer();
-		int bottom = frame.getHeight() - pitchConstants.getBottomBuffer();
+		int top = pitchConstants.getPitchTop();
+		int left = pitchConstants.getPitchLeft();
+		int right = left + pitchConstants.getPitchWidth();
+		int bottom = top + pitchConstants.getPitchHeight();
 		PixelInfo[][] pixels = new PixelInfo[VideoStream.FRAME_WIDTH][VideoStream.FRAME_HEIGHT];
 		for (int row = top; row < bottom; row++){
 			for (int column = left; column < right; column++){
@@ -91,13 +91,14 @@ public class Vision implements VideoReceiver {
 		
 		for (ObjectRecogniser recogniser : recognisers) 
 			recogniser.processFrame(pixels, frame, debugGraphics, debugOverlay);
+
 		for (VisionDebugReceiver receiver : this.visionDebugReceivers)
 			receiver.sendDebugOverlay(debugOverlay);
 		for (WorldStateReceiver receiver : this.worldStateReceivers)
 			receiver.sendWorldState(this.worldState);
 
 	}
-	
+
 	/**
 	 * Returns the mean position of a list of points.
 	 * 
@@ -107,18 +108,18 @@ public class Vision implements VideoReceiver {
 	 * @author Peter Henderson (s1117205)
 	 */
 	public Position calculatePosition(ArrayList<Position> points) {
-		if (points.size() < 10){
-			return new Position(0,0);
+		if (points.size() < 10) {
+			return new Position(0, 0);
 		} else {
 			int xsum = 0;
 			int ysum = 0;
-			for (Position p : points){
+			for (Position p : points) {
 				xsum += p.getX();
 				ysum += p.getY();
 			}
 			int xmean = xsum / points.size();
 			int ymean = ysum / points.size();
-			return new Position (xmean, ymean);
+			return new Position(xmean, ymean);
 		}
 	}
 
@@ -179,29 +180,16 @@ public class Vision implements VideoReceiver {
 	 *         (and thus the pixel is part of the blue T), false otherwise.
 	 */
 	public boolean isColour(PixelInfo pixel, int colourId) {
-		return checkBounds(pixel.r,
-				this.pitchConstants.getRedLower(colourId),
-				this.pitchConstants.getRedUpper(colourId),
-				this.pitchConstants.isRedInverted(colourId))
-				&& checkBounds(pixel.g,
-						this.pitchConstants.getGreenLower(colourId),
-						this.pitchConstants.getGreenUpper(colourId),
-						this.pitchConstants.isGreenInverted(colourId))
-				&& checkBounds(pixel.b,
-						this.pitchConstants.getBlueLower(colourId),
-						this.pitchConstants.getBlueUpper(colourId),
-						this.pitchConstants.isBlueInverted(colourId))
-				&& checkBounds(pixel.h,
-						this.pitchConstants.getHueLower(colourId),
-						this.pitchConstants.getHueUpper(colourId),
-						this.pitchConstants.isHueInverted(colourId))
-				&& checkBounds(pixel.s,
-						this.pitchConstants.getSaturationLower(colourId),
-						this.pitchConstants.getSaturationUpper(colourId),
-						this.pitchConstants.isSaturationInverted(colourId))
-				&& checkBounds(pixel.v,
-						this.pitchConstants.getValueLower(colourId),
-						this.pitchConstants.getValueUpper(colourId),
-						this.pitchConstants.isValueInverted(colourId));
+		float[] colourValues = { pixel.r, pixel.g,
+				pixel.b, pixel.h, pixel.s, pixel.v, };
+
+		for (int ch = 0; ch < PitchConstants.NUM_CHANNELS; ch++)
+			if (!Vision.checkBounds(colourValues[ch],
+					this.pitchConstants.getLowerThreshold(colourId, ch),
+					this.pitchConstants.getUpperThreshold(colourId, ch),
+					this.pitchConstants.isThresholdInverted(colourId, ch)))
+				return false;
+		
+		return true;
 	}
 }

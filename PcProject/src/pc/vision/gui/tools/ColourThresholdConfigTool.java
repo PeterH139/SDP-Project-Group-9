@@ -147,38 +147,27 @@ public class ColourThresholdConfigTool implements GUITool {
 					if (pitchNum != 2 && pitchNum != JOptionPane.CLOSED_OPTION) {
 						System.out.println(pitchNum);
 						int top = b;
-						int bottom = gui.getVideoHeight() - d - b;
+						int bottom = b + d;
 						int left = a;
-						int right = gui.getVideoWidth() - c - a;
+						int right = a + c;
 
-						if (top > 0 && bottom > 0 && left > 0 && right > 0) {
+						if ((0 <= left && left < right && right < videoWidth)
+								&& (0 <= top && top < bottom && bottom < videoHeight)) {
 							// Update pitch constants
-							pitchConstants.setTopBuffer(top);
-							pitchConstants.setBottomBuffer(bottom);
-							pitchConstants.setLeftBuffer(left);
-							pitchConstants.setRightBuffer(right);
+							pitchConstants.setPitchBounds(new Rectangle(a, b,
+									c, d));
 							pitchConstants.saveConstants(pitchNum);
 						} else {
 							System.out.println("Pitch selection NOT succesful");
 						}
-						System.out.print("Top: " + top + " Bottom " + bottom);
-						System.out.println(" Right " + right + " Left " + left);
-
-						System.out.println("A: " + a + " B: " + b + " C: " + c
-								+ " D:" + d);
 					} else if (pitchNum == JOptionPane.CLOSED_OPTION
 							|| pitchNum == 2) {
 						System.out.println("Closed option picked");
-						a = pitchConstants.getLeftBuffer();
-						b = pitchConstants.getTopBuffer();
-						c = gui.getVideoWidth()
-								- pitchConstants.getRightBuffer()
-								- pitchConstants.getLeftBuffer();
-						d = gui.getVideoHeight()
-								- pitchConstants.getTopBuffer()
-								- pitchConstants.getBottomBuffer();
+						a = pitchConstants.getPitchLeft();
+						b = pitchConstants.getPitchTop();
+						c = pitchConstants.getPitchWidth();
+						d = pitchConstants.getPitchHeight();
 					}
-					gui.getVideoDisplay().repaint();
 				}
 				break;
 			case VisionSettingsPanel.MOUSE_MODE_BLUE_T:
@@ -244,10 +233,10 @@ public class ColourThresholdConfigTool implements GUITool {
 		videoWidth = gui.getVideoWidth();
 		videoHeight = gui.getVideoHeight();
 
-		a = this.pitchConstants.getLeftBuffer();
-		b = this.pitchConstants.getTopBuffer();
-		c = videoWidth - this.pitchConstants.getRightBuffer() - this.a;
-		d = videoWidth - this.pitchConstants.getBottomBuffer() - this.b;
+		a = pitchConstants.getPitchLeft();
+		b = pitchConstants.getPitchTop();
+		c = pitchConstants.getPitchWidth();
+		d = pitchConstants.getPitchHeight();
 
 		subWindow = new JFrame("Colour threshold configuration");
 		subWindow.setResizable(false);
@@ -288,10 +277,10 @@ public class ColourThresholdConfigTool implements GUITool {
 				BufferedImage debugOverlay) {
 			// Eliminating area around the pitch dimensions
 			if (!selectionActive) {
-				int a = pitchConstants.getLeftBuffer();
-				int b = pitchConstants.getTopBuffer();
-				int c = videoWidth - pitchConstants.getRightBuffer() - a;
-				int d = videoHeight - pitchConstants.getBottomBuffer() - b;
+				int left = pitchConstants.getPitchLeft();
+				int top = pitchConstants.getPitchTop();
+				int right = left + pitchConstants.getPitchWidth();
+				int bottom = top + pitchConstants.getPitchHeight();
 				// Making the pitch surroundings transparent
 				Composite originalComposite = debugGraphics.getComposite();
 				int type = AlphaComposite.SRC_OVER;
@@ -299,15 +288,16 @@ public class ColourThresholdConfigTool implements GUITool {
 						0.6f));
 				debugGraphics.setComposite(alphaComp);
 				debugGraphics.setColor(Color.BLACK);
-				// Rectangle covering the BOTTOM
-				debugGraphics.fillRect(0, 0, videoWidth, b);
+				// Rectangle covering the TOP
+				debugGraphics.fillRect(0, 0, videoWidth, top);
 				// Rectangle covering the LEFT
-				debugGraphics.fillRect(0, b, a, videoHeight);
+				debugGraphics.fillRect(0, top, left, bottom - top);
 				// Rectangle covering the BOTTOM
-				debugGraphics.fillRect(a + c, b, videoWidth - a, videoHeight
-						- b);
+				debugGraphics.fillRect(0, bottom, videoWidth, videoHeight
+						- bottom);
 				// Rectangle covering the RIGHT
-				debugGraphics.fillRect(a, b + d, c, videoHeight - d);
+				debugGraphics.fillRect(right, top, videoWidth - right, bottom
+						- top);
 				// Setting back normal settings
 				debugGraphics.setComposite(originalComposite);
 			}
@@ -330,8 +320,8 @@ public class ColourThresholdConfigTool implements GUITool {
 				BufferedImage debugOverlay) {
 			// Drawing the dividing lines
 			int[] ds = pitchConstants.getDividers();
-			int top = pitchConstants.getTopBuffer();
-			int bot = videoHeight - pitchConstants.getBottomBuffer();
+			int top = pitchConstants.getPitchTop();
+			int bot = top + pitchConstants.getPitchHeight();
 			debugGraphics.setColor(Color.WHITE);
 			debugGraphics.drawLine(ds[0], bot, ds[0], top);
 			debugGraphics.drawString("1", ds[0], bot + 20);
