@@ -43,11 +43,17 @@ public class PitchConstants extends Observable {
 	public static final float HSVMAX = 1.0f;
 
 	public static final int NUM_CHANNELS = 6;
+	
 	public static final int CHANNEL_RED = 0;
+	
 	public static final int CHANNEL_GREEN = 1;
+	
 	public static final int CHANNEL_BLUE = 2;
+	
 	public static final int CHANNEL_HUE = 3;
+	
 	public static final int CHANNEL_SATURATION = 4;
+	
 	public static final int CHANNEL_BRIGHTNESS = 5;
 
 	// The pitch number. 0 is the main pitch, 1 is the side pitch
@@ -278,9 +284,12 @@ public class PitchConstants extends Observable {
 			// and green plates in the order they're defined above.
 			for (int i = 0; i < NUM_OBJECTS; ++i) {
 				for (int ch = 0; ch < NUM_CHANNELS; ch++) {
-					pitchFile.write(String.valueOf(getLowerThreshold(i, ch)) + "\n");
-					pitchFile.write(String.valueOf(getUpperThreshold(i, ch)) + "\n");
-					pitchFile.write(String.valueOf(isThresholdInverted(i, ch)) + "\n");
+					pitchFile.write(String.valueOf(getLowerThreshold(i, ch))
+							+ "\n");
+					pitchFile.write(String.valueOf(getUpperThreshold(i, ch))
+							+ "\n");
+					pitchFile.write(String.valueOf(isThresholdInverted(i, ch))
+							+ "\n");
 				}
 			}
 			pitchFile.close();
