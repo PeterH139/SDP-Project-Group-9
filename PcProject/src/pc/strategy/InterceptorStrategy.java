@@ -70,11 +70,11 @@ public class InterceptorStrategy implements WorldStateReceiver {
 		
 		int dist;
 		int rotateBy = 0;
-		if (targetY > 365) {
-			targetY = 350;
+		if (targetY > tempBottomY) {
+			targetY = tempBottomY - 15;
 		}
-		else if (targetY < 103) {
-			targetY = 115;
+		else if (targetY < tempTopY) {
+			targetY = tempTopY + 15;
 		}
 		if (robotRad > Math.PI)
 			robotRad -= 2 * Math.PI;
@@ -85,14 +85,15 @@ public class InterceptorStrategy implements WorldStateReceiver {
 			rotateBy = -(int) Math.toDegrees(-Math.PI / 2 - robotRad);
 			dist = robotY - targetY;
 		}
-		if (Math.abs(rotateBy) < 30) {
+		if (Math.abs(rotateBy) < 20) {
 			rotateBy = 0;
 		}
 		else {
 			dist = 0;
 		}
 		if (targetX < robotX) {
-			dist = 0;
+			// moves robot to center of pitch
+			dist = (tempBottomY - tempTopY) - robotY;
 		}
 		
 		synchronized (controlThread) {
