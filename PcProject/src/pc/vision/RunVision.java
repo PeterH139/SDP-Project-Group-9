@@ -2,6 +2,8 @@ package pc.vision;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.swing.UIManager;
 
@@ -63,11 +65,11 @@ public class RunVision {
 			e.printStackTrace();
 		}
 		// Default to main pitch
-		PitchConstants pitchConstants = new PitchConstants(0);
+		final PitchConstants pitchConstants = new PitchConstants(0);
 		// GoalInfo goalInfo = new GoalInfo(pitchConstants);
 		// WorldState worldState = new WorldState(goalInfo);
 		WorldState worldState = new WorldState();
-
+		
 		// Default values for the main vision window
 		String videoDevice = "/dev/video0";
 		int width = 640;
@@ -109,7 +111,7 @@ public class RunVision {
 			vision.addRecogniser(ctct.new PitchBoundsDebugDisplay());
 			vision.addRecogniser(ctct.new DividerLineDebugDisplay());
 
-			HistogramTool histogramTool = new HistogramTool(gui);
+			HistogramTool histogramTool = new HistogramTool(gui, pitchConstants);
 			gui.addTool(histogramTool, "Histogram analyser");
 			vision.addRecogniser(histogramTool);
 

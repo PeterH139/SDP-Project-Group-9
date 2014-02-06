@@ -44,7 +44,7 @@ public class RobotRecogniser implements ObjectRecogniser {
 		// Detect the X,Y coords and rotations of the plates in each section,
 		// also look for the points of the ball while looping over the frame to
 		// save time
-		boolean leftBlueFirst = true; // TODO: calculate this from the
+		boolean leftBlueFirst = false; // TODO: calculate this from the
 										// appropriate location
 		if (leftBlueFirst) {
 			// In order, ltr: Blue Defender, Yellow Attacker, Blue Attacker,

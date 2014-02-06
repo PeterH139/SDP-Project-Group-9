@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Observable;
 import java.util.Scanner;
 
 /**
@@ -12,7 +14,7 @@ import java.util.Scanner;
  * 
  * @author Alex Adams (s1046358), Peter Henderson (s1117205)
  */
-public class PitchConstants {
+public class PitchConstants extends Observable {
 	/** The number of objects there are thresholds for */
 	public static final int NUM_THRESHOLDS = 5;
 
@@ -26,6 +28,9 @@ public class PitchConstants {
 	public static final int GREY = 3;
 	/** The threshold index associated with the green plate */
 	public static final int GREEN = 4;
+	/** Names of threshold objects */
+	public static final String[] THRESHOLD_NAMES = { "Ball", "Blue plate",
+			"Yellow plate", "Grey dot on the plate", "Green plate" };
 
 	/** The minimum value for the red, green, and blue colour components */
 	public static final int RGBMIN = 0;
@@ -69,22 +74,27 @@ public class PitchConstants {
 	private int bottomBuffer;
 	private int leftBuffer;
 	private int rightBuffer;
-	
-	
-	// Holds the x values of the pitch divisions. Used when detecting the plates on the board.
+
+	// Holds the x values of the pitch divisions. Used when detecting the plates
+	// on the board.
 	private int[] dividers = new int[3];
+
 	public int[] getDividers() {
 		return this.dividers;
 	}
+
 	public void setDividers(int[] dividers) {
-		if (dividers.length != 3){
+		if (dividers.length != 3) {
 			System.err.println("Dividers array not the right size to set!");
 		} else {
-			this.dividers = dividers;
+			if (!Arrays.equals(this.dividers, dividers)) {
+				this.dividers = dividers;
+				setChanged();
+			}
+			notifyObservers();
 		}
 	}
 
-	
 	/**
 	 * Default constructor.
 	 * 
@@ -120,7 +130,11 @@ public class PitchConstants {
 	 *            The value to set the threshold to
 	 */
 	public void setRedLower(int i, int lower) {
-		this.redLower[i] = lower;
+		if (this.redLower[i] != lower) {
+			this.redLower[i] = lower;
+			setChanged();
+			notifyObservers();
+		}
 	}
 
 	/**
@@ -145,7 +159,11 @@ public class PitchConstants {
 	 *            The value to set the threshold to
 	 */
 	public void setRedUpper(int i, int upper) {
-		this.redUpper[i] = upper;
+		if (this.redUpper[i] != upper) {
+			this.redUpper[i] = upper;
+			setChanged();
+			notifyObservers();
+		}
 	}
 
 	/**
@@ -171,7 +189,22 @@ public class PitchConstants {
 	 *            true if red should be inverted, false otherwise
 	 */
 	public void setRedInverted(int i, boolean inverted) {
-		this.redInverted[i] = inverted;
+		if (this.redInverted[i] != inverted) {
+			this.redInverted[i] = inverted;
+			setChanged();
+			notifyObservers();
+		}
+	}
+
+	public void setRed(int i, int lower, int upper, boolean inverted) {
+		if (this.redLower[i] != lower || this.redUpper[i] != upper
+				|| this.redInverted[i] != inverted) {
+			this.redLower[i] = lower;
+			this.redUpper[i] = upper;
+			this.redInverted[i] = inverted;
+			setChanged();
+			notifyObservers();
+		}
 	}
 
 	/**
@@ -197,6 +230,8 @@ public class PitchConstants {
 	 */
 	public void setGreenLower(int i, int lower) {
 		this.greenLower[i] = lower;
+		setChanged();
+		notifyObservers();
 	}
 
 	/**
@@ -222,8 +257,10 @@ public class PitchConstants {
 	 */
 	public void setGreenUpper(int i, int upper) {
 		this.greenUpper[i] = upper;
+		setChanged();
+		notifyObservers();
 	}
-	
+
 	/**
 	 * Tests whether the thresholds are inverted for green for the object
 	 * specified
@@ -238,7 +275,8 @@ public class PitchConstants {
 	}
 
 	/**
-	 * Sets whether the thresholds are inverted for green for the object specified
+	 * Sets whether the thresholds are inverted for green for the object
+	 * specified
 	 * 
 	 * @param i
 	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
@@ -248,6 +286,19 @@ public class PitchConstants {
 	 */
 	public void setGreenInverted(int i, boolean inverted) {
 		this.greenInverted[i] = inverted;
+		setChanged();
+		notifyObservers();
+	}
+
+	public void setGreen(int i, int lower, int upper, boolean inverted) {
+		if (this.greenLower[i] != lower || this.greenUpper[i] != upper
+				|| this.greenInverted[i] != inverted) {
+			this.greenLower[i] = lower;
+			this.greenUpper[i] = upper;
+			this.greenInverted[i] = inverted;
+			setChanged();
+			notifyObservers();
+		}
 	}
 
 	/**
@@ -273,6 +324,8 @@ public class PitchConstants {
 	 */
 	public void setBlueLower(int i, int lower) {
 		this.blueLower[i] = lower;
+		setChanged();
+		notifyObservers();
 	}
 
 	/**
@@ -298,8 +351,10 @@ public class PitchConstants {
 	 */
 	public void setBlueUpper(int i, int upper) {
 		this.blueUpper[i] = upper;
+		setChanged();
+		notifyObservers();
 	}
-	
+
 	/**
 	 * Tests whether the thresholds are inverted for blue for the object
 	 * specified
@@ -314,7 +369,8 @@ public class PitchConstants {
 	}
 
 	/**
-	 * Sets whether the thresholds are inverted for blue for the object specified
+	 * Sets whether the thresholds are inverted for blue for the object
+	 * specified
 	 * 
 	 * @param i
 	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
@@ -324,6 +380,19 @@ public class PitchConstants {
 	 */
 	public void setBlueInverted(int i, boolean inverted) {
 		this.blueInverted[i] = inverted;
+		setChanged();
+		notifyObservers();
+	}
+
+	public void setBlue(int i, int lower, int upper, boolean inverted) {
+		if (this.blueLower[i] != lower || this.blueUpper[i] != upper
+				|| this.blueInverted[i] != inverted) {
+			this.blueLower[i] = lower;
+			this.blueUpper[i] = upper;
+			this.blueInverted[i] = inverted;
+			setChanged();
+			notifyObservers();
+		}
 	}
 
 	/**
@@ -349,6 +418,8 @@ public class PitchConstants {
 	 */
 	public void setHueLower(int i, float lower) {
 		this.hueLower[i] = lower;
+		setChanged();
+		notifyObservers();
 	}
 
 	/**
@@ -374,8 +445,10 @@ public class PitchConstants {
 	 */
 	public void setHueUpper(int i, float upper) {
 		this.hueUpper[i] = upper;
+		setChanged();
+		notifyObservers();
 	}
-	
+
 	/**
 	 * Tests whether the thresholds are inverted for hue for the object
 	 * specified
@@ -400,6 +473,19 @@ public class PitchConstants {
 	 */
 	public void setHueInverted(int i, boolean inverted) {
 		this.hueInverted[i] = inverted;
+		setChanged();
+		notifyObservers();
+	}
+
+	public void setHue(int i, float lower, float upper, boolean inverted) {
+		if (this.hueLower[i] != lower || this.hueUpper[i] != upper
+				|| this.hueInverted[i] != inverted) {
+			this.hueLower[i] = lower;
+			this.hueUpper[i] = upper;
+			this.hueInverted[i] = inverted;
+			setChanged();
+			notifyObservers();
+		}
 	}
 
 	/**
@@ -427,6 +513,8 @@ public class PitchConstants {
 	 */
 	public void setSaturationLower(int i, float lower) {
 		this.saturationLower[i] = lower;
+		setChanged();
+		notifyObservers();
 	}
 
 	/**
@@ -454,8 +542,10 @@ public class PitchConstants {
 	 */
 	public void setSaturationUpper(int i, float upper) {
 		this.saturationUpper[i] = upper;
+		setChanged();
+		notifyObservers();
 	}
-	
+
 	/**
 	 * Tests whether the thresholds are inverted for saturation for the object
 	 * specified
@@ -470,7 +560,8 @@ public class PitchConstants {
 	}
 
 	/**
-	 * Sets whether the thresholds are inverted for saturation for the object specified
+	 * Sets whether the thresholds are inverted for saturation for the object
+	 * specified
 	 * 
 	 * @param i
 	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
@@ -480,6 +571,20 @@ public class PitchConstants {
 	 */
 	public void setSaturationInverted(int i, boolean inverted) {
 		this.saturationInverted[i] = inverted;
+		setChanged();
+		notifyObservers();
+	}
+
+	public void setSaturation(int i, float lower, float upper, boolean inverted) {
+		if (this.saturationLower[i] != lower
+				|| this.saturationUpper[i] != upper
+				|| this.saturationInverted[i] != inverted) {
+			this.saturationLower[i] = lower;
+			this.saturationUpper[i] = upper;
+			this.saturationInverted[i] = inverted;
+			setChanged();
+			notifyObservers();
+		}
 	}
 
 	/**
@@ -505,6 +610,8 @@ public class PitchConstants {
 	 */
 	public void setValueLower(int i, float lower) {
 		this.valueLower[i] = lower;
+		setChanged();
+		notifyObservers();
 	}
 
 	/**
@@ -530,8 +637,10 @@ public class PitchConstants {
 	 */
 	public void setValueUpper(int i, float upper) {
 		this.valueUpper[i] = upper;
+		setChanged();
+		notifyObservers();
 	}
-	
+
 	/**
 	 * Tests whether the thresholds are inverted for value for the object
 	 * specified
@@ -546,7 +655,8 @@ public class PitchConstants {
 	}
 
 	/**
-	 * Sets whether the thresholds are inverted for value for the object specified
+	 * Sets whether the thresholds are inverted for value for the object
+	 * specified
 	 * 
 	 * @param i
 	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
@@ -556,6 +666,19 @@ public class PitchConstants {
 	 */
 	public void setValueInverted(int i, boolean inverted) {
 		this.valueInverted[i] = inverted;
+		setChanged();
+		notifyObservers();
+	}
+
+	public void setValue(int i, float lower, float upper, boolean inverted) {
+		if (this.valueLower[i] != lower || this.valueUpper[i] != upper
+				|| this.valueInverted[i] != inverted) {
+			this.valueLower[i] = lower;
+			this.valueUpper[i] = upper;
+			this.valueInverted[i] = inverted;
+			setChanged();
+			notifyObservers();
+		}
 	}
 
 	/**
@@ -594,6 +717,8 @@ public class PitchConstants {
 	 */
 	public void setTopBuffer(int topBuffer) {
 		this.topBuffer = topBuffer;
+		setChanged();
+		notifyObservers();
 	}
 
 	/**
@@ -614,6 +739,8 @@ public class PitchConstants {
 	 */
 	public void setBottomBuffer(int bottomBuffer) {
 		this.bottomBuffer = bottomBuffer;
+		setChanged();
+		notifyObservers();
 	}
 
 	/**
@@ -634,6 +761,8 @@ public class PitchConstants {
 	 */
 	public void setLeftBuffer(int leftBuffer) {
 		this.leftBuffer = leftBuffer;
+		setChanged();
+		notifyObservers();
 	}
 
 	/**
@@ -654,6 +783,8 @@ public class PitchConstants {
 	 */
 	public void setRightBuffer(int rightBuffer) {
 		this.rightBuffer = rightBuffer;
+		setChanged();
+		notifyObservers();
 	}
 
 	/**
@@ -680,7 +811,11 @@ public class PitchConstants {
 	 *            otherwise
 	 */
 	public void setDebugMode(int i, boolean debug) {
-		this.debug[i] = debug;
+		if (this.debug[i] != debug) {
+			this.debug[i] = debug;
+			setChanged();
+			notifyObservers();
+		}
 	}
 
 	/**
@@ -729,18 +864,21 @@ public class PitchConstants {
 
 		loadConstants(System.getProperty("user.dir") + "/constants/pitch"
 				+ this.pitchNum);
+
+		setChanged();
+		notifyObservers();
 	}
 
-	public void saveConstants(int pitchNumber){
+	public void saveConstants(int pitchNumber) {
 		saveConstants(String.valueOf(pitchNumber));
 	}
-	
+
 	/**
 	 * Save the constants to a file.
 	 * 
 	 * @param fileName
 	 *            The file to save the constants to
-	 */	
+	 */
 	public void saveConstants(String fileName) {
 		try {
 			// Update the pitch dimensions file
@@ -802,7 +940,7 @@ public class PitchConstants {
 	 * @param fileName
 	 *            The file to load the constants from.
 	 */
-	public void loadConstants(String fileName) {
+	private void loadConstants(String fileName) {
 		Scanner scannerDim;
 
 		try {
@@ -814,7 +952,7 @@ public class PitchConstants {
 			this.bottomBuffer = scannerDim.nextInt();
 			this.leftBuffer = scannerDim.nextInt();
 			this.rightBuffer = scannerDim.nextInt();
-			
+
 			this.dividers[0] = scannerDim.nextInt();
 			this.dividers[1] = scannerDim.nextInt();
 			this.dividers[2] = scannerDim.nextInt();
@@ -871,7 +1009,7 @@ public class PitchConstants {
 	 * Loads default values for the constants, used when loading from a file
 	 * fails.
 	 */
-	public void loadDefaultConstants() {
+	private void loadDefaultConstants() {
 		// Iterate over the ball, blue robot, yellow robot, grey circles, and
 		// green plates in the order they're defined above.
 		for (int i = 0; i < NUM_THRESHOLDS; ++i) {
@@ -900,7 +1038,7 @@ public class PitchConstants {
 		this.bottomBuffer = 40;
 		this.leftBuffer = 20;
 		this.rightBuffer = 20;
-		
+
 		this.dividers[0] = 70;
 		this.dividers[1] = 120;
 		this.dividers[2] = 170;

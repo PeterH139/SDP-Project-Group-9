@@ -7,6 +7,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -136,7 +138,8 @@ public class VisionSettingsPanel extends JPanel {
 			//worldState.setMainPitch(rdbtnPitch0.isSelected());
 			//worldState.setPitch(pitchNum);
 			VisionSettingsPanel.this.pitchConstants.setPitchNum(pitchNum);
-			reloadSliderDefaults();
+			// No longer necessary since we are observing pitch constants
+			//reloadSliderDefaults();
 		}
 	};
 
@@ -215,10 +218,9 @@ public class VisionSettingsPanel extends JPanel {
 		@Override
 		public void stateChanged(ChangeEvent e) {
 			int[] lowerUpper = VisionSettingsPanel.this.tabPanels[super.index].getRedSliderValues();
+			boolean inverted = VisionSettingsPanel.this.tabPanels[super.index].isRedSliderInverted();
 			VisionSettingsPanel.this.pitchConstants.setRedLower(super.index, Math.max(0, lowerUpper[0]));
 			VisionSettingsPanel.this.pitchConstants.setRedUpper(super.index, lowerUpper[1]);
-			
-			boolean inverted = VisionSettingsPanel.this.tabPanels[super.index].isRedSliderInverted();
 			VisionSettingsPanel.this.pitchConstants.setRedInverted(super.index, inverted);
 		}
 	}
@@ -231,11 +233,10 @@ public class VisionSettingsPanel extends JPanel {
 		@Override
 		public void stateChanged(ChangeEvent e) {
 			int[] lowerUpper = VisionSettingsPanel.this.tabPanels[super.index].getGreenSliderValues();
+			boolean inverted = VisionSettingsPanel.this.tabPanels[super.index].isGreenSliderInverted();
 			VisionSettingsPanel.this.pitchConstants.setGreenLower(super.index,
 					Math.max(0, lowerUpper[0]));
 			VisionSettingsPanel.this.pitchConstants.setGreenUpper(super.index, lowerUpper[1]);
-			
-			boolean inverted = VisionSettingsPanel.this.tabPanels[super.index].isGreenSliderInverted();
 			VisionSettingsPanel.this.pitchConstants.setGreenInverted(super.index, inverted);
 		}
 	}
@@ -248,11 +249,10 @@ public class VisionSettingsPanel extends JPanel {
 		@Override
 		public void stateChanged(ChangeEvent e) {
 			int[] lowerUpper = VisionSettingsPanel.this.tabPanels[super.index].getBlueSliderValues();
+			boolean inverted = VisionSettingsPanel.this.tabPanels[super.index].isBlueSliderInverted();
 			VisionSettingsPanel.this.pitchConstants
 					.setBlueLower(super.index, Math.max(0, lowerUpper[0]));
 			VisionSettingsPanel.this.pitchConstants.setBlueUpper(super.index, lowerUpper[1]);
-			
-			boolean inverted = VisionSettingsPanel.this.tabPanels[super.index].isBlueSliderInverted();
 			VisionSettingsPanel.this.pitchConstants.setBlueInverted(super.index, inverted);
 		}
 	}
@@ -265,12 +265,11 @@ public class VisionSettingsPanel extends JPanel {
 		@Override
 		public void stateChanged(ChangeEvent e) {
 			int[] lowerUpper = VisionSettingsPanel.this.tabPanels[super.index].getHueSliderValues();
+			boolean inverted = VisionSettingsPanel.this.tabPanels[super.index].isHueSliderInverted();
 			VisionSettingsPanel.this.pitchConstants.setHueLower(super.index,
 					(float) Math.max(0, lowerUpper[0]) / 255.0f);
 			VisionSettingsPanel.this.pitchConstants.setHueUpper(super.index,
 					(float) lowerUpper[1] / 255.0f);
-			
-			boolean inverted = VisionSettingsPanel.this.tabPanels[super.index].isHueSliderInverted();
 			VisionSettingsPanel.this.pitchConstants.setHueInverted(super.index, inverted);
 		}
 	}
@@ -285,12 +284,11 @@ public class VisionSettingsPanel extends JPanel {
 		public void stateChanged(ChangeEvent e) {
 			int[] lowerUpper = VisionSettingsPanel.this.tabPanels[super.index]
 					.getSaturationSliderValues();
+			boolean inverted = VisionSettingsPanel.this.tabPanels[super.index].isSaturationSliderInverted();
 			VisionSettingsPanel.this.pitchConstants.setSaturationLower(super.index,
 					(float) Math.max(0, lowerUpper[0]) / 255.0f);
 			VisionSettingsPanel.this.pitchConstants.setSaturationUpper(super.index,
 					(float) lowerUpper[1] / 255.0f);
-			
-			boolean inverted = VisionSettingsPanel.this.tabPanels[super.index].isSaturationSliderInverted();
 			VisionSettingsPanel.this.pitchConstants.setSaturationInverted(super.index, inverted);
 		}
 	}
@@ -303,12 +301,11 @@ public class VisionSettingsPanel extends JPanel {
 		@Override
 		public void stateChanged(ChangeEvent e) {
 			int[] lowerUpper = VisionSettingsPanel.this.tabPanels[super.index].getValueSliderValues();
+			boolean inverted = VisionSettingsPanel.this.tabPanels[super.index].isValueSliderInverted();
 			VisionSettingsPanel.this.pitchConstants.setValueLower(super.index,
 					(float) Math.max(0, lowerUpper[0]) / 255.0f);
 			VisionSettingsPanel.this.pitchConstants.setValueUpper(super.index,
 					(float) lowerUpper[1] / 255.0f);
-			
-			boolean inverted = VisionSettingsPanel.this.tabPanels[super.index].isValueSliderInverted();
 			VisionSettingsPanel.this.pitchConstants.setValueInverted(super.index, inverted);
 		}
 	}
@@ -341,37 +338,45 @@ public class VisionSettingsPanel extends JPanel {
 		setUpMainPanel();
 
 		// The five threshold tabs
-		for (int i = 0; i < PitchConstants.NUM_THRESHOLDS; ++i) {
-			this.tabPanels[i]
-					.setRedSliderChangeListener(new RedSliderChangeListener(i));
-			this.tabPanels[i]
-					.setGreenSliderChangeListener(new GreenSliderChangeListener(
-							i));
-			this.tabPanels[i]
-					.setBlueSliderChangeListener(new BlueSliderChangeListener(i));
-			this.tabPanels[i]
-					.setHueSliderChangeListener(new HueSliderChangeListener(i));
-			this.tabPanels[i]
-					.setSaturationSliderChangeListener(new SaturationSliderChangeListener(
-							i));
-			this.tabPanels[i]
-					.setValueSliderChangeListener(new ValueSliderChangeListener(
-							i));
-		}
+//		for (int i = 0; i < PitchConstants.NUM_THRESHOLDS; ++i) {
+//			this.tabPanels[i]
+//					.setRedSliderChangeListener(new RedSliderChangeListener(i));
+//			this.tabPanels[i]
+//					.setGreenSliderChangeListener(new GreenSliderChangeListener(
+//							i));
+//			this.tabPanels[i]
+//					.setBlueSliderChangeListener(new BlueSliderChangeListener(i));
+//			this.tabPanels[i]
+//					.setHueSliderChangeListener(new HueSliderChangeListener(i));
+//			this.tabPanels[i]
+//					.setSaturationSliderChangeListener(new SaturationSliderChangeListener(
+//							i));
+//			this.tabPanels[i]
+//					.setValueSliderChangeListener(new ValueSliderChangeListener(
+//							i));
+//		}
 
 		this.tabPane.addTab("Main", this.mainTabPanel);
 		this.tabPane.addTab("Camera", this.camPanel);
-		this.tabPane.addTab("Ball", this.tabPanels[PitchConstants.BALL]);
-		this.tabPane.addTab("Blue Robot", this.tabPanels[PitchConstants.BLUE]);
-		this.tabPane.addTab("Yellow Robot", this.tabPanels[PitchConstants.YELLOW]);
-		this.tabPane.addTab("Grey Circles", this.tabPanels[PitchConstants.GREY]);
-		this.tabPane.addTab("Green Plates", this.tabPanels[PitchConstants.GREEN]);
+//		this.tabPane.addTab("Ball", this.tabPanels[PitchConstants.BALL]);
+//		this.tabPane.addTab("Blue Robot", this.tabPanels[PitchConstants.BLUE]);
+//		this.tabPane.addTab("Yellow Robot", this.tabPanels[PitchConstants.YELLOW]);
+//		this.tabPane.addTab("Grey Circles", this.tabPanels[PitchConstants.GREY]);
+//		this.tabPane.addTab("Green Plates", this.tabPanels[PitchConstants.GREEN]);
 
-		this.tabPane.addChangeListener(this.tabChangeListener);
+//		this.tabPane.addChangeListener(this.tabChangeListener);
 		this.add(this.tabPane);
 		this.setSize(this.getPreferredSize());
-
-		reloadSliderDefaults();
+		
+//		pitchConstants.addObserver(new Observer() {
+//			
+//			@Override
+//			public void update(Observable arg0, Object arg1) {
+//				reloadSliderDefaults();
+//			}
+//		});
+//
+//		reloadSliderDefaults();
 	}
 
 	/**
@@ -486,6 +491,7 @@ public class VisionSettingsPanel extends JPanel {
 		mouseModeChoice.add(this.rdbtnMouseModeYellow);
 		mouseModeChoice.add(this.rdbtnMouseModeGreenPlates);
 		mouseModeChoice.add(this.rdbtnMouseModeGreyCircles);
+		mouseModeChoice.add(this.targetSelection);
 
 		GridBagConstraints gbc_rdbtnMouseModeOff = new GridBagConstraints();
 		gbc_rdbtnMouseModeOff.anchor = GridBagConstraints.EAST;
@@ -751,7 +757,8 @@ public class VisionSettingsPanel extends JPanel {
 				VisionSettingsPanel.this.pitchConstants.setPitchNum(pitchNum);
 				VisionSettingsPanel.this.camPanel.loadSettings(System.getProperty("user.dir")
 						+ "/constants/pitch" + pitchNum + "camera");
-				reloadSliderDefaults();
+				// No longer necessary since we are observing pitch constants
+				//reloadSliderDefaults();
 			}
 		});
 

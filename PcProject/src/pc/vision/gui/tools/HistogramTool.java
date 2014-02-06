@@ -2,7 +2,9 @@ package pc.vision.gui.tools;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Graphics2D;
+import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
@@ -10,36 +12,225 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
+import java.util.Observable;
+import java.util.Observer;
 
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
+import pc.vision.PitchConstants;
 import pc.vision.gui.GUITool;
+import pc.vision.gui.InvertibleRangeSlider;
 import pc.vision.gui.VisionGUI;
 import pc.vision.interfaces.ObjectRecogniser;
 
 public class HistogramTool implements GUITool, ObjectRecogniser {
+	private static final String[] CHANNEL_NAMES = { "Red", "Green", "Blue",
+			"Hue", "Saturation", "Brightness" };
+
 	private VisionGUI gui;
+	private PitchConstants pitchConstants;
 
 	private JFrame subWindow;
-	private HistogramDisplay histogramDisplay;
+	private JList objectList;
 	private GUIMouseListener mouseListener = new GUIMouseListener();
+	private int currentObject = -1;
+	private boolean silentGUIChange = false;
 
 	private boolean isActive = false;
 	private Point centerPoint;
 	private int radius;
 	private boolean needsRefresh = true;
 
-	public HistogramTool(VisionGUI gui) {
+	private HistogramWithSlider[] histograms = new HistogramWithSlider[6];
+
+	private Observer pitchConstantsChangeObserver = new Observer() {
+
+		@Override
+		public void update(Observable o, Object arg) {
+			updateSliders();
+		}
+	};
+
+	public HistogramTool(VisionGUI gui, PitchConstants pitchConstants) {
 		this.gui = gui;
+		this.pitchConstants = pitchConstants;
+		pitchConstants.addObserver(pitchConstantsChangeObserver);
 
 		subWindow = new JFrame("Histogram");
 		subWindow.setResizable(false);
 		subWindow.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		subWindow.getContentPane().setLayout(
+				new BoxLayout(subWindow.getContentPane(), BoxLayout.X_AXIS));
 
-		histogramDisplay = new HistogramDisplay();
-		subWindow.add(histogramDisplay);
+		objectList = new JList(PitchConstants.THRESHOLD_NAMES);
+		objectList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		subWindow.getContentPane().add(new JScrollPane(objectList));
+
+		subWindow.getContentPane().add(Box.createHorizontalStrut(8));
+
+		final JPanel channelPanel = new JPanel(new GridLayout(2, 3, 8, 8));
+		for (int i = 0; i < 6; i++) {
+			HistogramDisplay hd = new HistogramDisplay();
+			InvertibleRangeSlider irs = new InvertibleRangeSlider(0, 257);
+			histograms[i] = new HistogramWithSlider(hd, irs, CHANNEL_NAMES[i]);
+			channelPanel.add(histograms[i]);
+		}
+		registerChangeListeners();
+		updateSliders();
+		channelPanel.setVisible(false);
+		subWindow.getContentPane().add(channelPanel);
+
+		objectList.addListSelectionListener(new ListSelectionListener() {
+
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				currentObject = objectList.getSelectedIndex();
+				if (currentObject != -1) {
+					HistogramTool.this.pitchConstants.setDebugMode(
+							currentObject, true, false);
+				} else {
+					HistogramTool.this.pitchConstants.setDebugMode(0, false,
+							false);
+				}
+				channelPanel.setVisible(currentObject != -1);
+				updateSliders();
+				subWindow.pack();
+			}
+		});
+	}
+
+	private void updateSliders() {
+		if (currentObject == -1)
+			return;
+
+		silentGUIChange = true;
+		histograms[0].slider.setValues(
+				pitchConstants.getRedLower(currentObject),
+				pitchConstants.getRedUpper(currentObject));
+		histograms[0].slider.setInverted(pitchConstants
+				.isRedInverted(currentObject));
+
+		histograms[1].slider.setValues(
+				pitchConstants.getGreenLower(currentObject),
+				pitchConstants.getGreenUpper(currentObject));
+		histograms[1].slider.setInverted(pitchConstants
+				.isGreenInverted(currentObject));
+
+		histograms[2].slider.setValues(
+				pitchConstants.getBlueLower(currentObject),
+				pitchConstants.getBlueUpper(currentObject));
+		histograms[2].slider.setInverted(pitchConstants
+				.isBlueInverted(currentObject));
+
+		histograms[3].slider.setValues(
+				(int) (255 * pitchConstants.getHueLower(currentObject)),
+				(int) (255 * pitchConstants.getHueUpper(currentObject)));
+		histograms[3].slider.setInverted(pitchConstants
+				.isHueInverted(currentObject));
+
+		histograms[4].slider.setValues(
+				(int) (255 * pitchConstants.getSaturationLower(currentObject)),
+				(int) (255 * pitchConstants.getSaturationUpper(currentObject)));
+		histograms[4].slider.setInverted(pitchConstants
+				.isSaturationInverted(currentObject));
+
+		histograms[5].slider.setValues(
+				(int) (255 * pitchConstants.getValueLower(currentObject)),
+				(int) (255 * pitchConstants.getValueUpper(currentObject)));
+		histograms[5].slider.setInverted(pitchConstants
+				.isValueInverted(currentObject));
+		silentGUIChange = false;
+	}
+
+	private void registerChangeListeners() {
+		histograms[0].slider.addChangeListener(new ChangeListener() {
+
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				if (currentObject != -1 && !silentGUIChange) {
+					pitchConstants.setRed(currentObject,
+							histograms[0].slider.getLowerValue(),
+							histograms[0].slider.getUpperValue(),
+							histograms[0].slider.isInverted());
+				}
+			}
+		});
+
+		histograms[1].slider.addChangeListener(new ChangeListener() {
+
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				if (currentObject != -1 && !silentGUIChange) {
+					pitchConstants.setGreen(currentObject,
+							histograms[1].slider.getLowerValue(),
+							histograms[1].slider.getUpperValue(),
+							histograms[1].slider.isInverted());
+				}
+			}
+		});
+
+		histograms[2].slider.addChangeListener(new ChangeListener() {
+
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				if (currentObject != -1 && !silentGUIChange) {
+					pitchConstants.setBlue(currentObject,
+							histograms[2].slider.getLowerValue(),
+							histograms[2].slider.getUpperValue(),
+							histograms[2].slider.isInverted());
+				}
+			}
+		});
+
+		histograms[3].slider.addChangeListener(new ChangeListener() {
+
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				if (currentObject != -1 && !silentGUIChange) {
+					pitchConstants.setHue(currentObject,
+							histograms[3].slider.getLowerValue() / 255f,
+							histograms[3].slider.getUpperValue() / 255f,
+							histograms[3].slider.isInverted());
+				}
+			}
+		});
+
+		histograms[4].slider.addChangeListener(new ChangeListener() {
+
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				if (currentObject != -1 && !silentGUIChange) {
+					pitchConstants.setSaturation(currentObject,
+							histograms[4].slider.getLowerValue() / 255f,
+							histograms[4].slider.getUpperValue() / 255f,
+							histograms[4].slider.isInverted());
+				}
+			}
+		});
+
+		histograms[5].slider.addChangeListener(new ChangeListener() {
+
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				if (currentObject != -1 && !silentGUIChange) {
+					pitchConstants.setValue(currentObject,
+							histograms[5].slider.getLowerValue() / 255f,
+							histograms[5].slider.getUpperValue() / 255f,
+							histograms[5].slider.isInverted());
+				}
+			}
+		});
 	}
 
 	@Override
@@ -75,7 +266,9 @@ public class HistogramTool implements GUITool, ObjectRecogniser {
 			BufferedImage debugOverlay) {
 		if (needsRefresh) {
 			needsRefresh = false;
-			histogramDisplay.updateImage(refreshHistogram(frame));
+			BufferedImage[] histogramImages = refreshHistogram(frame);
+			for (int i = 0; i < 6; i++)
+				histograms[i].histogramDisplay.updateImage(histogramImages[i]);
 		}
 
 		if (isActive && centerPoint != null) {
@@ -88,21 +281,22 @@ public class HistogramTool implements GUITool, ObjectRecogniser {
 	}
 
 	/**
-	 * The method creates a histogram from a raw frame.
+	 * The method creates six histograms from a raw frame.
 	 * 
 	 * @param frame
 	 *            Raw frame from camera
 	 */
-	private BufferedImage refreshHistogram(BufferedImage frame) {
-		BufferedImage histogram = new BufferedImage(
-				HistogramDisplay.HISTOGRAM_WIDTH,
-				HistogramDisplay.HISTOGRAM_HEIGHT, BufferedImage.TYPE_3BYTE_BGR);
+	private BufferedImage[] refreshHistogram(BufferedImage frame) {
+		BufferedImage[] result = new BufferedImage[6];
+		for (int i = 0; i < 6; i++) {
+			result[i] = new BufferedImage(HistogramDisplay.HISTOGRAM_WIDTH,
+					HistogramDisplay.HISTOGRAM_HEIGHT,
+					BufferedImage.TYPE_3BYTE_BGR);
+		}
 		if (centerPoint == null)
-			return histogram;
+			return result;
 
-		Graphics2D g = histogram.createGraphics();
-
-		int[][] valueCounts = new int[3][256];
+		int[][] valueCounts = new int[6][256];
 
 		Rectangle selection = new Rectangle(centerPoint.x - radius,
 				centerPoint.y - radius, 2 * radius, 2 * radius);
@@ -112,26 +306,35 @@ public class HistogramTool implements GUITool, ObjectRecogniser {
 		// Gather data
 		Raster raster = frame.getData();
 		int[] rgb = new int[3]; // Preallocated array
+		float[] hsb = new float[3];
 		for (int y = (int) selection.getMinY(); y < selection.getMaxY(); y++) {
 			for (int x = (int) selection.getMinX(); x < selection.getMaxX(); x++) {
 				if (Math.hypot(x - centerPoint.x, y - centerPoint.y) < radius) {
 					// The pixel is inside the circle
 					raster.getPixel(x, y, rgb);
+					Color.RGBtoHSB(rgb[0], rgb[1], rgb[2], hsb);
+					// RGB processing
 					for (int channel = 0; channel < 3; channel++) {
 						valueCounts[channel][rgb[channel]]++;
+					}
+					// HSV processing
+					for (int channel = 0; channel < 3; channel++) {
+						valueCounts[channel + 3][(int) (255 * hsb[channel])]++;
 					}
 				}
 			}
 		}
 
 		// Normalise values
-		for (int channel = 0; channel < 3; channel++) {
-			int maxValue = 1; // 1 to avoid division by zero
+		int maxValue = 1; // 1 to avoid division by zero
+		for (int channel = 0; channel < 6; channel++) {
 			for (int i = 0; i < 256; i++)
 				if (valueCounts[channel][i] > maxValue)
 					maxValue = valueCounts[channel][i];
-			double scalingFactor = 1.0 * HistogramDisplay.HISTOGRAM_HEIGHT
-					/ maxValue;
+		}
+		double scalingFactor = 1.0 * HistogramDisplay.HISTOGRAM_HEIGHT
+				/ maxValue;
+		for (int channel = 0; channel < 6; channel++) {
 			for (int i = 0; i < 256; i++)
 				valueCounts[channel][i] = (int) (HistogramDisplay.HISTOGRAM_HEIGHT - valueCounts[channel][i]
 						* scalingFactor);
@@ -142,14 +345,20 @@ public class HistogramTool implements GUITool, ObjectRecogniser {
 		for (int i = 0; i < 256; i++) {
 			xPoints[i] = i * HistogramDisplay.HISTOGRAM_WIDTH / 256;
 		}
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-				RenderingHints.VALUE_ANTIALIAS_ON);
-		for (int channel = 0; channel < 3; channel++) {
-			g.setColor(channel == 0 ? Color.RED : channel == 1 ? Color.GREEN
-					: Color.BLUE);
+
+		final Color[] colors = new Color[] { Color.RED, Color.GREEN,
+				Color.BLUE, Color.YELLOW, // hue
+				Color.GRAY, // saturation
+				Color.WHITE, // brightness
+		};
+		for (int channel = 0; channel < 6; channel++) {
+			Graphics2D g = result[channel].createGraphics();
+			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+					RenderingHints.VALUE_ANTIALIAS_ON);
+			g.setColor(colors[channel]);
 			g.drawPolyline(xPoints, valueCounts[channel], xPoints.length);
 		}
-		return histogram;
+		return result;
 	}
 
 	private class GUIMouseListener extends MouseAdapter {
@@ -171,9 +380,34 @@ public class HistogramTool implements GUITool, ObjectRecogniser {
 		}
 	}
 
+	private class HistogramWithSlider extends JPanel {
+		private HistogramDisplay histogramDisplay;
+		private InvertibleRangeSlider slider;
+
+		public HistogramWithSlider(HistogramDisplay histogramDisplay,
+				InvertibleRangeSlider slider, String label) {
+			super();
+			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+			add(histogramDisplay);
+			add(Box.createVerticalStrut(8));
+			add(new JLabel(label));
+			add(slider);
+			this.histogramDisplay = histogramDisplay;
+			this.slider = slider;
+		}
+
+		public HistogramDisplay getHistogramDisplay() {
+			return histogramDisplay;
+		}
+
+		public InvertibleRangeSlider getSlider() {
+			return slider;
+		}
+	}
+
 	private class HistogramDisplay extends JPanel {
-		public static final int HISTOGRAM_WIDTH = 800;
-		public static final int HISTOGRAM_HEIGHT = 300;
+		public static final int HISTOGRAM_WIDTH = 280;
+		public static final int HISTOGRAM_HEIGHT = 120;
 
 		private BufferedImage histogramImage;
 
@@ -188,6 +422,7 @@ public class HistogramTool implements GUITool, ObjectRecogniser {
 			super();
 			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
+			imagePanel.setBackground(Color.BLACK);
 			imagePanel.setPreferredSize(new Dimension(HISTOGRAM_WIDTH,
 					HISTOGRAM_HEIGHT));
 			add(imagePanel);
