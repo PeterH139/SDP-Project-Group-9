@@ -1,5 +1,8 @@
 package pc.vision;
 
+import ij.plugin.filter.GaussianBlur;
+import ij.process.ColorProcessor;
+
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.util.ArrayDeque;
@@ -46,6 +49,8 @@ public class VideoStream {
 	// Used to calculate FPS
 	private ArrayDeque<Long> frameTimes = new ArrayDeque<Long>();
 	private static final int FPS_AVERAGE_WINDOW = 25;
+	public static final int FRAME_WIDTH = 640;
+	public static final int FRAME_HEIGHT = 480;
 
 	private final CaptureCallback frameGrabberCallback = new CaptureCallback() {
 		public void exceptionReceived(V4L4JException e) {
@@ -72,6 +77,11 @@ public class VideoStream {
 			// frames
 			if (VideoStream.this.ready) {
 				BufferedImage frameBuffer = frame.getBufferedImage();
+				// TODO: Should we blur?
+//				ColorProcessor cp = new ColorProcessor(frameBuffer);
+//				GaussianBlur gb = new GaussianBlur();
+//				gb.blurGaussian(cp, 2, 2, 0.02);
+//				frameBuffer = cp.getBufferedImage();
 
 				for (VideoReceiver receiver : VideoStream.this.videoReceivers)
 					receiver.sendFrame(frameBuffer, delta,

@@ -9,6 +9,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/commons-cli-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/ij.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/SharedLib"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

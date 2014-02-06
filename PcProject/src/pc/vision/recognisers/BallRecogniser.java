@@ -6,11 +6,12 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import pc.vision.PitchConstants;
+import pc.vision.PixelInfo;
 import pc.vision.Position;
 import pc.vision.Vision;
 import pc.vision.interfaces.ObjectRecogniser;
-import pc.world.WorldState;
 import pc.world.MovingObject;
+import pc.world.WorldState;
 
 public class BallRecogniser implements ObjectRecogniser {
 	private Vision vision;
@@ -25,38 +26,25 @@ public class BallRecogniser implements ObjectRecogniser {
 	}
 
 	@Override
-	public void processFrame(BufferedImage frame, Graphics2D debugGraphics,
-			BufferedImage debugOverlay) {
+	public void processFrame(PixelInfo[][] pixels, BufferedImage frame,
+			Graphics2D debugGraphics, BufferedImage debugOverlay) {
 		ArrayList<Position> ballPoints = new ArrayList<Position>();
 		int top = this.pitchConstants.getPitchTop();
 		int left = this.pitchConstants.getPitchLeft();
 		int right = left + this.pitchConstants.getPitchWidth();
 		int bottom = top + this.pitchConstants.getPitchHeight();
 
-		float hsbvals[] = new float[3];
 		for (int row = top; row < bottom; row++) {
 			for (int column = left; column < right; column++) {
-				Color c = new Color(frame.getRGB(column, row));
-				Color.RGBtoHSB(c.getRed(), c.getBlue(), c.getGreen(), hsbvals);
-
-				int ballObj = PitchConstants.OBJECT_BALL;
-				float[] colourValues = { c.getRed(), c.getGreen(), c.getBlue(),
-						hsbvals[0], hsbvals[1], hsbvals[2], };
-
-				boolean colourMatch = true;
-				for (int ch = 0; ch < PitchConstants.NUM_CHANNELS
-						&& colourMatch; ch++) {
-					if (!Vision.checkBounds(colourValues[ch],
-							this.pitchConstants.getLowerThreshold(ballObj, ch),
-							this.pitchConstants.getUpperThreshold(ballObj, ch),
-							this.pitchConstants
-									.isThresholdInverted(ballObj, ch)))
-						colourMatch = false;
-				}
-				if (colourMatch) {
-					ballPoints.add(new Position(column, row));
-					if (this.pitchConstants.debugMode(PitchConstants.OBJECT_BALL)) {
-						debugOverlay.setRGB(column, row, 0xFF000000);
+				PixelInfo p = pixels[column][row];
+				if (p != null) {
+					if (vision.isColour(pixels[column][row],
+							PitchConstants.OBJECT_BALL)) {
+						ballPoints.add(new Position(column, row));
+						if (this.pitchConstants
+								.debugMode(PitchConstants.OBJECT_BALL)) {
+							debugOverlay.setRGB(column, row, 0xFF000000);
+						}
 					}
 				}
 			}

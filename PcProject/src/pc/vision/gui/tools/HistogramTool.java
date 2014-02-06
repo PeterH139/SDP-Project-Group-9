@@ -28,6 +28,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import pc.vision.PitchConstants;
+import pc.vision.PixelInfo;
 import pc.vision.gui.GUITool;
 import pc.vision.gui.InvertibleRangeSlider;
 import pc.vision.gui.VisionGUI;
@@ -184,7 +185,7 @@ public class HistogramTool implements GUITool, ObjectRecogniser {
 	}
 
 	@Override
-	public void processFrame(BufferedImage frame, Graphics2D debugGraphics,
+	public void processFrame(PixelInfo[][] pixels, BufferedImage frame, Graphics2D debugGraphics,
 			BufferedImage debugOverlay) {
 		if (needsRefresh) {
 			needsRefresh = false;

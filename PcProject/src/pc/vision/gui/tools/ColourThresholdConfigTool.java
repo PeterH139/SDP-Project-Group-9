@@ -15,6 +15,7 @@ import javax.swing.event.MouseInputAdapter;
 
 import pc.vision.DistortionFix;
 import pc.vision.PitchConstants;
+import pc.vision.PixelInfo;
 import pc.vision.VideoStream;
 import pc.vision.gui.GUITool;
 import pc.vision.gui.VisionGUI;
@@ -272,7 +273,7 @@ public class ColourThresholdConfigTool implements GUITool {
 	public class PitchBoundsDebugDisplay implements ObjectRecogniser {
 
 		@Override
-		public void processFrame(BufferedImage frame, Graphics2D debugGraphics,
+		public void processFrame(PixelInfo[][] pixels, BufferedImage frame, Graphics2D debugGraphics,
 				BufferedImage debugOverlay) {
 			// Eliminating area around the pitch dimensions
 			if (!selectionActive) {
@@ -315,7 +316,7 @@ public class ColourThresholdConfigTool implements GUITool {
 	public class DividerLineDebugDisplay implements ObjectRecogniser {
 
 		@Override
-		public void processFrame(BufferedImage frame, Graphics2D debugGraphics,
+		public void processFrame(PixelInfo[][] pixels, BufferedImage frame, Graphics2D debugGraphics,
 				BufferedImage debugOverlay) {
 			// Drawing the dividing lines
 			int[] ds = pitchConstants.getDividers();
