@@ -70,8 +70,8 @@ public class RunVision {
 
 		// Default values for the main vision window
 		String videoDevice = "/dev/video0";
-		int width = 640;
-		int height = 480;
+		int width = VideoStream.FRAME_WIDTH;
+		int height = VideoStream.FRAME_HEIGHT;
 		int channel = 0;
 		int videoStandard = V4L4JConstants.STANDARD_PAL;
 		int compressionQuality = 100;

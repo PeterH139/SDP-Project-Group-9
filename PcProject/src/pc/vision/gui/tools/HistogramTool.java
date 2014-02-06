@@ -15,6 +15,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import pc.vision.PixelInfo;
 import pc.vision.gui.GUITool;
 import pc.vision.gui.VisionGUI;
 import pc.vision.interfaces.ObjectRecogniser;
@@ -71,7 +72,7 @@ public class HistogramTool implements GUITool, ObjectRecogniser {
 	}
 
 	@Override
-	public void processFrame(BufferedImage frame, Graphics2D debugGraphics,
+	public void processFrame(PixelInfo[][] pixels, BufferedImage frame, Graphics2D debugGraphics,
 			BufferedImage debugOverlay) {
 		if (needsRefresh) {
 			needsRefresh = false;

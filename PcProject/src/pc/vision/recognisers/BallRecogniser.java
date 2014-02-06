@@ -6,11 +6,13 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import pc.vision.PitchConstants;
+import pc.vision.PixelInfo;
 import pc.vision.Position;
+import pc.vision.VideoStream;
 import pc.vision.Vision;
 import pc.vision.interfaces.ObjectRecogniser;
-import pc.world.WorldState;
 import pc.world.MovingObject;
+import pc.world.WorldState;
 
 public class BallRecogniser implements ObjectRecogniser {
 	private Vision vision;
@@ -25,51 +27,23 @@ public class BallRecogniser implements ObjectRecogniser {
 	}
 
 	@Override
-	public void processFrame(BufferedImage frame, Graphics2D debugGraphics,
+	public void processFrame(PixelInfo[][] pixels, BufferedImage frame, Graphics2D debugGraphics,
 			BufferedImage debugOverlay) {
 		ArrayList<Position> ballPoints = new ArrayList<Position>();
 		int top = this.pitchConstants.getTopBuffer();
 		int left = this.pitchConstants.getLeftBuffer();
-		int right = frame.getWidth() - this.pitchConstants.getRightBuffer();
-		int bottom = frame.getHeight() - this.pitchConstants.getBottomBuffer();
+		int right = VideoStream.FRAME_WIDTH - this.pitchConstants.getRightBuffer();
+		int bottom = VideoStream.FRAME_HEIGHT - this.pitchConstants.getBottomBuffer();
 		
 		for (int row = top; row < bottom; row++){
-			for (int column = left; column < right; column++){
-				Color c = new Color(frame.getRGB(column, row));
-				float hsbvals[] = new float[3];
-				Color.RGBtoHSB(c.getRed(), c.getBlue(), c.getGreen(), hsbvals);
-				
-				int ballObj = PitchConstants.BALL;
-				
-				boolean colourMatch = Vision.checkBounds(c.getRed(),
-						this.pitchConstants.getRedLower(ballObj),
-						this.pitchConstants.getRedUpper(ballObj),
-						this.pitchConstants.isRedInverted(ballObj))
-						&& Vision.checkBounds(c.getGreen(),
-								this.pitchConstants.getGreenLower(ballObj),
-								this.pitchConstants.getGreenUpper(ballObj),
-								this.pitchConstants.isGreenInverted(ballObj))
-						&& Vision.checkBounds(c.getBlue(),
-								this.pitchConstants.getBlueLower(ballObj),
-								this.pitchConstants.getBlueUpper(ballObj),
-								this.pitchConstants.isBlueInverted(ballObj))
-						&& Vision.checkBounds(hsbvals[0],
-								this.pitchConstants.getHueLower(ballObj),
-								this.pitchConstants.getHueUpper(ballObj),
-								this.pitchConstants.isHueInverted(ballObj))
-						&& Vision.checkBounds(hsbvals[1],
-								this.pitchConstants.getSaturationLower(ballObj),
-								this.pitchConstants.getSaturationUpper(ballObj),
-								this.pitchConstants.isSaturationInverted(ballObj))
-						&& Vision.checkBounds(hsbvals[2],
-								this.pitchConstants.getValueLower(ballObj),
-								this.pitchConstants.getValueUpper(ballObj),
-								this.pitchConstants.isValueInverted(ballObj));
-				
-				if (colourMatch){
-					ballPoints.add(new Position(column,row));
-					if (this.pitchConstants.debugMode(PitchConstants.BALL)) {
-						debugOverlay.setRGB(column, row, 0xFF000000);
+			for (int column = left; column < right; column++){				
+				PixelInfo p = pixels[column][row];
+				if (p != null){				
+					if (vision.isColour(pixels[column][row], PitchConstants.BALL)){
+						ballPoints.add(new Position(column,row));
+						if (this.pitchConstants.debugMode(PitchConstants.BALL)) {
+							debugOverlay.setRGB(column, row, 0xFF000000);
+						}
 					}
 				}
 			}

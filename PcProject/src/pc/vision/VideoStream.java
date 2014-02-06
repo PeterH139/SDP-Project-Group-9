@@ -46,6 +46,8 @@ public class VideoStream {
 	// Used to calculate FPS
 	private ArrayDeque<Long> frameTimes = new ArrayDeque<Long>();
 	private static final int FPS_AVERAGE_WINDOW = 25;
+	public static final int FRAME_WIDTH = 640;
+	public static final int FRAME_HEIGHT = 480;
 
 	private final CaptureCallback frameGrabberCallback = new CaptureCallback() {
 		public void exceptionReceived(V4L4JException e) {
