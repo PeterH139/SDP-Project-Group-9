@@ -1,5 +1,6 @@
 package pc.vision;
 
+import java.awt.Rectangle;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -16,20 +17,20 @@ import java.util.Scanner;
  */
 public class PitchConstants extends Observable {
 	/** The number of objects there are thresholds for */
-	public static final int NUM_THRESHOLDS = 5;
+	public static final int NUM_OBJECTS = 5;
 
 	/** The threshold index associated with the ball */
-	public static final int BALL = 0;
+	public static final int OBJECT_BALL = 0;
 	/** The threshold index associated with the blue robot */
-	public static final int BLUE = 1;
+	public static final int OBJECT_BLUE = 1;
 	/** The threshold index associated with the yellow robot */
-	public static final int YELLOW = 2;
+	public static final int OBJECT_YELLOW = 2;
 	/** The threshold index associated with the grey circles */
-	public static final int GREY = 3;
+	public static final int OBJECT_GREY = 3;
 	/** The threshold index associated with the green plate */
-	public static final int GREEN = 4;
+	public static final int OBJECT_GREEN = 4;
 	/** Names of threshold objects */
-	public static final String[] THRESHOLD_NAMES = { "Ball", "Blue plate",
+	public static final String[] OBJECT_NAMES = { "Ball", "Blue plate",
 			"Yellow plate", "Grey dot on the plate", "Green plate" };
 
 	/** The minimum value for the red, green, and blue colour components */
@@ -41,39 +42,29 @@ public class PitchConstants extends Observable {
 	/** The maximum value for the hue, saturation, and value colour components */
 	public static final float HSVMAX = 1.0f;
 
+	public static final int NUM_CHANNELS = 6;
+	public static final int CHANNEL_RED = 0;
+	public static final int CHANNEL_GREEN = 1;
+	public static final int CHANNEL_BLUE = 2;
+	public static final int CHANNEL_HUE = 3;
+	public static final int CHANNEL_SATURATION = 4;
+	public static final int CHANNEL_BRIGHTNESS = 5;
+
 	// The pitch number. 0 is the main pitch, 1 is the side pitch
 	private int pitchNum;
 
 	// Threshold upper and lower values
-	private int[] redLower = new int[NUM_THRESHOLDS];
-	private int[] redUpper = new int[NUM_THRESHOLDS];
-	private boolean[] redInverted = new boolean[NUM_THRESHOLDS];
-	private int[] greenLower = new int[NUM_THRESHOLDS];
-	private int[] greenUpper = new int[NUM_THRESHOLDS];
-	private boolean[] greenInverted = new boolean[NUM_THRESHOLDS];
-	private int[] blueLower = new int[NUM_THRESHOLDS];
-	private int[] blueUpper = new int[NUM_THRESHOLDS];
-	private boolean[] blueInverted = new boolean[NUM_THRESHOLDS];
-	private float[] hueLower = new float[NUM_THRESHOLDS];
-	private float[] hueUpper = new float[NUM_THRESHOLDS];
-	private boolean[] hueInverted = new boolean[NUM_THRESHOLDS];
-	private float[] saturationLower = new float[NUM_THRESHOLDS];
-	private float[] saturationUpper = new float[NUM_THRESHOLDS];
-	private boolean[] saturationInverted = new boolean[NUM_THRESHOLDS];
-	private float[] valueLower = new float[NUM_THRESHOLDS];
-	private float[] valueUpper = new float[NUM_THRESHOLDS];
-	private boolean[] valueInverted = new boolean[NUM_THRESHOLDS];
+	private float[][] lowerThreshold = new float[NUM_OBJECTS][NUM_CHANNELS];
+	private float[][] upperThreshold = new float[NUM_OBJECTS][NUM_CHANNELS];
+	private boolean[][] thresholdInverted = new boolean[NUM_OBJECTS][NUM_CHANNELS];
 	// Debug
-	private boolean[] debug = new boolean[NUM_THRESHOLDS];
+	private boolean[] debug = new boolean[NUM_OBJECTS];
 
 	// Pitch dimensions
 	// When scanning the pitch we look at pixels starting from 0 + topBuffer and
 	// 0 + leftBuffer, and then scan to pixels at 480 - bottomBuffer and 640 -
 	// rightBuffer.
-	private int topBuffer;
-	private int bottomBuffer;
-	private int leftBuffer;
-	private int rightBuffer;
+	private Rectangle pitchBounds = new Rectangle();
 
 	// Holds the x values of the pitch divisions. Used when detecting the plates
 	// on the board.
@@ -102,580 +93,35 @@ public class PitchConstants extends Observable {
 	 *            The pitch that we are on.
 	 */
 	public PitchConstants(int pitchNum) {
-		for (int i = 0; i < NUM_THRESHOLDS; ++i)
-			this.debug[i] = false;
 		// Just call the setPitchNum method to load in the constants
 		setPitchNum(pitchNum);
 	}
 
-	/**
-	 * Gets the lower threshold value for red for the object specified
-	 * 
-	 * @param i
-	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
-	 *            cause an ArrayIndexOutOfBoundsException
-	 * @return The lower red threshold value
-	 */
-	public int getRedLower(int i) {
-		return this.redLower[i];
+	public float getLowerThreshold(int object, int channel) {
+		return lowerThreshold[object][channel];
 	}
 
-	/**
-	 * Sets the lower threshold value for red for the object specified
-	 * 
-	 * @param i
-	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
-	 *            cause an ArrayIndexOutOfBoundsException
-	 * @param lower
-	 *            The value to set the threshold to
-	 */
-	public void setRedLower(int i, int lower) {
-		if (this.redLower[i] != lower) {
-			this.redLower[i] = lower;
+	public float getUpperThreshold(int object, int channel) {
+		return upperThreshold[object][channel];
+	}
+
+	public boolean isThresholdInverted(int object, int channel) {
+		return thresholdInverted[object][channel];
+	}
+
+	public void setThresholds(int object, int channel, float lower, float upper) {
+		if (lower != lowerThreshold[object][channel]
+				|| upper != upperThreshold[object][channel]) {
+			lowerThreshold[object][channel] = lower;
+			upperThreshold[object][channel] = upper;
 			setChanged();
 			notifyObservers();
 		}
 	}
 
-	/**
-	 * Gets the upper threshold value for red for the object specified
-	 * 
-	 * @param i
-	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
-	 *            cause an ArrayIndexOutOfBoundsException
-	 * @return The upper red threshold value
-	 */
-	public int getRedUpper(int i) {
-		return this.redUpper[i];
-	}
-
-	/**
-	 * Sets the upper threshold value for red for the object specified
-	 * 
-	 * @param i
-	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
-	 *            cause an ArrayIndexOutOfBoundsException
-	 * @param upper
-	 *            The value to set the threshold to
-	 */
-	public void setRedUpper(int i, int upper) {
-		if (this.redUpper[i] != upper) {
-			this.redUpper[i] = upper;
-			setChanged();
-			notifyObservers();
-		}
-	}
-
-	/**
-	 * Tests whether the thresholds are inverted for red for the object
-	 * specified
-	 * 
-	 * @param i
-	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
-	 *            cause an ArrayIndexOutOfBoundsException
-	 * @return true if inverted, false otherwise
-	 */
-	public boolean isRedInverted(int i) {
-		return this.redInverted[i];
-	}
-
-	/**
-	 * Sets whether the thresholds are inverted for red for the object specified
-	 * 
-	 * @param i
-	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
-	 *            cause an ArrayIndexOutOfBoundsException
-	 * @param inverted
-	 *            true if red should be inverted, false otherwise
-	 */
-	public void setRedInverted(int i, boolean inverted) {
-		if (this.redInverted[i] != inverted) {
-			this.redInverted[i] = inverted;
-			setChanged();
-			notifyObservers();
-		}
-	}
-
-	public void setRed(int i, int lower, int upper, boolean inverted) {
-		if (this.redLower[i] != lower || this.redUpper[i] != upper
-				|| this.redInverted[i] != inverted) {
-			this.redLower[i] = lower;
-			this.redUpper[i] = upper;
-			this.redInverted[i] = inverted;
-			setChanged();
-			notifyObservers();
-		}
-	}
-
-	/**
-	 * Gets the lower threshold value for green for the object specified
-	 * 
-	 * @param i
-	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
-	 *            cause an ArrayIndexOutOfBoundsException
-	 * @return The lower green threshold value
-	 */
-	public int getGreenLower(int i) {
-		return this.greenLower[i];
-	}
-
-	/**
-	 * Sets the lower threshold value for green for the object specified
-	 * 
-	 * @param i
-	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
-	 *            cause an ArrayIndexOutOfBoundsException
-	 * @param lower
-	 *            The value to set the threshold to
-	 */
-	public void setGreenLower(int i, int lower) {
-		this.greenLower[i] = lower;
-		setChanged();
-		notifyObservers();
-	}
-
-	/**
-	 * Gets the upper threshold value for green for the object specified
-	 * 
-	 * @param i
-	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
-	 *            cause an ArrayIndexOutOfBoundsException
-	 * @return The upper green threshold value
-	 */
-	public int getGreenUpper(int i) {
-		return this.greenUpper[i];
-	}
-
-	/**
-	 * Sets the upper threshold value for green for the object specified
-	 * 
-	 * @param i
-	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
-	 *            cause an ArrayIndexOutOfBoundsException
-	 * @param upper
-	 *            The value to set the threshold to
-	 */
-	public void setGreenUpper(int i, int upper) {
-		this.greenUpper[i] = upper;
-		setChanged();
-		notifyObservers();
-	}
-
-	/**
-	 * Tests whether the thresholds are inverted for green for the object
-	 * specified
-	 * 
-	 * @param i
-	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
-	 *            cause an ArrayIndexOutOfBoundsException
-	 * @return true if inverted, false otherwise
-	 */
-	public boolean isGreenInverted(int i) {
-		return this.greenInverted[i];
-	}
-
-	/**
-	 * Sets whether the thresholds are inverted for green for the object
-	 * specified
-	 * 
-	 * @param i
-	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
-	 *            cause an ArrayIndexOutOfBoundsException
-	 * @param inverted
-	 *            true if green should be inverted, false otherwise
-	 */
-	public void setGreenInverted(int i, boolean inverted) {
-		this.greenInverted[i] = inverted;
-		setChanged();
-		notifyObservers();
-	}
-
-	public void setGreen(int i, int lower, int upper, boolean inverted) {
-		if (this.greenLower[i] != lower || this.greenUpper[i] != upper
-				|| this.greenInverted[i] != inverted) {
-			this.greenLower[i] = lower;
-			this.greenUpper[i] = upper;
-			this.greenInverted[i] = inverted;
-			setChanged();
-			notifyObservers();
-		}
-	}
-
-	/**
-	 * Gets the lower threshold value for blue for the object specified
-	 * 
-	 * @param i
-	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
-	 *            cause an ArrayIndexOutOfBoundsException
-	 * @return The lower blue threshold value
-	 */
-	public int getBlueLower(int i) {
-		return this.blueLower[i];
-	}
-
-	/**
-	 * Sets the lower threshold value for blue for the object specified
-	 * 
-	 * @param i
-	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
-	 *            cause an ArrayIndexOutOfBoundsException
-	 * @param lower
-	 *            The value to set the threshold to
-	 */
-	public void setBlueLower(int i, int lower) {
-		this.blueLower[i] = lower;
-		setChanged();
-		notifyObservers();
-	}
-
-	/**
-	 * Gets the upper threshold value for blue for the object specified
-	 * 
-	 * @param i
-	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
-	 *            cause an ArrayIndexOutOfBoundsException
-	 * @return The upper blue threshold value
-	 */
-	public int getBlueUpper(int i) {
-		return this.blueUpper[i];
-	}
-
-	/**
-	 * Sets the upper threshold value for blue for the object specified
-	 * 
-	 * @param i
-	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
-	 *            cause an ArrayIndexOutOfBoundsException
-	 * @param upper
-	 *            The value to set the threshold to
-	 */
-	public void setBlueUpper(int i, int upper) {
-		this.blueUpper[i] = upper;
-		setChanged();
-		notifyObservers();
-	}
-
-	/**
-	 * Tests whether the thresholds are inverted for blue for the object
-	 * specified
-	 * 
-	 * @param i
-	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
-	 *            cause an ArrayIndexOutOfBoundsException
-	 * @return true if inverted, false otherwise
-	 */
-	public boolean isBlueInverted(int i) {
-		return this.blueInverted[i];
-	}
-
-	/**
-	 * Sets whether the thresholds are inverted for blue for the object
-	 * specified
-	 * 
-	 * @param i
-	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
-	 *            cause an ArrayIndexOutOfBoundsException
-	 * @param inverted
-	 *            true if blue should be inverted, false otherwise
-	 */
-	public void setBlueInverted(int i, boolean inverted) {
-		this.blueInverted[i] = inverted;
-		setChanged();
-		notifyObservers();
-	}
-
-	public void setBlue(int i, int lower, int upper, boolean inverted) {
-		if (this.blueLower[i] != lower || this.blueUpper[i] != upper
-				|| this.blueInverted[i] != inverted) {
-			this.blueLower[i] = lower;
-			this.blueUpper[i] = upper;
-			this.blueInverted[i] = inverted;
-			setChanged();
-			notifyObservers();
-		}
-	}
-
-	/**
-	 * Gets the lower threshold value for hue for the object specified
-	 * 
-	 * @param i
-	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
-	 *            cause an ArrayIndexOutOfBoundsException
-	 * @return The lower hue threshold value
-	 */
-	public float getHueLower(int i) {
-		return this.hueLower[i];
-	}
-
-	/**
-	 * Sets the lower threshold value for hue for the object specified
-	 * 
-	 * @param i
-	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
-	 *            cause an ArrayIndexOutOfBoundsException
-	 * @param lower
-	 *            The value to set the threshold to
-	 */
-	public void setHueLower(int i, float lower) {
-		this.hueLower[i] = lower;
-		setChanged();
-		notifyObservers();
-	}
-
-	/**
-	 * Gets the upper threshold value for hue for the object specified
-	 * 
-	 * @param i
-	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
-	 *            cause an ArrayIndexOutOfBoundsException
-	 * @return The upper hue threshold value
-	 */
-	public float getHueUpper(int i) {
-		return this.hueUpper[i];
-	}
-
-	/**
-	 * Sets the upper threshold value for hue for the object specified
-	 * 
-	 * @param i
-	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
-	 *            cause an ArrayIndexOutOfBoundsException
-	 * @param upper
-	 *            The value to set the threshold to
-	 */
-	public void setHueUpper(int i, float upper) {
-		this.hueUpper[i] = upper;
-		setChanged();
-		notifyObservers();
-	}
-
-	/**
-	 * Tests whether the thresholds are inverted for hue for the object
-	 * specified
-	 * 
-	 * @param i
-	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
-	 *            cause an ArrayIndexOutOfBoundsException
-	 * @return true if inverted, false otherwise
-	 */
-	public boolean isHueInverted(int i) {
-		return this.hueInverted[i];
-	}
-
-	/**
-	 * Sets whether the thresholds are inverted for hue for the object specified
-	 * 
-	 * @param i
-	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
-	 *            cause an ArrayIndexOutOfBoundsException
-	 * @param inverted
-	 *            true if hue should be inverted, false otherwise
-	 */
-	public void setHueInverted(int i, boolean inverted) {
-		this.hueInverted[i] = inverted;
-		setChanged();
-		notifyObservers();
-	}
-
-	public void setHue(int i, float lower, float upper, boolean inverted) {
-		if (this.hueLower[i] != lower || this.hueUpper[i] != upper
-				|| this.hueInverted[i] != inverted) {
-			this.hueLower[i] = lower;
-			this.hueUpper[i] = upper;
-			this.hueInverted[i] = inverted;
-			setChanged();
-			notifyObservers();
-		}
-	}
-
-	/**
-	 * Gets the lower threshold value for colour saturation for the object
-	 * specified
-	 * 
-	 * @param i
-	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
-	 *            cause an ArrayIndexOutOfBoundsException
-	 * @return The lower colour saturation threshold value
-	 */
-	public float getSaturationLower(int i) {
-		return this.saturationLower[i];
-	}
-
-	/**
-	 * Sets the lower threshold value for colour saturation for the object
-	 * specified
-	 * 
-	 * @param i
-	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
-	 *            cause an ArrayIndexOutOfBoundsException
-	 * @param lower
-	 *            The value to set the threshold to
-	 */
-	public void setSaturationLower(int i, float lower) {
-		this.saturationLower[i] = lower;
-		setChanged();
-		notifyObservers();
-	}
-
-	/**
-	 * Gets the upper threshold value for colour saturation for the object
-	 * specified
-	 * 
-	 * @param i
-	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
-	 *            cause an ArrayIndexOutOfBoundsException
-	 * @return The upper colour saturation threshold value
-	 */
-	public float getSaturationUpper(int i) {
-		return this.saturationUpper[i];
-	}
-
-	/**
-	 * Sets the upper threshold value for colour saturation for the object
-	 * specified
-	 * 
-	 * @param i
-	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
-	 *            cause an ArrayIndexOutOfBoundsException
-	 * @param upper
-	 *            The value to set the threshold to
-	 */
-	public void setSaturationUpper(int i, float upper) {
-		this.saturationUpper[i] = upper;
-		setChanged();
-		notifyObservers();
-	}
-
-	/**
-	 * Tests whether the thresholds are inverted for saturation for the object
-	 * specified
-	 * 
-	 * @param i
-	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
-	 *            cause an ArrayIndexOutOfBoundsException
-	 * @return true if inverted, false otherwise
-	 */
-	public boolean isSaturationInverted(int i) {
-		return this.saturationInverted[i];
-	}
-
-	/**
-	 * Sets whether the thresholds are inverted for saturation for the object
-	 * specified
-	 * 
-	 * @param i
-	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
-	 *            cause an ArrayIndexOutOfBoundsException
-	 * @param inverted
-	 *            true if saturation should be inverted, false otherwise
-	 */
-	public void setSaturationInverted(int i, boolean inverted) {
-		this.saturationInverted[i] = inverted;
-		setChanged();
-		notifyObservers();
-	}
-
-	public void setSaturation(int i, float lower, float upper, boolean inverted) {
-		if (this.saturationLower[i] != lower
-				|| this.saturationUpper[i] != upper
-				|| this.saturationInverted[i] != inverted) {
-			this.saturationLower[i] = lower;
-			this.saturationUpper[i] = upper;
-			this.saturationInverted[i] = inverted;
-			setChanged();
-			notifyObservers();
-		}
-	}
-
-	/**
-	 * Gets the lower threshold value for colour value for the object specified
-	 * 
-	 * @param i
-	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
-	 *            cause an ArrayIndexOutOfBoundsException
-	 * @return The lower colour value threshold value
-	 */
-	public float getValueLower(int i) {
-		return this.valueLower[i];
-	}
-
-	/**
-	 * Sets the lower threshold value for colour value for the object specified
-	 * 
-	 * @param i
-	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
-	 *            cause an ArrayIndexOutOfBoundsException
-	 * @param lower
-	 *            The value to set the threshold to
-	 */
-	public void setValueLower(int i, float lower) {
-		this.valueLower[i] = lower;
-		setChanged();
-		notifyObservers();
-	}
-
-	/**
-	 * Gets the upper threshold value for colour value for the object specified
-	 * 
-	 * @param i
-	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
-	 *            cause an ArrayIndexOutOfBoundsException
-	 * @return The upper colour value threshold value
-	 */
-	public float getValueUpper(int i) {
-		return this.valueUpper[i];
-	}
-
-	/**
-	 * Sets the upper threshold value for colour value for the object specified
-	 * 
-	 * @param i
-	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
-	 *            cause an ArrayIndexOutOfBoundsException
-	 * @param upper
-	 *            The value to set the threshold to
-	 */
-	public void setValueUpper(int i, float upper) {
-		this.valueUpper[i] = upper;
-		setChanged();
-		notifyObservers();
-	}
-
-	/**
-	 * Tests whether the thresholds are inverted for value for the object
-	 * specified
-	 * 
-	 * @param i
-	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
-	 *            cause an ArrayIndexOutOfBoundsException
-	 * @return true if inverted, false otherwise
-	 */
-	public boolean isValueInverted(int i) {
-		return this.valueInverted[i];
-	}
-
-	/**
-	 * Sets whether the thresholds are inverted for value for the object
-	 * specified
-	 * 
-	 * @param i
-	 *            One of: BALL, BLUE, YELLOW, GREY, GREEN - other values will
-	 *            cause an ArrayIndexOutOfBoundsException
-	 * @param inverted
-	 *            true if value should be inverted, false otherwise
-	 */
-	public void setValueInverted(int i, boolean inverted) {
-		this.valueInverted[i] = inverted;
-		setChanged();
-		notifyObservers();
-	}
-
-	public void setValue(int i, float lower, float upper, boolean inverted) {
-		if (this.valueLower[i] != lower || this.valueUpper[i] != upper
-				|| this.valueInverted[i] != inverted) {
-			this.valueLower[i] = lower;
-			this.valueUpper[i] = upper;
-			this.valueInverted[i] = inverted;
+	public void setThresholdInverted(int object, int channel, boolean inverted) {
+		if (inverted != thresholdInverted[object][channel]) {
+			thresholdInverted[object][channel] = inverted;
 			setChanged();
 			notifyObservers();
 		}
@@ -687,7 +133,7 @@ public class PitchConstants extends Observable {
 	 * @return the width of the pitch in pixels
 	 */
 	public int getPitchWidth() {
-		return (640 - this.rightBuffer - this.leftBuffer);
+		return this.pitchBounds.width;
 	}
 
 	/**
@@ -696,95 +142,27 @@ public class PitchConstants extends Observable {
 	 * @return the height of the pitch in pixels
 	 */
 	public int getPitchHeight() {
-		return (480 - this.bottomBuffer - this.topBuffer);
+		return this.pitchBounds.height;
 	}
 
-	/**
-	 * Gets the top buffer for the pitch
-	 * 
-	 * @return the distance from the top of the pitch to the top of the image
-	 *         produced by the video device
-	 */
-	public int getTopBuffer() {
-		return this.topBuffer;
+	public int getPitchLeft() {
+		return this.pitchBounds.x;
 	}
 
-	/**
-	 * Sets the top buffer for the pitch
-	 * 
-	 * @param topBuffer
-	 *            The new value for the top buffer
-	 */
-	public void setTopBuffer(int topBuffer) {
-		this.topBuffer = topBuffer;
-		setChanged();
-		notifyObservers();
+	public int getPitchTop() {
+		return this.pitchBounds.y;
 	}
 
-	/**
-	 * Gets the bottom buffer for the pitch
-	 * 
-	 * @return the distance from the bottom of the pitch to the bottom of the
-	 *         image produced by the video device
-	 */
-	public int getBottomBuffer() {
-		return this.bottomBuffer;
+	public Rectangle getPitchBounds() {
+		return new Rectangle(this.pitchBounds);
 	}
 
-	/**
-	 * Sets the bottom buffer for the pitch
-	 * 
-	 * @param bottomBuffer
-	 *            The new value for the bottom buffer
-	 */
-	public void setBottomBuffer(int bottomBuffer) {
-		this.bottomBuffer = bottomBuffer;
-		setChanged();
-		notifyObservers();
-	}
-
-	/**
-	 * Gets the left buffer for the pitch
-	 * 
-	 * @return the distance from the left of the pitch to the left of the image
-	 *         produced by the video device
-	 */
-	public int getLeftBuffer() {
-		return this.leftBuffer;
-	}
-
-	/**
-	 * Sets the left buffer for the pitch
-	 * 
-	 * @param leftBuffer
-	 *            The new value for the left buffer
-	 */
-	public void setLeftBuffer(int leftBuffer) {
-		this.leftBuffer = leftBuffer;
-		setChanged();
-		notifyObservers();
-	}
-
-	/**
-	 * Gets the right buffer for the pitch
-	 * 
-	 * @return the distance from the right of the pitch to the right of the
-	 *         image produced by the video device
-	 */
-	public int getRightBuffer() {
-		return this.rightBuffer;
-	}
-
-	/**
-	 * Sets the right buffer for the pitch
-	 * 
-	 * @param topBuffer
-	 *            The new value for the right buffer
-	 */
-	public void setRightBuffer(int rightBuffer) {
-		this.rightBuffer = rightBuffer;
-		setChanged();
-		notifyObservers();
+	public void setPitchBounds(Rectangle bounds) {
+		if (bounds != null && !this.pitchBounds.equals(bounds)) {
+			this.pitchBounds = bounds;
+			setChanged();
+			notifyObservers();
+		}
 	}
 
 	/**
@@ -884,10 +262,10 @@ public class PitchConstants extends Observable {
 			// Update the pitch dimensions file
 			FileWriter pitchDimFile = new FileWriter(new File("constants/pitch"
 					+ this.pitchNum + "Dimensions"));
-			pitchDimFile.write(String.valueOf(getTopBuffer()) + "\n");
-			pitchDimFile.write(String.valueOf(getBottomBuffer()) + "\n");
-			pitchDimFile.write(String.valueOf(getLeftBuffer()) + "\n");
-			pitchDimFile.write(String.valueOf(getRightBuffer()) + "\n");
+			pitchDimFile.write(String.valueOf(getPitchTop()) + "\n");
+			pitchDimFile.write(String.valueOf(getPitchHeight()) + "\n");
+			pitchDimFile.write(String.valueOf(getPitchLeft()) + "\n");
+			pitchDimFile.write(String.valueOf(getPitchWidth()) + "\n");
 			pitchDimFile.write(String.valueOf(this.dividers[0]) + "\n");
 			pitchDimFile.write(String.valueOf(this.dividers[1]) + "\n");
 			pitchDimFile.write(String.valueOf(this.dividers[2]) + "\n");
@@ -898,30 +276,12 @@ public class PitchConstants extends Observable {
 
 			// Iterate over the ball, blue robot, yellow robot, grey circles,
 			// and green plates in the order they're defined above.
-			for (int i = 0; i < NUM_THRESHOLDS; ++i) {
-				pitchFile.write(String.valueOf(getRedLower(i)) + "\n");
-				pitchFile.write(String.valueOf(getRedUpper(i)) + "\n");
-				pitchFile.write(String.valueOf(isRedInverted(i)) + "\n");
-
-				pitchFile.write(String.valueOf(getGreenLower(i)) + "\n");
-				pitchFile.write(String.valueOf(getGreenUpper(i)) + "\n");
-				pitchFile.write(String.valueOf(isGreenInverted(i)) + "\n");
-
-				pitchFile.write(String.valueOf(getBlueLower(i)) + "\n");
-				pitchFile.write(String.valueOf(getBlueUpper(i)) + "\n");
-				pitchFile.write(String.valueOf(isBlueInverted(i)) + "\n");
-
-				pitchFile.write(String.valueOf(getHueLower(i)) + "\n");
-				pitchFile.write(String.valueOf(getHueUpper(i)) + "\n");
-				pitchFile.write(String.valueOf(isHueInverted(i)) + "\n");
-
-				pitchFile.write(String.valueOf(getSaturationLower(i)) + "\n");
-				pitchFile.write(String.valueOf(getSaturationUpper(i)) + "\n");
-				pitchFile.write(String.valueOf(isSaturationInverted(i)) + "\n");
-
-				pitchFile.write(String.valueOf(getValueLower(i)) + "\n");
-				pitchFile.write(String.valueOf(getValueUpper(i)) + "\n");
-				pitchFile.write(String.valueOf(isValueInverted(i)) + "\n");
+			for (int i = 0; i < NUM_OBJECTS; ++i) {
+				for (int ch = 0; ch < NUM_CHANNELS; ch++) {
+					pitchFile.write(String.valueOf(getLowerThreshold(i, ch)) + "\n");
+					pitchFile.write(String.valueOf(getUpperThreshold(i, ch)) + "\n");
+					pitchFile.write(String.valueOf(isThresholdInverted(i, ch)) + "\n");
+				}
 			}
 			pitchFile.close();
 
@@ -948,10 +308,10 @@ public class PitchConstants extends Observable {
 			assert (scannerDim != null);
 
 			// Pitch Dimensions
-			this.topBuffer = scannerDim.nextInt();
-			this.bottomBuffer = scannerDim.nextInt();
-			this.leftBuffer = scannerDim.nextInt();
-			this.rightBuffer = scannerDim.nextInt();
+			this.pitchBounds.y = scannerDim.nextInt();
+			this.pitchBounds.height = scannerDim.nextInt();
+			this.pitchBounds.x = scannerDim.nextInt();
+			this.pitchBounds.width = scannerDim.nextInt();
 
 			this.dividers[0] = scannerDim.nextInt();
 			this.dividers[1] = scannerDim.nextInt();
@@ -981,25 +341,12 @@ public class PitchConstants extends Observable {
 
 		// Iterate over the ball, blue robot, yellow robot, grey circles, and
 		// green plates in the order they're defined above.
-		for (int i = 0; i < NUM_THRESHOLDS; ++i) {
-			this.redLower[i] = scanner.nextInt();
-			this.redUpper[i] = scanner.nextInt();
-			this.redInverted[i] = scanner.nextBoolean();
-			this.greenLower[i] = scanner.nextInt();
-			this.greenUpper[i] = scanner.nextInt();
-			this.greenInverted[i] = scanner.nextBoolean();
-			this.blueLower[i] = scanner.nextInt();
-			this.blueUpper[i] = scanner.nextInt();
-			this.blueInverted[i] = scanner.nextBoolean();
-			this.hueLower[i] = scanner.nextFloat();
-			this.hueUpper[i] = scanner.nextFloat();
-			this.hueInverted[i] = scanner.nextBoolean();
-			this.saturationLower[i] = scanner.nextFloat();
-			this.saturationUpper[i] = scanner.nextFloat();
-			this.saturationInverted[i] = scanner.nextBoolean();
-			this.valueLower[i] = scanner.nextFloat();
-			this.valueUpper[i] = scanner.nextFloat();
-			this.valueInverted[i] = scanner.nextBoolean();
+		for (int i = 0; i < NUM_OBJECTS; ++i) {
+			for (int ch = 0; ch < NUM_CHANNELS; ch++) {
+				this.lowerThreshold[i][ch] = scanner.nextFloat();
+				this.upperThreshold[i][ch] = scanner.nextFloat();
+				this.thresholdInverted[i][ch] = scanner.nextBoolean();
+			}
 		}
 
 		scanner.close();
@@ -1012,32 +359,21 @@ public class PitchConstants extends Observable {
 	private void loadDefaultConstants() {
 		// Iterate over the ball, blue robot, yellow robot, grey circles, and
 		// green plates in the order they're defined above.
-		for (int i = 0; i < NUM_THRESHOLDS; ++i) {
-			this.redLower[i] = RGBMIN;
-			this.redUpper[i] = RGBMAX;
-			this.redInverted[i] = false;
-			this.greenLower[i] = RGBMIN;
-			this.greenUpper[i] = RGBMAX;
-			this.greenInverted[i] = false;
-			this.blueLower[i] = RGBMIN;
-			this.blueUpper[i] = RGBMAX;
-			this.blueInverted[i] = false;
-			this.hueLower[i] = HSVMIN;
-			this.hueUpper[i] = HSVMAX;
-			this.hueInverted[i] = false;
-			this.saturationLower[i] = HSVMIN;
-			this.saturationUpper[i] = HSVMAX;
-			this.saturationInverted[i] = false;
-			this.valueLower[i] = HSVMIN;
-			this.valueUpper[i] = HSVMAX;
-			this.valueInverted[i] = false;
+		for (int i = 0; i < NUM_OBJECTS; ++i) {
+			for (int ch = CHANNEL_RED; ch <= CHANNEL_BLUE; ch++) {
+				this.lowerThreshold[i][ch] = RGBMIN;
+				this.upperThreshold[i][ch] = RGBMAX;
+				this.thresholdInverted[i][ch] = false;
+			}
+			for (int ch = CHANNEL_HUE; ch <= CHANNEL_BRIGHTNESS; ch++) {
+				this.lowerThreshold[i][ch] = HSVMIN;
+				this.upperThreshold[i][ch] = HSVMAX;
+				this.thresholdInverted[i][ch] = false;
+			}
 		}
 
 		// Pitch Dimensions
-		this.topBuffer = 40;
-		this.bottomBuffer = 40;
-		this.leftBuffer = 20;
-		this.rightBuffer = 20;
+		this.pitchBounds.setBounds(40, 40, 600, 400);
 
 		this.dividers[0] = 70;
 		this.dividers[1] = 120;

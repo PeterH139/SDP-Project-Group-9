@@ -2,7 +2,6 @@ package pc.vision.gui.tools;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Point;
@@ -37,6 +36,8 @@ import pc.vision.interfaces.ObjectRecogniser;
 public class HistogramTool implements GUITool, ObjectRecogniser {
 	private static final String[] CHANNEL_NAMES = { "Red", "Green", "Blue",
 			"Hue", "Saturation", "Brightness" };
+	private static final float[] CHANNEL_VALUE_DIVIDERS = { 255, 255, 255, 1,
+			1, 1, };
 
 	private VisionGUI gui;
 	private PitchConstants pitchConstants;
@@ -73,7 +74,7 @@ public class HistogramTool implements GUITool, ObjectRecogniser {
 		subWindow.getContentPane().setLayout(
 				new BoxLayout(subWindow.getContentPane(), BoxLayout.X_AXIS));
 
-		objectList = new JList(PitchConstants.THRESHOLD_NAMES);
+		objectList = new JList(PitchConstants.OBJECT_NAMES);
 		objectList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		subWindow.getContentPane().add(new JScrollPane(objectList));
 
@@ -115,122 +116,43 @@ public class HistogramTool implements GUITool, ObjectRecogniser {
 			return;
 
 		silentGUIChange = true;
-		histograms[0].slider.setValues(
-				pitchConstants.getRedLower(currentObject),
-				pitchConstants.getRedUpper(currentObject));
-		histograms[0].slider.setInverted(pitchConstants
-				.isRedInverted(currentObject));
-
-		histograms[1].slider.setValues(
-				pitchConstants.getGreenLower(currentObject),
-				pitchConstants.getGreenUpper(currentObject));
-		histograms[1].slider.setInverted(pitchConstants
-				.isGreenInverted(currentObject));
-
-		histograms[2].slider.setValues(
-				pitchConstants.getBlueLower(currentObject),
-				pitchConstants.getBlueUpper(currentObject));
-		histograms[2].slider.setInverted(pitchConstants
-				.isBlueInverted(currentObject));
-
-		histograms[3].slider.setValues(
-				(int) (255 * pitchConstants.getHueLower(currentObject)),
-				(int) (255 * pitchConstants.getHueUpper(currentObject)));
-		histograms[3].slider.setInverted(pitchConstants
-				.isHueInverted(currentObject));
-
-		histograms[4].slider.setValues(
-				(int) (255 * pitchConstants.getSaturationLower(currentObject)),
-				(int) (255 * pitchConstants.getSaturationUpper(currentObject)));
-		histograms[4].slider.setInverted(pitchConstants
-				.isSaturationInverted(currentObject));
-
-		histograms[5].slider.setValues(
-				(int) (255 * pitchConstants.getValueLower(currentObject)),
-				(int) (255 * pitchConstants.getValueUpper(currentObject)));
-		histograms[5].slider.setInverted(pitchConstants
-				.isValueInverted(currentObject));
+		for (int channel = 0; channel < PitchConstants.NUM_CHANNELS; channel++) {
+			InvertibleRangeSlider s = histograms[channel].slider;
+			s.setValues(
+					(int) (255 * pitchConstants.getLowerThreshold(
+							currentObject, channel) / CHANNEL_VALUE_DIVIDERS[channel]),
+					(int) (255 * pitchConstants.getUpperThreshold(
+							currentObject, channel) / CHANNEL_VALUE_DIVIDERS[channel]));
+			s.setInverted(pitchConstants.isThresholdInverted(currentObject,
+					channel));
+		}
 		silentGUIChange = false;
 	}
 
 	private void registerChangeListeners() {
-		histograms[0].slider.addChangeListener(new ChangeListener() {
+		for (int channel = 0; channel < PitchConstants.NUM_CHANNELS; channel++) {
+			final int loopChannel = channel;
+			histograms[channel].slider.addChangeListener(new ChangeListener() {
 
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				if (currentObject != -1 && !silentGUIChange) {
-					pitchConstants.setRed(currentObject,
-							histograms[0].slider.getLowerValue(),
-							histograms[0].slider.getUpperValue(),
-							histograms[0].slider.isInverted());
+				@Override
+				public void stateChanged(ChangeEvent arg0) {
+					if (currentObject != -1 && !silentGUIChange) {
+						pitchConstants.setThresholds(
+								currentObject,
+								loopChannel,
+								CHANNEL_VALUE_DIVIDERS[loopChannel]
+										* histograms[loopChannel].slider
+												.getLowerValue() / 255f,
+								CHANNEL_VALUE_DIVIDERS[loopChannel]
+										* histograms[loopChannel].slider
+												.getUpperValue() / 255f);
+						pitchConstants.setThresholdInverted(currentObject,
+								loopChannel,
+								histograms[loopChannel].slider.isInverted());
+					}
 				}
-			}
-		});
-
-		histograms[1].slider.addChangeListener(new ChangeListener() {
-
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				if (currentObject != -1 && !silentGUIChange) {
-					pitchConstants.setGreen(currentObject,
-							histograms[1].slider.getLowerValue(),
-							histograms[1].slider.getUpperValue(),
-							histograms[1].slider.isInverted());
-				}
-			}
-		});
-
-		histograms[2].slider.addChangeListener(new ChangeListener() {
-
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				if (currentObject != -1 && !silentGUIChange) {
-					pitchConstants.setBlue(currentObject,
-							histograms[2].slider.getLowerValue(),
-							histograms[2].slider.getUpperValue(),
-							histograms[2].slider.isInverted());
-				}
-			}
-		});
-
-		histograms[3].slider.addChangeListener(new ChangeListener() {
-
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				if (currentObject != -1 && !silentGUIChange) {
-					pitchConstants.setHue(currentObject,
-							histograms[3].slider.getLowerValue() / 255f,
-							histograms[3].slider.getUpperValue() / 255f,
-							histograms[3].slider.isInverted());
-				}
-			}
-		});
-
-		histograms[4].slider.addChangeListener(new ChangeListener() {
-
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				if (currentObject != -1 && !silentGUIChange) {
-					pitchConstants.setSaturation(currentObject,
-							histograms[4].slider.getLowerValue() / 255f,
-							histograms[4].slider.getUpperValue() / 255f,
-							histograms[4].slider.isInverted());
-				}
-			}
-		});
-
-		histograms[5].slider.addChangeListener(new ChangeListener() {
-
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				if (currentObject != -1 && !silentGUIChange) {
-					pitchConstants.setValue(currentObject,
-							histograms[5].slider.getLowerValue() / 255f,
-							histograms[5].slider.getUpperValue() / 255f,
-							histograms[5].slider.isInverted());
-				}
-			}
-		});
+			});
+		}
 	}
 
 	@Override
@@ -394,14 +316,6 @@ public class HistogramTool implements GUITool, ObjectRecogniser {
 			add(slider);
 			this.histogramDisplay = histogramDisplay;
 			this.slider = slider;
-		}
-
-		public HistogramDisplay getHistogramDisplay() {
-			return histogramDisplay;
-		}
-
-		public InvertibleRangeSlider getSlider() {
-			return slider;
 		}
 	}
 

@@ -1,6 +1,5 @@
 package pc.comms;
 
-import java.awt.Label;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
@@ -13,12 +12,11 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
-import reallejos.shared.RobotOpcode;
-
 import lejos.pc.comm.NXTComm;
 import lejos.pc.comm.NXTCommException;
 import lejos.pc.comm.NXTCommFactory;
 import lejos.pc.comm.NXTInfo;
+import reallejos.shared.RobotOpcode;
 
 public class BrickCommServer {
 	NXTComm comm;

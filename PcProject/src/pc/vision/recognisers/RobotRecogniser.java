@@ -38,8 +38,8 @@ public class RobotRecogniser implements ObjectRecogniser {
 																	// Defender
 		ArrayList<Position> ballPointsUnused = new ArrayList<Position>();
 
-		int leftBuffer = this.pitchConstants.getLeftBuffer();
-		int rightBuffer = this.pitchConstants.getRightBuffer();
+		int leftBuffer = this.pitchConstants.getPitchLeft();
+		int rightBuffer = leftBuffer + this.pitchConstants.getPitchWidth();
 		int[] dividers = this.pitchConstants.getDividers();
 
 		// Detect the X,Y coords and rotations of the plates in each section,

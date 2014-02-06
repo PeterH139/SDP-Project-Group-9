@@ -2,8 +2,6 @@ package pc.vision;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.Observable;
-import java.util.Observer;
 
 import javax.swing.UIManager;
 
@@ -16,7 +14,6 @@ import org.apache.commons.cli.ParseException;
 import pc.comms.BrickCommServer;
 import pc.comms.BtInfo;
 import pc.strategy.InterceptorStrategy;
-import pc.strategy.TargetFollowerStrategy;
 import pc.vision.gui.VisionGUI;
 import pc.vision.gui.tools.ColourThresholdConfigTool;
 import pc.vision.gui.tools.HistogramTool;

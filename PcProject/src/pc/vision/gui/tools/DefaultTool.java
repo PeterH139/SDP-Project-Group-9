@@ -1,7 +1,5 @@
 package pc.vision.gui.tools;
 
-import javax.swing.JOptionPane;
-
 import pc.vision.gui.GUITool;
 import pc.vision.gui.VisionGUI;
 
