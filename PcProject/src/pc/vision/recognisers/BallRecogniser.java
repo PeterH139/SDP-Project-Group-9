@@ -10,6 +10,7 @@ import pc.vision.Position;
 import pc.vision.Vision;
 import pc.vision.interfaces.ObjectRecogniser;
 import pc.world.WorldState;
+import pc.world.MovingObject;
 
 public class BallRecogniser implements ObjectRecogniser {
 	private Vision vision;
@@ -79,9 +80,12 @@ public class BallRecogniser implements ObjectRecogniser {
 		debugGraphics.setColor(Color.red);
 		debugGraphics.drawLine(0, ball.getY(), 640, ball.getY());
 		debugGraphics.drawLine(ball.getX(), 0, ball.getX(), 480);
-
+		
 		worldState.setBallX(ball.getX());
 		worldState.setBallY(ball.getY());
+
+		MovingObject ball_m =  new MovingObject(ball.getX(), ball.getY());
+		worldState.SetBall(ball_m);
 	}
 
 }

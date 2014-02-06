@@ -30,4 +30,14 @@ public class MovingObject {
 		this.y = y;
 		this.orientation_angle = angle;
 	}
+	
+	/**
+	 * Initializes a moving object
+	 * @param x represents the X coordinate
+	 * @param y represents the Y coordinate
+	 * */
+	public MovingObject(int x, int y){
+		this.x = x;
+		this.y = y;
+	}
 }
