@@ -1,3 +1,9 @@
+/**
+ * Name: WorldState.java
+ * Description: This class represents a the playing field
+ * Most of the methods and properties are kept for legacy purposes
+ * The robots and ball are represented by MovingObject classes
+ */
 package pc.world;
 
 public class WorldState {
@@ -167,14 +173,14 @@ public class WorldState {
 	}
 	
 	/**
-	 * Constructor, use it for inital world model initialization once
+	 * Constructor, use it for initial world model initialization once
 	 * the play field data has been assembled
 	 */
 	WorldState(Pitch field){
 		this.playingField = field;
 	}
 	
-	/** Constructor, use it for inital world model initialization once
+	/** Constructor, use it for initial world model initialization once
 	 * the playing field data has been assembled
 	 */
 	WorldState(Pitch field, MovingObject defenderRobot, MovingObject attackerRobot, MovingObject enemyDefenderRobot, MovingObject enemyAttackerRobot, MovingObject ball){
@@ -185,7 +191,7 @@ public class WorldState {
 		this.enemyDefenderRobot = enemyDefenderRobot;
 		this.ball = ball;
 	}
-	
+	//get methods
 	/**
 	 * Returns the enemy defender robot object
 	 */
@@ -228,6 +234,8 @@ public class WorldState {
 		return this.playingField;		
 	}
 	
+	
+	//update methods
 	/**
 	 * Updates the field with data for moving objects: the robots and the ball
 	 */
@@ -239,7 +247,37 @@ public class WorldState {
 		this.enemyDefenderRobot = enemyDefenderRobot;
 		this.ball = ball;
 	}
-
+	/**
+	 * Updates the ball object
+	 * */
+    public void SetBall(MovingObject ball){
+    	this.ball = ball;    	
+    }
+    /**
+	 * Updates the enemy attacker robot object
+	 * */
+    public void SetEnemyAttackerRobot(MovingObject enemyAttackerRobot){
+    	this.enemyAttackerRobot = enemyAttackerRobot;    	
+    }
+    /**
+	 * Updates the enemy defender robot object
+	 * */
+    public void SetEnemyDefenderRobot(MovingObject enemyDefenderRobot){
+    	this.enemyDefenderRobot = enemyDefenderRobot;    	
+    }
+    /**
+	 * Updates the attacker robot object
+	 * */
+    public void SetAttackerRobot(MovingObject attackerRobot){
+    	this.attackerRobot = attackerRobot;    	
+    }
+    /**
+	 * Updates the defender robot object
+	 * */
+    public void SetDefenderRobot(MovingObject defenderRobot){
+    	this.defenderRobot = defenderRobot;    	
+    }
+    
 	
 	//#endregion
 	

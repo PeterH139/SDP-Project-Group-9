@@ -11,6 +11,7 @@ import pc.vision.Velocity;
 import pc.vision.Vision;
 import pc.vision.interfaces.ObjectRecogniser;
 import pc.world.WorldState;
+import pc.world.*;
 
 public class RobotRecogniser implements ObjectRecogniser {
 	private Vision vision;
@@ -109,6 +110,7 @@ public class RobotRecogniser implements ObjectRecogniser {
 		// **RELATIVE TO THE ORIGIN FOR POSITION**
 		// The following code is temporary until Dimitar finished the world
 		// model section - Peter
+		
 		worldState.setBlueX(blueAtk.getX());
 		worldState.setBlueY(blueAtk.getY());
 		worldState.setBlueOrientation(blueAtkAngle);
@@ -117,6 +119,20 @@ public class RobotRecogniser implements ObjectRecogniser {
 		worldState.setYellowX(yellowDef.getX());
 		worldState.setYellowY(yellowDef.getY());
 		worldState.setYellowOrientation(yellowDefAngle);
+		// #Dimitar TODO: further code changes needed! the robots need to be correctly 
+		//identified based on the sections of the field they are in.
+		//right now I assume that the yellow is our team and the
+		//blue is the enemy team
+		MovingObject attackerRobot = new MovingObject(yellowAtk.getX(),yellowAtk.getY(),yellowAtkAngle);
+		MovingObject defenderRobot = new MovingObject(yellowDef.getX(),yellowDef.getY(),yellowDefAngle);
+		
+		MovingObject enemyAttackerRobot = new MovingObject(blueAtk.getX(),blueAtk.getY(),blueAtkAngle);
+		MovingObject enemyDefenderRobot = new MovingObject(blueDef.getX(),blueDef.getY(),blueDefAngle);
+		
+		worldState.SetAttackerRobot(attackerRobot);
+		worldState.SetDefenderRobot(defenderRobot);
+		worldState.SetEnemyAttackerRobot(enemyAttackerRobot);
+		worldState.SetEnemyDefenderRobot(enemyDefenderRobot);
 	}
 
 }
