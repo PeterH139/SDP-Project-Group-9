@@ -1,6 +1,7 @@
 package pc.strategy;
 
 import java.io.IOException;
+
 import java.util.ArrayDeque;
 import java.util.Deque;
 
@@ -9,6 +10,10 @@ import pc.vision.Position;
 import pc.vision.interfaces.WorldStateReceiver;
 import pc.world.WorldState;
 
+/* This is a class that manages the strategy for the defender robot to intercept
+ * an incoming ball. If the ball is moving away from the robot then
+ * the robot will move to the centre of the goal.
+ */
 public class InterceptorStrategy implements WorldStateReceiver {
 
 	private BrickCommServer brick;
@@ -81,9 +86,17 @@ public class InterceptorStrategy implements WorldStateReceiver {
 		if (robotRad > 0) {
 			rotateBy = -(int) Math.toDegrees(Math.PI / 2 - robotRad);
 			dist = targetY - robotY;
+			if (targetX < robotX) {
+				// moves robot to centre of pitch
+				dist = robotY - (tempBottomY - tempTopY);
+			}
 		} else {
 			rotateBy = -(int) Math.toDegrees(-Math.PI / 2 - robotRad);
 			dist = robotY - targetY;
+			if (targetX < robotX) {
+				// moves robot to centre of pitch
+				dist = (tempBottomY - tempTopY) - robotY;
+			}
 		}
 		if (Math.abs(rotateBy) < 20) {
 			rotateBy = 0;
@@ -91,10 +104,7 @@ public class InterceptorStrategy implements WorldStateReceiver {
 		else {
 			dist = 0;
 		}
-		if (targetX < robotX) {
-			// moves robot to center of pitch
-			dist = (tempBottomY - tempTopY) - robotY;
-		}
+		
 		
 		synchronized (controlThread) {
 			controlThread.rotateBy = rotateBy;
