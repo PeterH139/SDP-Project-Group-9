@@ -198,19 +198,13 @@ public class RobotRecogniser implements ObjectRecogniser {
 				pointInTriangle(new Position(x,y), minY, minX, maxY);
 	}
 	
-	private int sign(Position p1, Position p2, Position p3)
-	{
-	  return ((p1.getX() - p3.getX()) * (p2.getY() - p3.getY())) - ((p2.getX() - p3.getX()) * (p1.getY() - p3.getY()));
-	}
-
 	private boolean pointInTriangle(Position pt, Position v1, Position v2, Position v3){
-	  boolean b1, b2, b3;
-
-	  b1 = sign(pt, v1, v2) < 0;
-	  b2 = sign(pt, v2, v3) < 0;
-	  b3 = sign(pt, v3, v1) < 0;
-
-	  return ((b1 == b2) && (b2 == b3));
+		float denominator = ((v2.getY()-v3.getY())*(v1.getX()-v3.getX())+(v3.getX()-v2.getX())*(v1.getY()-v2.getY()));
+		float a = ((v2.getY()-v3.getY())*(pt.getX()-v3.getX())+(v3.getX()-v2.getX())*(pt.getY()-v3.getY()))/denominator;
+		float b = ((v3.getY()-v1.getY())*(pt.getX()-v3.getX())+(v1.getX()-v3.getX())*(pt.getY()-v3.getY()))/denominator;
+		float c = 1-a-b;
+	  
+		return 0 <= a && a <= 1 && 0 <= b && b <= 1 && 0 <= c && c <= 1;
 	}
 
 	/**
