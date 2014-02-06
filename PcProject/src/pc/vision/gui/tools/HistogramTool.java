@@ -37,6 +37,12 @@ import pc.vision.interfaces.ObjectRecogniser;
 public class HistogramTool implements GUITool, ObjectRecogniser {
 	private static final String[] CHANNEL_NAMES = { "Red", "Green", "Blue",
 			"Hue", "Saturation", "Brightness" };
+	
+	/**
+	 * Maximum values for colour channels.
+	 * RGB channels range from 0 to 255.
+	 * HSV channels range from 0 to 1.
+	 */
 	private static final float[] CHANNEL_VALUE_DIVIDERS = { 255, 255, 255, 1,
 			1, 1, };
 
@@ -47,11 +53,33 @@ public class HistogramTool implements GUITool, ObjectRecogniser {
 	private JList objectList;
 	private GUIMouseListener mouseListener = new GUIMouseListener();
 	private int currentObject = -1;
+	
+	/**
+	 * When silentGUIChange is true, UI changes will not be represented
+	 * in PitchConstants object.
+	 */
 	private boolean silentGUIChange = false;
 
+	/**
+	 * Specifies whether this tool is currently selected.
+	 */
 	private boolean isActive = false;
+	
+	/**
+	 * Centre point of the measuring circle.
+	 * If null, the circle will not be drawn.
+	 */
 	private Point centerPoint;
+	
+	/**
+	 * Radius of the measuring circle.
+	 */
 	private int radius;
+	
+	/**
+	 * Specifies whether histograms need to be refreshed in
+	 * the next frame processing.
+	 */
 	private boolean needsRefresh = true;
 
 	private HistogramWithSlider[] histograms = new HistogramWithSlider[6];
@@ -116,6 +144,12 @@ public class HistogramTool implements GUITool, ObjectRecogniser {
 		if (currentObject == -1)
 			return;
 
+		/*
+		 * silentGUIChange is a temporary workaround that prevents PitchConstants
+		 * data corruption. slider.setValues() fires a callback that sets
+		 * PitchConstants.thresholdInverted to the state of UI, which is not
+		 * updated yet.
+		 */
 		silentGUIChange = true;
 		for (int channel = 0; channel < PitchConstants.NUM_CHANNELS; channel++) {
 			InvertibleRangeSlider s = histograms[channel].slider;
@@ -163,6 +197,9 @@ public class HistogramTool implements GUITool, ObjectRecogniser {
 		gui.getVideoDisplay().addMouseListener(mouseListener);
 		gui.getVideoDisplay().addMouseMotionListener(mouseListener);
 
+		/*
+		 * Position the tool window below the main GUI window.
+		 */
 		Rectangle mainWindowBounds = gui.getBounds();
 		subWindow.setLocation(mainWindowBounds.x, mainWindowBounds.y
 				+ mainWindowBounds.height);
@@ -184,6 +221,9 @@ public class HistogramTool implements GUITool, ObjectRecogniser {
 		subWindow.dispose();
 	}
 
+	/**
+	 * Draw the measuring circle and refresh the histograms (if necessary)
+	 */
 	@Override
 	public void processFrame(PixelInfo[][] pixels, BufferedImage frame, Graphics2D debugGraphics,
 			BufferedImage debugOverlay) {
@@ -204,10 +244,8 @@ public class HistogramTool implements GUITool, ObjectRecogniser {
 	}
 
 	/**
-	 * The method creates six histograms from a raw frame.
-	 * 
-	 * @param frame
-	 *            Raw frame from camera
+	 * Given a raw frame, creates a histogram for each channel and returns
+	 * a list of them.
 	 */
 	private BufferedImage[] refreshHistogram(BufferedImage frame) {
 		BufferedImage[] result = new BufferedImage[6];
@@ -303,6 +341,9 @@ public class HistogramTool implements GUITool, ObjectRecogniser {
 		}
 	}
 
+	/**
+	 * Positions histogram above slider
+	 */
 	private class HistogramWithSlider extends JPanel {
 		private HistogramDisplay histogramDisplay;
 		private InvertibleRangeSlider slider;
