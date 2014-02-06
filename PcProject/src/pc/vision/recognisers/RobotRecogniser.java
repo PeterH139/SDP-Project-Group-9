@@ -1,6 +1,7 @@
 package pc.vision.recognisers;
 
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Frame;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -11,6 +12,7 @@ import pc.vision.PixelInfo;
 import pc.vision.Position;
 import pc.vision.VideoStream;
 import pc.vision.Vision;
+import pc.vision.gui.VisionGUI;
 import pc.vision.interfaces.ObjectRecogniser;
 import pc.world.MovingObject;
 import pc.world.WorldState;
@@ -39,29 +41,33 @@ public class RobotRecogniser implements ObjectRecogniser {
 		// Detect the X,Y coords and rotations of the plates in each section,
 		// also look for the points of the ball while looping over the frame to
 		// save time
+		float blueDefAngle = 0;
+		float blueAtkAngle = 0;
+		float yellowDefAngle = 0;
+		float yellowAtkAngle = 0;;
 		boolean leftBlueFirst = false; // TODO: calculate this from the
 										// appropriate location
 		if (leftBlueFirst) {
 			// In order, ltr: Blue Defender, Yellow Attacker, Blue Attacker,
 			// Yellow Defender
-			blueDef = searchColumn(pixels, debugOverlay, leftBuffer,
+			blueDef = searchColumn(blueDefAngle, pixels, debugOverlay, leftBuffer,
 					dividers[0], true);
-			yellowAtk = searchColumn(pixels, debugOverlay, dividers[0],
+			yellowAtk = searchColumn(yellowAtkAngle, pixels, debugOverlay, dividers[0],
 					dividers[1], false);
-			blueAtk = searchColumn(pixels, debugOverlay, dividers[1],
+			blueAtk = searchColumn(blueAtkAngle, pixels, debugOverlay, dividers[1],
 					dividers[2], true);
-			yellowDef = searchColumn(pixels, debugOverlay, dividers[2],
+			yellowDef = searchColumn(yellowDefAngle, pixels, debugOverlay, dividers[2],
 					frame.getWidth() - rightBuffer, false);
 		} else {
 			// In order, ltr: Yellow Defender, Blue Attacker, Yellow Attacker,
 			// Blue Defender
-			yellowDef = searchColumn(pixels, debugOverlay, leftBuffer,
+			yellowDef = searchColumn(yellowDefAngle, pixels, debugOverlay, leftBuffer,
 					dividers[0], false);
-			blueAtk = searchColumn(pixels, debugOverlay, dividers[0],
+			blueAtk = searchColumn(blueAtkAngle, pixels, debugOverlay, dividers[0],
 					dividers[1], true);
-			yellowAtk = searchColumn(pixels, debugOverlay, dividers[1],
+			yellowAtk = searchColumn(yellowAtkAngle, pixels, debugOverlay, dividers[1],
 					dividers[2], false);
-			blueDef = searchColumn(pixels, debugOverlay, dividers[2],
+			blueDef = searchColumn(blueDefAngle, pixels, debugOverlay, dividers[2],
 					frame.getWidth() - rightBuffer, true);
 		}
 
@@ -74,13 +80,6 @@ public class RobotRecogniser implements ObjectRecogniser {
 
 		// TODO: Using the previous position values and the time between frames,
 		// calculate the velocities of the robots and the ball.
-
-		// Calculate the rotation of each of the robots.
-		float blueDefAngle, blueAtkAngle, yellowDefAngle, yellowAtkAngle;
-		blueDefAngle = calculateAngle(pixels, debugOverlay, blueDef, 14);
-		blueAtkAngle = calculateAngle(pixels, debugOverlay, blueAtk, 14);
-		yellowDefAngle = calculateAngle(pixels, debugOverlay, yellowDef, 14);
-		yellowAtkAngle = calculateAngle(pixels, debugOverlay, yellowAtk, 14);
 
 		// TODO: Update the world state with the new values for position,
 		// velocity and rotation.
@@ -138,10 +137,10 @@ public class RobotRecogniser implements ObjectRecogniser {
 	 * 
 	 * @author Peter Henderson (s1117205)
 	 */
-	private Position searchColumn(PixelInfo[][] pixels,
+	private Position searchColumn(float returnAngle, PixelInfo[][] pixels,
 			BufferedImage debugOverlay, int leftEdge, int rightEdge,
 			boolean isBlue) {
-		ArrayList<Position> points = new ArrayList<Position>();
+		ArrayList<Position> points = new ArrayList<Position>(); 
 		ArrayList<Position> greenPoints = new ArrayList<Position>();
 		int topBuffer = this.pitchConstants.getPitchTop();
 		int bottomBuffer = VideoStream.FRAME_HEIGHT - topBuffer
@@ -194,120 +193,89 @@ public class RobotRecogniser implements ObjectRecogniser {
 				maxY.getX(), maxY.getY());
 
 		// Find the yellow/blue coloured pixels within the plate bounds.
-
-		for (int row = minY.getY(); row < maxY.getY(); row++) {
-			for (int column = minX.getX(); column < maxX.getX(); column++) {
-				if (pointInSquare(column, row, minX, minY, maxX, maxY)) {
-					debugOverlay.setRGB(column, row, 0xFFFF0099);
-				}
-			}
-		}
-
-		// Find the grey circle within the plate bounds.
-		// Calculate angles from those.
-
-		for (int row = topBuffer; row < VideoStream.FRAME_HEIGHT - bottomBuffer; row++) {
-			for (int column = leftEdge; column < rightEdge; column++) {
-				if (pixels[column][row] != null) {
-					if (vision.isColour(pixels[column][row], obj)) {
-						points.add(new Position(column, row));
-						if (this.pitchConstants.debugMode(obj)) {
-							debugOverlay.setRGB(column, row, 0xFFFF0099);
-						}
-					}
-				}
-			}
-		}
-
-		return vision.calculatePosition(points);
-	}
-
-	private boolean pointInSquare(int x, int y, Position minX, Position minY,
-			Position maxX, Position maxY) {
-		return pointInTriangle(new Position(x, y), minY, maxX, maxY)
-				&& pointInTriangle(new Position(x, y), minY, minX, maxY);
-	}
-	
-	private boolean pointInTriangle(Position pt, Position v1, Position v2, Position v3){
-		float denominator = ((v2.getY()-v3.getY())*(v1.getX()-v3.getX())+(v3.getX()-v2.getX())*(v1.getY()-v2.getY()));
-		float a = ((v2.getY()-v3.getY())*(pt.getX()-v3.getX())+(v3.getX()-v2.getX())*(pt.getY()-v3.getY()))/denominator;
-		float b = ((v3.getY()-v1.getY())*(pt.getX()-v3.getX())+(v1.getX()-v3.getX())*(pt.getY()-v3.getY()))/denominator;
-		float c = 1-a-b;
-	  
-		return 0 <= a && a <= 1 && 0 <= b && b <= 1 && 0 <= c && c <= 1;
-	}
-
-	/**
-	 * Returns the angle a robot is facing relative to the horizontal axis.
-	 * 
-	 * @param frame
-	 *            - The current frame of video
-	 * @param debugOverlay
-	 *            - The image for debugging
-	 * @param pos
-	 *            - The position of the object
-	 * @param margin
-	 *            - The radius of pixels that should be checked for the grey dot
-	 * @return the heading of the robot
-	 * 
-	 * @author Peter Henderson (s1117205)
-	 */
-	private float calculateAngle(PixelInfo[][] pixels,
-			BufferedImage debugOverlay, Position pos, int margin) {
 		int cumulativeGreyX = 0;
 		int cumulativeGreyY = 0;
 		int numGreyPoints = 0;
-
-		int startRow = pos.getY() - margin;
-		int startColumn = pos.getX() - margin;
-		int endRow = pos.getY() + margin;
-		int endColumn = pos.getX() + margin;
-
-		// Find the grey points in the circle of radius 'margin' close to the
-		// position.
-		for (int row = startRow; row < endRow; row++) {
-			for (int column = startColumn; column < endColumn; column++) {
-				int x2, y2, r2;
-				x2 = (column - pos.getX()) * (column - pos.getX());
-				y2 = (row - pos.getY()) * (row - pos.getY());
-				r2 = margin * margin;
-				boolean inBounds = (0 < row && row < VideoStream.FRAME_HEIGHT)
-						&& (0 < column && column < VideoStream.FRAME_WIDTH);
-				if (x2 + y2 <= r2 && inBounds && pixels[column][row] != null) {
-					if (vision.isColour(pixels[column][row],
-							PitchConstants.OBJECT_GREY)) {
-						cumulativeGreyX += column;
-						cumulativeGreyY += row;
-						numGreyPoints++;
-						if (this.pitchConstants
-								.debugMode(PitchConstants.OBJECT_GREY)) {
-							debugOverlay.setRGB(column, row, 0xFFFF0099);
+		for (int row = minY.getY(); row < maxY.getY(); row++) {
+			for (int column = minX.getX(); column < maxX.getX(); column++) {
+				if (pointInSquare(column, row, minX, minY, maxX, maxY)) {
+					if (pixels[column][row] != null) {
+						if (vision.isColour(pixels[column][row], obj)) {
+							points.add(new Position(column, row));
+							if (this.pitchConstants.debugMode(obj)) {
+								debugOverlay.setRGB(column, row, 0xFFFF0099);
+							}
+						} else if (vision.isColour(pixels[column][row], PitchConstants.OBJECT_GREY)){
+							cumulativeGreyX += column;
+							cumulativeGreyY += row;
+							numGreyPoints++;
+							if (this.pitchConstants.debugMode(PitchConstants.OBJECT_GREY)) {
+								debugOverlay.setRGB(column, row, 0xFFFF0099);
+							}
 						}
 					}
 				}
 			}
 		}
-
-		// Find the mean and return the angle from there to pos
+		
+		Position pos = vision.calculatePosition(points);
+		
 		if (numGreyPoints > 0) {
 			double greyXMean = 1.0 * cumulativeGreyX / numGreyPoints;
 			double greyYMean = 1.0 * cumulativeGreyY / numGreyPoints;
 
 			// Debugging Code
-			debugOverlay.getGraphics().drawOval(startColumn, startRow,
-					2 * margin, 2 * margin);
 			debugOverlay.getGraphics().drawRect((int) greyXMean - 2,
 					(int) greyYMean - 2, 4, 4);
 
 			float angle = (float) Math.toDegrees(Math.atan2(pos.getY()
 					- greyYMean, pos.getX() - greyXMean));
 
-			return (angle < 0) ? (angle + 360) : angle;
+			returnAngle =  (angle < 0) ? (angle + 360) : angle;
 		} else {
-			// System.err.println("Can't find any grey points for position: " +
-			// pos.toString());
-			return 0;
+			returnAngle = 0;
 		}
+
+		// Calculate angles from those.
+
+		return pos;
+	}
+
+	/**
+	 * Returns true iff a point x,y lies within the quad defined by the vertices.
+	 * Works by splitting quad into two triangles and doing calculations on them.
+	 * 
+	 * @param x
+	 * @param y
+	 * @param minX - Vertex with minimal X value
+	 * @param minY - Vertex with minimal Y value
+	 * @param maxX - Vertex with maximal X value
+	 * @param maxY - Vertex with maximal Y value
+	 * @return true iff point (x,y) lies in quad.
+	 * 
+	 * @author Peter Henderson (s1117205)
+	 */
+	private boolean pointInSquare(int x, int y, Position minX, Position minY,
+			Position maxX, Position maxY) {
+		return pointInTriangle(new Position(x, y), minY, maxX, maxY)
+				|| pointInTriangle(new Position(x, y), minY, minX, maxY);
+	}
+	
+	private boolean pointInTriangle(Position pt, Position v1, Position v2, Position v3){
+		float y1 = v1.getY();
+		float y2 = v2.getY();
+		float y3 = v3.getY();
+		float x1 = v1.getX();
+		float x2 = v2.getX();
+		float x3 = v3.getX();
+		float x = pt.getX();
+		float y = pt.getY();
+		float denominator = ((y2 - y3)*(x1 - x3) + (x3 - x2)*(y1 - y3));
+		float a = ((y2 - y3)*(x - x3) + (x3 - x2)*(y - y3)) / denominator;
+		float b = ((y3 - y1)*(x - x3) + (x1 - x3)*(y - y3)) / denominator;
+		float c = 1 - a - b;
+	  
+		return 0 <= a && a <= 1 && 0 <= b && b <= 1 && 0 <= c && c <= 1;
 	}
 
 }
