@@ -165,9 +165,11 @@ public class RobotRecogniser implements ObjectRecogniser {
 		
 		// Find the yellow/blue coloured pixels within the plate bounds.
 		
-		for (int row = minX.getX(); row < maxX.getX(); row++){
-			for (int column = minY.getY(); column < maxY.getY(); column++){
-				
+		for (int row = minY.getY(); row < maxY.getY(); row++){
+			for (int column = minX.getX(); column < maxX.getX(); column++){
+				if (pointInSquare(column, row, minX, minY, maxX, maxY)){
+					debugOverlay.setRGB(column, row, 0xFFFF0099);
+				}
 			}
 		}
 		
@@ -190,6 +192,27 @@ public class RobotRecogniser implements ObjectRecogniser {
 		return vision.calculatePosition(points);
 	}
 	
+	private boolean pointInSquare(int x, int y, Position minX,
+			Position minY, Position maxX, Position maxY) {
+		return pointInTriangle(new Position(x,y), minY, maxX, maxY) &&
+				pointInTriangle(new Position(x,y), minY, minX, maxY);
+	}
+	
+	private int sign(Position p1, Position p2, Position p3)
+	{
+	  return ((p1.getX() - p3.getX()) * (p2.getY() - p3.getY())) - ((p2.getX() - p3.getX()) * (p1.getY() - p3.getY()));
+	}
+
+	private boolean pointInTriangle(Position pt, Position v1, Position v2, Position v3){
+	  boolean b1, b2, b3;
+
+	  b1 = sign(pt, v1, v2) < 0;
+	  b2 = sign(pt, v2, v3) < 0;
+	  b3 = sign(pt, v3, v1) < 0;
+
+	  return ((b1 == b2) && (b2 == b3));
+	}
+
 	/**
 	 * Returns the angle a robot is facing relative to the horizontal axis. 
 	 * 	

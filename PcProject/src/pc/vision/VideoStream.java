@@ -1,5 +1,8 @@
 package pc.vision;
 
+import ij.plugin.filter.GaussianBlur;
+import ij.process.ColorProcessor;
+
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.util.ArrayDeque;
@@ -74,6 +77,11 @@ public class VideoStream {
 			// frames
 			if (VideoStream.this.ready) {
 				BufferedImage frameBuffer = frame.getBufferedImage();
+				// TODO: Should we blur?
+//				ColorProcessor cp = new ColorProcessor(frameBuffer);
+//				GaussianBlur gb = new GaussianBlur();
+//				gb.blurGaussian(cp, 2, 2, 0.02);
+//				frameBuffer = cp.getBufferedImage();
 
 				for (VideoReceiver receiver : VideoStream.this.videoReceivers)
 					receiver.sendFrame(frameBuffer, delta,
