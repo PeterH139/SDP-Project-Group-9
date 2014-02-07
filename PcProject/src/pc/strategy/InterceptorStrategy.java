@@ -81,22 +81,17 @@ public class InterceptorStrategy implements WorldStateReceiver {
 		else if (targetY < tempTopY) {
 			targetY = tempTopY + 15;
 		}
+		if (targetX > robotX) {
+			targetY = tempBottomY - tempTopY;
+		}
 		if (robotRad > Math.PI)
 			robotRad -= 2 * Math.PI;
 		if (robotRad > 0) {
 			rotateBy = -(int) Math.toDegrees(Math.PI / 2 - robotRad);
 			dist = targetY - robotY;
-			if (targetX < robotX) {
-				// moves robot to centre of pitch
-				dist = robotY - (tempBottomY - tempTopY);
-			}
 		} else {
 			rotateBy = -(int) Math.toDegrees(-Math.PI / 2 - robotRad);
 			dist = robotY - targetY;
-			if (targetX < robotX) {
-				// moves robot to centre of pitch
-				dist = (tempBottomY - tempTopY) - robotY;
-			}
 		}
 		if (Math.abs(rotateBy) < 20) {
 			rotateBy = 0;

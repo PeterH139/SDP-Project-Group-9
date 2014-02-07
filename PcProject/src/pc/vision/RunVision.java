@@ -81,7 +81,7 @@ public class RunVision {
 			BrickCommServer bcs = null;
 			if (enableBluetooth) {
 				bcs = new BrickCommServer();
-				bcs.guiConnect(BtInfo.group10);
+				bcs.guiConnect(BtInfo.MEOW);
 			}
 
 			final VideoStream vStream = new VideoStream(videoDevice, width,

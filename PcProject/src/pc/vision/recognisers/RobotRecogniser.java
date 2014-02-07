@@ -164,24 +164,49 @@ public class RobotRecogniser implements ObjectRecogniser {
 			}
 		}
 		// Green plate bounds.
+		Position zeroPoint = new Position(0, 0);
 		Position maxX = new Position(0, 0);
 		Position maxY = new Position(0, 0);
 		Position minX = new Position(VideoStream.FRAME_WIDTH + 1,
-				VideoStream.FRAME_WIDTH + 1);
-		Position minY = new Position(VideoStream.FRAME_HEIGHT + 1,
 				VideoStream.FRAME_HEIGHT + 1);
+		Position minY = new Position(VideoStream.FRAME_WIDTH + 1,
+				VideoStream.FRAME_HEIGHT + 1);
+		Position topLeftCorner = new Position(0, 0);
+		Position topRightCorner = new Position(0, 0);
+		Position bottomLeftCorner = new Position(0, 0);
+		Position bottomRightCorner = new Position(0, 0);
+		
+
 		for (Position p : greenPoints) {
-			int x = p.getX();
 			int y = p.getY();
-			if (x < minX.getX())
-				minX = p;
-			if (x >= maxX.getX())
-				maxX = p;
+			int x = p.getX();
 			if (y <= minY.getY())
 				minY = p;
 			if (y > maxY.getY())
 				maxY = p;
+			if (x<= minX.getX())
+				minX = p;
+			if (x > maxX.getX())
+				maxX = p;
 		}
+		topLeftCorner = new Position(minX.getX() , minY.getY());
+		topRightCorner = new Position(maxX.getX(), minY.getY());
+		bottomLeftCorner = new Position(minX.getX(), maxY.getY());
+		bottomRightCorner = new Position(maxX.getX(), maxY.getY());
+		
+		minY = topLeftCorner;
+		maxY = bottomRightCorner;
+		minX = bottomLeftCorner;
+		maxX = topRightCorner;
+ 
+		
+//		int midX = (maxY.getX() - minY.getX())/2;
+//		int midY = (maxY.getY() - minY.getY())/2;
+//		Position midPoint = new Position(minY.getX()+midX, minY.getY()+midY);
+//		
+//		maxX = new Position(midPoint.getX()+midY, midPoint.getY()-midX);
+//		minX = new Position(midPoint.getX()-midY, midPoint.getY()+midX);
+		
 		// For Debugging
 		debugOverlay.getGraphics().drawLine(minX.getX(), minX.getY(),
 				minY.getX(), minY.getY());
