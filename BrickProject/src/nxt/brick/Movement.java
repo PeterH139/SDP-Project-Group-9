@@ -22,7 +22,7 @@ public class Movement extends DifferentialPilot {
 	static NXTRegulatedMotor KICKER = Motor.A;
 	static final int TYRE_DIAMETER = 56;
 
-	public int maxPilotSpeed = 900;					// 90 for tests
+	public int maxPilotSpeed = 50;					// 90 for tests
 
 	// TODO: potential changes to be made here due to different robots
 	public static final int MAXIMUM_KICKER_SPEED = (int) KICKER.getMaxSpeed();
@@ -75,26 +75,6 @@ public class Movement extends DifferentialPilot {
 		while(isKicking) {
 			forward();
 		}
-	}
-
-	public void manoeuvre(double angle) {
-		float leftWheelSpeed = maxPilotSpeed;
-		float rightWheelSpeed = maxPilotSpeed;
-		if (angle > 0) {
-			if (angle > 90) {
-				angle = 90;
-			}
-			leftWheelSpeed = (float) (leftWheelSpeed * (90-angle)/90);
-			LEFT_WHEEL.setSpeed(leftWheelSpeed);
-		}
-		if (angle < 0) {
-			if (angle < -90) {
-				angle = -90;
-			}
-			rightWheelSpeed = (float) (rightWheelSpeed * (90+angle)/90);
-			RIGHT_WHEEL.setSpeed(rightWheelSpeed);
-		}
-		forward();
 	}
 
 	private static void setMotorSpeed(NXTRegulatedMotor motor, int speed) {

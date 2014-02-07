@@ -82,13 +82,6 @@ public class BrickCommClient {
 			rc.getMovementController().rotateLeft();
 	}
 	
-	// TODO: May be subject to change if manoeuvre doesn't work as expected
-	private void handleManoeuvre() throws IOException {
-		double angle = pcInput.readDouble();
-		System.out.println("manoeuvre");
-		rc.getMovementController().manoeuvre(angle);
-	}
-	
 	private void handleRotateBy() throws IOException {
 		int angle = pcInput.readInt();
 		rc.getMovementController().rotate(angle);
@@ -100,6 +93,11 @@ public class BrickCommClient {
 		double radius = pcInput.readDouble();
 		int distance = pcInput.readInt();
 		rc.getMovementController().travelArc(radius, distance, true);
+	}
+	
+	public void handleWheelSpeed() throws IOException {
+		double speed = pcInput.readDouble();
+		rc.getMovementController().setTravelSpeed(speed);
 	}
 	
 	private void handleTravel() throws IOException {
@@ -146,8 +144,9 @@ public class BrickCommClient {
 				case RobotOpcode.APPROACHING_BALL:
 					handlePrepCatcher(kickerState);
 					break;
-				case RobotOpcode.MANOEUVRE:
-					handleManoeuvre();
+				case RobotOpcode.WHEEL_SPEED:
+					handleWheelSpeed();
+					break;
 				case RobotOpcode.CATCH:
 					handleCatch();
 					break;

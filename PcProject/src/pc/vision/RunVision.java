@@ -14,6 +14,7 @@ import org.apache.commons.cli.ParseException;
 import pc.comms.BrickCommServer;
 import pc.comms.BtInfo;
 import pc.strategy.InterceptorStrategy;
+import pc.strategy.TargetFollowerStrategy;
 import pc.vision.gui.VisionGUI;
 import pc.vision.gui.tools.ColourThresholdConfigTool;
 import pc.vision.gui.tools.HistogramTool;
@@ -81,7 +82,7 @@ public class RunVision {
 			BrickCommServer bcs = null;
 			if (enableBluetooth) {
 				bcs = new BrickCommServer();
-				bcs.guiConnect(BtInfo.group10);
+				bcs.guiConnect(BtInfo.MEOW);
 			}
 
 			final VideoStream vStream = new VideoStream(videoDevice, width,
@@ -116,14 +117,13 @@ public class RunVision {
 					pitchConstants));
 			vision.addRecogniser(new RobotRecogniser(vision, worldState,
 					pitchConstants));
-			//
-			// TargetFollowerStrategy tfs = new TargetFollowerStrategy(bcs);
-			// tfs.startControlThread();
-			//
+			
 			if (enableBluetooth) {
-				InterceptorStrategy ic = new InterceptorStrategy(bcs);
-				ic.startControlThread();
-				vision.addWorldStateReceiver(ic);
+				 TargetFollowerStrategy tfs = new TargetFollowerStrategy(bcs);
+				 tfs.startControlThread();
+//				InterceptorStrategy ic = new InterceptorStrategy(bcs);
+//				ic.startControlThread();
+				vision.addWorldStateReceiver(tfs);
 			}
 
 			vStream.addReceiver(distortionFix);

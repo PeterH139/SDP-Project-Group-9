@@ -45,7 +45,7 @@ public class RobotRecogniser implements ObjectRecogniser {
 		float blueAtkAngle = 0;
 		float yellowDefAngle = 0;
 		float yellowAtkAngle = 0;;
-		boolean leftBlueFirst = false; // TODO: calculate this from the
+		boolean leftBlueFirst = true; // TODO: calculate this from the
 										// appropriate location
 		if (leftBlueFirst) {
 			// In order, ltr: Blue Defender, Yellow Attacker, Blue Attacker,
@@ -58,6 +58,7 @@ public class RobotRecogniser implements ObjectRecogniser {
 					dividers[2], true);
 			yellowDef = searchColumn(yellowDefAngle, pixels, debugOverlay, dividers[2],
 					frame.getWidth() - rightBuffer, false);
+			yellowDefAngle = returnAngle;
 		} else {
 			// In order, ltr: Yellow Defender, Blue Attacker, Yellow Attacker,
 			// Blue Defender
@@ -137,7 +138,8 @@ public class RobotRecogniser implements ObjectRecogniser {
 	 * 
 	 * @author Peter Henderson (s1117205)
 	 */
-	private Position searchColumn(float returnAngle, PixelInfo[][] pixels,
+	private float returnAngle;
+	private Position searchColumn(float returnAngleOld, PixelInfo[][] pixels,
 			BufferedImage debugOverlay, int leftEdge, int rightEdge,
 			boolean isBlue) {
 		ArrayList<Position> points = new ArrayList<Position>(); 
