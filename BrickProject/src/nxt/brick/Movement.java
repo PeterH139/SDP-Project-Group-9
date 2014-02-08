@@ -73,79 +73,14 @@ public class Movement extends DifferentialPilot {
 	public void movingKick(int speed) {
 		isKicking = true;
 		while(isKicking) {
-			forward();
+			setTravelSpeed(maxPilotSpeed);
+			travel(.5,true);
+			kick(speed);
 		}
 	}
-
-	private static void setMotorSpeed(NXTRegulatedMotor motor, int speed) {
-		boolean forward = true;
-		if (speed < 0) {
-			forward = false;
-			speed = -1 * speed;
-		}
-
-		motor.setSpeed(speed);
-		if (forward)
-			motor.forward();
-		else
-			motor.backward();
-	}
-
-	public void setWheelSpeeds(int leftWheelSpeed, int rightWheelSpeed) {
-		if (leftWheelSpeed > this.maxPilotSpeed)
-			leftWheelSpeed = this.maxPilotSpeed;
-		if (rightWheelSpeed > this.maxPilotSpeed)
-			rightWheelSpeed = this.maxPilotSpeed;
-		
-		setMotorSpeed(LEFT_WHEEL, leftWheelSpeed);
-		setMotorSpeed(RIGHT_WHEEL, rightWheelSpeed);
-	}
-
-	public int getMaximumWheelSpeed() {
-		return this.maxPilotSpeed;
-	}
-
+	
 	public boolean isReady() {
 		return true;
-	}
-
-	/*
-	 * TODO: potentially change or remove these as Tachometer appears to be
-	 * out-dated.
-	 * 
-	 * If altering look at the OdometryPoseProvider class
-	 * 
-	 */
-	public int getLeftTacho() {
-		return LEFT_WHEEL.getTachoCount();
-	}
-
-	public int getRightTacho() {
-		return RIGHT_WHEEL.getTachoCount();
-	}
-
-	public void resetLeftTacho() {
-		LEFT_WHEEL.resetTachoCount();
-	}
-
-	public void resetRightTacho() {
-		RIGHT_WHEEL.resetTachoCount();
-	}
-
-	public int getLeftSpeed() {
-		return LEFT_WHEEL.getSpeed();
-	}
-
-	public int getRightSpeed() {
-		return RIGHT_WHEEL.getSpeed();
-	}
-
-	public void setLeftSpeed(int speed) {
-		setMotorSpeed(LEFT_WHEEL, speed);
-	}
-
-	public void setRightSpeed(int speed) {
-		setMotorSpeed(RIGHT_WHEEL, speed);
 	}
 
 }

@@ -234,6 +234,14 @@ public class WorldState {
 		return this.playingField;		
 	}
 	
+	public boolean GetPossession() {
+		if (Math.abs(attackerRobot.x - ball.x) < 50 && Math.abs(attackerRobot.y - ball.y) < 50) {
+			return true;
+		} else if (Math.abs(defenderRobot.x - ball.x) < 50 && Math.abs(defenderRobot.y - ball.y) < 50) {
+			return true;
+		}
+		return false;
+	}
 	
 	//update methods
 	/**

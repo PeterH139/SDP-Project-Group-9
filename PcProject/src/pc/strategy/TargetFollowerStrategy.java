@@ -55,6 +55,15 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 		double radius = Math.hypot(robotX - targetX, robotY - targetY)
 				/ (2 * Math.sin(ang1));
 		
+		/* Potential alteration for keeper strategy
+		 * 
+		 * Take the radius from when the Striker is shooting.
+		 * radius = Math.hypot(robotX - targetX, robotY - targetY) / 2;
+		 * 
+		 * Upon shooting move round this arc in order to close the angle down.
+		 * 
+		 */
+		
 		worldState.setMoveR(radius);
 		worldState.setMoveX(robotX + radius * Math.cos(robotRad + Math.PI / 2));
 		worldState.setMoveY(robotY + radius * Math.sin(robotRad + Math.PI / 2));
@@ -88,19 +97,19 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 		public void run() {
 			try {
 				while (true) {
-					int travelDist;
-					int rotateBy;
-					double radius;
-					double speed = 50;
+					int travelDist, rotateBy;
+					double radius, speed;
 					synchronized (this) {
 						rotateBy = this.rotateBy;
 						radius = this.radius;
 						travelDist = this.travelDist;
 					}
+					// Currently just dummy values: needs calibration 
+					speed = (travelDist < 50) ? 50 : 5 * travelDist; 
 					brick.robotWheelSpeed(speed);
-					if (rotateBy < 60) {
+					if (rotateBy < 45) {
 						brick.robotArcForwards(radius,travelDist);
-					} else if( rotateBy >= 60){
+					} else if( rotateBy >= 45){
 						brick.robotRotateBy(rotateBy);
 						brick.robotTravel(travelDist);
 					}
