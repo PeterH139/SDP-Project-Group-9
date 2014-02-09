@@ -45,7 +45,7 @@ public class RobotRecogniser implements ObjectRecogniser {
 		float blueAtkAngle = 0;
 		float yellowDefAngle = 0;
 		float yellowAtkAngle = 0;;
-		boolean leftBlueFirst = true; // TODO: calculate this from the
+		boolean leftBlueFirst = false; // TODO: calculate this from the
 										// appropriate location
 		if (leftBlueFirst) {
 			// In order, ltr: Blue Defender, Yellow Attacker, Blue Attacker,
@@ -165,42 +165,23 @@ public class RobotRecogniser implements ObjectRecogniser {
 				}
 			}
 		}
-		// Green plate bounds.
-		Position maxX = new Position(0, 0);
-		Position maxY = new Position(0, 0);
-		Position minX = new Position(VideoStream.FRAME_WIDTH + 1,
-				VideoStream.FRAME_WIDTH + 1);
-		Position minY = new Position(VideoStream.FRAME_HEIGHT + 1,
-				VideoStream.FRAME_HEIGHT + 1);
-		for (Position p : greenPoints) {
-			int x = p.getX();
-			int y = p.getY();
-			if (x < minX.getX())
-				minX = p;
-			if (x >= maxX.getX())
-				maxX = p;
-			if (y <= minY.getY())
-				minY = p;
-			if (y > maxY.getY())
-				maxY = p;
-		}
+		// Green Plate centroid
+		Position greenPlate = vision.calculatePosition(greenPoints);
+		int searchRadius = 15; // TODO: Determine if this is the best value.
 		// For Debugging
-		debugOverlay.getGraphics().drawLine(minX.getX(), minX.getY(),
-				minY.getX(), minY.getY());
-		debugOverlay.getGraphics().drawLine(minX.getX(), minX.getY(),
-				maxY.getX(), maxY.getY());
-		debugOverlay.getGraphics().drawLine(maxX.getX(), maxX.getY(),
-				minY.getX(), minY.getY());
-		debugOverlay.getGraphics().drawLine(maxX.getX(), maxX.getY(),
-				maxY.getX(), maxY.getY());
+		debugOverlay.getGraphics().drawOval(greenPlate.getX()-searchRadius, greenPlate.getY()-searchRadius, searchRadius*2, searchRadius*2);
 
 		// Find the yellow/blue coloured pixels within the plate bounds.
 		int cumulativeGreyX = 0;
 		int cumulativeGreyY = 0;
 		int numGreyPoints = 0;
-		for (int row = minY.getY(); row < maxY.getY(); row++) {
-			for (int column = minX.getX(); column < maxX.getX(); column++) {
-				if (pointInSquare(column, row, minX, minY, maxX, maxY)) {
+		int gx = greenPlate.getX();
+		int gy = greenPlate.getY();
+		int r2 = searchRadius*searchRadius;
+		for (int row = topBuffer; row < VideoStream.FRAME_HEIGHT - bottomBuffer; row++) {
+			for (int column = leftEdge; column < rightEdge; column++) {
+				int squareDist = ((gx-column)*(gx-column)) + ((gy-row)*(gy-row));
+				if (squareDist < r2){
 					if (pixels[column][row] != null) {
 						if (vision.isColour(pixels[column][row], obj)) {
 							points.add(new Position(column, row));
