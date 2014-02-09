@@ -224,41 +224,4 @@ public class RobotRecogniser implements ObjectRecogniser {
 		return pos;
 	}
 
-	/**
-	 * Returns true iff a point x,y lies within the quad defined by the vertices.
-	 * Works by splitting quad into two triangles and doing calculations on them.
-	 * 
-	 * @param x
-	 * @param y
-	 * @param minX - Vertex with minimal X value
-	 * @param minY - Vertex with minimal Y value
-	 * @param maxX - Vertex with maximal X value
-	 * @param maxY - Vertex with maximal Y value
-	 * @return true iff point (x,y) lies in quad.
-	 * 
-	 * @author Peter Henderson (s1117205)
-	 */
-	private boolean pointInSquare(int x, int y, Position minX, Position minY,
-			Position maxX, Position maxY) {
-		return pointInTriangle(new Position(x, y), minY, maxX, maxY)
-				|| pointInTriangle(new Position(x, y), minY, minX, maxY);
-	}
-	
-	private boolean pointInTriangle(Position pt, Position v1, Position v2, Position v3){
-		float y1 = v1.getY();
-		float y2 = v2.getY();
-		float y3 = v3.getY();
-		float x1 = v1.getX();
-		float x2 = v2.getX();
-		float x3 = v3.getX();
-		float x = pt.getX();
-		float y = pt.getY();
-		float denominator = ((y2 - y3)*(x1 - x3) + (x3 - x2)*(y1 - y3));
-		float a = ((y2 - y3)*(x - x3) + (x3 - x2)*(y - y3)) / denominator;
-		float b = ((y3 - y1)*(x - x3) + (x1 - x3)*(y - y3)) / denominator;
-		float c = 1 - a - b;
-	  
-		return 0 <= a && a <= 1 && 0 <= b && b <= 1 && 0 <= c && c <= 1;
-	}
-
 }
