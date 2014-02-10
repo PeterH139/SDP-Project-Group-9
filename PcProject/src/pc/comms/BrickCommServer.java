@@ -155,6 +155,7 @@ public class BrickCommServer {
 		client.setVisible(true);
 	}
 
+	@SuppressWarnings("serial")
 	public class GUIClient extends JFrame implements KeyListener {
 		public GUIClient() {
 			setTitle("Robot controller");

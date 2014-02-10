@@ -17,12 +17,8 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import pc.vision.DistortionFix;
-import pc.vision.PitchConstants;
-import pc.vision.VideoStream;
 import pc.vision.interfaces.VideoReceiver;
 import pc.vision.interfaces.VisionDebugReceiver;
-import pc.world.WorldState;
 
 @SuppressWarnings("serial")
 public class VisionGUI extends JFrame implements VideoReceiver,
@@ -44,7 +40,7 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 		}
 	};
 	
-	private final JList toolList;
+	private final JList<ToolWrapper> toolList;
 	private ToolWrapper currentToolWrapper;
 	
 	private final WindowAdapter windowAdapter = new WindowAdapter() {
@@ -52,7 +48,7 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 		public void windowClosing(WindowEvent e) {
 			// Tool deactivate function may prevent from closing
 			if (currentToolWrapper == null || currentToolWrapper.tool.deactivate()) {
-				DefaultListModel dlm = (DefaultListModel) toolList.getModel();
+				DefaultListModel<ToolWrapper> dlm = (DefaultListModel<ToolWrapper>) toolList.getModel();
 				for (int i = 0; i < dlm.size(); i++)
 					((ToolWrapper) dlm.get(i)).tool.dispose();
 				dispose();
@@ -74,7 +70,7 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 
 		//getContentPane().add(Box.createHorizontalStrut(10));
 
-		toolList = new JList(new DefaultListModel());
+		toolList = new JList<ToolWrapper>(new DefaultListModel<ToolWrapper>());
 		toolList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		toolList.addListSelectionListener(new ListSelectionListener() {
 			
@@ -109,7 +105,7 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 	}
 
 	public void addTool(GUITool tool, String name) {
-		DefaultListModel model = (DefaultListModel) toolList
+		DefaultListModel<ToolWrapper> model = (DefaultListModel<ToolWrapper>) toolList
 				.getModel();
 		model.addElement(new ToolWrapper(tool, name));
 	}

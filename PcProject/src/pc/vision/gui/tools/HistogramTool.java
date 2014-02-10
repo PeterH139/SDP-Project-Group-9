@@ -50,7 +50,7 @@ public class HistogramTool implements GUITool, ObjectRecogniser {
 	private PitchConstants pitchConstants;
 
 	private JFrame subWindow;
-	private JList objectList;
+	private JList<String> objectList;
 	private GUIMouseListener mouseListener = new GUIMouseListener();
 	private int currentObject = -1;
 	
@@ -103,7 +103,7 @@ public class HistogramTool implements GUITool, ObjectRecogniser {
 		subWindow.getContentPane().setLayout(
 				new BoxLayout(subWindow.getContentPane(), BoxLayout.X_AXIS));
 
-		objectList = new JList(PitchConstants.OBJECT_NAMES);
+		objectList = new JList<String>(PitchConstants.OBJECT_NAMES);
 		objectList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		subWindow.getContentPane().add(new JScrollPane(objectList));
 
@@ -344,6 +344,7 @@ public class HistogramTool implements GUITool, ObjectRecogniser {
 	/**
 	 * Positions histogram above slider
 	 */
+	@SuppressWarnings("serial")
 	private class HistogramWithSlider extends JPanel {
 		private HistogramDisplay histogramDisplay;
 		private InvertibleRangeSlider slider;
@@ -361,6 +362,7 @@ public class HistogramTool implements GUITool, ObjectRecogniser {
 		}
 	}
 
+	@SuppressWarnings("serial")
 	private class HistogramDisplay extends JPanel {
 		public static final int HISTOGRAM_WIDTH = 280;
 		public static final int HISTOGRAM_HEIGHT = 120;

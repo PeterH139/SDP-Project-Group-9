@@ -1,21 +1,14 @@
 package pc.test;
 
-import java.io.IOException;
-
-import pc.comms.BluetoothConnection;
 import pc.comms.BrickCommServer;
 import pc.comms.BtInfo;
-import pc.strategy.InterceptorStrategy;
 
 public class BtTest {
 	
 	public BtTest() {		
 	}
 	
-	public static void main(String args[]) {
-		BluetoothConnection con = new BluetoothConnection(
-				BtInfo.DEVICE_1_NAME, BtInfo.DEVICE_1_MAC);		
-		
+	public static void main(String args[]) {	
 		try {
 			BrickCommServer bcs = null;
 			bcs = new BrickCommServer();

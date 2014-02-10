@@ -210,7 +210,7 @@ public class VisionSettingsPanel extends JPanel {
 
 		// Direction choice
 		JPanel directionPanel = new JPanel();
-		JLabel directionLabel = new JLabel("Our goal:");
+		JLabel directionLabel = new JLabel("We are shooting:");
 		directionPanel.add(directionLabel);
 
 		ButtonGroup directionChoice = new ButtonGroup();
