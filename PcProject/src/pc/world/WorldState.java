@@ -146,7 +146,8 @@ public class WorldState {
 		this.moveR = moveR;
 	}
 	//#region new world model representation
-		
+	//TODO: convert x/y to mm values
+	//TODO: center to be the center of the field
 	//Our team robots
 	//Defender
 	private MovingObject defenderRobot;

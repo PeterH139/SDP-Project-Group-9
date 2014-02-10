@@ -8,6 +8,7 @@ package pc.world;
 
 public class MovingObject {
 	//x,y, representation on the grid
+	//x,y are mm representations
 	public int x;
 	public int y;
 	
@@ -40,4 +41,7 @@ public class MovingObject {
 		this.x = x;
 		this.y = y;
 	}
+	
+	//rotating point of robots, need to represent
+	//robot dimension extension from plates
 }
