@@ -121,7 +121,6 @@ public class RunVision {
 					pitchConstants));
 			
 			if (enableBluetooth) {
-<<<<<<< HEAD
 				AttackerStrategy as = new AttackerStrategy(bcs);
 				as.startControlThread();
 //				 TargetFollowerStrategy tfs = new TargetFollowerStrategy(bcs);
@@ -129,14 +128,6 @@ public class RunVision {
 //				InterceptorStrategy ic = new InterceptorStrategy(bcs);
 //				ic.startControlThread();
 				vision.addWorldStateReceiver(as);
-=======
-				TargetFollowerStrategy tfs = new TargetFollowerStrategy(bcs);
-				tfs.startControlThread();
-//				InterceptorStrategy ic = new InterceptorStrategy(bcs);
-//				ic.startControlThread();
-				vision.addWorldStateReceiver(tfs);
-//				vision.addWorldStateReceiver(StrategySelector.selector(bcs, worldState));
->>>>>>> 27af62ffff7695a4c9960111b9f180601c9a72af
 			}
 
 			vStream.addReceiver(distortionFix);
