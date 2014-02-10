@@ -11,6 +11,8 @@ public class AttackerStrategy implements WorldStateReceiver {
 	private BrickCommServer brick;
 	private ControlThread controlThread;
 
+	private boolean ballCaught = false;
+
 	public AttackerStrategy(BrickCommServer brick) {
 		this.brick = brick;
 		controlThread = new ControlThread();
@@ -26,6 +28,7 @@ public class AttackerStrategy implements WorldStateReceiver {
 				.GetAttackerRobot().y;
 		double robotO = worldState.GetAttackerRobot().orientation_angle;
 		int targetX = worldState.getBallX(), targetY = worldState.getBallY();
+		int goalX = 65, goalY = 235;
 		if (targetX == 0 || targetY == 0 || robotX == 0 || robotY == 0
 				|| robotO == 0
 				|| Math.hypot(robotX - targetX, robotY - targetY) < 30) {
@@ -38,7 +41,7 @@ public class AttackerStrategy implements WorldStateReceiver {
 
 		double robotRad = Math.toRadians(robotO);
 		double targetRad = Math.atan2(targetY - robotY, targetX - robotX);
-
+		double goalRad = Math.atan2(goalY - robotY, goalX - robotX);
 		if (robotRad > Math.PI)
 			robotRad -= 2 * Math.PI;
 
@@ -51,17 +54,22 @@ public class AttackerStrategy implements WorldStateReceiver {
 		double dist = Math.hypot(robotX - targetX, robotY - targetY);
 		synchronized (controlThread) {
 			controlThread.operation = Operation.DO_NOTHING;
-			if (Math.abs(ang1) > Math.PI / 16) {
-				controlThread.operation = Operation.ROTATE;
-				controlThread.rotateBy = (int) Math.toDegrees(ang1);
-			} else {
-				if (dist > 40) {
-					controlThread.operation = Operation.TRAVEL;
-					controlThread.travelDist = (int) (dist * 3);
-					controlThread.travelSpeed = (int) (dist * 2);
+			if (!ballCaught) {
+				if (Math.abs(ang1) > Math.PI / 16) {
+					controlThread.operation = Operation.ROTATE;
+					controlThread.rotateBy = (int) Math.toDegrees(ang1);
 				} else {
-					controlThread.operation = Operation.CATCH;
+					if (dist > 40) {
+						controlThread.operation = Operation.TRAVEL;
+						controlThread.travelDist = (int) (dist * 3);
+						controlThread.travelSpeed = (int) (dist * 2);
+					} else {
+						controlThread.operation = Operation.CATCH;
+						ballCaught = true;
+					}
 				}
+			} else {
+				
 			}
 		}
 	}
@@ -134,5 +142,6 @@ public class AttackerStrategy implements WorldStateReceiver {
 			}
 
 		}
+
 	}
 }
