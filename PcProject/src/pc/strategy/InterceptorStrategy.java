@@ -42,7 +42,6 @@ public class InterceptorStrategy implements WorldStateReceiver {
 
 		Position ball5FramesAgo = ballPositions.getFirst();
 		int ballX1 = ball5FramesAgo.getX(), ballY1 = ball5FramesAgo.getY();
-
 		int ballX2 = worldState.getBallX(), ballY2 = worldState.getBallY();
 
 		double slope = (ballY2 - ballY1) / ((ballX2 - ballX1) + 0.0001);

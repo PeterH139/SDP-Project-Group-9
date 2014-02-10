@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import pc.vision.PitchConstants;
 import pc.vision.PixelInfo;
 import pc.vision.Position;
+import pc.vision.Vector2f;
 import pc.vision.Vision;
 import pc.vision.interfaces.ObjectRecogniser;
 import pc.world.MovingObject;
@@ -60,10 +61,10 @@ public class RobotRecogniser implements ObjectRecogniser {
 
 		// Debugging Graphics
 		debugGraphics.setColor(Color.CYAN);
-		debugGraphics.drawRect(blueDef.pos.getX() - 2, blueDef.pos.getY() - 2, 4, 4);
-		debugGraphics.drawRect(blueAtk.pos.getX() - 2, blueAtk.pos.getY() - 2, 4, 4);
-		debugGraphics.drawRect(yellowDef.pos.getX() - 2, yellowDef.pos.getY(), 4, 4);
-		debugGraphics.drawRect(yellowAtk.pos.getX() - 2, yellowAtk.pos.getY(), 4, 4);
+		debugGraphics.drawRect((int)blueDef.pos.x - 2, (int)blueDef.pos.y - 2, 4, 4);
+		debugGraphics.drawRect((int)blueAtk.pos.x - 2, (int)blueAtk.pos.y - 2, 4, 4);
+		debugGraphics.drawRect((int)yellowDef.pos.x - 2, (int)yellowDef.pos.y, 4, 4);
+		debugGraphics.drawRect((int)yellowAtk.pos.x - 2, (int)yellowAtk.pos.y, 4, 4);
 
 		// TODO: Using the previous position values and the time between frames,
 		// calculate the velocities of the robots and the ball.
@@ -72,11 +73,11 @@ public class RobotRecogniser implements ObjectRecogniser {
 		// TODO: Update the world state with the new values for position,
 		// velocity and rotation.
 		// **RELATIVE TO THE ORIGIN FOR POSITION**
-		worldState.setBlueX(blueAtk.pos.getX());
-		worldState.setBlueY(blueAtk.pos.getY());
+		worldState.setBlueX(blueAtk.pos.x);
+		worldState.setBlueY(blueAtk.pos.y);
 		worldState.setBlueOrientation(blueAtk.angle);
-		worldState.setYellowX(yellowAtk.pos.getX());
-		worldState.setYellowY(yellowAtk.pos.getY());
+		worldState.setYellowX(yellowAtk.pos.x);
+		worldState.setYellowY(yellowAtk.pos.y);
 		worldState.setYellowOrientation(yellowAtk.angle);
 
 		// #Dimitar TODO: further code changes needed! the robots need to be
@@ -84,14 +85,14 @@ public class RobotRecogniser implements ObjectRecogniser {
 		// identified based on the sections of the field they are in.
 		// right now I assume that the yellow is our team and the
 		// blue is the enemy team
-		MovingObject attackerRobot = new MovingObject(yellowAtk.pos.getX(),
-				yellowAtk.pos.getY(), yellowAtk.angle);
-		MovingObject defenderRobot = new MovingObject(yellowDef.pos.getX(),
-				yellowDef.pos.getY(), yellowDef.angle);
-		MovingObject enemyAttackerRobot = new MovingObject(blueAtk.pos.getX(),
-				blueAtk.pos.getY(), blueAtk.angle);
-		MovingObject enemyDefenderRobot = new MovingObject(blueDef.pos.getX(),
-				blueDef.pos.getY(), blueDef.angle);
+		MovingObject attackerRobot = new MovingObject(yellowAtk.pos.x,
+				yellowAtk.pos.y, yellowAtk.angle);
+		MovingObject defenderRobot = new MovingObject(yellowDef.pos.x,
+				yellowDef.pos.y, yellowDef.angle);
+		MovingObject enemyAttackerRobot = new MovingObject(blueAtk.pos.x,
+				blueAtk.pos.y, blueAtk.angle);
+		MovingObject enemyDefenderRobot = new MovingObject(blueDef.pos.x,
+				blueDef.pos.y, blueDef.angle);
 
 		worldState.SetAttackerRobot(attackerRobot);
 		worldState.SetDefenderRobot(defenderRobot);
@@ -144,16 +145,16 @@ public class RobotRecogniser implements ObjectRecogniser {
 		}	
 
 		// Green Plate centroid
-		Position greenPlate = vision.calculatePosition(greenPoints);
+		Vector2f greenPlate = vision.calculatePosition(greenPoints);
 		int searchRadius = 14; // TODO: Determine if this is the best value.
 
 		// For Debugging
-		debugOverlay.getGraphics().drawOval(greenPlate.getX()-searchRadius, greenPlate.getY()-searchRadius, searchRadius*2, searchRadius*2);
+		debugOverlay.getGraphics().drawOval((int)greenPlate.x-searchRadius, (int)greenPlate.y-searchRadius, searchRadius*2, searchRadius*2);
 
 		// Find the yellow/blue coloured pixels within the plate bounds.
 		int cumulativeGreyX = 0, cumulativeGreyY = 0, numGreyPoints = 0;
-		int gx = greenPlate.getX();
-		int gy = greenPlate.getY();
+		int gx = (int)greenPlate.x;
+		int gy = (int)greenPlate.y;
 		int r2 = searchRadius*searchRadius;
 		int squareDist;
 		ArrayList<Position> colourPoints = new ArrayList<Position>();
@@ -181,7 +182,7 @@ public class RobotRecogniser implements ObjectRecogniser {
 			}
 		}
 		
-		Position pos = vision.calculatePosition(colourPoints);
+		Vector2f pos = vision.calculatePosition(colourPoints);
 		
 		float returnAngle;
 		if (numGreyPoints > 0) {
@@ -192,8 +193,8 @@ public class RobotRecogniser implements ObjectRecogniser {
 			debugOverlay.getGraphics().drawRect((int) greyXMean - 2,
 					(int) greyYMean - 2, 4, 4);
 
-			float angle = (float) Math.toDegrees(Math.atan2(pos.getY()
-					- greyYMean, pos.getX() - greyXMean));
+			float angle = (float) Math.toDegrees(Math.atan2(pos.y
+					- greyYMean, pos.x - greyXMean));
 			
 			returnAngle = (angle < 0) ? (angle + 360) : angle;
 		} else {
@@ -206,9 +207,9 @@ public class RobotRecogniser implements ObjectRecogniser {
 	private class SearchReturn{
 		
 		public float angle;
-		public Position pos;
+		public Vector2f pos;
 		
-		public SearchReturn(float angle, Position pos){
+		public SearchReturn(float angle, Vector2f pos){
 			this.angle = angle;
 			this.pos = pos;
 		}

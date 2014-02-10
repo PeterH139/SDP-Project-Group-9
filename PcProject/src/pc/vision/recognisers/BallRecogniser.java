@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import pc.vision.PitchConstants;
 import pc.vision.PixelInfo;
 import pc.vision.Position;
+import pc.vision.Vector2f;
 import pc.vision.Vision;
 import pc.vision.interfaces.ObjectRecogniser;
 import pc.world.MovingObject;
@@ -17,7 +18,6 @@ public class BallRecogniser implements ObjectRecogniser {
 	private Vision vision;
 	private WorldState worldState;
 	private PitchConstants pitchConstants;
-	private Position previousBallPosition = new Position(0,0);
 
 	public BallRecogniser(Vision vision, WorldState worldState,
 			PitchConstants pitchConstants) {
@@ -51,17 +51,16 @@ public class BallRecogniser implements ObjectRecogniser {
 			}
 		}
 
-		Position ballPosition = vision.calculatePosition(ballPoints);
+		Vector2f ballPosition = vision.calculatePosition(ballPoints);
 
 		debugGraphics.setColor(Color.red);
-		debugGraphics.drawLine(0, ballPosition.getY(), 640, ballPosition.getY());
-		debugGraphics.drawLine(ballPosition.getX(), 0, ballPosition.getX(), 480);
+		debugGraphics.drawLine(0, (int)ballPosition.y, 640, (int)ballPosition.y);
+		debugGraphics.drawLine((int)ballPosition.x, 0, (int)ballPosition.x, 480);
 
-		worldState.setBallX(ballPosition.getX());
-		worldState.setBallY(ballPosition.getY());
+		worldState.setBallX(ballPosition.x);
+		worldState.setBallY(ballPosition.y);
 
-		previousBallPosition = ballPosition;
-		MovingObject ball_m = new MovingObject(ballPosition.getX(), ballPosition.getY());
+		MovingObject ball_m = new MovingObject(ballPosition.x, ballPosition.y);
 		worldState.SetBall(ball_m);
 	}
 
