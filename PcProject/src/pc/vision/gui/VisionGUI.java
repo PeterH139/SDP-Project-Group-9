@@ -40,7 +40,7 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 		}
 	};
 	
-	private final JList<ToolWrapper> toolList;
+	private final JList toolList;
 	private ToolWrapper currentToolWrapper;
 	
 	private final WindowAdapter windowAdapter = new WindowAdapter() {
@@ -48,7 +48,7 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 		public void windowClosing(WindowEvent e) {
 			// Tool deactivate function may prevent from closing
 			if (currentToolWrapper == null || currentToolWrapper.tool.deactivate()) {
-				DefaultListModel<ToolWrapper> dlm = (DefaultListModel<ToolWrapper>) toolList.getModel();
+				DefaultListModel dlm = (DefaultListModel) toolList.getModel();
 				for (int i = 0; i < dlm.size(); i++)
 					((ToolWrapper) dlm.get(i)).tool.dispose();
 				dispose();
@@ -70,7 +70,7 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 
 		//getContentPane().add(Box.createHorizontalStrut(10));
 
-		toolList = new JList<ToolWrapper>(new DefaultListModel<ToolWrapper>());
+		toolList = new JList(new DefaultListModel());
 		toolList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		toolList.addListSelectionListener(new ListSelectionListener() {
 			
@@ -105,7 +105,7 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 	}
 
 	public void addTool(GUITool tool, String name) {
-		DefaultListModel<ToolWrapper> model = (DefaultListModel<ToolWrapper>) toolList
+		DefaultListModel model = (DefaultListModel) toolList
 				.getModel();
 		model.addElement(new ToolWrapper(tool, name));
 	}

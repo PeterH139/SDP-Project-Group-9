@@ -50,7 +50,7 @@ public class HistogramTool implements GUITool, ObjectRecogniser {
 	private PitchConstants pitchConstants;
 
 	private JFrame subWindow;
-	private JList<String> objectList;
+	private JList objectList;
 	private GUIMouseListener mouseListener = new GUIMouseListener();
 	private int currentObject = -1;
 	
@@ -103,7 +103,7 @@ public class HistogramTool implements GUITool, ObjectRecogniser {
 		subWindow.getContentPane().setLayout(
 				new BoxLayout(subWindow.getContentPane(), BoxLayout.X_AXIS));
 
-		objectList = new JList<String>(PitchConstants.OBJECT_NAMES);
+		objectList = new JList(PitchConstants.OBJECT_NAMES);
 		objectList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		subWindow.getContentPane().add(new JScrollPane(objectList));
 
