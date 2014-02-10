@@ -120,12 +120,10 @@ public class BrickCommServer {
 		brickInput.readBoolean();
 	}
 	
-	// TODO: may be subject to change if manoeuvre doesn't work as expected
-	public void robotManoeuvre(int angle) throws IOException {
-		brickOutput.writeInt(RobotOpcode.MANOEUVRE);
-		brickOutput.writeInt(angle);
+	public void robotWheelSpeed(double speed) throws IOException {
+		brickOutput.writeInt(RobotOpcode.WHEEL_SPEED);
+		brickOutput.writeDouble(speed);
 		brickOutput.flush();
-		brickInput.readBoolean();
 	}
 
 	public void robotArcForwards(double arcRadius, int distance)

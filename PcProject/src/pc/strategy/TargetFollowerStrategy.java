@@ -24,16 +24,16 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 	public void sendWorldState(WorldState worldState) {
 		int robotX = worldState.getYellowX(), robotY = worldState.getYellowY();
 		double robotO = worldState.getYellowOrientation();
-		int targetX = worldState.getBallX(), targetY = worldState
-				.getBallY();
+		int targetX = worldState.getRobotTargetX(), targetY = worldState.getRobotTargetY();
 
 		if (targetX == 0 || targetY == 0 || robotX == 0 || robotY == 0
 				|| robotO == 0
 				|| Math.hypot(robotX - targetX, robotY - targetY) < 10) {
 			worldState.setMoveR(0);
 			synchronized (controlThread) {
-				controlThread.rotateBy = 0;
+				controlThread.rotateBy  = 0;
 				controlThread.travelDist = 0;
+				controlThread.radius = Double.POSITIVE_INFINITY;
 			}
 			return;
 		}
@@ -52,29 +52,31 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 		
 		double dist = Math.hypot(robotX - targetX, robotY - targetY);
 
-		//double radius = Math.hypot(robotX - targetX, robotY - targetY)
-		//		/ (2 * Math.sin(ang1));
+		double radius = Math.hypot(robotX - targetX, robotY - targetY)
+				/ (2 * Math.sin(ang1));
 		
-		//worldState.setMoveR(radius);
-		//worldState.setMoveX(robotX + radius * Math.cos(robotRad + Math.PI / 2));
-		//worldState.setMoveY(robotY + radius * Math.sin(robotRad + Math.PI / 2));
-		// System.out.println(Math.toDegrees(ang1));
+		worldState.setMoveR(radius);
+		worldState.setMoveX(robotX + radius * Math.cos(robotRad + Math.PI / 2));
+		worldState.setMoveY(robotY + radius * Math.sin(robotRad + Math.PI / 2));
+		System.out.println(Math.toDegrees(ang1));
  
 		synchronized (controlThread) {
 			controlThread.rotateBy = 0;
 			controlThread.travelDist = 0;
+			controlThread.radius = -radius;
 
 			if (Math.abs(ang1) > Math.PI / 16) {
 				controlThread.rotateBy =  (int) Math.toDegrees(-ang1 * 0.8);
 			}
 			else {
-				controlThread.travelDist = (int) (dist * 3);
+				controlThread.travelDist = (int) (-dist * 3);
 			}
 		}
 	}
 
 	private class ControlThread extends Thread {
 		public int rotateBy = 0;
+		public double radius = Double.POSITIVE_INFINITY;
 		public int travelDist = 0;
 
 		public ControlThread() {
@@ -86,15 +88,20 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 		public void run() {
 			try {
 				while (true) {
-					int rotateBy, travelDist;
+					int travelDist;
+					int rotateBy;
+					double radius;
+					double speed = 50;
 					synchronized (this) {
 						rotateBy = this.rotateBy;
+						radius = this.radius;
 						travelDist = this.travelDist;
 					}
-					if (rotateBy != 0) {
+					brick.robotWheelSpeed(speed);
+					if (rotateBy < 60) {
+						brick.robotArcForwards(radius,travelDist);
+					} else if( rotateBy >= 60){
 						brick.robotRotateBy(rotateBy);
-					}
-					else if (travelDist != 0) {
 						brick.robotTravel(travelDist);
 					}
 					Thread.sleep(300);
@@ -106,33 +113,5 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 				e.printStackTrace();
 			}
 		}
-		
-		
-//		@Override
-//		public void run() {
-//			try {
-//				while (true) {
-//					int travelDist, angleToBall;
-//					synchronized (this) {
-//					angleToBall = this.rotateBy;
-//					travelDist = this.travelDist;
-//					if (angleToBall != 0) {
-//						brick.robotRotateBy(angleToBall);
-//						if (travelDist != 0) {
-//							brick.robotTravel(travelDist);
-//						}
-//						
-//					}
-//					Thread.sleep(300);
-//					}
-//				}
-//			}
-//			catch (IOException e) {
-//				e.printStackTrace();
-//			} catch (InterruptedException e) {
-//				e.printStackTrace();
-//			}
-//
-//	}
 	}
 }

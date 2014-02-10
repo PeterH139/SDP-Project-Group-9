@@ -93,7 +93,7 @@ public class AttackerStrategy implements WorldStateReceiver {
 					if (angleToBall != 0) {
 						brick.robotKick(700);
 						brick.robotPrepCatch();
-						brick.robotManoeuvre(angleToBall);
+//						brick.robotManoeuvre(angleToBall);
 //						if (travelDist  0) {
 //							brick.robotTravel(travelDist);
 //						}

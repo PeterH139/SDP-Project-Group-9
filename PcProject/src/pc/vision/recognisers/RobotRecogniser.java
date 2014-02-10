@@ -58,6 +58,7 @@ public class RobotRecogniser implements ObjectRecogniser {
 					dividers[2], true);
 			yellowDef = searchColumn(yellowDefAngle, pixels, debugOverlay, dividers[2],
 					frame.getWidth() - rightBuffer, false);
+			yellowDefAngle = returnAngle;
 		} else {
 			// In order, ltr: Yellow Defender, Blue Attacker, Yellow Attacker,
 			// Blue Defender
@@ -137,7 +138,8 @@ public class RobotRecogniser implements ObjectRecogniser {
 	 * 
 	 * @author Peter Henderson (s1117205)
 	 */
-	private Position searchColumn(float returnAngle, PixelInfo[][] pixels,
+	private float returnAngle;
+	private Position searchColumn(float returnAngleOld, PixelInfo[][] pixels,
 			BufferedImage debugOverlay, int leftEdge, int rightEdge,
 			boolean isBlue) {
 		ArrayList<Position> points = new ArrayList<Position>(); 
@@ -163,6 +165,7 @@ public class RobotRecogniser implements ObjectRecogniser {
 				}
 			}
 		}
+
 		// Green plate bounds.
 		Position zeroPoint = new Position(0, 0);
 		Position maxX = new Position(0, 0);
@@ -207,23 +210,25 @@ public class RobotRecogniser implements ObjectRecogniser {
 //		maxX = new Position(midPoint.getX()+midY, midPoint.getY()-midX);
 //		minX = new Position(midPoint.getX()-midY, midPoint.getY()+midX);
 		
+
+		// Green Plate centroid
+		Position greenPlate = vision.calculatePosition(greenPoints);
+		int searchRadius = 15; // TODO: Determine if this is the best value.
+
 		// For Debugging
-		debugOverlay.getGraphics().drawLine(minX.getX(), minX.getY(),
-				minY.getX(), minY.getY());
-		debugOverlay.getGraphics().drawLine(minX.getX(), minX.getY(),
-				maxY.getX(), maxY.getY());
-		debugOverlay.getGraphics().drawLine(maxX.getX(), maxX.getY(),
-				minY.getX(), minY.getY());
-		debugOverlay.getGraphics().drawLine(maxX.getX(), maxX.getY(),
-				maxY.getX(), maxY.getY());
+		debugOverlay.getGraphics().drawOval(greenPlate.getX()-searchRadius, greenPlate.getY()-searchRadius, searchRadius*2, searchRadius*2);
 
 		// Find the yellow/blue coloured pixels within the plate bounds.
 		int cumulativeGreyX = 0;
 		int cumulativeGreyY = 0;
 		int numGreyPoints = 0;
-		for (int row = minY.getY(); row < maxY.getY(); row++) {
-			for (int column = minX.getX(); column < maxX.getX(); column++) {
-				if (pointInSquare(column, row, minX, minY, maxX, maxY)) {
+		int gx = greenPlate.getX();
+		int gy = greenPlate.getY();
+		int r2 = searchRadius*searchRadius;
+		for (int row = topBuffer; row < VideoStream.FRAME_HEIGHT - bottomBuffer; row++) {
+			for (int column = leftEdge; column < rightEdge; column++) {
+				int squareDist = ((gx-column)*(gx-column)) + ((gy-row)*(gy-row));
+				if (squareDist < r2){
 					if (pixels[column][row] != null) {
 						if (vision.isColour(pixels[column][row], obj)) {
 							points.add(new Position(column, row));
@@ -264,43 +269,6 @@ public class RobotRecogniser implements ObjectRecogniser {
 		// Calculate angles from those.
 
 		return pos;
-	}
-
-	/**
-	 * Returns true iff a point x,y lies within the quad defined by the vertices.
-	 * Works by splitting quad into two triangles and doing calculations on them.
-	 * 
-	 * @param x
-	 * @param y
-	 * @param minX - Vertex with minimal X value
-	 * @param minY - Vertex with minimal Y value
-	 * @param maxX - Vertex with maximal X value
-	 * @param maxY - Vertex with maximal Y value
-	 * @return true iff point (x,y) lies in quad.
-	 * 
-	 * @author Peter Henderson (s1117205)
-	 */
-	private boolean pointInSquare(int x, int y, Position minX, Position minY,
-			Position maxX, Position maxY) {
-		return pointInTriangle(new Position(x, y), minY, maxX, maxY)
-				|| pointInTriangle(new Position(x, y), minY, minX, maxY);
-	}
-	
-	private boolean pointInTriangle(Position pt, Position v1, Position v2, Position v3){
-		float y1 = v1.getY();
-		float y2 = v2.getY();
-		float y3 = v3.getY();
-		float x1 = v1.getX();
-		float x2 = v2.getX();
-		float x3 = v3.getX();
-		float x = pt.getX();
-		float y = pt.getY();
-		float denominator = ((y2 - y3)*(x1 - x3) + (x3 - x2)*(y1 - y3));
-		float a = ((y2 - y3)*(x - x3) + (x3 - x2)*(y - y3)) / denominator;
-		float b = ((y3 - y1)*(x - x3) + (x1 - x3)*(y - y3)) / denominator;
-		float c = 1 - a - b;
-	  
-		return 0 <= a && a <= 1 && 0 <= b && b <= 1 && 0 <= c && c <= 1;
 	}
 
 }
