@@ -1,5 +1,6 @@
 package nxt.testing;
 
+import lejos.nxt.Button;
 import lejos.nxt.LCD;
 import nxt.brick.Striker;
 
@@ -18,7 +19,7 @@ public class MovementTest {
 	public static void main(String[] args) {
 		
 		striker.steer(10,90);
-		
+		while (!(Button.ESCAPE.isDown())) {
 		while (count < 50) {
 			LCD.drawString(striker.getLeftTacho() + " " + striker.getRightTacho(),0,1);
 			LCD.drawString(" Travelled: " + striker.getMovementIncrement(), 0, 2);
@@ -58,5 +59,6 @@ public class MovementTest {
 		
 		striker.rotate(180);
 		
+	}
 	}
 }

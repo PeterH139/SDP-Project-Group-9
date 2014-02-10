@@ -90,9 +90,9 @@ public class RobotRecogniser implements ObjectRecogniser {
 		worldState.setBlueOrientation(blueAtkAngle);
 		// worldState.setBlueXVelocity(blueAtkVel.getX());
 		// worldState.setBlueYVelocity(blueAtkVel.getY());
-		worldState.setYellowX(yellowDef.getX());
-		worldState.setYellowY(yellowDef.getY());
-		worldState.setYellowOrientation(yellowDefAngle);
+		worldState.setYellowX(yellowAtk.getX());
+		worldState.setYellowY(yellowAtk.getY());
+		worldState.setYellowOrientation(yellowAtkAngle);
 
 		// #Dimitar TODO: further code changes needed! the robots need to be
 		// correctly
