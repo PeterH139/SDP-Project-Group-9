@@ -7,5 +7,5 @@
 package pc.world;
 
 public class GoalArea {
-	public int y, x1, x2;
+	public int y1, y2, x;
 }

@@ -36,14 +36,15 @@ public class Pitch {
 		// |\     |       |       |     /|
 		// _______________________________
 		// EG EDF    AF      EAF     DF  G
-		// EG: enemy goal: Y, X1, X2
+		// EG: enemy goal: X, Y1, Y2
 		// EDF: enemy defence field: Y1, Y2, X1, X2
 		// AF: attack field: Y1, Y2, X1, X2
 		// EAF: enemy attack field: Y1, Y2, X1, X2
 		// DF: defence field: Y1, Y2, X1, X2
-		// G: goal: Y, X1, X2
+		// G: goal: X, Y1, Y2
 		
 		public AttackerFieldArea enemyAttackField, attackField;
 		public DefenderFieldArea enemyDefenderField, defenderField;
 		public GoalArea enemyGoalArea, goalArea;
+
 }
