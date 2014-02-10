@@ -1,6 +1,5 @@
 package nxt;
 
-import nxt.brick.Movement;
 import nxt.brick.Striker;
 
 public class RobotController {
