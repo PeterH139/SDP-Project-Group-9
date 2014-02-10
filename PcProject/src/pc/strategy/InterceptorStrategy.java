@@ -126,7 +126,7 @@ public class InterceptorStrategy implements WorldStateReceiver {
 						travelDist = this.travelDist;
 					}
 					if (rotateBy != 0) {
-						brick.robotRotateBy(rotateBy);
+						brick.robotRotateBy(rotateBy, rotateBy / 3);
 					} else if (travelDist != 0) {
 						brick.robotTravel(travelDist,25);
 					}

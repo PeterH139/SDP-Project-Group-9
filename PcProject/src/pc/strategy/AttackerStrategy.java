@@ -26,12 +26,11 @@ public class AttackerStrategy implements WorldStateReceiver {
 	public void sendWorldState(WorldState worldState) {
 		float robotX = worldState.GetAttackerRobot().x, robotY = worldState
 				.GetAttackerRobot().y;
-		double robotO = worldState.GetAttackerRobot().orientation_angle;
+		float robotO = worldState.GetAttackerRobot().orientation_angle;
 		float targetX = worldState.getBallX(), targetY = worldState.getBallY();
-		float goalX = 65, goalY = 235;
+		float goalX = 65, goalY = 220;
 		if (targetX == 0 || targetY == 0 || robotX == 0 || robotY == 0
-				|| robotO == 0
-				|| Math.hypot(robotX - targetX, robotY - targetY) < 30) {
+				|| robotO == 0) {
 			worldState.setMoveR(0);
 			synchronized (controlThread) {
 				controlThread.operation = Operation.DO_NOTHING;
@@ -39,37 +38,35 @@ public class AttackerStrategy implements WorldStateReceiver {
 			return;
 		}
 
-		double robotRad = Math.toRadians(robotO);
-		double targetRad = Math.atan2(targetY - robotY, targetX - robotX);
-		double goalRad = Math.atan2(goalY - robotY, goalX - robotX);
-		if (robotRad > Math.PI)
-			robotRad -= 2 * Math.PI;
-
-		double ang1 = targetRad - robotRad;
-		while (ang1 > Math.PI)
-			ang1 -= 2 * Math.PI;
-		while (ang1 < -Math.PI)
-			ang1 += 2 * Math.PI;
-
-		double dist = Math.hypot(robotX - targetX, robotY - targetY);
 		synchronized (controlThread) {
 			controlThread.operation = Operation.DO_NOTHING;
 			if (!ballCaught) {
-				if (Math.abs(ang1) > Math.PI / 16) {
+				double ang1 = calculateAngle(robotX, robotY, robotO, targetX,
+						targetY);
+				double dist = Math.hypot(robotX - targetX, robotY - targetY);
+				if (Math.abs(ang1) > Math.PI / 20) {
 					controlThread.operation = Operation.ROTATE;
 					controlThread.rotateBy = (int) Math.toDegrees(ang1);
 				} else {
-					if (dist > 40) {
+					if (dist > 37) {
 						controlThread.operation = Operation.TRAVEL;
 						controlThread.travelDist = (int) (dist * 3);
 						controlThread.travelSpeed = (int) (dist * 2);
 					} else {
 						controlThread.operation = Operation.CATCH;
-						ballCaught = true;
+						//ballCaught = true;
 					}
 				}
 			} else {
-				
+				double ang1 = calculateAngle(robotX, robotY, robotO, goalX,
+						goalY);
+				if (Math.abs(ang1) > Math.PI / 20) {
+					controlThread.operation = Operation.ROTATE;
+					controlThread.rotateBy = (int) Math.toDegrees(ang1);
+				} else {
+					controlThread.operation = Operation.KICK;
+					//ballCaught = faspeedlse;
+				}
 			}
 		}
 	}
@@ -107,18 +104,21 @@ public class AttackerStrategy implements WorldStateReceiver {
 
 					switch (op) {
 					case DO_NOTHING:
+						
 						break;
 					case CATCH:
 						brick.robotCatch();
+						ballCaught = true;
 						break;
 					case PREPARE_CATCH:
 						brick.robotPrepCatch();
 						break;
 					case KICK:
 						brick.robotKick(600);
+						ballCaught = false;
 						break;
 					case ROTATE:
-						brick.robotRotateBy(rotateBy);
+						brick.robotRotateBy(rotateBy, Math.abs(rotateBy) / 3);
 						break;
 					case TRAVEL:
 						brick.robotPrepCatch();
@@ -143,5 +143,21 @@ public class AttackerStrategy implements WorldStateReceiver {
 
 		}
 
+	}
+
+	public static double calculateAngle(float robotX, float robotY,
+			float robotOrientation, float targetX, float targetY) {
+		double robotRad = Math.toRadians(robotOrientation);
+		double targetRad = Math.atan2(targetY - robotY, targetX - robotX);
+
+		if (robotRad > Math.PI)
+			robotRad -= 2 * Math.PI;
+
+		double ang1 = targetRad - robotRad;
+		while (ang1 > Math.PI)
+			ang1 -= 2 * Math.PI;
+		while (ang1 < -Math.PI)
+			ang1 += 2 * Math.PI;
+		return ang1;
 	}
 }

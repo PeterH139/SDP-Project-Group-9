@@ -114,29 +114,29 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 
 					// Currently just dummy values: needs calibration
 					speed = (travelDist < 50) ? 40 : 2 * travelDist;
-					brick.robotWheelSpeed(speed);
-
-					if (robotX <= targetX - 10 || robotX >= targetX + 10) {
-						if (rotateBy < 45 && rotateBy > -45) {
-							brick.robotArcForwards(radius, travelDist);
-						} else if (rotateBy >= 45 || rotateBy <= -45) {
-							if (rotateBy >= 150) {
-								brick.robotRotateBy(rotateBy - 180);
-								brick.robotTravel(-travelDist,50);
-							} else if (rotateBy <= -150) {
-								brick.robotRotateBy(rotateBy + 180);
-								brick.robotTravel(-travelDist,50);
-							}
-							brick.robotRotateBy(rotateBy);
-							brick.robotTravel(travelDist,50);
-						}
-					} else {
-						brick.robotStop();
-					}
+//					brick.robotWheelSpeed(speed);
+//
+//					if (robotX <= targetX - 10 || robotX >= targetX + 10) {
+//						if (rotateBy < 45 && rotateBy > -45) {
+//							brick.robotArcForwards(radius, travelDist);
+//						} else if (rotateBy >= 45 || rotateBy <= -45) {
+//							if (rotateBy >= 150) {
+//								brick.robotRotateBy(rotateBy - 180);
+//								brick.robotTravel(-travelDist,50);
+//							} else if (rotateBy <= -150) {
+//								brick.robotRotateBy(rotateBy + 180);
+//								brick.robotTravel(-travelDist,50);
+//							}
+//							brick.robotRotateBy(rotateBy);
+//							brick.robotTravel(travelDist,50);
+//						}
+//					} else {
+//						brick.robotStop();
+//					}
 					Thread.sleep(400);
 				}
-			} catch (IOException e) {
-				e.printStackTrace();
+//			} catch (IOException e) {
+//				e.printStackTrace();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

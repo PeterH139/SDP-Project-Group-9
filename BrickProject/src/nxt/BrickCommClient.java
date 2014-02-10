@@ -68,7 +68,7 @@ public class BrickCommClient {
 		rc.getMovementController().kick(speed);
 		kickerState = 0;
 	}
-	private void handlePrepCatcher(int state) throws IOException {
+	private void handlePrepCatcher() throws IOException {
 		System.out.println("Preparing Catcher");
 		if (kickerState == 0)
 			rc.getMovementController().liftKicker();
@@ -84,6 +84,8 @@ public class BrickCommClient {
 	
 	private void handleRotateBy() throws IOException {
 		int angle = pcInput.readInt();
+		double speed = pcInput.readDouble();
+		rc.getMovementController().setRotateSpeed(speed);
 		rc.getMovementController().rotate(angle);
 	}
 
@@ -91,11 +93,6 @@ public class BrickCommClient {
 		double radius = pcInput.readDouble();
 		int distance = pcInput.readInt();
 		rc.getMovementController().travelArc(radius, distance, true);
-	}
-	
-	public void handleWheelSpeed() throws IOException {
-		double speed = pcInput.readDouble();
-		rc.getMovementController().setRotateSpeed(speed);
 	}
 	
 	private void handleTravel() throws IOException {
@@ -146,10 +143,7 @@ public class BrickCommClient {
 					handleTravel();
 					break;
 				case RobotOpcode.APPROACHING_BALL:
-					handlePrepCatcher(kickerState);
-					break;
-				case RobotOpcode.WHEEL_SPEED:
-					handleWheelSpeed();
+					handlePrepCatcher();
 					break;
 				case RobotOpcode.CATCH:
 					handleCatch();
@@ -177,7 +171,7 @@ public class BrickCommClient {
 			@Override
 			public void buttonReleased(Button b) {
 				System.exit(0);
-			}
+			}  
 			
 			@Override
 			public void buttonPressed(Button b) {

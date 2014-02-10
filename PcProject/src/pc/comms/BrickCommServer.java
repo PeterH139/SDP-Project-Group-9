@@ -113,14 +113,9 @@ public class BrickCommServer {
 		brickOutput.flush();
 	}
 
-	public void robotRotateBy(int angle) throws IOException {
+	public void robotRotateBy(int angle, double speed) throws IOException {
 		brickOutput.writeInt(RobotOpcode.ROTATE_BY);
 		brickOutput.writeInt(angle);
-		brickOutput.flush();
-	}
-	
-	public void robotWheelSpeed(double speed) throws IOException {
-		brickOutput.writeInt(RobotOpcode.WHEEL_SPEED);
 		brickOutput.writeDouble(speed);
 		brickOutput.flush();
 	}
