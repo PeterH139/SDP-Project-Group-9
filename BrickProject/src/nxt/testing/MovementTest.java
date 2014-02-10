@@ -21,7 +21,7 @@ public class MovementTest {
 		striker.steer(10,90);
 		while (!(Button.ESCAPE.isDown())) {
 		while (count < 50) {
-			LCD.drawString(striker.getLeftTacho() + " " + striker.getRightTacho(),0,1);
+//			LCD.drawString(striker.getLeftTacho() + " " + striker.getRightTacho(),0,1);
 			LCD.drawString(" Travelled: " + striker.getMovementIncrement(), 0, 2);
 			striker.backward();
 
@@ -35,7 +35,7 @@ public class MovementTest {
 		striker.rotate(90);
 		
 		while (count > 49 && count < 100) {
-			LCD.drawString(striker.getLeftTacho() + " " + striker.getRightTacho(),0,1);
+//			LCD.drawString(striker.getLeftTacho() + " " + striker.getRightTacho(),0,1);
 			LCD.drawString(" Travelled: " + striker.getMovementIncrement(), 0, 2);
 			striker.forward();
 			
@@ -48,7 +48,7 @@ public class MovementTest {
 		striker.rotate(30);
 		
 		while (count > 99 && count < 150) {
-			LCD.drawString(striker.getLeftTacho() + " " + striker.getRightTacho(),0,1);
+//			LCD.drawString(striker.getLeftTacho() + " " + striker.getRightTacho(),0,1);
 			LCD.drawString(" Travelled: " + striker.getMovementIncrement(), 0, 2);
 			striker.backward();
 			
