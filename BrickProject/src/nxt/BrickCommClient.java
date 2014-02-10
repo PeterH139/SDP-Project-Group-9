@@ -98,11 +98,18 @@ public class BrickCommClient {
 	public void handleWheelSpeed() throws IOException {
 		double speed = pcInput.readDouble();
 		rc.getMovementController().setTravelSpeed(speed);
+		rc.getMovementController().setRotateSpeed(speed);
 	}
 	
 	private void handleTravel() throws IOException {
 		int distance = pcInput.readInt();
 		rc.getMovementController().travel(distance, false);	
+		pcOutput.writeBoolean(true);
+		pcOutput.flush();
+	}
+	
+	private void handleTest() throws IOException {
+		System.out.println("Testing Bluetooth");
 		pcOutput.writeBoolean(true);
 		pcOutput.flush();
 	}
@@ -149,6 +156,9 @@ public class BrickCommClient {
 					break;
 				case RobotOpcode.CATCH:
 					handleCatch();
+					break;
+				case RobotOpcode.TEST:
+					handleTest();
 					break;
 				
 				case RobotOpcode.QUIT:

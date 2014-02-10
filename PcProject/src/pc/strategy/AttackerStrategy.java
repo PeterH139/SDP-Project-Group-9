@@ -30,7 +30,7 @@ public class AttackerStrategy implements WorldStateReceiver {
 		double robotO = worldState.getYellowOrientation();
 		int targetX = worldState.getBallX(), targetY = worldState
 				.getBallY();
-System.out.println(robotO);
+	System.out.println(robotO);
 		if (targetX == 0 || targetY == 0 || robotX == 0 || robotY == 0
 				|| robotO == 0
 				|| Math.hypot(robotX - targetX, robotY - targetY) < 10) {

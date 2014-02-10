@@ -14,6 +14,8 @@ import org.apache.commons.cli.ParseException;
 import pc.comms.BrickCommServer;
 import pc.comms.BtInfo;
 import pc.strategy.AttackerStrategy;
+import pc.strategy.InterceptorStrategy;
+import pc.strategy.StrategySelector;
 import pc.strategy.TargetFollowerStrategy;
 import pc.vision.gui.VisionGUI;
 import pc.vision.gui.tools.ColourThresholdConfigTool;
@@ -119,6 +121,7 @@ public class RunVision {
 					pitchConstants));
 			
 			if (enableBluetooth) {
+<<<<<<< HEAD
 				AttackerStrategy as = new AttackerStrategy(bcs);
 				as.startControlThread();
 //				 TargetFollowerStrategy tfs = new TargetFollowerStrategy(bcs);
@@ -126,6 +129,14 @@ public class RunVision {
 //				InterceptorStrategy ic = new InterceptorStrategy(bcs);
 //				ic.startControlThread();
 				vision.addWorldStateReceiver(as);
+=======
+				TargetFollowerStrategy tfs = new TargetFollowerStrategy(bcs);
+				tfs.startControlThread();
+//				InterceptorStrategy ic = new InterceptorStrategy(bcs);
+//				ic.startControlThread();
+				vision.addWorldStateReceiver(tfs);
+//				vision.addWorldStateReceiver(StrategySelector.selector(bcs, worldState));
+>>>>>>> 27af62ffff7695a4c9960111b9f180601c9a72af
 			}
 
 			vStream.addReceiver(distortionFix);
