@@ -98,6 +98,7 @@ public class BrickCommClient {
 	public void handleWheelSpeed() throws IOException {
 		double speed = pcInput.readDouble();
 		rc.getMovementController().setTravelSpeed(speed);
+		rc.getMovementController().setRotateSpeed(speed);
 	}
 	
 	private void handleTravel() throws IOException {

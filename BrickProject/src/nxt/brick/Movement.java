@@ -4,7 +4,7 @@ import lejos.nxt.Motor;
 import lejos.nxt.NXTRegulatedMotor;
 import lejos.robotics.navigation.DifferentialPilot;
 
-/**
+/*
  * The Movement class. Handles the actual driving and movement of the robot, once
  * BrickController has processed the commands.
  * 
@@ -22,7 +22,7 @@ public class Movement extends DifferentialPilot {
 	static NXTRegulatedMotor KICKER = Motor.A;
 	static final int TYRE_DIAMETER = 56;
 
-	public int maxPilotSpeed = 50;					// 90 for tests
+	public int maxPilotSpeed = 200;					// 90 for tests
 
 	// TODO: potential changes to be made here due to different robots
 	public static final int MAXIMUM_KICKER_SPEED = (int) KICKER.getMaxSpeed();
