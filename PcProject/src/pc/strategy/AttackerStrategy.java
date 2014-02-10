@@ -40,13 +40,14 @@ public class AttackerStrategy implements WorldStateReceiver {
 
 		synchronized (controlThread) {
 			controlThread.operation = Operation.DO_NOTHING;
+		
 			if (!ballCaught) {
 				double ang1 = calculateAngle(robotX, robotY, robotO, targetX,
 						targetY);
 				double dist = Math.hypot(robotX - targetX, robotY - targetY);
-				if (Math.abs(ang1) > Math.PI / 20) {
+				if (Math.abs(ang1) > Math.PI / 16) {
 					controlThread.operation = Operation.ROTATE;
-					controlThread.rotateBy = (int) Math.toDegrees(ang1);
+					controlThread.rotateBy = (int) Math.toDegrees(ang1 * 0.8);
 				} else {
 					if (dist > 37) {
 						controlThread.operation = Operation.TRAVEL;
@@ -54,7 +55,6 @@ public class AttackerStrategy implements WorldStateReceiver {
 						controlThread.travelSpeed = (int) (dist * 2);
 					} else {
 						controlThread.operation = Operation.CATCH;
-						//ballCaught = true;
 					}
 				}
 			} else {
@@ -62,14 +62,14 @@ public class AttackerStrategy implements WorldStateReceiver {
 						goalY);
 				if (Math.abs(ang1) > Math.PI / 20) {
 					controlThread.operation = Operation.ROTATE;
-					controlThread.rotateBy = (int) Math.toDegrees(ang1);
+					controlThread.rotateBy = (int) Math.toDegrees(ang1 * 0.8);
 				} else {
 					controlThread.operation = Operation.KICK;
-					//ballCaught = faspeedlse;
 				}
 			}
 		}
-	}
+		}
+	
 
 	public enum Operation {
 		DO_NOTHING, TRAVEL, ROTATE, PREPARE_CATCH, CATCH, KICK,
