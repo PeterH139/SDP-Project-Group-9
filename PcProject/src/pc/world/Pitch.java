@@ -46,4 +46,5 @@ public class Pitch {
 		public AttackerFieldArea enemyAttackField, attackField;
 		public DefenderFieldArea enemyDefenderField, defenderField;
 		public GoalArea enemyGoalArea, goalArea;
+
 }

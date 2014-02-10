@@ -9,15 +9,12 @@ package pc.world;
 public class MovingObject {
 	//x,y, representation on the grid
 	//x,y are mm representations
-	public int x;
-	public int y;
+	public float x;
+	public float y;
 	
 	public double velocity;
 	
 	//Orientation coordinates
-	//TODO: possibly unneeded?
-	public double angular_x;
-	public double angular_y;
 	public float orientation_angle;
 	
 	/**
@@ -26,7 +23,7 @@ public class MovingObject {
 	 * @param y represents the Y coordinate
 	 * @param angle represents the orientation angle of the object
 	 * */
-	public MovingObject(int x, int y, float angle){
+	public MovingObject(float x, float y, float angle){
 		this.x = x;
 		this.y = y;
 		this.orientation_angle = angle;
@@ -37,7 +34,7 @@ public class MovingObject {
 	 * @param x represents the X coordinate
 	 * @param y represents the Y coordinate
 	 * */
-	public MovingObject(int x, int y){
+	public MovingObject(float x, float y){
 		this.x = x;
 		this.y = y;
 	}
