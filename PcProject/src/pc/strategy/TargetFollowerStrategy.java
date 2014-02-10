@@ -22,7 +22,7 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 
 	@Override
 	public void sendWorldState(WorldState worldState) {
-		int robotX = worldState.getYellowX(), robotY = worldState.getYellowY();
+		float robotX = worldState.getYellowX(), robotY = worldState.getYellowY();
 		double robotO = worldState.getYellowOrientation();
 		int targetX = worldState.getRobotTargetX(), targetY = worldState
 				.getRobotTargetY();
@@ -89,8 +89,8 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 		public int rotateBy = 0;
 		public double radius = Double.POSITIVE_INFINITY;
 		public int travelDist = 0;
-		public int targetX = 0;
-		public int robotX = 0;
+		public float targetX = 0;
+		public float robotX = 0;
 
 		public ControlThread() {
 			super("Robot control thread");
@@ -101,7 +101,8 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 		public void run() {
 			try {
 				while (true) {
-					int travelDist, rotateBy, targetX, robotX;
+					int travelDist, rotateBy;
+					float targetX, robotX;
 					double radius, speed;
 					synchronized (this) {
 						rotateBy = this.rotateBy;
@@ -121,13 +122,13 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 						} else if (rotateBy >= 45 || rotateBy <= -45) {
 							if (rotateBy >= 150) {
 								brick.robotRotateBy(rotateBy - 180);
-								brick.robotTravel(-travelDist);
+								brick.robotTravel(-travelDist,50);
 							} else if (rotateBy <= -150) {
 								brick.robotRotateBy(rotateBy + 180);
-								brick.robotTravel(-travelDist);
+								brick.robotTravel(-travelDist,50);
 							}
 							brick.robotRotateBy(rotateBy);
-							brick.robotTravel(travelDist);
+							brick.robotTravel(travelDist,50);
 						}
 					} else {
 						brick.robotStop();
