@@ -24,11 +24,11 @@ public class AttackerStrategy implements WorldStateReceiver {
 
 	@Override
 	public void sendWorldState(WorldState worldState) {
-		int robotX = worldState.GetAttackerRobot().x, robotY = worldState
+		float robotX = worldState.GetAttackerRobot().x, robotY = worldState
 				.GetAttackerRobot().y;
 		double robotO = worldState.GetAttackerRobot().orientation_angle;
-		int targetX = worldState.getBallX(), targetY = worldState.getBallY();
-		int goalX = 65, goalY = 235;
+		float targetX = worldState.getBallX(), targetY = worldState.getBallY();
+		float goalX = 65, goalY = 235;
 		if (targetX == 0 || targetY == 0 || robotX == 0 || robotY == 0
 				|| robotO == 0
 				|| Math.hypot(robotX - targetX, robotY - targetY) < 30) {

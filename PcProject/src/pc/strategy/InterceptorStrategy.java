@@ -1,12 +1,12 @@
 package pc.strategy;
 
 import java.io.IOException;
-
 import java.util.ArrayDeque;
 import java.util.Deque;
 
 import pc.comms.BrickCommServer;
 import pc.vision.Position;
+import pc.vision.Vector2f;
 import pc.vision.interfaces.WorldStateReceiver;
 import pc.world.WorldState;
 
@@ -18,7 +18,7 @@ public class InterceptorStrategy implements WorldStateReceiver {
 
 	private BrickCommServer brick;
 	private ControlThread controlThread;
-	private Deque<Position> ballPositions = new ArrayDeque<Position>();
+	private Deque<Vector2f> ballPositions = new ArrayDeque<Vector2f>();
 	private int tempBottomY = 365;
 	private int tempTopY = 103;
 
@@ -33,17 +33,16 @@ public class InterceptorStrategy implements WorldStateReceiver {
 
 	@Override
 	public void sendWorldState(WorldState worldState) {
-		int robotX = worldState.getYellowX(), robotY = worldState.getYellowY();
+		float robotX = worldState.getYellowX(), robotY = worldState.getYellowY();
 		double robotO = worldState.getYellowOrientation();
-		ballPositions.addLast(new Position(worldState.getBallX(), worldState
+		ballPositions.addLast(new Vector2f(worldState.getBallX(), worldState
 				.getBallY()));
 		if (ballPositions.size() > 3)
 			ballPositions.removeFirst();
 
-		Position ball5FramesAgo = ballPositions.getFirst();
-		int ballX1 = ball5FramesAgo.getX(), ballY1 = ball5FramesAgo.getY();
-
-		int ballX2 = worldState.getBallX(), ballY2 = worldState.getBallY();
+		Vector2f ball5FramesAgo = ballPositions.getFirst();
+		float ballX1 = ball5FramesAgo.x, ballY1 = ball5FramesAgo.y;
+		float ballX2 = worldState.getBallX(), ballY2 = worldState.getBallY();
 
 		double slope = (ballY2 - ballY1) / ((ballX2 - ballX1) + 0.0001);
 		double c = ballY1 - slope * ballX1;
@@ -73,7 +72,7 @@ public class InterceptorStrategy implements WorldStateReceiver {
 		// ang1 ang1 += 2 * Math.PI;
 		//
 		
-		int dist;
+		float dist;
 		int rotateBy = 0;
 		if (targetY > tempBottomY) {
 			targetY = tempBottomY - 15;
@@ -129,7 +128,7 @@ public class InterceptorStrategy implements WorldStateReceiver {
 					if (rotateBy != 0) {
 						brick.robotRotateBy(rotateBy);
 					} else if (travelDist != 0) {
-						brick.robotTravel(travelDist);
+						brick.robotTravel(travelDist,25);
 					}
 					Thread.sleep(400);
 				}

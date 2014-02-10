@@ -106,9 +106,9 @@ public class Vision implements VideoReceiver {
 	 * 
 	 * @author Peter Henderson (s1117205)
 	 */
-	public Position calculatePosition(ArrayList<Position> points) {
+	public Vector2f calculatePosition(ArrayList<Position> points) {
 		if (points.size() < 10) {
-			return new Position(0, 0);
+			return new Vector2f(0, 0);
 		} else {
 			int xsum = 0;
 			int ysum = 0;
@@ -116,9 +116,9 @@ public class Vision implements VideoReceiver {
 				xsum += p.getX();
 				ysum += p.getY();
 			}
-			int xmean = xsum / points.size();
-			int ymean = ysum / points.size();
-			return new Position(xmean, ymean);
+			float xmean = 1.0f * xsum / points.size();
+			float ymean = 1.0f * ysum / points.size();
+			return new Vector2f(xmean, ymean);
 		}
 	}
 

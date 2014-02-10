@@ -8,63 +8,63 @@ package pc.world;
 
 public class WorldState {
 
-	int ballX, ballY;
-	int blueX, blueY;
-	int greenX, greenY;
-	int yellowX, yellowY;
+	float ballX, ballY;
+	float blueX, blueY;
+	float greenX, greenY;
+	float yellowX, yellowY;
 	
 	int robotTargetX, robotTargetY;
 	double moveX, moveY, moveR;
 	
 	double ballXVelocity, ballYVelocity;
 	double blueXVelocity, blueYVelocity, blueOrientation;
-	double yellowXVelocity, yellowYVelocity, yellowOrientation;
-	public int getBallX() {
+	double yellowXVelocity, yellowYVelocity, yellowOrientation;	
+	public float getBallX() {
 		return ballX;
 	}
-	public void setBallX(int ballX) {
+	public void setBallX(float ballX) {
 		this.ballX = ballX;
 	}
-	public int getBallY() {
+	public float getBallY() {
 		return ballY;
 	}
-	public void setBallY(int ballY) {
+	public void setBallY(float ballY) {
 		this.ballY = ballY;
 	}
-	public int getBlueX() {
+	public float getBlueX() {
 		return blueX;
 	}
-	public void setBlueX(int blueX) {
+	public void setBlueX(float blueX) {
 		this.blueX = blueX;
 	}
-	public int getBlueY() {
+	public float getBlueY() {
 		return blueY;
 	}
-	public void setBlueY(int blueY) {
+	public void setBlueY(float blueY) {
 		this.blueY = blueY;
 	}
-	public int getGreenX() {
+	public float getGreenX() {
 		return greenX;
 	}
-	public void setGreenX(int greenX) {
+	public void setGreenX(float greenX) {
 		this.greenX = greenX;
 	}
-	public int getGreenY() {
+	public float getGreenY() {
 		return greenY;
 	}
-	public void setGreenY(int greenY) {
+	public void setGreenY(float greenY) {
 		this.greenY = greenY;
 	}
-	public int getYellowX() {
+	public float getYellowX() {
 		return yellowX;
 	}
-	public void setYellowX(int yellowX) {
+	public void setYellowX(float yellowX) {
 		this.yellowX = yellowX;
 	}
-	public int getYellowY() {
+	public float getYellowY() {
 		return yellowY;
 	}
-	public void setYellowY(int yellowY) {
+	public void setYellowY(float yellowY) {
 		this.yellowY = yellowY;
 	}
 	public double getBallXVelocity() {
