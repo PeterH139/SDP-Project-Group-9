@@ -33,7 +33,7 @@ public class RobotRecogniser implements ObjectRecogniser {
 				- this.pitchConstants.getPitchWidth();
 		int[] dividers = this.pitchConstants.getDividers();
 	
-		boolean leftBlueFirst = false; // TODO: calculate this from the appropriate location
+		boolean leftBlueFirst = true; // TODO: calculate this from the appropriate location
 		if (leftBlueFirst) {
 			// In order, ltr: Blue Defender, Yellow Attacker, Blue Attacker,
 			// Yellow Defender

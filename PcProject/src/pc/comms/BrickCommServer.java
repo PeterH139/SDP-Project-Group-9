@@ -117,7 +117,6 @@ public class BrickCommServer {
 		brickOutput.writeInt(RobotOpcode.ROTATE_BY);
 		brickOutput.writeInt(angle);
 		brickOutput.flush();
-		brickInput.readBoolean();
 	}
 	
 	public void robotWheelSpeed(double speed) throws IOException {
@@ -134,11 +133,12 @@ public class BrickCommServer {
 		brickOutput.flush();
 	}
 
-	public void robotTravel(int distance) throws IOException {
+	public void robotTravel(int distance, int travelSpeed) throws IOException {
 		brickOutput.writeInt(RobotOpcode.TRAVEL);
 		brickOutput.writeInt(distance);
+		brickOutput.writeInt(travelSpeed);
 		brickOutput.flush();
-		brickInput.readBoolean();
+		//brickInput.readBoolean();
 	}
 	
 	public boolean robotTest() throws IOException {
@@ -150,7 +150,7 @@ public class BrickCommServer {
 
 	public static void main(String[] args) throws NXTCommException {
 		BrickCommServer bcs = new BrickCommServer();
-		bcs.guiConnect(BtInfo.MEOW);
+		bcs.guiConnect(BtInfo.group10);
 		GUIClient client = bcs.new GUIClient();
 		client.setVisible(true);
 	}

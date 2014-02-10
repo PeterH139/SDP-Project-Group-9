@@ -85,8 +85,6 @@ public class BrickCommClient {
 	private void handleRotateBy() throws IOException {
 		int angle = pcInput.readInt();
 		rc.getMovementController().rotate(angle);
-		pcOutput.writeBoolean(true);
-		pcOutput.flush();
 	}
 
 	private void handleArcForwards() throws IOException {
@@ -97,15 +95,14 @@ public class BrickCommClient {
 	
 	public void handleWheelSpeed() throws IOException {
 		double speed = pcInput.readDouble();
-		rc.getMovementController().setTravelSpeed(speed);
 		rc.getMovementController().setRotateSpeed(speed);
 	}
 	
 	private void handleTravel() throws IOException {
 		int distance = pcInput.readInt();
-		rc.getMovementController().travel(distance, false);	
-		pcOutput.writeBoolean(true);
-		pcOutput.flush();
+		int speed = pcInput.readInt();
+		rc.getMovementController().setTravelSpeed(speed);
+		rc.getMovementController().travel(distance, true);	
 	}
 	
 	private void handleTest() throws IOException {
