@@ -17,6 +17,7 @@ public class BallRecogniser implements ObjectRecogniser {
 	private Vision vision;
 	private WorldState worldState;
 	private PitchConstants pitchConstants;
+	private Position previousBallPosition = new Position(0,0);
 
 	public BallRecogniser(Vision vision, WorldState worldState,
 			PitchConstants pitchConstants) {
@@ -50,16 +51,17 @@ public class BallRecogniser implements ObjectRecogniser {
 			}
 		}
 
-		Position ball = vision.calculatePosition(ballPoints);
+		Position ballPosition = vision.calculatePosition(ballPoints);
 
 		debugGraphics.setColor(Color.red);
-		debugGraphics.drawLine(0, ball.getY(), 640, ball.getY());
-		debugGraphics.drawLine(ball.getX(), 0, ball.getX(), 480);
+		debugGraphics.drawLine(0, ballPosition.getY(), 640, ballPosition.getY());
+		debugGraphics.drawLine(ballPosition.getX(), 0, ballPosition.getX(), 480);
 
-		worldState.setBallX(ball.getX());
-		worldState.setBallY(ball.getY());
+		worldState.setBallX(ballPosition.getX());
+		worldState.setBallY(ballPosition.getY());
 
-		MovingObject ball_m = new MovingObject(ball.getX(), ball.getY());
+		previousBallPosition = ballPosition;
+		MovingObject ball_m = new MovingObject(ballPosition.getX(), ballPosition.getY());
 		worldState.SetBall(ball_m);
 	}
 
