@@ -24,16 +24,19 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 	public void sendWorldState(WorldState worldState) {
 		int robotX = worldState.getYellowX(), robotY = worldState.getYellowY();
 		double robotO = worldState.getYellowOrientation();
-		int targetX = worldState.getRobotTargetX(), targetY = worldState.getRobotTargetY();
+		int targetX = worldState.getRobotTargetX(), targetY = worldState
+				.getRobotTargetY();
 
 		if (targetX == 0 || targetY == 0 || robotX == 0 || robotY == 0
 				|| robotO == 0
 				|| Math.hypot(robotX - targetX, robotY - targetY) < 10) {
 			worldState.setMoveR(0);
 			synchronized (controlThread) {
-				controlThread.rotateBy  = 0;
+				controlThread.rotateBy = 0;
 				controlThread.travelDist = 0;
 				controlThread.radius = Double.POSITIVE_INFINITY;
+				controlThread.targetX = targetX;
+				controlThread.robotX = robotX;
 			}
 			return;
 		}
@@ -49,27 +52,35 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 			ang1 -= 2 * Math.PI;
 		while (ang1 < -Math.PI)
 			ang1 += 2 * Math.PI;
-		
-		double dist = Math.hypot(robotX - targetX, robotY - targetY);
 
-		double radius = Math.hypot(robotX - targetX, robotY - targetY)
+		double dist = Math.hypot(targetX - robotX, targetY - robotY);
+
+		double radius = Math.hypot(targetX - robotX, targetY - robotY)
 				/ (2 * Math.sin(ang1));
-		
+
+		/*
+		 * Potential alteration for keeper strategy
+		 * 
+		 * Take the radius from when the Striker is shooting. radius =
+		 * Math.hypot(robotX - targetX, robotY - targetY) / 2;
+		 * 
+		 * Upon shooting move round this arc in order to close the angle down.
+		 */
+
 		worldState.setMoveR(radius);
 		worldState.setMoveX(robotX + radius * Math.cos(robotRad + Math.PI / 2));
 		worldState.setMoveY(robotY + radius * Math.sin(robotRad + Math.PI / 2));
 		System.out.println(Math.toDegrees(ang1));
- 
+
 		synchronized (controlThread) {
 			controlThread.rotateBy = 0;
-			controlThread.travelDist = 0;
-			controlThread.radius = -radius;
+			controlThread.radius = radius;
+			controlThread.travelDist = (int) (dist * 3);
+			controlThread.targetX = targetX;
+			controlThread.robotX = robotX;
 
 			if (Math.abs(ang1) > Math.PI / 16) {
-				controlThread.rotateBy =  (int) Math.toDegrees(-ang1 * 0.8);
-			}
-			else {
-				controlThread.travelDist = (int) (-dist * 3);
+				controlThread.rotateBy = (int) Math.toDegrees(ang1);
 			}
 		}
 	}
@@ -78,6 +89,8 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 		public int rotateBy = 0;
 		public double radius = Double.POSITIVE_INFINITY;
 		public int travelDist = 0;
+		public int targetX = 0;
+		public int robotX = 0;
 
 		public ControlThread() {
 			super("Robot control thread");
@@ -88,26 +101,40 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 		public void run() {
 			try {
 				while (true) {
-					int travelDist;
-					int rotateBy;
-					double radius;
-					double speed = 50;
+					int travelDist, rotateBy, targetX, robotX;
+					double radius, speed;
 					synchronized (this) {
 						rotateBy = this.rotateBy;
 						radius = this.radius;
 						travelDist = this.travelDist;
+						targetX = this.targetX;
+						robotX = this.robotX;
 					}
+
+					// Currently just dummy values: needs calibration
+					speed = (travelDist < 50) ? 40 : 2 * travelDist;
 					brick.robotWheelSpeed(speed);
-					if (rotateBy < 60) {
-						brick.robotArcForwards(radius,travelDist);
-					} else if( rotateBy >= 60){
-						brick.robotRotateBy(rotateBy);
-						brick.robotTravel(travelDist);
+
+					if (robotX <= targetX - 10 || robotX >= targetX + 10) {
+						if (rotateBy < 45 && rotateBy > -45) {
+							brick.robotArcForwards(radius, travelDist);
+						} else if (rotateBy >= 45 || rotateBy <= -45) {
+							if (rotateBy >= 150) {
+								brick.robotRotateBy(rotateBy - 180);
+								brick.robotTravel(-travelDist);
+							} else if (rotateBy <= -150) {
+								brick.robotRotateBy(rotateBy + 180);
+								brick.robotTravel(-travelDist);
+							}
+							brick.robotRotateBy(rotateBy);
+							brick.robotTravel(travelDist);
+						}
+					} else {
+						brick.robotStop();
 					}
-					Thread.sleep(300);
+					Thread.sleep(400);
 				}
-			}
-			catch (IOException e) {
+			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (InterruptedException e) {
 				e.printStackTrace();

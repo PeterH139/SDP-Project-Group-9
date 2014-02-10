@@ -53,7 +53,7 @@ public class AttackerStrategy implements WorldStateReceiver {
 		while (ang1 < -Math.PI)
 			ang1 += 2 * Math.PI;
 		
-		double dist = Math.hypot(robotX - targetX, robotY - targetY);
+		double dist = Math.hypot(targetX - robotX, targetY - robotY);
 
 		synchronized (controlThread) {
 			controlThread.rotateBy = 0;
@@ -82,25 +82,24 @@ public class AttackerStrategy implements WorldStateReceiver {
 		public void run() {
 			try {
 				while (!ballCaught && insideArea) {
-					int travelDist, angleToBall;
+					int travelDist, rotateBy;
+					double speed;
 					synchronized (this) {
-					angleToBall = this.rotateBy;
+					rotateBy = this.rotateBy;
 					travelDist = this.travelDist;
+					}
+					// Currently just dummy values: needs calibration 
+					speed = (travelDist < 50) ? 50 : 5 * travelDist; 
+					brick.robotWheelSpeed(speed);
 					if (travelDist < 10) {
 						brick.robotCatch();
 						ballCaught = true;
 					}
-					if (angleToBall != 0) {
+					if (rotateBy != 0) {
 						brick.robotKick(700);
-						brick.robotPrepCatch();
-//						brick.robotManoeuvre(angleToBall);
-//						if (travelDist  0) {
-//							brick.robotTravel(travelDist);
-//						}
-						
+						brick.robotPrepCatch();	
 					}
 					Thread.sleep(300);
-					}
 				}
 				while (ballCaught)
 				{
