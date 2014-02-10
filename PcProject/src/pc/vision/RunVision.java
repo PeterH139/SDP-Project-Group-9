@@ -14,9 +14,6 @@ import org.apache.commons.cli.ParseException;
 import pc.comms.BrickCommServer;
 import pc.comms.BtInfo;
 import pc.strategy.AttackerStrategy;
-import pc.strategy.InterceptorStrategy;
-import pc.strategy.StrategySelector;
-import pc.strategy.TargetFollowerStrategy;
 import pc.vision.gui.VisionGUI;
 import pc.vision.gui.tools.ColourThresholdConfigTool;
 import pc.vision.gui.tools.HistogramTool;
@@ -24,8 +21,6 @@ import pc.vision.recognisers.BallRecogniser;
 import pc.vision.recognisers.RobotRecogniser;
 import pc.world.WorldState;
 import au.edu.jcu.v4l4j.V4L4JConstants;
-//import strategy.calculations.GoalInfo;
-//import world.state.WorldState;
 
 /**
  * The main class used to run the vision system. Creates the control GUI, and

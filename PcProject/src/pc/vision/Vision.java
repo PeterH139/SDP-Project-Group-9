@@ -91,7 +91,6 @@ public class Vision implements VideoReceiver {
 		
 		for (ObjectRecogniser recogniser : recognisers) 
 			recogniser.processFrame(pixels, frame, debugGraphics, debugOverlay);
-
 		for (VisionDebugReceiver receiver : this.visionDebugReceivers)
 			receiver.sendDebugOverlay(debugOverlay);
 		for (WorldStateReceiver receiver : this.worldStateReceivers)
@@ -121,28 +120,6 @@ public class Vision implements VideoReceiver {
 			int ymean = ysum / points.size();
 			return new Position(xmean, ymean);
 		}
-	}
-
-	/**
-	 * Tests if an integer value is within bounds, or outside bounds if the
-	 * range is inverted
-	 * 
-	 * @param value
-	 *            The value to check
-	 * @param lower
-	 *            The lower bound
-	 * @param upper
-	 *            The upper bound
-	 * @param inverted
-	 *            true if the range is inverted, false otherwise
-	 * @return true if the value is within bounds, false otherwise
-	 */
-	private boolean checkBounds(int value, int lower, int upper,
-			boolean inverted) {
-		if (!inverted)
-			return (lower <= value && value <= upper);
-		else
-			return (upper <= value || value <= lower);
 	}
 
 	/**

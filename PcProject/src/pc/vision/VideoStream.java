@@ -1,8 +1,5 @@
 package pc.vision;
 
-import ij.plugin.filter.GaussianBlur;
-import ij.process.ColorProcessor;
-
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.util.ArrayDeque;
@@ -10,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import pc.vision.interfaces.VideoReceiver;
-
 import au.edu.jcu.v4l4j.CaptureCallback;
 import au.edu.jcu.v4l4j.Control;
 import au.edu.jcu.v4l4j.DeviceInfo;

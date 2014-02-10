@@ -88,7 +88,7 @@ public class Position {
 		}
 
 		// Use old values if not changed much
-		if (sqrdEuclidDist(this, new Position(oldX, oldY)) < 9) {
+		if (squareDist(this, new Position(oldX, oldY)) < 9) {
 			this.setX(oldX);
 			this.setY(oldY);
 		}
@@ -114,7 +114,7 @@ public class Position {
 			for (int i = 0; i < points.size(); ++i) {
 				Position p = points.get(i);
 
-				if (Math.sqrt(sqrdEuclidDist(this, p)) < stdev) {
+				if (Math.sqrt(squareDist(this, p)) < stdev) {
 					newX += p.getX();
 					newY += p.getY();
 					++count;
@@ -155,7 +155,7 @@ public class Position {
 			stdDev *= 1.17;
 			for (int i = 0; i < points.size(); ++i) {
 				Position p = points.get(i);
-				if (Math.sqrt(sqrdEuclidDist(centroid, p)) < stdDev)
+				if (Math.sqrt(squareDist(centroid, p)) < stdDev)
 					goodPoints.add(p);
 			}
 		}
@@ -179,7 +179,7 @@ public class Position {
 
 		// Standard deviation
 		for (int i = 0; i < points.size(); ++i) {
-			variance += sqrdEuclidDist(points.get(i), centroid);
+			variance += squareDist(points.get(i), centroid);
 		}
 
 		return Math.sqrt(variance / (double) (points.size()));
@@ -195,7 +195,7 @@ public class Position {
 	 * 
 	 * @return The squared euclidean distance between the two points.
 	 */
-	public static int sqrdEuclidDist(Position p1, Position p2) {
+	public static int squareDist(Position p1, Position p2) {
 		int xDiff = (p2.getX() - p1.getX());
 		int yDiff = (p2.getY() - p1.getY());
 
