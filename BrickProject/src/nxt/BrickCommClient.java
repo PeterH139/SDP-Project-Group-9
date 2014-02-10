@@ -106,6 +106,12 @@ public class BrickCommClient {
 		pcOutput.writeBoolean(true);
 		pcOutput.flush();
 	}
+	
+	private void handleTest() throws IOException {
+		System.out.println("Testing Bluetooth");
+		pcOutput.writeBoolean(true);
+		pcOutput.flush();
+	}
 
 	public void runController() {
 		try {
@@ -149,6 +155,9 @@ public class BrickCommClient {
 					break;
 				case RobotOpcode.CATCH:
 					handleCatch();
+					break;
+				case RobotOpcode.TEST:
+					handleTest();
 					break;
 				
 				case RobotOpcode.QUIT:

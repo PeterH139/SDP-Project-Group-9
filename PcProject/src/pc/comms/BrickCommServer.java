@@ -140,6 +140,13 @@ public class BrickCommServer {
 		brickOutput.flush();
 		brickInput.readBoolean();
 	}
+	
+	public boolean robotTest() throws IOException {
+		brickOutput.writeInt(RobotOpcode.TEST);
+		brickOutput.flush();
+		boolean robotReceived = brickInput.readBoolean();
+		return robotReceived;
+	}
 
 	public static void main(String[] args) throws NXTCommException {
 		BrickCommServer bcs = new BrickCommServer();

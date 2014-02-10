@@ -14,4 +14,5 @@ public class RobotOpcode {
 	public static final int CATCH = 11;
 	public static final int APPROACHING_BALL = 12;
 	public static final int WHEEL_SPEED = 13;
+	public static final int TEST = 14;
 }
