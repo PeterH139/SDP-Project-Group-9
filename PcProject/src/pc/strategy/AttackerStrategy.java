@@ -10,8 +10,6 @@ public class AttackerStrategy implements WorldStateReceiver {
 
 	private BrickCommServer brick;
 	private ControlThread controlThread;
-	private boolean ballCaught;
-	private boolean insideArea;
 
 	public AttackerStrategy(BrickCommServer brick) {
 		this.brick = brick;
@@ -24,20 +22,16 @@ public class AttackerStrategy implements WorldStateReceiver {
 
 	@Override
 	public void sendWorldState(WorldState worldState) {
-		System.out.println("worked");
-		int robotX = worldState.getYellowX()
-, 			robotY = worldState.getYellowY();
-		double robotO = worldState.getYellowOrientation();
-		int targetX = worldState.getBallX(), targetY = worldState
-				.getBallY();
-	System.out.println(robotO);
+		int robotX = worldState.GetAttackerRobot().x, robotY = worldState
+				.GetAttackerRobot().y;
+		double robotO = worldState.GetAttackerRobot().orientation_angle;
+		int targetX = worldState.getBallX(), targetY = worldState.getBallY();
 		if (targetX == 0 || targetY == 0 || robotX == 0 || robotY == 0
 				|| robotO == 0
-				|| Math.hypot(robotX - targetX, robotY - targetY) < 10) {
+				|| Math.hypot(robotX - targetX, robotY - targetY) < 30) {
 			worldState.setMoveR(0);
 			synchronized (controlThread) {
-				controlThread.rotateBy = 0;
-				controlThread.travelDist = 0;
+				controlThread.operation = Operation.DO_NOTHING;
 			}
 			return;
 		}
@@ -53,70 +47,92 @@ public class AttackerStrategy implements WorldStateReceiver {
 			ang1 -= 2 * Math.PI;
 		while (ang1 < -Math.PI)
 			ang1 += 2 * Math.PI;
-		ballCaught = false;
-		double dist = Math.hypot(robotX - targetX, robotY - targetY);
-		System.out.println(dist * 3 + "ang:  " + ang1);
-		synchronized (controlThread) {
-			controlThread.rotateBy = 0;
-			controlThread.travelDist = 0;
 
+		double dist = Math.hypot(robotX - targetX, robotY - targetY);
+		synchronized (controlThread) {
+			controlThread.operation = Operation.DO_NOTHING;
 			if (Math.abs(ang1) > Math.PI / 16) {
-				controlThread.rotateBy =  (int) Math.toDegrees(-ang1 * 0.8);
-			}
-			else {
-				controlThread.travelDist = (int) (dist * 3);
+				controlThread.operation = Operation.ROTATE;
+				controlThread.rotateBy = (int) Math.toDegrees(ang1);
+			} else {
+				if (dist > 40) {
+					controlThread.operation = Operation.TRAVEL;
+					controlThread.travelDist = (int) (dist * 3);
+					controlThread.travelSpeed = (int) (dist * 2);
+				} else {
+					controlThread.operation = Operation.CATCH;
+				}
 			}
 		}
 	}
 
+	public enum Operation {
+		DO_NOTHING, TRAVEL, ROTATE, PREPARE_CATCH, CATCH, KICK,
+	}
+
 	private class ControlThread extends Thread {
+		public Operation operation = Operation.DO_NOTHING;
 		public int rotateBy = 0;
 		public int travelDist = 0;
+		public int travelSpeed = 0;
 
 		public ControlThread() {
 			super("Robot control thread");
 			setDaemon(true);
 		}
 
-		
 		@Override
 		public void run() {
 			try {
 				while (true) {
-					int travelDist, rotateBy;
+					int travelDist, rotateBy, travelSpeed;
+					Operation op;
 					synchronized (this) {
-					rotateBy = this.rotateBy;
-					travelDist = this.travelDist;
+						op = this.operation;
+						rotateBy = this.rotateBy;
+						travelDist = this.travelDist;
+						travelSpeed = this.travelSpeed;
 					}
-					if (rotateBy != 0) {
-//						brick.robotKick(700);
-//						brick.robotPrepCatch();
-						brick.robotRotateBy(rotateBy);
-						
-					}
-					else if (travelDist > 3) {
-						brick.robotTravel(travelDist);
-					}
-					else if (travelDist < 3) {
+
+					System.out.println("op: " + op.toString() + " rotateBy: "
+							+ rotateBy + " travelDist: " + travelDist);
+
+					switch (op) {
+					case DO_NOTHING:
+						break;
+					case CATCH:
 						brick.robotCatch();
-						ballCaught = true;
+						break;
+					case PREPARE_CATCH:
+						brick.robotPrepCatch();
+						break;
+					case KICK:
+						brick.robotKick(600);
+						break;
+					case ROTATE:
+						brick.robotRotateBy(rotateBy);
+						break;
+					case TRAVEL:
+						brick.robotPrepCatch();
+						brick.robotTravel(travelDist, travelSpeed);
+						break;
 					}
-					Thread.sleep(400);
-					}
-//				
-//				while (ballCaught)
-//				{
-//					brick.robotRotateBy(60);
-//					brick.robotKick(700);
-//					ballCaught = false;
-//				}
-			}
-			catch (IOException e) {
+					Thread.sleep(1000);
+				}
+
+				//
+				// while (ballCaught)
+				// {
+				// brick.robotRotateBy(60);
+				// brick.robotKick(700);
+				// ballCaught = false;
+				// }
+			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 
-	}
+		}
 	}
 }

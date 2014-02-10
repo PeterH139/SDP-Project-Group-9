@@ -36,7 +36,6 @@ public class Movement extends DifferentialPilot {
 
 	public Movement(double trackWidth) {
 		super(TYRE_DIAMETER, trackWidth, LEFT_WHEEL, RIGHT_WHEEL);
-		KICKER.rotate(-40);
 		KICKER.flt();
 		KICKER.resetTachoCount();
 	}
@@ -50,7 +49,7 @@ public class Movement extends DifferentialPilot {
 		KICKER.rotateTo(0/GEAR_ERROR_RATIO);
 	}
 	public void liftKicker() {
-		KICKER.rotateTo(45/GEAR_ERROR_RATIO);
+		KICKER.rotateTo(120/GEAR_ERROR_RATIO);
 	}
 	public void kick(int speed) {
 
