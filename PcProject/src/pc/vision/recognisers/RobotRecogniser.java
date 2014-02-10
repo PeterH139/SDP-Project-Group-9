@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import pc.vision.PitchConstants;
 import pc.vision.PixelInfo;
 import pc.vision.Position;
-import pc.vision.VideoStream;
 import pc.vision.Vision;
 import pc.vision.interfaces.ObjectRecogniser;
 import pc.world.MovingObject;
@@ -124,13 +123,12 @@ public class RobotRecogniser implements ObjectRecogniser {
 		 
 		ArrayList<Position> greenPoints = new ArrayList<Position>();
 		int topBuffer = this.pitchConstants.getPitchTop();
-		int bottomBuffer = VideoStream.FRAME_HEIGHT - topBuffer
-				- this.pitchConstants.getPitchHeight();
+		int bottomBuffer = topBuffer + this.pitchConstants.getPitchHeight();
 		int obj = isBlue ? PitchConstants.OBJECT_BLUE
 				: PitchConstants.OBJECT_YELLOW;
 
 		// Find the green plate pixels
-		for (int row = topBuffer; row < VideoStream.FRAME_HEIGHT - bottomBuffer; row++) {
+		for (int row = topBuffer; row < bottomBuffer; row++) {
 			for (int column = leftEdge; column < rightEdge; column++) {
 				if (pixels[column][row] != null) {
 					if (vision.isColour(pixels[column][row],
@@ -160,7 +158,7 @@ public class RobotRecogniser implements ObjectRecogniser {
 		int squareDist;
 		ArrayList<Position> colourPoints = new ArrayList<Position>();
 		
-		for (int row = topBuffer; row < VideoStream.FRAME_HEIGHT - bottomBuffer; row++) {
+		for (int row = topBuffer; row < bottomBuffer; row++) {
 			for (int column = leftEdge; column < rightEdge; column++) {
 				squareDist = ((gx-column)*(gx-column)) + ((gy-row)*(gy-row));
 				if (squareDist < r2){
