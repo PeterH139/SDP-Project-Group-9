@@ -4,11 +4,10 @@ import lejos.nxt.Button;
 import lejos.nxt.LCD;
 import nxt.brick.Striker;
 
-/*
+/**
  * Short test to check how durable the designs are under fast movements
  * 
  * @author Ross Grassie
- * 
  */
 
 public class MovementTest {

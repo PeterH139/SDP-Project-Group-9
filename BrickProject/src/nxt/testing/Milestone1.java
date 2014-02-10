@@ -9,8 +9,6 @@ import lejos.nxt.SensorPort;
 import lejos.nxt.Sound;
 import lejos.robotics.localization.OdometryPoseProvider;
 import lejos.robotics.navigation.DifferentialPilot;
-import lejos.robotics.navigation.Move;
-import lejos.robotics.navigation.Move.MoveType;
 import lejos.robotics.navigation.Pose;
  
 public class Milestone1 {
