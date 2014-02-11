@@ -13,6 +13,7 @@ public class Keeper extends Movement {
 	
 	public Keeper() {
 		super(TRACK_WIDTH_KEEPER);
+		setMaxPilotSpeed(TRAVEL_SPEED_KEEPER);
 	}
 	
 	public void pass() {

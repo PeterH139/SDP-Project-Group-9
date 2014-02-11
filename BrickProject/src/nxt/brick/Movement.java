@@ -22,7 +22,7 @@ public class Movement extends DifferentialPilot {
 	static NXTRegulatedMotor KICKER = Motor.A;
 	static final int TYRE_DIAMETER = 56;
 
-	public int maxPilotSpeed = 200;					// 90 for tests
+	public int maxPilotSpeed;					// 90 for tests
 
 	// TODO: potential changes to be made here due to different robots
 	public static final int MAXIMUM_KICKER_SPEED = (int) KICKER.getMaxSpeed();
@@ -38,6 +38,10 @@ public class Movement extends DifferentialPilot {
 		super(TYRE_DIAMETER, trackWidth, LEFT_WHEEL, RIGHT_WHEEL);
 		floatWheels();
 		KICKER.resetTachoCount();
+	}
+	
+	public void setMaxPilotSpeed(int speed) {
+		maxPilotSpeed = speed;
 	}
 
 	public static void floatWheels() {

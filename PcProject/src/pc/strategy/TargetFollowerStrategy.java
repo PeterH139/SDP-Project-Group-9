@@ -28,16 +28,16 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 	public void sendWorldState(WorldState worldState) {
 		float robotX = worldState.GetAttackerRobot().x, robotY = worldState
 				.GetAttackerRobot().y;
-		double robotO = worldState.GetAttackerRobot().orientation_angle;
+		float robotO = worldState.GetAttackerRobot().orientation_angle;
 		
 		Vector2f ball5FramesAgo = ballPositions.getFirst();
 		float ballX1 = ball5FramesAgo.x, ballY1 = ball5FramesAgo.y;
 		float ballX2 = worldState.GetBall().x, ballY2 = worldState.GetBall().y;
 
-		double slope = (ballY2 - ballY1) / ((ballX2 - ballX1) + 0.0001);
-		double c = ballY1 - slope * ballX1;
-		int targetY = (int) (slope * robotX + c);
-		int targetX = (int) ((targetY + c) / slope); 
+		float slope = (ballY2 - ballY1) / ((ballX2 - ballX1) + 0.0001f);
+		float c = ballY1 - slope * ballX1;
+		float targetY = slope * robotX + c;
+		float targetX = (targetY + c) / slope; 
 
 		if (targetX == 0 || targetY == 0 || robotX == 0 || robotY == 0
 				|| robotO == 0
@@ -53,16 +53,12 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 		}
 
 		double robotRad = Math.toRadians(robotO);
-		double targetRad = Math.atan2(targetY - robotY, targetX - robotX);
 
 		if (robotRad > Math.PI)
 			robotRad -= 2 * Math.PI;
 
-		double ang1 = targetRad - robotRad;
-		while (ang1 > Math.PI)
-			ang1 -= 2 * Math.PI;
-		while (ang1 < -Math.PI)
-			ang1 += 2 * Math.PI;
+		double ang1 = calculateAngle(robotX, robotY, robotO, targetX,
+				targetY);
 
 		double dist = Math.hypot(targetX - robotX, targetY - robotY);
 
@@ -163,5 +159,22 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 			}
 
 		}
+	}
+	
+
+	public static double calculateAngle(float robotX, float robotY,
+			float robotOrientation, float targetX, float targetY) {
+		double robotRad = Math.toRadians(robotOrientation);
+		double targetRad = Math.atan2(targetY - robotY, targetX - robotX);
+
+		if (robotRad > Math.PI)
+			robotRad -= 2 * Math.PI;
+
+		double ang1 = targetRad - robotRad;
+		while (ang1 > Math.PI)
+			ang1 -= 2 * Math.PI;
+		while (ang1 < -Math.PI)
+			ang1 += 2 * Math.PI;
+		return ang1;
 	}
 }

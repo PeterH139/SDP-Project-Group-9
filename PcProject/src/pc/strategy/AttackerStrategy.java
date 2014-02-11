@@ -128,14 +128,6 @@ public class AttackerStrategy implements WorldStateReceiver {
 					}
 					Thread.sleep(250);
 				}
-
-				//
-				// while (ballCaught)
-				// {
-				// brick.robotRotateBy(60);
-				// brick.robotKick(700);
-				// ballCaught = false;
-				// }
 			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (InterruptedException e) {
