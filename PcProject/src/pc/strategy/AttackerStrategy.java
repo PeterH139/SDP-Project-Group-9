@@ -54,7 +54,6 @@ public class AttackerStrategy implements WorldStateReceiver {
 						controlThread.travelSpeed = (int) (dist);
 					} else {
 						controlThread.operation = Operation.CATCH;
-						//ballCaught = true;
 					}
 				}
 			} else {

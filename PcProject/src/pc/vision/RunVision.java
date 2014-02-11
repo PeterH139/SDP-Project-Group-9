@@ -13,7 +13,6 @@ import org.apache.commons.cli.ParseException;
 
 import pc.comms.BrickCommServer;
 import pc.comms.BtInfo;
-import pc.strategy.AttackerStrategy;
 import pc.strategy.InterceptorStrategy;
 import pc.vision.gui.VisionGUI;
 import pc.vision.gui.tools.ColourThresholdConfigTool;

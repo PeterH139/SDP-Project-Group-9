@@ -1,15 +1,16 @@
 package nxt;
 
+import nxt.brick.Movement;
 import nxt.brick.Striker;
 
 public class RobotController {
-	private Striker movementController;
+	private Movement movementController;
 	
 	public RobotController() {
 		movementController = new Striker();
 	}
 	
-	public Striker getMovementController() {
+	public Movement getMovementController() {
 		return movementController;
 	}
 }
