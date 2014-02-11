@@ -15,6 +15,7 @@ import pc.world.WorldState;
  * The main class for showing the video feed and processing the video data.
  * Identifies ball and robot locations, and robot orientations.
  * 
+ * @author Peter Henderson (s1117205)
  */
 public class Vision implements VideoReceiver {
 
@@ -104,8 +105,6 @@ public class Vision implements VideoReceiver {
 	 * 
 	 * @param points
 	 * @return the mean position of the points
-	 * 
-	 * @author Peter Henderson (s1117205)
 	 */
 	public Vector2f calculatePosition(ArrayList<Position> points) {
 		if (points.size() < 10) {

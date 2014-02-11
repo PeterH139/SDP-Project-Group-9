@@ -126,7 +126,7 @@ public class AttackerStrategy implements WorldStateReceiver {
 						brick.robotTravel(travelDist, travelSpeed);
 						break;
 					}
-					Thread.sleep(250);
+					Thread.sleep(250); //TODO: Test lower values for this and see where it breaks.
 				}
 			} catch (IOException e) {
 				e.printStackTrace();

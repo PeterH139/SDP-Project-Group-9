@@ -13,7 +13,7 @@ import org.apache.commons.cli.ParseException;
 
 import pc.comms.BrickCommServer;
 import pc.comms.BtInfo;
-import pc.strategy.PassingStrategy;
+import pc.strategy.AttackerStrategy;
 import pc.vision.gui.VisionGUI;
 import pc.vision.gui.tools.ColourThresholdConfigTool;
 import pc.vision.gui.tools.HistogramTool;
@@ -25,8 +25,6 @@ import au.edu.jcu.v4l4j.V4L4JConstants;
 /**
  * The main class used to run the vision system. Creates the control GUI, and
  * initialises the image processing.
- * 
- * @author s0840449
  */
 public class RunVision {
 	static Options cmdLineOptions;
@@ -59,10 +57,8 @@ public class RunVision {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		// Default to main pitch
+		// 0 = default to main pitch
 		final PitchConstants pitchConstants = new PitchConstants(0);
-		// GoalInfo goalInfo = new GoalInfo(pitchConstants);
-		// WorldState worldState = new WorldState(goalInfo);
 		WorldState worldState = new WorldState();
 		
 		// Default values for the main vision window
@@ -76,13 +72,13 @@ public class RunVision {
 		final boolean enableBluetooth = !cmdLine.hasOption("nobluetooth");
 
 		try {
-			BrickCommServer bcs = null;
-			BrickCommServer bcs2 = null;
+			BrickCommServer bcsGroup10 = null;
+			BrickCommServer bcsMeow = null;
 			if (enableBluetooth) {
-				bcs = new BrickCommServer();
-				bcs.guiConnect(BtInfo.group10);
-				bcs2 = new BrickCommServer();
-				bcs2.guiConnect(BtInfo.MEOW);
+				bcsGroup10 = new BrickCommServer();
+				bcsGroup10.guiConnect(BtInfo.group10);
+//				bcsMeow = new BrickCommServer();
+//				bcsMeow.guiConnect(BtInfo.MEOW);
 			}
 
 			final VideoStream vStream = new VideoStream(videoDevice, width,
@@ -119,15 +115,15 @@ public class RunVision {
 					pitchConstants));
 			
 			if (enableBluetooth) {
-				PassingStrategy ps = new PassingStrategy(bcs, bcs2);
-				ps.startControlThread();
-//				AttackerStrategy as = new AttackerStrategy(bcs);
-//				as.startControlThread();
-//				 TargetFollowerStrategy tfs = new TargetFollowerStrategy(bcs);
-//				 tfs.startControlThread();
-//				InterceptorStrategy ic = new InterceptorStrategy(bcs);
+//				PassingStrategy ps = new PassingStrategy(bcsGroup10, bcsMeow);
+//				ps.startControlThread();
+				AttackerStrategy as = new AttackerStrategy(bcsGroup10);
+				as.startControlThread();
+//				TargetFollowerStrategy tfs = new TargetFollowerStrategy(bcsGroup10);
+//				tfs.startControlThread();
+//				InterceptorStrategy ic = new InterceptorStrategy(bcsMeow);
 //				ic.startControlThread();
-				vision.addWorldStateReceiver(ps);
+				vision.addWorldStateReceiver(as);
 			}
 
 			vStream.addReceiver(distortionFix);

@@ -37,8 +37,7 @@ public class BallRecogniser implements ObjectRecogniser {
 
 		for (int row = top; row < bottom; row++) {
 			for (int column = left; column < right; column++) {
-				PixelInfo p = pixels[column][row];
-				if (p != null) {
+				if (pixels[column][row] != null) {
 					if (vision.isColour(pixels[column][row],
 							PitchConstants.OBJECT_BALL)) {
 						ballPoints.add(new Position(column, row));
@@ -52,13 +51,13 @@ public class BallRecogniser implements ObjectRecogniser {
 		}
 
 		Vector2f ballPosition = vision.calculatePosition(ballPoints);
-
+		MovingObject ball_m = new MovingObject(ballPosition.x, ballPosition.y);
+		worldState.SetBall(ball_m);
+		
+		// Debugging Graphics
 		debugGraphics.setColor(Color.red);
 		debugGraphics.drawLine(0, (int)ballPosition.y, 640, (int)ballPosition.y);
 		debugGraphics.drawLine((int)ballPosition.x, 0, (int)ballPosition.x, 480);
-
-		MovingObject ball_m = new MovingObject(ballPosition.x, ballPosition.y);
-		worldState.SetBall(ball_m);
 	}
 
 }
