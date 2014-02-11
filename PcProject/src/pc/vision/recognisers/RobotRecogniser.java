@@ -75,8 +75,8 @@ public class RobotRecogniser implements ObjectRecogniser {
 		// identified based on the sections of the field they are in.
 		// right now I assume that the yellow is our team and the
 		// blue is the enemy team
-		MovingObject attackerRobot = new MovingObject(yellowAtk.pos.x,
-				yellowAtk.pos.y, yellowAtk.angle);
+		MovingObject attackerRobot = new MovingObject(blueAtk.pos.x,
+				blueAtk.pos.y, blueAtk.angle);
 		MovingObject defenderRobot = new MovingObject(yellowDef.pos.x,
 				yellowDef.pos.y, yellowDef.angle);
 		MovingObject enemyAttackerRobot = new MovingObject(blueAtk.pos.x,

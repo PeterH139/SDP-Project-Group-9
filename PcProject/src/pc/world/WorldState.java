@@ -8,6 +8,7 @@ package pc.world;
 
 public class WorldState {
 	
+	public int[] dividers;
 	int robotTargetX, robotTargetY;
 	double moveX, moveY, moveR;
 	
