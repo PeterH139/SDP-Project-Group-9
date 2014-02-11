@@ -14,6 +14,7 @@ import org.apache.commons.cli.ParseException;
 import pc.comms.BrickCommServer;
 import pc.comms.BtInfo;
 import pc.strategy.AttackerStrategy;
+import pc.strategy.PenaltyStrategy;
 import pc.vision.gui.VisionGUI;
 import pc.vision.gui.tools.ColourThresholdConfigTool;
 import pc.vision.gui.tools.HistogramTool;
@@ -123,7 +124,9 @@ public class RunVision {
 //				tfs.startControlThread();
 //				InterceptorStrategy ic = new InterceptorStrategy(bcsMeow);
 //				ic.startControlThread();
-				vision.addWorldStateReceiver(as);
+				PenaltyStrategy ps = new PenaltyStrategy(bcsGroup10);
+				ps.startControlThread();
+				vision.addWorldStateReceiver(ps);
 			}
 
 			vStream.addReceiver(distortionFix);

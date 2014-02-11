@@ -64,9 +64,10 @@ public class PenaltyStrategy implements WorldStateReceiver {
 						double ang2 = calculateIdealAngle(robotX, robotY, robotO, opponentRobotY);
 						if (Math.abs(ang2) > Math.PI / 20) {
 							controlThread.operation = Operation.ROTATE;
-							controlThread.rotateBy = (int) Math.toDegrees(ang1);
+							controlThread.rotateBy = (int) Math.toDegrees(ang2);
+						} else {
+							controlThread.operation = Operation.CATCH;
 						}
-						controlThread.operation = Operation.CATCH;
 					}
 				}
 			} else {
