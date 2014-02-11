@@ -29,8 +29,11 @@ public class AttackerStrategy implements WorldStateReceiver {
 		float robotO = worldState.GetAttackerRobot().orientation_angle;
 		float targetX = worldState.GetBall().x, targetY = worldState.GetBall().y;
 		float goalX = 65, goalY = 220;
+		int leftCheck,rightCheck;
+		leftCheck = (worldState.weAreShootingRight) ? worldState.dividers[1] : worldState.dividers[0];
+		rightCheck = (worldState.weAreShootingRight) ? worldState.dividers[2] : worldState.dividers[1];
 		if (targetX == 0 || targetY == 0 || robotX == 0 || robotY == 0
-				|| robotO == 0) {
+				|| robotO == 0 || targetX < leftCheck || targetX > rightCheck) {
 			worldState.setMoveR(0);
 			synchronized (controlThread) {
 				controlThread.operation = Operation.DO_NOTHING;
