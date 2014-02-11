@@ -54,7 +54,6 @@ public class AttackerStrategy implements WorldStateReceiver {
 						controlThread.travelSpeed = (int) (dist * 2);
 					} else {
 						controlThread.operation = Operation.CATCH;
-						//ballCaught = true;
 					}
 				}
 			} else {
@@ -65,7 +64,6 @@ public class AttackerStrategy implements WorldStateReceiver {
 					controlThread.rotateBy = (int) Math.toDegrees(ang1);
 				} else {
 					controlThread.operation = Operation.KICK;
-					//ballCaught = faspeedlse;
 				}
 			}
 		}
@@ -127,14 +125,6 @@ public class AttackerStrategy implements WorldStateReceiver {
 					}
 					Thread.sleep(1000);
 				}
-
-				//
-				// while (ballCaught)
-				// {
-				// brick.robotRotateBy(60);
-				// brick.robotKick(700);
-				// ballCaught = false;
-				// }
 			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (InterruptedException e) {

@@ -28,7 +28,7 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 	public void sendWorldState(WorldState worldState) {
 		float robotX = worldState.getYellowX(), robotY = worldState
 				.getYellowY();
-		double robotO = worldState.getYellowOrientation();
+		float robotO = worldState.GetAttackerRobot().orientation_angle;
 		
 		Vector2f ball5FramesAgo = ballPositions.getFirst();
 		float ballX1 = ball5FramesAgo.x, ballY1 = ball5FramesAgo.y;
@@ -53,16 +53,12 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 		}
 
 		double robotRad = Math.toRadians(robotO);
-		double targetRad = Math.atan2(targetY - robotY, targetX - robotX);
 
 		if (robotRad > Math.PI)
 			robotRad -= 2 * Math.PI;
 
-		double ang1 = targetRad - robotRad;
-		while (ang1 > Math.PI)
-			ang1 -= 2 * Math.PI;
-		while (ang1 < -Math.PI)
-			ang1 += 2 * Math.PI;
+		double ang1 = calculateAngle(robotX, robotY, robotO, targetX,
+				targetY);
 
 		double dist = Math.hypot(targetX - robotX, targetY - robotY);
 
@@ -163,5 +159,22 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 			}
 
 		}
+	}
+	
+
+	public static double calculateAngle(float robotX, float robotY,
+			float robotOrientation, float targetX, float targetY) {
+		double robotRad = Math.toRadians(robotOrientation);
+		double targetRad = Math.atan2(targetY - robotY, targetX - robotX);
+
+		if (robotRad > Math.PI)
+			robotRad -= 2 * Math.PI;
+
+		double ang1 = targetRad - robotRad;
+		while (ang1 > Math.PI)
+			ang1 -= 2 * Math.PI;
+		while (ang1 < -Math.PI)
+			ang1 += 2 * Math.PI;
+		return ang1;
 	}
 }
