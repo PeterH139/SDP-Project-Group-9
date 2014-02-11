@@ -143,6 +143,31 @@ public class BrickCommServer {
 		return robotReceived;
 	}
 
+	public boolean robotTestINT(int param) throws IOException {
+		brickOutput.writeInt(RobotOpcode.TESTINT);
+		brickOutput.writeInt(param);
+		brickOutput.flush();
+		boolean robotReceived = brickInput.readBoolean();
+		return robotReceived;
+	}
+	
+	public boolean robotTestDOUBLE(double param) throws IOException {
+		brickOutput.writeInt(RobotOpcode.TESTDOUBLE);
+		brickOutput.writeDouble(param);
+		brickOutput.flush();
+		boolean robotReceived = brickInput.readBoolean();
+		return robotReceived;
+	}
+	
+	public boolean robotTestINTANDDOUBLE(int paramInt, double paramDouble) throws IOException {
+		brickOutput.writeInt(RobotOpcode.TESTINTANDDOUBLE);
+		brickOutput.writeDouble(paramDouble);
+		brickOutput.writeInt(paramInt);
+		brickOutput.flush();
+		boolean robotReceived = brickInput.readBoolean();
+		return robotReceived;
+	}
+	
 	public static void main(String[] args) throws NXTCommException {
 		BrickCommServer bcs = new BrickCommServer();
 		bcs.guiConnect(BtInfo.group10);
