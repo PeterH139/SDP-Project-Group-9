@@ -93,12 +93,10 @@ public class InterceptorStrategy implements WorldStateReceiver {
 		else {
 			dist = 0;
 		}
-		System.out.println("distance: " + dist);
-		
 		
 		synchronized (controlThread) {
 			controlThread.rotateBy = rotateBy;
-			controlThread.travelDist = (int) (dist * 0.9);
+			controlThread.travelDist = (int) (dist * 0.8);
 
 		}
 	}
