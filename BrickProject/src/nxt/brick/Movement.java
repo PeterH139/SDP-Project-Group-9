@@ -4,13 +4,13 @@ import lejos.nxt.Motor;
 import lejos.nxt.NXTRegulatedMotor;
 import lejos.robotics.navigation.DifferentialPilot;
 
-/*
+/**
  * The Movement class. Handles the actual driving and movement of the robot, once
  * BrickController has processed the commands.
  * 
- * That is -- defines the behaviour of the robot when it receives the command.
+ * It defines the behaviour of the robot when it receives the command.
  * 
- * Adapted from SDP2013 groups 7 code -- original author sauliusl
+ * Adapted from SDP2013 groups 7 code: original author sauliusl
  * 
  * @author Ross Grassie
  * 
@@ -45,13 +45,16 @@ public class Movement extends DifferentialPilot {
 		RIGHT_WHEEL.flt();
 		KICKER.flt();
 	}
-	public void resetKicker() {
-		KICKER.rotateTo(0/GEAR_ERROR_RATIO);
+	public void resetKicker(boolean immediateReturn) {
+		KICKER.rotateTo(0/GEAR_ERROR_RATIO, immediateReturn);
 	}
-	public void liftKicker() {
-		KICKER.rotateTo(90/GEAR_ERROR_RATIO);
+	public void liftKicker(boolean immediateReturn) {
+		KICKER.rotateTo(90/GEAR_ERROR_RATIO, immediateReturn);
 	}
-	public void kick(int speed) {
+	public void kick(int speed){
+		this.kick(speed, false);
+	}
+	public void kick(int speed, boolean immediateReturn) {
 
 		if (isKicking) {
 			return;
@@ -62,9 +65,9 @@ public class Movement extends DifferentialPilot {
 		KICKER.setSpeed(speed);
 
 		// Kick
-		liftKicker();
+		liftKicker(true);
 		// Reset
-		resetKicker();
+		resetKicker(true);
 		
 		isKicking = false;
 	}

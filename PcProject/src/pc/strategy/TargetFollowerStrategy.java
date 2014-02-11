@@ -1,8 +1,11 @@
 package pc.strategy;
 
 import java.io.IOException;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 import pc.comms.BrickCommServer;
+import pc.vision.Vector2f;
 import pc.vision.interfaces.WorldStateReceiver;
 import pc.world.WorldState;
 
@@ -10,6 +13,7 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 
 	private BrickCommServer brick;
 	private ControlThread controlThread;
+	private Deque<Vector2f> ballPositions = new ArrayDeque<Vector2f>();
 
 	public TargetFollowerStrategy(BrickCommServer brick) {
 		this.brick = brick;
@@ -22,10 +26,18 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 
 	@Override
 	public void sendWorldState(WorldState worldState) {
-		float robotX = worldState.getYellowX(), robotY = worldState.getYellowY();
+		float robotX = worldState.getYellowX(), robotY = worldState
+				.getYellowY();
 		double robotO = worldState.getYellowOrientation();
-		int targetX = worldState.getRobotTargetX(), targetY = worldState
-				.getRobotTargetY();
+		
+		Vector2f ball5FramesAgo = ballPositions.getFirst();
+		float ballX1 = ball5FramesAgo.x, ballY1 = ball5FramesAgo.y;
+		float ballX2 = worldState.getBallX(), ballY2 = worldState.getBallY();
+
+		double slope = (ballY2 - ballY1) / ((ballX2 - ballX1) + 0.0001);
+		double c = ballY1 - slope * ballX1;
+		int targetY = (int) (slope * robotX + c);
+		int targetX = (int) ((targetY + c) / slope); 
 
 		if (targetX == 0 || targetY == 0 || robotX == 0 || robotY == 0
 				|| robotO == 0
@@ -35,8 +47,7 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 				controlThread.rotateBy = 0;
 				controlThread.travelDist = 0;
 				controlThread.radius = Double.POSITIVE_INFINITY;
-				controlThread.targetX = targetX;
-				controlThread.robotX = robotX;
+				controlThread.operation = Operation.DO_NOTHING;
 			}
 			return;
 		}
@@ -55,42 +66,54 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 
 		double dist = Math.hypot(targetX - robotX, targetY - robotY);
 
-		double radius = Math.hypot(targetX - robotX, targetY - robotY)
-				/ (2 * Math.sin(ang1));
-
-		/*
-		 * Potential alteration for keeper strategy
-		 * 
-		 * Take the radius from when the Striker is shooting. radius =
-		 * Math.hypot(robotX - targetX, robotY - targetY) / 2;
-		 * 
-		 * Upon shooting move round this arc in order to close the angle down.
-		 */
+		double radius = Math.hypot(ballX1 - robotX, ballY1 - robotY) / 2;
 
 		worldState.setMoveR(radius);
 		worldState.setMoveX(robotX + radius * Math.cos(robotRad + Math.PI / 2));
 		worldState.setMoveY(robotY + radius * Math.sin(robotRad + Math.PI / 2));
-		System.out.println(Math.toDegrees(ang1));
+		System.out.println(Math.toDegrees(ang1));;
 
 		synchronized (controlThread) {
-			controlThread.rotateBy = 0;
-			controlThread.radius = radius;
-			controlThread.travelDist = (int) (dist * 3);
-			controlThread.targetX = targetX;
-			controlThread.robotX = robotX;
-
+			controlThread.operation = Operation.DO_NOTHING;
 			if (Math.abs(ang1) > Math.PI / 16) {
-				controlThread.rotateBy = (int) Math.toDegrees(ang1);
+				if (ang1 > 150) {
+					controlThread.operation = Operation.ARC_LEFT;
+				} else if (ang1 < -150) {
+					controlThread.operation = Operation.ARC_RIGHT;
+				} else {
+					controlThread.operation = Operation.ROTATE;
+					controlThread.rotateBy = (int) Math.toDegrees(ang1) - 90;  // negating 90 to account for the fact the robot with be perpendicular to the ball
+				}
+				controlThread.radius = radius;
+				controlThread.travelDist = (int) (-dist * 3);
+				controlThread.travelSpeed = (int) (dist * 2);
+			} else {
+				if (ang1 > 0) {
+					controlThread.operation = Operation.ARC_RIGHT;
+				} else if (ang1 < 0) {
+					controlThread.operation = Operation.ARC_LEFT;
+				}
+				if (dist > 40) {
+					controlThread.operation = Operation.TRAVEL;
+					controlThread.travelDist = (int) (dist * 3);
+					controlThread.travelSpeed = (int) (dist * 2);
+				}
+				controlThread.radius = radius;
+				controlThread.travelDist = (int) (dist * 3);
 			}
 		}
 	}
 
+	public enum Operation {
+		DO_NOTHING, TRAVEL, ROTATE, ARC_LEFT, ARC_RIGHT,
+	}
+
 	private class ControlThread extends Thread {
+		public Operation operation = Operation.DO_NOTHING;
 		public int rotateBy = 0;
-		public double radius = Double.POSITIVE_INFINITY;
 		public int travelDist = 0;
-		public float targetX = 0;
-		public float robotX = 0;
+		public int travelSpeed = 0;
+		public double radius = 0;
 
 		public ControlThread() {
 			super("Robot control thread");
@@ -101,45 +124,44 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 		public void run() {
 			try {
 				while (true) {
-					int travelDist, rotateBy;
-					float targetX, robotX;
-					double radius, speed;
+					int travelDist, rotateBy, travelSpeed;
+					Operation op;
+					double radius;
 					synchronized (this) {
+						op = this.operation;
 						rotateBy = this.rotateBy;
-						radius = this.radius;
 						travelDist = this.travelDist;
-						targetX = this.targetX;
-						robotX = this.robotX;
+						travelSpeed = this.travelSpeed;
+						radius = this.radius;
 					}
 
-					// Currently just dummy values: needs calibration
-					speed = (travelDist < 50) ? 40 : 2 * travelDist;
-//					brick.robotWheelSpeed(speed);
-//
-//					if (robotX <= targetX - 10 || robotX >= targetX + 10) {
-//						if (rotateBy < 45 && rotateBy > -45) {
-//							brick.robotArcForwards(radius, travelDist);
-//						} else if (rotateBy >= 45 || rotateBy <= -45) {
-//							if (rotateBy >= 150) {
-//								brick.robotRotateBy(rotateBy - 180);
-//								brick.robotTravel(-travelDist,50);
-//							} else if (rotateBy <= -150) {
-//								brick.robotRotateBy(rotateBy + 180);
-//								brick.robotTravel(-travelDist,50);
-//							}
-//							brick.robotRotateBy(rotateBy);
-//							brick.robotTravel(travelDist,50);
-//						}
-//					} else {
-//						brick.robotStop();
-//					}
-					Thread.sleep(400);
+					System.out.println("op: " + op.toString() + " rotateBy: "
+							+ rotateBy + " travelDist: " + travelDist);
+
+					switch (op) {
+					case DO_NOTHING:
+						break;
+					case TRAVEL:
+						brick.robotTravel(travelDist, travelSpeed);
+						break;
+					case ROTATE:
+						brick.robotRotateBy(rotateBy,travelSpeed);
+						break;
+					case ARC_LEFT:
+						brick.robotArcForwards(radius, travelDist);
+						break;
+					case ARC_RIGHT:	
+						brick.robotArcForwards(-radius, travelDist);
+						break;
+					}
+					Thread.sleep(1000);
 				}
-//			} catch (IOException e) {
-//				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+
 		}
 	}
 }
