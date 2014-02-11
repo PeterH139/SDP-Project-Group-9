@@ -119,7 +119,7 @@ public class RunVision {
 					pitchConstants));
 			
 			if (enableBluetooth) {
-				PassingStrategy ps = new PassingStrategy(bcs, bcs2);
+				PassingStrategy ps = new PassingStrategy(bcs, bcs2, pitchConstants);
 				ps.startControlThread();
 //				AttackerStrategy as = new AttackerStrategy(bcs);
 //				as.startControlThread();

@@ -3,18 +3,21 @@ package pc.strategy;
 import java.io.IOException;
 
 import pc.comms.BrickCommServer;
+import pc.vision.PitchConstants;
 import pc.vision.interfaces.WorldStateReceiver;
 import pc.world.WorldState;
 
 public class AttackerStrategy implements WorldStateReceiver {
 
 	private BrickCommServer brick;
+	private PitchConstants pitchConstants;
 	private ControlThread controlThread;
 
 	private boolean ballCaught = false;
 
-	public AttackerStrategy(BrickCommServer brick) {
+	public AttackerStrategy(BrickCommServer brick, PitchConstants pitchConstants) {
 		this.brick = brick;
+		this.pitchConstants = pitchConstants;
 		controlThread = new ControlThread();
 	}
 
@@ -24,17 +27,22 @@ public class AttackerStrategy implements WorldStateReceiver {
 
 	@Override
 	public void sendWorldState(WorldState worldState) {
-		float robotX = worldState.GetAttackerRobot().x, robotY = worldState
-				.GetAttackerRobot().y;
-		float robotO = worldState.GetAttackerRobot().orientation_angle;
-		float targetX = worldState.GetBall().x, targetY = worldState.GetBall().y;
+		float robotX = worldState.getAttackerRobot().x, robotY = worldState
+				.getAttackerRobot().y;
+		float robotO = worldState.getAttackerRobot().orientation_angle;
+		float targetX = worldState.getBall().x, targetY = worldState.getBall().y;
 		float goalX = 65, goalY = 220;
 		int leftCheck,rightCheck;
-		leftCheck = (worldState.weAreShootingRight) ? worldState.dividers[1] : worldState.dividers[0];
-		rightCheck = (worldState.weAreShootingRight) ? worldState.dividers[2] : worldState.dividers[1];
+		int[] divs = pitchConstants.getDividers();
+		if (worldState.weAreShootingRight) {
+			leftCheck = divs[1];
+			rightCheck = divs[2];
+		} else {
+			leftCheck = divs[0];
+			rightCheck = divs[1];
+		}
 		if (targetX == 0 || targetY == 0 || robotX == 0 || robotY == 0
 				|| robotO == 0 || targetX < leftCheck || targetX > rightCheck) {
-			worldState.setMoveR(0);
 			synchronized (controlThread) {
 				controlThread.operation = Operation.DO_NOTHING;
 			}

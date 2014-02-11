@@ -32,17 +32,17 @@ public class InterceptorStrategy implements WorldStateReceiver {
 
 	@Override
 	public void sendWorldState(WorldState worldState) {
-		float robotX = worldState.GetDefenderRobot().x; 
-		float robotY = worldState.GetDefenderRobot().y;
-		double robotO = worldState.GetDefenderRobot().orientation_angle;
-		ballPositions.addLast(new Vector2f(worldState.GetBall().x, worldState
-				.GetBall().y));
+		float robotX = worldState.getDefenderRobot().x; 
+		float robotY = worldState.getDefenderRobot().y;
+		double robotO = worldState.getDefenderRobot().orientation_angle;
+		ballPositions.addLast(new Vector2f(worldState.getBall().x, worldState
+				.getBall().y));
 		if (ballPositions.size() > 3)
 			ballPositions.removeFirst();
 
 		Vector2f ball5FramesAgo = ballPositions.getFirst();
 		float ballX1 = ball5FramesAgo.x, ballY1 = ball5FramesAgo.y;
-		float ballX2 = worldState.GetBall().x, ballY2 = worldState.GetBall().y;
+		float ballX2 = worldState.getBall().x, ballY2 = worldState.getBall().y;
 
 		double slope = (ballY2 - ballY1) / ((ballX2 - ballX1) + 0.0001);
 		double c = ballY1 - slope * ballX1;

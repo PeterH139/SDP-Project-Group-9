@@ -84,10 +84,10 @@ public class RobotRecogniser implements ObjectRecogniser {
 		MovingObject enemyDefenderRobot = new MovingObject(blueDef.pos.x,
 				blueDef.pos.y, blueDef.angle);
 
-		worldState.SetAttackerRobot(attackerRobot);
-		worldState.SetDefenderRobot(defenderRobot);
-		worldState.SetEnemyAttackerRobot(enemyAttackerRobot);
-		worldState.SetEnemyDefenderRobot(enemyDefenderRobot);
+		worldState.setAttackerRobot(attackerRobot);
+		worldState.setDefenderRobot(defenderRobot);
+		worldState.setEnemyAttackerRobot(enemyAttackerRobot);
+		worldState.setEnemyDefenderRobot(enemyDefenderRobot);
 	}
 
 	/**

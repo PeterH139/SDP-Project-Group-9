@@ -3,6 +3,7 @@ package pc.strategy;
 import java.io.IOException;
 
 import pc.comms.BrickCommServer;
+import pc.vision.PitchConstants;
 import pc.vision.interfaces.WorldStateReceiver;
 import pc.world.WorldState;
 
@@ -10,6 +11,7 @@ public class PassingStrategy implements WorldStateReceiver {
 
 	private BrickCommServer attackerBrick;
 	private BrickCommServer defenderBrick;
+	private PitchConstants pitchConstants;
 	private ControlThread controlThread;
 
 	private boolean ballCaught = false;
@@ -17,9 +19,10 @@ public class PassingStrategy implements WorldStateReceiver {
 	private boolean ballAttacker = false;
 
 	public PassingStrategy(BrickCommServer attackerBrick,
-			BrickCommServer defenderBrick) {
+			BrickCommServer defenderBrick, PitchConstants pitchConstants) {
 		this.attackerBrick = attackerBrick;
 		this.defenderBrick = defenderBrick;
+		this.pitchConstants = pitchConstants;
 		controlThread = new ControlThread();
 	}
 
@@ -29,26 +32,23 @@ public class PassingStrategy implements WorldStateReceiver {
 
 	@Override
 	public void sendWorldState(WorldState worldState) {
-		float attackerRobotX = worldState.GetAttackerRobot().x, attackerRobotY = worldState
-				.GetAttackerRobot().y;
-		float defenderRobotX = worldState.GetDefenderRobot().x, defenderRobotY = worldState
-				.GetDefenderRobot().y;
-		float attackerRobotO = worldState.GetAttackerRobot().orientation_angle;
-		float defenderRobotO = worldState.GetDefenderRobot().orientation_angle;
-		float ballX = worldState.GetBall().x, ballY = worldState.GetBall().y;
+		float attackerRobotX = worldState.getAttackerRobot().x, attackerRobotY = worldState
+				.getAttackerRobot().y;
+		float defenderRobotX = worldState.getDefenderRobot().x, defenderRobotY = worldState
+				.getDefenderRobot().y;
+		float attackerRobotO = worldState.getAttackerRobot().orientation_angle;
+		float defenderRobotO = worldState.getDefenderRobot().orientation_angle;
+		float ballX = worldState.getBall().x, ballY = worldState.getBall().y;
 		int leftCheck, rightCheck, defenderCheck;
-		leftCheck = (worldState.weAreShootingRight) ? worldState.dividers[1]
-				: worldState.dividers[0];
-		rightCheck = (worldState.weAreShootingRight) ? worldState.dividers[2]
-				: worldState.dividers[1];
-		defenderCheck = (worldState.weAreShootingRight) ? worldState.dividers[0]
-				: worldState.dividers[2];
+		int[] divs = pitchConstants.getDividers();
+		leftCheck = (worldState.weAreShootingRight) ? divs[1] : divs[0];
+		rightCheck = (worldState.weAreShootingRight) ? divs[2] : divs[1];
+		defenderCheck = (worldState.weAreShootingRight) ? divs[0] : divs[2];
 		float goalX = 65, goalY = 220;
 		if (ballX == 0 || ballY == 0 || attackerRobotX == 0
 				|| attackerRobotY == 0 || attackerRobotO == 0
 				|| defenderRobotX == 0 || defenderRobotY == 0
 				|| defenderRobotO == 0) {
-			worldState.setMoveR(0);
 			synchronized (controlThread) {
 				controlThread.operation = Operation.DO_NOTHING;
 			}
