@@ -48,10 +48,10 @@ public class AttackerStrategy implements WorldStateReceiver {
 					controlThread.operation = Operation.ROTATE;
 					controlThread.rotateBy = (int) Math.toDegrees(ang1);
 				} else {
-					if (dist > 37) {
+					if (dist > 30) {
 						controlThread.operation = Operation.TRAVEL;
 						controlThread.travelDist = (int) (dist * 3);
-						controlThread.travelSpeed = (int) (dist * 2);
+						controlThread.travelSpeed = (int) (dist);
 					} else {
 						controlThread.operation = Operation.CATCH;
 						//ballCaught = true;
@@ -118,14 +118,14 @@ public class AttackerStrategy implements WorldStateReceiver {
 						ballCaught = false;
 						break;
 					case ROTATE:
-						brick.robotRotateBy(rotateBy, Math.abs(rotateBy) / 3);
+						brick.robotRotateBy(rotateBy, Math.abs(rotateBy));
 						break;
 					case TRAVEL:
 						brick.robotPrepCatch();
 						brick.robotTravel(travelDist, travelSpeed);
 						break;
 					}
-					Thread.sleep(1000);
+					Thread.sleep(500);
 				}
 
 				//

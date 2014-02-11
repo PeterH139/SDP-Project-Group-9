@@ -65,9 +65,9 @@ public class Movement extends DifferentialPilot {
 		KICKER.setSpeed(speed);
 
 		// Kick
-		liftKicker(true);
+		liftKicker(immediateReturn);
 		// Reset
-		resetKicker(true);
+		resetKicker(immediateReturn);
 		
 		isKicking = false;
 	}

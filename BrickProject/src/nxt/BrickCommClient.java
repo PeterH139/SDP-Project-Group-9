@@ -61,7 +61,7 @@ public class BrickCommClient {
 	
 	private void handleKick() throws IOException {
 		int speed = pcInput.readInt();
-		rc.getMovementController().kick(speed, true);
+		rc.getMovementController().kick(speed);
 		kickerState = 0;
 	}
 	private void handlePrepCatcher() throws IOException {

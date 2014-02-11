@@ -5,7 +5,6 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 
 import pc.comms.BrickCommServer;
-import pc.vision.Position;
 import pc.vision.Vector2f;
 import pc.vision.interfaces.WorldStateReceiver;
 import pc.world.WorldState;
@@ -33,8 +32,9 @@ public class InterceptorStrategy implements WorldStateReceiver {
 
 	@Override
 	public void sendWorldState(WorldState worldState) {
-		float robotX = worldState.getYellowX(), robotY = worldState.getYellowY();
-		double robotO = worldState.getYellowOrientation();
+		float robotX = worldState.GetDefenderRobot().x; 
+		float robotY = worldState.GetDefenderRobot().y;
+		double robotO = worldState.GetDefenderRobot().orientation_angle;
 		ballPositions.addLast(new Vector2f(worldState.getBallX(), worldState
 				.getBallY()));
 		if (ballPositions.size() > 3)
