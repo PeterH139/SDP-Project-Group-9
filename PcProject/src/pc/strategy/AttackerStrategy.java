@@ -27,7 +27,7 @@ public class AttackerStrategy implements WorldStateReceiver {
 		float robotX = worldState.GetAttackerRobot().x, robotY = worldState
 				.GetAttackerRobot().y;
 		float robotO = worldState.GetAttackerRobot().orientation_angle;
-		float targetX = worldState.getBallX(), targetY = worldState.getBallY();
+		float targetX = worldState.GetBall().x, targetY = worldState.GetBall().y;
 		float goalX = 65, goalY = 220;
 		if (targetX == 0 || targetY == 0 || robotX == 0 || robotY == 0
 				|| robotO == 0) {

@@ -26,13 +26,13 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 
 	@Override
 	public void sendWorldState(WorldState worldState) {
-		float robotX = worldState.getYellowX(), robotY = worldState
-				.getYellowY();
-		double robotO = worldState.getYellowOrientation();
+		float robotX = worldState.GetAttackerRobot().x, robotY = worldState
+				.GetAttackerRobot().y;
+		double robotO = worldState.GetAttackerRobot().orientation_angle;
 		
 		Vector2f ball5FramesAgo = ballPositions.getFirst();
 		float ballX1 = ball5FramesAgo.x, ballY1 = ball5FramesAgo.y;
-		float ballX2 = worldState.getBallX(), ballY2 = worldState.getBallY();
+		float ballX2 = worldState.GetBall().x, ballY2 = worldState.GetBall().y;
 
 		double slope = (ballY2 - ballY1) / ((ballX2 - ballX1) + 0.0001);
 		double c = ballY1 - slope * ballX1;

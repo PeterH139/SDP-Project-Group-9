@@ -70,16 +70,6 @@ public class RobotRecogniser implements ObjectRecogniser {
 		// calculate the velocities of the robots and the ball.
 		// #Peter: Should this be done in the new world model?
 
-		// TODO: Update the world state with the new values for position,
-		// velocity and rotation.
-		// **RELATIVE TO THE ORIGIN FOR POSITION**
-		worldState.setBlueX(blueAtk.pos.x);
-		worldState.setBlueY(blueAtk.pos.y);
-		worldState.setBlueOrientation(blueAtk.angle);
-		worldState.setYellowX(yellowAtk.pos.x);
-		worldState.setYellowY(yellowAtk.pos.y);
-		worldState.setYellowOrientation(yellowAtk.angle);
-
 		// #Dimitar TODO: further code changes needed! the robots need to be
 		// correctly
 		// identified based on the sections of the field they are in.

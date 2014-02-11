@@ -57,9 +57,6 @@ public class BallRecogniser implements ObjectRecogniser {
 		debugGraphics.drawLine(0, (int)ballPosition.y, 640, (int)ballPosition.y);
 		debugGraphics.drawLine((int)ballPosition.x, 0, (int)ballPosition.x, 480);
 
-		worldState.setBallX(ballPosition.x);
-		worldState.setBallY(ballPosition.y);
-
 		MovingObject ball_m = new MovingObject(ballPosition.x, ballPosition.y);
 		worldState.SetBall(ball_m);
 	}
