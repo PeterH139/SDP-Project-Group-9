@@ -13,7 +13,7 @@ import org.apache.commons.cli.ParseException;
 
 import pc.comms.BrickCommServer;
 import pc.comms.BtInfo;
-import pc.strategy.AttackerStrategy;
+import pc.strategy.PassingStrategy;
 import pc.vision.gui.VisionGUI;
 import pc.vision.gui.tools.ColourThresholdConfigTool;
 import pc.vision.gui.tools.HistogramTool;
@@ -77,9 +77,12 @@ public class RunVision {
 
 		try {
 			BrickCommServer bcs = null;
+			BrickCommServer bcs2 = null;
 			if (enableBluetooth) {
 				bcs = new BrickCommServer();
 				bcs.guiConnect(BtInfo.group10);
+				bcs2 = new BrickCommServer();
+				bcs2.guiConnect(BtInfo.MEOW);
 			}
 
 			final VideoStream vStream = new VideoStream(videoDevice, width,
@@ -116,13 +119,15 @@ public class RunVision {
 					pitchConstants));
 			
 			if (enableBluetooth) {
-				AttackerStrategy as = new AttackerStrategy(bcs);
-				as.startControlThread();
+				PassingStrategy ps = new PassingStrategy(bcs, bcs2);
+				ps.startControlThread();
+//				AttackerStrategy as = new AttackerStrategy(bcs);
+//				as.startControlThread();
 //				 TargetFollowerStrategy tfs = new TargetFollowerStrategy(bcs);
 //				 tfs.startControlThread();
 //				InterceptorStrategy ic = new InterceptorStrategy(bcs);
 //				ic.startControlThread();
-				vision.addWorldStateReceiver(as);
+				vision.addWorldStateReceiver(ps);
 			}
 
 			vStream.addReceiver(distortionFix);
