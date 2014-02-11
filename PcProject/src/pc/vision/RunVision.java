@@ -117,7 +117,7 @@ public class RunVision {
 			if (enableBluetooth) {
 //				PassingStrategy ps = new PassingStrategy(bcsGroup10, bcsMeow);
 //				ps.startControlThread();
-				AttackerStrategy as = new AttackerStrategy(bcsGroup10);
+				AttackerStrategy as = new AttackerStrategy(bcsGroup10,pitchConstants);
 				as.startControlThread();
 //				TargetFollowerStrategy tfs = new TargetFollowerStrategy(bcsGroup10);
 //				tfs.startControlThread();

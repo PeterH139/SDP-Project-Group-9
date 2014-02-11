@@ -52,7 +52,7 @@ public class BallRecogniser implements ObjectRecogniser {
 
 		Vector2f ballPosition = vision.calculatePosition(ballPoints);
 		MovingObject ball_m = new MovingObject(ballPosition.x, ballPosition.y);
-		worldState.SetBall(ball_m);
+		worldState.setBall(ball_m);
 		
 		// Debugging Graphics
 		debugGraphics.setColor(Color.red);

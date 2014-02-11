@@ -98,9 +98,27 @@ public class BrickCommClient {
 	}
 		
 	private void handleTest() throws IOException {
-		System.out.println("Testing Bluetooth");
 		pcOutput.writeBoolean(true);
 		pcOutput.flush();
+	}
+	
+	private void handleTestINT() throws IOException {
+		pcOutput.writeBoolean(true);
+		pcOutput.flush();
+		int test = pcInput.readInt();
+	}
+	
+	private void handleTestDOUBLE() throws IOException {
+		pcOutput.writeBoolean(true);
+		pcOutput.flush();
+		double test = pcInput.readDouble();
+	}
+	
+	private void handleTestINTANDDOUBLE() throws IOException {
+		pcOutput.writeBoolean(true);
+		pcOutput.flush();
+		int testINT = pcInput.readInt();
+		double testDOUBLE = pcInput.readDouble();
 	}
 
 	public void runController() {
@@ -145,6 +163,15 @@ public class BrickCommClient {
 					break;
 				case RobotOpcode.TEST:
 					handleTest();
+					break;
+				case RobotOpcode.TESTINT:
+					handleTestINT();
+					break;
+				case RobotOpcode.TESTDOUBLE:
+					handleTestDOUBLE();
+					break;
+				case RobotOpcode.TESTINTANDDOUBLE:
+					handleTestINTANDDOUBLE();
 					break;
 				
 				case RobotOpcode.QUIT:

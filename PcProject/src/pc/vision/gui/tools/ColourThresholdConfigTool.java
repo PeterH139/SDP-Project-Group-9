@@ -86,10 +86,6 @@ public class ColourThresholdConfigTool implements GUITool {
 				mouseX = e.getX();
 				mouseY = e.getY();
 				break;
-			case VisionSettingsPanel.MOUSE_MODE_TARGET:
-				worldState.setRobotTargetX(e.getX());
-				worldState.setRobotTargetY(e.getY());
-				break;
 			}
 		}
 
@@ -215,8 +211,6 @@ public class ColourThresholdConfigTool implements GUITool {
 				pitchConstants.getDividers()[currentDivider] = e.getX();
 				currentDivider = (currentDivider + 1) % 3;
 				break;
-			case VisionSettingsPanel.MOUSE_MODE_TARGET:
-				break;
 			}
 		}
 	};
@@ -329,12 +323,6 @@ public class ColourThresholdConfigTool implements GUITool {
 			debugGraphics.drawString("2", ds[1], bot + 20);
 			debugGraphics.drawLine(ds[2], bot, ds[2], top);
 			debugGraphics.drawString("3", ds[2], bot + 20);
-
-			debugGraphics.setColor(Color.BLUE);
-			final int radius = 5;
-			debugGraphics.drawOval(worldState.getRobotTargetX() - radius,
-					worldState.getRobotTargetY() - radius, 2 * radius,
-					2 * radius);
 		}
 
 	}
