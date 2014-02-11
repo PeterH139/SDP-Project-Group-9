@@ -8,11 +8,12 @@ package nxt.brick;
 
 public class Keeper extends Movement {
 
-	static final int TRACK_WIDTH_KEEPER = 130;
+	static final int TRACK_WIDTH_KEEPER = 133;
 	static final int TRAVEL_SPEED_KEEPER = 90;
 	
 	public Keeper() {
 		super(TRACK_WIDTH_KEEPER);
+		setMaxPilotSpeed(TRAVEL_SPEED_KEEPER);
 	}
 	
 	public void pass() {
