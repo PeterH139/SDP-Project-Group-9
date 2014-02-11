@@ -34,7 +34,7 @@ public class RobotRecogniser implements ObjectRecogniser {
 				- this.pitchConstants.getPitchWidth();
 		int[] dividers = this.pitchConstants.getDividers();
 	
-		boolean leftBlueFirst = true; // TODO: calculate this from the appropriate location
+		boolean leftBlueFirst = !(worldState.weAreBlue ^ worldState.weAreShootingRight);
 		if (leftBlueFirst) {
 			// In order, ltr: Blue Defender, Yellow Attacker, Blue Attacker,
 			// Yellow Defender
@@ -70,23 +70,13 @@ public class RobotRecogniser implements ObjectRecogniser {
 		// calculate the velocities of the robots and the ball.
 		// #Peter: Should this be done in the new world model?
 
-		// TODO: Update the world state with the new values for position,
-		// velocity and rotation.
-		// **RELATIVE TO THE ORIGIN FOR POSITION**
-		worldState.setBlueX(blueAtk.pos.x);
-		worldState.setBlueY(blueAtk.pos.y);
-		worldState.setBlueOrientation(blueAtk.angle);
-		worldState.setYellowX(yellowAtk.pos.x);
-		worldState.setYellowY(yellowAtk.pos.y);
-		worldState.setYellowOrientation(yellowAtk.angle);
-
 		// #Dimitar TODO: further code changes needed! the robots need to be
 		// correctly
 		// identified based on the sections of the field they are in.
 		// right now I assume that the yellow is our team and the
 		// blue is the enemy team
-		MovingObject attackerRobot = new MovingObject(yellowAtk.pos.x,
-				yellowAtk.pos.y, yellowAtk.angle);
+		MovingObject attackerRobot = new MovingObject(blueAtk.pos.x,
+				blueAtk.pos.y, blueAtk.angle);
 		MovingObject defenderRobot = new MovingObject(yellowDef.pos.x,
 				yellowDef.pos.y, yellowDef.angle);
 		MovingObject enemyAttackerRobot = new MovingObject(blueAtk.pos.x,

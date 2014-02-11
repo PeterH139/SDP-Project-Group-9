@@ -7,114 +7,11 @@
 package pc.world;
 
 public class WorldState {
-
-	float ballX, ballY;
-	float blueX, blueY;
-	float greenX, greenY;
-	float yellowX, yellowY;
 	
+	public int[] dividers;
 	int robotTargetX, robotTargetY;
 	double moveX, moveY, moveR;
 	
-	double ballXVelocity, ballYVelocity;
-	double blueXVelocity, blueYVelocity, blueOrientation;
-	double yellowXVelocity, yellowYVelocity, yellowOrientation;	
-	public float getBallX() {
-		return ballX;
-	}
-	public void setBallX(float ballX) {
-		this.ballX = ballX;
-	}
-	public float getBallY() {
-		return ballY;
-	}
-	public void setBallY(float ballY) {
-		this.ballY = ballY;
-	}
-	public float getBlueX() {
-		return blueX;
-	}
-	public void setBlueX(float blueX) {
-		this.blueX = blueX;
-	}
-	public float getBlueY() {
-		return blueY;
-	}
-	public void setBlueY(float blueY) {
-		this.blueY = blueY;
-	}
-	public float getGreenX() {
-		return greenX;
-	}
-	public void setGreenX(float greenX) {
-		this.greenX = greenX;
-	}
-	public float getGreenY() {
-		return greenY;
-	}
-	public void setGreenY(float greenY) {
-		this.greenY = greenY;
-	}
-	public float getYellowX() {
-		return yellowX;
-	}
-	public void setYellowX(float yellowX) {
-		this.yellowX = yellowX;
-	}
-	public float getYellowY() {
-		return yellowY;
-	}
-	public void setYellowY(float yellowY) {
-		this.yellowY = yellowY;
-	}
-	public double getBallXVelocity() {
-		return ballXVelocity;
-	}
-	public void setBallXVelocity(double ballXVelocity) {
-		this.ballXVelocity = ballXVelocity;
-	}
-	public double getBallYVelocity() {
-		return ballYVelocity;
-	}
-	public void setBallYVelocity(double ballYVelocity) {
-		this.ballYVelocity = ballYVelocity;
-	}
-	public double getBlueXVelocity() {
-		return blueXVelocity;
-	}
-	public void setBlueXVelocity(double blueXVelocity) {
-		this.blueXVelocity = blueXVelocity;
-	}
-	public double getBlueYVelocity() {
-		return blueYVelocity;
-	}
-	public void setBlueYVelocity(double blueYVelocity) {
-		this.blueYVelocity = blueYVelocity;
-	}
-	public double getBlueOrientation() {
-		return blueOrientation;
-	}
-	public void setBlueOrientation(double blueOrientation) {
-		this.blueOrientation = blueOrientation;
-	}
-	public double getYellowXVelocity() {
-		return yellowXVelocity;
-	}
-	public void setYellowXVelocity(double yellowXVelocity) {
-		this.yellowXVelocity = yellowXVelocity;
-	}
-	public double getYellowYVelocity() {
-		return yellowYVelocity;
-	}
-	public void setYellowYVelocity(double yellowYVelocity) {
-		this.yellowYVelocity = yellowYVelocity;
-	}
-	public double getYellowOrientation() {
-		return yellowOrientation;
-	}
-	public void setYellowOrientation(double yellowOrientation) {
-		this.yellowOrientation = yellowOrientation;
-	}
 	public int getRobotTargetX() {
 		return robotTargetX;
 	}
@@ -165,6 +62,10 @@ public class WorldState {
 	
 	//Pitch
 	private Pitch playingField;
+	
+	//#Peter: added these for use in the GUI.
+	//Flags
+	public boolean weAreBlue, weAreShootingRight;
 	
 	/**
 	 * Added for legacy purposes

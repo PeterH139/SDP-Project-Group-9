@@ -4,13 +4,13 @@ import lejos.nxt.Motor;
 import lejos.nxt.NXTRegulatedMotor;
 import lejos.robotics.navigation.DifferentialPilot;
 
-/*
+/**
  * The Movement class. Handles the actual driving and movement of the robot, once
  * BrickController has processed the commands.
  * 
- * That is -- defines the behaviour of the robot when it receives the command.
+ * It defines the behaviour of the robot when it receives the command.
  * 
- * Adapted from SDP2013 groups 7 code -- original author sauliusl
+ * Adapted from SDP2013 groups 7 code: original author sauliusl
  * 
  * @author Ross Grassie
  * 
@@ -30,7 +30,7 @@ public class Movement extends DifferentialPilot {
 	public static final int LOW_KICKER_SPEED = 300;
 	public static final int ACCELERATION = MAXIMUM_KICKER_SPEED * 8;
 	public static final int REVERSE_KICKER_DIRECTION = -1;
-	public static final int GEAR_ERROR_RATIO = 5 * REVERSE_KICKER_DIRECTION;
+	public static final int GEAR_RATIO = 5 * REVERSE_KICKER_DIRECTION;
 
 	private static volatile boolean isKicking = false;
 
@@ -49,13 +49,22 @@ public class Movement extends DifferentialPilot {
 		RIGHT_WHEEL.flt();
 		KICKER.flt();
 	}
-	public void resetKicker() {
-		KICKER.rotateTo(0/GEAR_ERROR_RATIO);
+	public void resetKicker(boolean immediateReturn) {
+		KICKER.rotateTo(0, immediateReturn);
 	}
-	public void liftKicker() {
-		KICKER.rotateTo(90/GEAR_ERROR_RATIO);
+	public void prepKicker(boolean immediateReturn) {
+		int prevSpeed = KICKER.getSpeed();
+		KICKER.setSpeed(50);
+		KICKER.rotateTo(90/GEAR_RATIO, immediateReturn);
+		KICKER.setSpeed(prevSpeed);
 	}
-	public void kick(int speed) {
+	public void liftKicker(boolean immediateReturn) {
+		KICKER.rotateTo(120/GEAR_RATIO, immediateReturn);
+	}
+	public void kick(int speed){
+		this.kick(speed, false);
+	}
+	public void kick(int speed, boolean immediateReturn) {
 
 		if (isKicking) {
 			return;
@@ -66,9 +75,9 @@ public class Movement extends DifferentialPilot {
 		KICKER.setSpeed(speed);
 
 		// Kick
-		liftKicker();
+		liftKicker(immediateReturn);
 		// Reset
-		resetKicker();
+		resetKicker(immediateReturn);
 		
 		isKicking = false;
 	}

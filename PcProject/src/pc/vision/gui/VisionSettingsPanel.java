@@ -47,7 +47,7 @@ public class VisionSettingsPanel extends JPanel {
 
 	// Stores information about the current world state, such as shooting
 	// direction, ball location, etc
-	//private final WorldState worldState;
+	private final WorldState worldState;
 
 	private final DistortionFix distortionFix;
 
@@ -84,8 +84,7 @@ public class VisionSettingsPanel extends JPanel {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// Update which colour is ours
-			//worldState.setColour(rdbtnBlue.isSelected() ? 1 : 0);
-			//worldState.setWeAreBlue(rdbtnBlue.isSelected());
+			worldState.weAreBlue = rdbtnBlue.isSelected();			
 		}
 	};
 
@@ -94,10 +93,8 @@ public class VisionSettingsPanel extends JPanel {
 	private final ActionListener directionActionListener = new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// Update which direction the other team's goal is in
-			//int isLeft = rdbtnLeft.isSelected() ? 1 : 0;
-			//worldState.setDirection(isLeft);
-			//worldState.setWeAreOnLeft(rdbtnLeft.isSelected());
+			// Update which direction we are shooting
+			worldState.weAreShootingRight = rdbtnRight.isSelected();
 		}
 	};
 
@@ -153,7 +150,7 @@ public class VisionSettingsPanel extends JPanel {
 		assert (worldState != null) : "worldState is null";
 		assert (pitchConstants != null) : "pitchConstants is null";
 
-		//this.worldState = worldState;
+		this.worldState = worldState;
 		this.pitchConstants = pitchConstants;
 		this.distortionFix = distortionFix;
 		this.camPanel = new CameraSettingsPanel(vStream,

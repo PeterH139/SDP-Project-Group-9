@@ -5,7 +5,6 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 
 import pc.comms.BrickCommServer;
-import pc.vision.Position;
 import pc.vision.Vector2f;
 import pc.vision.interfaces.WorldStateReceiver;
 import pc.world.WorldState;
@@ -19,8 +18,8 @@ public class InterceptorStrategy implements WorldStateReceiver {
 	private BrickCommServer brick;
 	private ControlThread controlThread;
 	private Deque<Vector2f> ballPositions = new ArrayDeque<Vector2f>();
-	private int tempBottomY = 365;
-	private int tempTopY = 103;
+	private int tempBottomY = 315;
+	private int tempTopY = 157;
 
 	public InterceptorStrategy(BrickCommServer brick) {
 		this.brick = brick;
@@ -33,27 +32,25 @@ public class InterceptorStrategy implements WorldStateReceiver {
 
 	@Override
 	public void sendWorldState(WorldState worldState) {
-		float robotX = worldState.getYellowX(), robotY = worldState.getYellowY();
-		double robotO = worldState.getYellowOrientation();
-		ballPositions.addLast(new Vector2f(worldState.getBallX(), worldState
-				.getBallY()));
+		float robotX = worldState.GetDefenderRobot().x; 
+		float robotY = worldState.GetDefenderRobot().y;
+		double robotO = worldState.GetDefenderRobot().orientation_angle;
+		ballPositions.addLast(new Vector2f(worldState.GetBall().x, worldState
+				.GetBall().y));
 		if (ballPositions.size() > 3)
 			ballPositions.removeFirst();
 
 		Vector2f ball5FramesAgo = ballPositions.getFirst();
 		float ballX1 = ball5FramesAgo.x, ballY1 = ball5FramesAgo.y;
-		float ballX2 = worldState.getBallX(), ballY2 = worldState.getBallY();
+		float ballX2 = worldState.GetBall().x, ballY2 = worldState.GetBall().y;
 
 		double slope = (ballY2 - ballY1) / ((ballX2 - ballX1) + 0.0001);
 		double c = ballY1 - slope * ballX1;
-
+		boolean ballMovement = Math.abs(ballX2 - ballX1) < 10; 
 		int targetY = (int) (slope * robotX + c);
 		int targetX = (int) ((targetY + c) / slope); 
-		//targetY = ballY2;
-		System.out.println(targetY);
-		System.out.println(robotY);
 
-		if (robotX == 0 || targetY == 0 || robotY == 0 || robotO == 0
+		if (robotX <= 0.5 || targetY <= 0.5 || robotY <= 0.5 || ballMovement ||robotO <= 0.5
 				|| Math.hypot(0, robotY - targetY) < 10) {
 			synchronized (controlThread) {
 				controlThread.rotateBy = 0;
@@ -75,13 +72,10 @@ public class InterceptorStrategy implements WorldStateReceiver {
 		float dist;
 		int rotateBy = 0;
 		if (targetY > tempBottomY) {
-			targetY = tempBottomY - 15;
+			targetY = tempBottomY;
 		}
 		else if (targetY < tempTopY) {
-			targetY = tempTopY + 15;
-		}
-		if (targetX > robotX) {
-			targetY = tempBottomY - tempTopY;
+			targetY = tempTopY;
 		}
 		if (robotRad > Math.PI)
 			robotRad -= 2 * Math.PI;
@@ -89,20 +83,20 @@ public class InterceptorStrategy implements WorldStateReceiver {
 			rotateBy = -(int) Math.toDegrees(Math.PI / 2 - robotRad);
 			dist = targetY - robotY;
 		} else {
+			
 			rotateBy = -(int) Math.toDegrees(-Math.PI / 2 - robotRad);
 			dist = robotY - targetY;
 		}
-		if (Math.abs(rotateBy) < 20) {
+		if (Math.abs(rotateBy) < 10) {
 			rotateBy = 0;
 		}
 		else {
 			dist = 0;
 		}
 		
-		
 		synchronized (controlThread) {
 			controlThread.rotateBy = rotateBy;
-			controlThread.travelDist = (int) (dist * 3);
+			controlThread.travelDist = (int) (dist * 0.8);
 
 		}
 	}
@@ -125,12 +119,12 @@ public class InterceptorStrategy implements WorldStateReceiver {
 						rotateBy = this.rotateBy;
 						travelDist = this.travelDist;
 					}
-					if (rotateBy != 0) {
-						brick.robotRotateBy(rotateBy, rotateBy / 3);
-					} else if (travelDist != 0) {
-						brick.robotTravel(travelDist,25);
+//					if (rotateBy != 0) {
+//						brick.robotRotateBy(rotateBy, rotateBy / 3);
+					 if (travelDist != 0) {
+						brick.robotTravel(-travelDist, (int) (Math.abs(travelDist) * 2));
 					}
-					Thread.sleep(400);
+					Thread.sleep(500);
 				}
 			} catch (IOException e) {
 				e.printStackTrace();

@@ -40,42 +40,37 @@ public class BrickCommClient {
 	}
 	
 	private void handleStop() {
-		System.out.println("Stop");
 		rc.getMovementController().stop();
-		movingForwards = movingBackwards = false;
+		movingForwards = false;
+		movingBackwards = false;
 	}
 	private void handleCatch() {
-		System.out.println("Catch");
-		rc.getMovementController().resetKicker();
+		rc.getMovementController().resetKicker(true);
 		kickerState = 0;
 	}
 	
 	private void handleForwards() {
-		System.out.println("Forwards");
 		rc.getMovementController().forward();
 		movingForwards = true;
 	}
 	
 	private void handleBackwards() {
-		System.out.println("Backwards");
 		rc.getMovementController().backward();
 		movingBackwards = true;
 	}
 	
 	private void handleKick() throws IOException {
 		int speed = pcInput.readInt();
-		System.out.println("Kick");
 		rc.getMovementController().kick(speed);
 		kickerState = 0;
 	}
 	private void handlePrepCatcher() throws IOException {
-		System.out.println("Preparing Catcher");
-		if (kickerState == 0)
-			rc.getMovementController().liftKicker();
-		kickerState = 1;
+		if (kickerState == 0){
+			rc.getMovementController().prepKicker(false);
+			kickerState = 1;
+		}
 	}
 	private void handleRotate(boolean clockwise) throws IOException {
-		System.out.println("Rotate");
 		if (clockwise)
 			rc.getMovementController().rotateRight();
 		else
@@ -86,7 +81,7 @@ public class BrickCommClient {
 		int angle = pcInput.readInt();
 		double speed = pcInput.readDouble();
 		rc.getMovementController().setRotateSpeed(speed);
-		rc.getMovementController().rotate(angle);
+		rc.getMovementController().rotate(angle, true);
 	}
 
 	private void handleArcForwards() throws IOException {
@@ -101,7 +96,7 @@ public class BrickCommClient {
 		rc.getMovementController().setTravelSpeed(speed);
 		rc.getMovementController().travel(distance, true);	
 	}
-	
+		
 	private void handleTest() throws IOException {
 		System.out.println("Testing Bluetooth");
 		pcOutput.writeBoolean(true);

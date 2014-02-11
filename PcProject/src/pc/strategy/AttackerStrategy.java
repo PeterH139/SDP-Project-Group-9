@@ -27,7 +27,7 @@ public class AttackerStrategy implements WorldStateReceiver {
 		float robotX = worldState.GetAttackerRobot().x, robotY = worldState
 				.GetAttackerRobot().y;
 		float robotO = worldState.GetAttackerRobot().orientation_angle;
-		float targetX = worldState.getBallX(), targetY = worldState.getBallY();
+		float targetX = worldState.GetBall().x, targetY = worldState.GetBall().y;
 		float goalX = 65, goalY = 220;
 		if (targetX == 0 || targetY == 0 || robotX == 0 || robotY == 0
 				|| robotO == 0) {
@@ -48,10 +48,10 @@ public class AttackerStrategy implements WorldStateReceiver {
 					controlThread.operation = Operation.ROTATE;
 					controlThread.rotateBy = (int) Math.toDegrees(ang1);
 				} else {
-					if (dist > 37) {
+					if (dist > 30) {
 						controlThread.operation = Operation.TRAVEL;
 						controlThread.travelDist = (int) (dist * 3);
-						controlThread.travelSpeed = (int) (dist * 2);
+						controlThread.travelSpeed = (int) (dist * 1.5);
 					} else {
 						controlThread.operation = Operation.CATCH;
 					}
@@ -59,7 +59,7 @@ public class AttackerStrategy implements WorldStateReceiver {
 			} else {
 				double ang1 = calculateAngle(robotX, robotY, robotO, goalX,
 						goalY);
-				if (Math.abs(ang1) > Math.PI / 20) {
+				if (Math.abs(ang1) > Math.PI / 32) {
 					controlThread.operation = Operation.ROTATE;
 					controlThread.rotateBy = (int) Math.toDegrees(ang1);
 				} else {
@@ -97,8 +97,8 @@ public class AttackerStrategy implements WorldStateReceiver {
 						travelSpeed = this.travelSpeed;
 					}
 
-					System.out.println("op: " + op.toString() + " rotateBy: "
-							+ rotateBy + " travelDist: " + travelDist);
+//					System.out.println("op: " + op.toString() + " rotateBy: "
+//							+ rotateBy + " travelDist: " + travelDist);
 
 					switch (op) {
 					case DO_NOTHING:
@@ -112,18 +112,18 @@ public class AttackerStrategy implements WorldStateReceiver {
 						brick.robotPrepCatch();
 						break;
 					case KICK:
-						brick.robotKick(600);
+						brick.robotKick(10000);
 						ballCaught = false;
 						break;
 					case ROTATE:
-						brick.robotRotateBy(rotateBy, Math.abs(rotateBy) / 3);
+						brick.robotRotateBy(rotateBy, Math.abs(rotateBy));
 						break;
 					case TRAVEL:
 						brick.robotPrepCatch();
 						brick.robotTravel(travelDist, travelSpeed);
 						break;
 					}
-					Thread.sleep(1000);
+					Thread.sleep(250);
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
