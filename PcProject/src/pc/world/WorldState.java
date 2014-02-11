@@ -166,6 +166,10 @@ public class WorldState {
 	//Pitch
 	private Pitch playingField;
 	
+	//#Peter: added these for use in the GUI.
+	//Flags
+	public boolean weAreBlue, weAreShootingRight;
+	
 	/**
 	 * Added for legacy purposes
 	 * */

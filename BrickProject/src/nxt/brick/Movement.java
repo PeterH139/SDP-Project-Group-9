@@ -30,7 +30,7 @@ public class Movement extends DifferentialPilot {
 	public static final int LOW_KICKER_SPEED = 300;
 	public static final int ACCELERATION = MAXIMUM_KICKER_SPEED * 8;
 	public static final int REVERSE_KICKER_DIRECTION = -1;
-	public static final int GEAR_ERROR_RATIO = 5 * REVERSE_KICKER_DIRECTION;
+	public static final int GEAR_RATIO = 5 * REVERSE_KICKER_DIRECTION;
 
 	private static volatile boolean isKicking = false;
 
@@ -46,10 +46,16 @@ public class Movement extends DifferentialPilot {
 		KICKER.flt();
 	}
 	public void resetKicker(boolean immediateReturn) {
-		KICKER.rotateTo(0/GEAR_ERROR_RATIO, immediateReturn);
+		KICKER.rotateTo(0, immediateReturn);
+	}
+	public void prepKicker(boolean immediateReturn) {
+		int prevSpeed = KICKER.getSpeed();
+		KICKER.setSpeed(50);
+		KICKER.rotateTo(90/GEAR_RATIO, immediateReturn);
+		KICKER.setSpeed(prevSpeed);
 	}
 	public void liftKicker(boolean immediateReturn) {
-		KICKER.rotateTo(90/GEAR_ERROR_RATIO, immediateReturn);
+		KICKER.rotateTo(120/GEAR_RATIO, immediateReturn);
 	}
 	public void kick(int speed){
 		this.kick(speed, false);

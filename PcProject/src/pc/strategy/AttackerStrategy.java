@@ -51,7 +51,7 @@ public class AttackerStrategy implements WorldStateReceiver {
 					if (dist > 30) {
 						controlThread.operation = Operation.TRAVEL;
 						controlThread.travelDist = (int) (dist * 3);
-						controlThread.travelSpeed = (int) (dist);
+						controlThread.travelSpeed = (int) (dist * 1.5);
 					} else {
 						controlThread.operation = Operation.CATCH;
 					}
@@ -59,12 +59,11 @@ public class AttackerStrategy implements WorldStateReceiver {
 			} else {
 				double ang1 = calculateAngle(robotX, robotY, robotO, goalX,
 						goalY);
-				if (Math.abs(ang1) > Math.PI / 20) {
+				if (Math.abs(ang1) > Math.PI / 32) {
 					controlThread.operation = Operation.ROTATE;
 					controlThread.rotateBy = (int) Math.toDegrees(ang1);
 				} else {
 					controlThread.operation = Operation.KICK;
-					//ballCaught = faspeedlse;
 				}
 			}
 		}
@@ -98,8 +97,8 @@ public class AttackerStrategy implements WorldStateReceiver {
 						travelSpeed = this.travelSpeed;
 					}
 
-					System.out.println("op: " + op.toString() + " rotateBy: "
-							+ rotateBy + " travelDist: " + travelDist);
+//					System.out.println("op: " + op.toString() + " rotateBy: "
+//							+ rotateBy + " travelDist: " + travelDist);
 
 					switch (op) {
 					case DO_NOTHING:
@@ -113,7 +112,7 @@ public class AttackerStrategy implements WorldStateReceiver {
 						brick.robotPrepCatch();
 						break;
 					case KICK:
-						brick.robotKick(600);
+						brick.robotKick(10000);
 						ballCaught = false;
 						break;
 					case ROTATE:
@@ -124,7 +123,7 @@ public class AttackerStrategy implements WorldStateReceiver {
 						brick.robotTravel(travelDist, travelSpeed);
 						break;
 					}
-					Thread.sleep(500);
+					Thread.sleep(250);
 				}
 
 				//

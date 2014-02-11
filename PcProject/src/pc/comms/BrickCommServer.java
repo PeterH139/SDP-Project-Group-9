@@ -133,7 +133,7 @@ public class BrickCommServer {
 		brickOutput.writeInt(distance);
 		brickOutput.writeInt(travelSpeed);
 		brickOutput.flush();
-		//brickInput.readBoolean();
+
 	}
 	
 	public boolean robotTest() throws IOException {
@@ -171,19 +171,19 @@ public class BrickCommServer {
 
 			label.addKeyListener(this);
 		}
-
+	
 		@Override
 		public void keyPressed(KeyEvent key) {
 			try {
 				switch (key.getKeyCode()) {
 				case KeyEvent.VK_UP:
-					BrickCommServer.this.robotForwards();
+					BrickCommServer.this.robotTravel(100,100);
 					break;
 				case KeyEvent.VK_DOWN:
-					BrickCommServer.this.robotBackwards();
+					BrickCommServer.this.robotTravel(-100,100);
 					break;
 				case KeyEvent.VK_SPACE:
-					BrickCommServer.this.robotKick(600);
+					BrickCommServer.this.robotKick(1000);
 					break;
 				case KeyEvent.VK_1:
 					BrickCommServer.this.robotPrepCatch();
@@ -192,10 +192,10 @@ public class BrickCommServer {
 					BrickCommServer.this.robotCatch();
 					break;
 				case KeyEvent.VK_LEFT:
-					BrickCommServer.this.robotRotate(false);
+					BrickCommServer.this.robotRotateBy(45,45);
 					break;
 				case KeyEvent.VK_RIGHT:
-					BrickCommServer.this.robotRotate(true);
+					BrickCommServer.this.robotRotateBy(-45,45);
 					break;
 				}
 			} catch (IOException e) {
@@ -213,7 +213,7 @@ public class BrickCommServer {
 		}
 
 		@Override
-		public void keyTyped(KeyEvent arg0) {
+		public void keyTyped(KeyEvent key) {
 		}
 	}
 }

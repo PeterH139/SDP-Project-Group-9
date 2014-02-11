@@ -65,9 +65,10 @@ public class BrickCommClient {
 		kickerState = 0;
 	}
 	private void handlePrepCatcher() throws IOException {
-		if (kickerState == 0)
-			rc.getMovementController().liftKicker(true);
-		kickerState = 1;
+		if (kickerState == 0){
+			rc.getMovementController().prepKicker(false);
+			kickerState = 1;
+		}
 	}
 	private void handleRotate(boolean clockwise) throws IOException {
 		if (clockwise)
@@ -95,7 +96,7 @@ public class BrickCommClient {
 		rc.getMovementController().setTravelSpeed(speed);
 		rc.getMovementController().travel(distance, true);	
 	}
-	
+		
 	private void handleTest() throws IOException {
 		System.out.println("Testing Bluetooth");
 		pcOutput.writeBoolean(true);
