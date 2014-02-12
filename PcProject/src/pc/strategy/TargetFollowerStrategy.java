@@ -36,8 +36,11 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 
 		float slope = (ballY2 - ballY1) / ((ballX2 - ballX1) + 0.0001f);
 		float c = ballY1 - slope * ballX1;
-		float targetY = slope * robotX + c;
-		float targetX = (targetY + c) / slope; 
+//		float targetY = slope * robotX + c;
+//		float targetX = (targetY + c) / slope;
+		
+		// To be used for initial testing
+		float targetX = worldState.getRobotTargetX(), targetY = worldState.getRobotTargetY();
 
 		if (targetX == 0 || targetY == 0 || robotX == 0 || robotY == 0
 				|| robotO == 0
@@ -62,8 +65,10 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 
 		double dist = Math.hypot(targetX - robotX, targetY - robotY);
 
-		double radius = Math.hypot(ballX1 - robotX, ballY1 - robotY) / 2;
-
+		//double radius = Math.hypot(ballX1 - robotX, ballY1 - robotY) / 2;
+		// To be used for initial testing
+		double radius = Math.hypot(targetX - robotX, targetY - robotY);
+		
 		worldState.setMoveR(radius);
 		worldState.setMoveX(robotX + radius * Math.cos(robotRad + Math.PI / 2));
 		worldState.setMoveY(robotY + radius * Math.sin(robotRad + Math.PI / 2));
@@ -71,15 +76,16 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 
 		synchronized (controlThread) {
 			controlThread.operation = Operation.DO_NOTHING;
+			if(!worldState.GetPossession()) {
+				controlThread.operation = Operation.RESET_ORIENTATION;
+				controlThread.rotateBy = (int) Math.toDegrees(robotO - 90);
+			}
 			if (Math.abs(ang1) > Math.PI / 16) {
 				if (ang1 > 150) {
 					controlThread.operation = Operation.ARC_LEFT;
 				} else if (ang1 < -150) {
 					controlThread.operation = Operation.ARC_RIGHT;
-				} else {
-					controlThread.operation = Operation.ROTATE;
-					controlThread.rotateBy = (int) Math.toDegrees(ang1) - 90;  // negating 90 to account for the fact the robot with be perpendicular to the ball
-				}
+			}
 				controlThread.radius = radius;
 				controlThread.travelDist = (int) (-dist * 3);
 				controlThread.travelSpeed = (int) (dist * 2);
@@ -101,7 +107,7 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 	}
 
 	public enum Operation {
-		DO_NOTHING, TRAVEL, ROTATE, ARC_LEFT, ARC_RIGHT,
+		DO_NOTHING, TRAVEL, ROTATE, ARC_LEFT, ARC_RIGHT, RESET_ORIENTATION,
 	}
 
 	private class ControlThread extends Thread {
@@ -149,7 +155,11 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 					case ARC_RIGHT:	
 						brick.robotArcForwards(-radius, travelDist);
 						break;
+					case RESET_ORIENTATION:
+						brick.robotRotateBy(rotateBy, travelSpeed);
+						break;
 					}
+					
 					Thread.sleep(1000);
 				}
 			} catch (IOException e) {
