@@ -26,26 +26,23 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 
 	@Override
 	public void sendWorldState(WorldState worldState) {
-		float robotX = worldState.GetAttackerRobot().x, robotY = worldState
-				.GetAttackerRobot().y;
-		float robotO = worldState.GetAttackerRobot().orientation_angle;
+		float robotX = worldState.getAttackerRobot().x, robotY = worldState
+				.getAttackerRobot().y;
+		float robotO = worldState.getAttackerRobot().orientation_angle;
 		
 		Vector2f ball5FramesAgo = ballPositions.getFirst();
 		float ballX1 = ball5FramesAgo.x, ballY1 = ball5FramesAgo.y;
-		float ballX2 = worldState.GetBall().x, ballY2 = worldState.GetBall().y;
+		float ballX2 = worldState.getBall().x, ballY2 = worldState.getBall().y;
 
 		float slope = (ballY2 - ballY1) / ((ballX2 - ballX1) + 0.0001f);
 		float c = ballY1 - slope * ballX1;
-//		float targetY = slope * robotX + c;
-//		float targetX = (targetY + c) / slope;
+		float targetY = slope * robotX + c;
+		float targetX = (targetY + c) / slope;
 		
-		// To be used for initial testing
-		float targetX = worldState.getRobotTargetX(), targetY = worldState.getRobotTargetY();
 
 		if (targetX == 0 || targetY == 0 || robotX == 0 || robotY == 0
 				|| robotO == 0
 				|| Math.hypot(robotX - targetX, robotY - targetY) < 10) {
-			worldState.setMoveR(0);
 			synchronized (controlThread) {
 				controlThread.rotateBy = 0;
 				controlThread.travelDist = 0;
@@ -69,14 +66,9 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 		// To be used for initial testing
 		double radius = Math.hypot(targetX - robotX, targetY - robotY);
 		
-		worldState.setMoveR(radius);
-		worldState.setMoveX(robotX + radius * Math.cos(robotRad + Math.PI / 2));
-		worldState.setMoveY(robotY + radius * Math.sin(robotRad + Math.PI / 2));
-		System.out.println(Math.toDegrees(ang1));;
-
 		synchronized (controlThread) {
 			controlThread.operation = Operation.DO_NOTHING;
-			if(!worldState.GetPossession()) {
+			if(!worldState.getPossession()) {
 				controlThread.operation = Operation.RESET_ORIENTATION;
 				controlThread.rotateBy = (int) Math.toDegrees(robotO - 90);
 			}

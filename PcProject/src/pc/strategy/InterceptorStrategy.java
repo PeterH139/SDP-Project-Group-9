@@ -32,17 +32,17 @@ public class InterceptorStrategy implements WorldStateReceiver {
 
 	@Override
 	public void sendWorldState(WorldState worldState) {
-		float robotX = worldState.GetDefenderRobot().x; 
-		float robotY = worldState.GetDefenderRobot().y;
-		double robotO = worldState.GetDefenderRobot().orientation_angle;
-		ballPositions.addLast(new Vector2f(worldState.GetBall().x, worldState
-				.GetBall().y));
-		if (ballPositions.size() > 3)
+		float robotX = worldState.getDefenderRobot().x; 
+		float robotY = worldState.getDefenderRobot().y;
+		double robotO = worldState.getDefenderRobot().orientation_angle;
+		ballPositions.addLast(new Vector2f(worldState.getBall().x, worldState
+				.getBall().y));
+		if (ballPositions.size() > 2)
 			ballPositions.removeFirst();
 
-		Vector2f ball5FramesAgo = ballPositions.getFirst();
-		float ballX1 = ball5FramesAgo.x, ballY1 = ball5FramesAgo.y;
-		float ballX2 = worldState.GetBall().x, ballY2 = worldState.GetBall().y;
+		Vector2f ball2FramesAgo = ballPositions.getFirst();
+		float ballX1 = ball2FramesAgo.x, ballY1 = ball2FramesAgo.y;
+		float ballX2 = worldState.getBall().x, ballY2 = worldState.getBall().y;
 
 		double slope = (ballY2 - ballY1) / ((ballX2 - ballX1) + 0.0001);
 		double c = ballY1 - slope * ballX1;
@@ -87,13 +87,13 @@ public class InterceptorStrategy implements WorldStateReceiver {
 			rotateBy = -(int) Math.toDegrees(-Math.PI / 2 - robotRad);
 			dist = robotY - targetY;
 		}
-		if (Math.abs(rotateBy) < 10) {
-			rotateBy = 0;
-		}
-		else {
-			dist = 0;
-		}
-		
+//		if (Math.abs(rotateBy) < 10) {
+//			rotateBy = 0;
+//		}
+//		else {
+//			dist = 0;
+//		}
+		System.out.println("distance: " +dist);
 		synchronized (controlThread) {
 			controlThread.rotateBy = rotateBy;
 			controlThread.travelDist = (int) (dist * 0.8);
@@ -111,7 +111,7 @@ public class InterceptorStrategy implements WorldStateReceiver {
 		}
 
 		@Override
-		public void run() {
+		public void run() { 
 			try {
 				while (true) {
 					int rotateBy, travelDist;
@@ -124,7 +124,7 @@ public class InterceptorStrategy implements WorldStateReceiver {
 					 if (travelDist != 0) {
 						brick.robotTravel(-travelDist, (int) (Math.abs(travelDist) * 2));
 					}
-					Thread.sleep(500);
+					Thread.sleep(250); //TODO: Test lower values for this and see where it breaks.
 				}
 			} catch (IOException e) {
 				e.printStackTrace();

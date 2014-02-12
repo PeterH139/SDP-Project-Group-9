@@ -25,7 +25,7 @@ public class RobotRecogniser implements ObjectRecogniser {
 		this.worldState = worldState;
 		this.pitchConstants = pitchConstants;
 	}
-
+ 
 	@Override
 	public void processFrame(PixelInfo[][] pixels, BufferedImage frame,
 			Graphics2D debugGraphics, BufferedImage debugOverlay) {
@@ -70,24 +70,24 @@ public class RobotRecogniser implements ObjectRecogniser {
 		// calculate the velocities of the robots and the ball.
 		// #Peter: Should this be done in the new world model?
 
-		// #Dimitar TODO: further code changes needed! the robots need to be
-		// correctly
-		// identified based on the sections of the field they are in.
-		// right now I assume that the yellow is our team and the
-		// blue is the enemy team
-		MovingObject attackerRobot = new MovingObject(blueAtk.pos.x,
-				blueAtk.pos.y, blueAtk.angle);
-		MovingObject defenderRobot = new MovingObject(yellowDef.pos.x,
-				yellowDef.pos.y, yellowDef.angle);
-		MovingObject enemyAttackerRobot = new MovingObject(blueAtk.pos.x,
-				blueAtk.pos.y, blueAtk.angle);
-		MovingObject enemyDefenderRobot = new MovingObject(blueDef.pos.x,
-				blueDef.pos.y, blueDef.angle);
+		// #Peter: Robots are now decided based on which colour plates we are using.
+		MovingObject attackerRobot,defenderRobot,enemyAttackerRobot,enemyDefenderRobot;
+		if (worldState.weAreBlue){
+			attackerRobot = new MovingObject(blueAtk.pos.x,blueAtk.pos.y, blueAtk.angle);
+			defenderRobot = new MovingObject(blueDef.pos.x,blueDef.pos.y, blueDef.angle);
+			enemyAttackerRobot = new MovingObject(yellowAtk.pos.x,yellowAtk.pos.y, yellowAtk.angle);
+			enemyDefenderRobot = new MovingObject(yellowDef.pos.x,yellowDef.pos.y, yellowDef.angle);
+		} else {
+			attackerRobot = new MovingObject(yellowAtk.pos.x,yellowAtk.pos.y, yellowAtk.angle);
+			defenderRobot = new MovingObject(yellowDef.pos.x,yellowDef.pos.y, yellowDef.angle);
+			enemyAttackerRobot = new MovingObject(blueAtk.pos.x,blueAtk.pos.y, blueAtk.angle);
+			enemyDefenderRobot = new MovingObject(blueDef.pos.x,blueDef.pos.y, blueDef.angle);
+		}
 
-		worldState.SetAttackerRobot(attackerRobot);
-		worldState.SetDefenderRobot(defenderRobot);
-		worldState.SetEnemyAttackerRobot(enemyAttackerRobot);
-		worldState.SetEnemyDefenderRobot(enemyDefenderRobot);
+		worldState.setAttackerRobot(attackerRobot);
+		worldState.setDefenderRobot(defenderRobot);
+		worldState.setEnemyAttackerRobot(enemyAttackerRobot);
+		worldState.setEnemyDefenderRobot(enemyDefenderRobot);
 	}
 
 	/**
@@ -136,7 +136,7 @@ public class RobotRecogniser implements ObjectRecogniser {
 
 		// Green Plate centroid
 		Vector2f greenPlate = vision.calculatePosition(greenPoints);
-		int searchRadius = 14; // TODO: Determine if this is the best value.
+		int searchRadius = 14;
 
 		// For Debugging
 		debugOverlay.getGraphics().drawOval((int)greenPlate.x-searchRadius, (int)greenPlate.y-searchRadius, searchRadius*2, searchRadius*2);
