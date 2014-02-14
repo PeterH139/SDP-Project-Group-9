@@ -13,7 +13,7 @@ import org.apache.commons.cli.ParseException;
 
 import pc.comms.BrickCommServer;
 import pc.comms.BtInfo;
-import pc.strategy.InterceptorStrategy;
+import pc.strategy.PassingStrategy;
 import pc.vision.gui.VisionGUI;
 import pc.vision.gui.tools.ColourThresholdConfigTool;
 import pc.vision.gui.tools.HistogramTool;
@@ -75,8 +75,8 @@ public class RunVision {
 			BrickCommServer bcsGroup10 = null;
 			BrickCommServer bcsMeow = null;
 			if (enableBluetooth) {
-//				bcsGroup10 = new BrickCommServer();
-//				bcsGroup10.guiConnect(BtInfo.group10);
+				bcsGroup10 = new BrickCommServer();
+				bcsGroup10.guiConnect(BtInfo.group10);
 				bcsMeow = new BrickCommServer();
 				bcsMeow.guiConnect(BtInfo.MEOW);
 			}
@@ -115,17 +115,17 @@ public class RunVision {
 					pitchConstants));
 			
 			if (enableBluetooth) {
-//				PassingStrategy ps = new PassingStrategy(bcsGroup10, bcsMeow);
-//				ps.startControlThread();
+				PassingStrategy ps = new PassingStrategy(bcsGroup10, bcsMeow, pitchConstants);
+				ps.startControlThread();
 //				AttackerStrategy as = new AttackerStrategy(bcsGroup10,pitchConstants);
 //				as.startControlThread();
 //				TargetFollowerStrategy tfs = new TargetFollowerStrategy(bcsGroup10);
 //				tfs.startControlThread();
-				InterceptorStrategy ic = new InterceptorStrategy(bcsMeow);
-				ic.startControlThread();
+//				InterceptorStrategy ic = new InterceptorStrategy(bcsMeow);
+//				ic.startControlThread();
 //				PenaltyStrategy ps = new PenaltyStrategy(bcsGroup10);
 //				ps.startControlThread();
-				vision.addWorldStateReceiver(ic);
+				vision.addWorldStateReceiver(ps);
 			}
 
 			vStream.addReceiver(distortionFix);
