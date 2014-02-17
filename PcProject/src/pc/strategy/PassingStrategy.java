@@ -12,7 +12,6 @@ public class PassingStrategy implements WorldStateReceiver, Strategy {
 
 	private BrickCommServer attackerBrick;
 	private BrickCommServer defenderBrick;
-	private PitchConstants pitchConstants;
 	private ControlThread controlThread;
 
 	private boolean ballCaught = false;
@@ -20,10 +19,9 @@ public class PassingStrategy implements WorldStateReceiver, Strategy {
 	private boolean ballAttacker = false;
 
 	public PassingStrategy(BrickCommServer attackerBrick,
-			BrickCommServer defenderBrick, PitchConstants pitchConstants) {
+			BrickCommServer defenderBrick) {
 		this.attackerBrick = attackerBrick;
 		this.defenderBrick = defenderBrick;
-		this.pitchConstants = pitchConstants;
 		controlThread = new ControlThread();
 	}
 
@@ -49,13 +47,12 @@ public class PassingStrategy implements WorldStateReceiver, Strategy {
 		float defenderRobotO = worldState.getDefenderRobot().orientation_angle;
 		float ballX = worldState.getBall().x, ballY = worldState.getBall().y;
 		int leftCheck, rightCheck, defenderCheck;
-		int[] divs = pitchConstants.getDividers();
+		int[] divs = worldState.dividers;
 		leftCheck = (worldState.weAreShootingRight) ? divs[1] : divs[0];
 		rightCheck = (worldState.weAreShootingRight) ? divs[2] : divs[1];
 		defenderCheck = (worldState.weAreShootingRight) ? divs[0] : divs[2];
 		// float goalX = 65;
 		float goalX = 559, goalY = 220;
-		System.out.println(ballX);
 		if (ballX == 0 || ballY == 0 || attackerRobotX == 0
 				|| attackerRobotY == 0 || attackerRobotO == 0
 				|| defenderRobotX == 0 || defenderRobotY == 0
@@ -79,7 +76,7 @@ public class PassingStrategy implements WorldStateReceiver, Strategy {
 				ballAttacker = false;
 				ballDefender = false;
 			}
-			System.out.println(ballX);
+	
 			if (ballAttacker) {
 				if (!ballCaught) {
 					double ang1 = calculateAngle(attackerRobotX,

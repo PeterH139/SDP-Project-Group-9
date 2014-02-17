@@ -30,6 +30,7 @@ public class Vision implements VideoReceiver {
 		// Set the state fields.
 		this.worldState = worldState;
 		this.pitchConstants = pitchConstants;
+		worldState.dividers = pitchConstants.getDividers();
 	}
 
 	public WorldState getWorldState() {
