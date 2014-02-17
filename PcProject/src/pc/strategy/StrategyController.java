@@ -14,7 +14,7 @@ public class StrategyController {
 		PASSING, ATTACKING, DEFENDING
 	}
 	
-	public BrickCommServer bcsAttacker, bcsMeow;
+	public BrickCommServer bcsAttacker, bcsDefender;
 	
 	private Vision vision;
 	private ArrayList<Strategy> currentStrategies = new ArrayList<Strategy>();
@@ -23,12 +23,12 @@ public class StrategyController {
 		this.vision = vision;
 		
 		bcsAttacker = null;
-		bcsMeow = null;
+		bcsDefender = null;
 		try {
 			bcsAttacker = new BrickCommServer();
 			bcsAttacker.guiConnect(BtInfo.group10);
-			bcsMeow = new BrickCommServer();
-			bcsMeow.guiConnect(BtInfo.MEOW);
+			bcsDefender = new BrickCommServer();
+			bcsDefender.guiConnect(BtInfo.MEOW);
 		} catch (NXTCommException e) {
 			e.printStackTrace();
 		}
@@ -46,22 +46,21 @@ public class StrategyController {
 			vision.removeWorldStateReciver(s);
 		}
 		
-		//TODO: Make sure passing strategies don't need pitch constants. Use only world state.
 		switch(type){
 		case PASSING:
-			Strategy ps = new PassingStrategy(bcsAttacker,bcsMeow,null);
+			Strategy ps = new PassingStrategy(bcsAttacker,bcsDefender);
 			currentStrategies.add(ps);
 			vision.addWorldStateReceiver(ps);
 			ps.startControlThread();
 			break;
 		case ATTACKING:
-			Strategy as = new AttackerStrategy(bcsAttacker,null);
+			Strategy as = new AttackerStrategy(bcsAttacker);
 			currentStrategies.add(as);
 			vision.addWorldStateReceiver(as);
 			as.startControlThread();
 			break;
 		case DEFENDING:
-			Strategy ds = new InterceptorStrategy(bcsMeow);
+			Strategy ds = new InterceptorStrategy(bcsDefender);
 			currentStrategies.add(ds);
 			vision.addWorldStateReceiver(ds);
 			ds.startControlThread();

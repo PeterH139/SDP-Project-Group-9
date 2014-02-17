@@ -11,9 +11,6 @@ import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import pc.comms.BrickCommServer;
-import pc.comms.BtInfo;
-import pc.strategy.PassingStrategy;
 import pc.strategy.StrategyController;
 import pc.vision.gui.VisionGUI;
 import pc.vision.gui.tools.ColourThresholdConfigTool;
