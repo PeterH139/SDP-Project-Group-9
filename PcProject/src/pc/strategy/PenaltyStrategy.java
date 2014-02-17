@@ -3,10 +3,11 @@ package pc.strategy;
 import java.io.IOException;
 
 import pc.comms.BrickCommServer;
+import pc.strategy.interfaces.Strategy;
 import pc.vision.interfaces.WorldStateReceiver;
 import pc.world.WorldState;
 
-public class PenaltyStrategy implements WorldStateReceiver {
+public class PenaltyStrategy implements WorldStateReceiver,Strategy {
 	
 	private BrickCommServer brick;
 	private ControlThread controlThread;
@@ -18,8 +19,14 @@ public class PenaltyStrategy implements WorldStateReceiver {
 		controlThread = new ControlThread();
 	}
 
+	@Override
 	public void startControlThread() {
 		controlThread.start();
+	}
+	
+	@Override
+	public void stopControlThread() {
+		controlThread.stop();
 	}
 
 	@Override
@@ -140,9 +147,6 @@ public class PenaltyStrategy implements WorldStateReceiver {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-
-			
-			
 			
 		}
 
@@ -206,6 +210,5 @@ public class PenaltyStrategy implements WorldStateReceiver {
 		while (ang2 < -Math.PI)
 			ang2 += 2 * Math.PI;
 		return ang2;
-	}
-	
+	}	
 }

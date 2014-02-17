@@ -11,9 +11,7 @@ import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import pc.comms.BrickCommServer;
-import pc.comms.BtInfo;
-import pc.strategy.PassingStrategy;
+import pc.strategy.StrategyController;
 import pc.vision.gui.VisionGUI;
 import pc.vision.gui.tools.ColourThresholdConfigTool;
 import pc.vision.gui.tools.HistogramTool;
@@ -70,15 +68,14 @@ public class RunVision {
 		int compressionQuality = 100;
 
 		final boolean enableBluetooth = !cmdLine.hasOption("nobluetooth");
-
+		
+		// Create a new Vision object to serve the main vision window
+			Vision vision = new Vision(worldState, pitchConstants);
+			
 		try {
-			BrickCommServer bcsGroup10 = null;
-			BrickCommServer bcsMeow = null;
+			StrategyController strategyController = null;
 			if (enableBluetooth) {
-				bcsGroup10 = new BrickCommServer();
-				bcsGroup10.guiConnect(BtInfo.group10);
-				bcsMeow = new BrickCommServer();
-				bcsMeow.guiConnect(BtInfo.MEOW);
+				strategyController = new StrategyController(vision);
 			}
 
 			final VideoStream vStream = new VideoStream(videoDevice, width,
@@ -96,9 +93,6 @@ public class RunVision {
 				}
 			});
 
-			// Create a new Vision object to serve the main vision window
-			Vision vision = new Vision(worldState, pitchConstants);
-
 			ColourThresholdConfigTool ctct = new ColourThresholdConfigTool(gui,
 					worldState, pitchConstants, vStream, distortionFix);
 			gui.addTool(ctct, "Legacy config");
@@ -115,17 +109,7 @@ public class RunVision {
 					pitchConstants));
 			
 			if (enableBluetooth) {
-				PassingStrategy ps = new PassingStrategy(bcsGroup10, bcsMeow, pitchConstants);
-				ps.startControlThread();
-//				AttackerStrategy as = new AttackerStrategy(bcsGroup10,pitchConstants);
-//				as.startControlThread();
-//				TargetFollowerStrategy tfs = new TargetFollowerStrategy(bcsGroup10);
-//				tfs.startControlThread();
-//				InterceptorStrategy ic = new InterceptorStrategy(bcsMeow);
-//				ic.startControlThread();
-//				PenaltyStrategy ps = new PenaltyStrategy(bcsGroup10);
-//				ps.startControlThread();
-				vision.addWorldStateReceiver(ps);
+				strategyController.changeToStrategy(StrategyController.StrategyType.PASSING);
 			}
 
 			vStream.addReceiver(distortionFix);

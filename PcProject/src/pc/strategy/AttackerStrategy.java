@@ -3,24 +3,29 @@ package pc.strategy;
 import java.io.IOException;
 
 import pc.comms.BrickCommServer;
+import pc.strategy.interfaces.Strategy;
 import pc.vision.PitchConstants;
 import pc.vision.interfaces.WorldStateReceiver;
 import pc.world.WorldState;
 
-public class AttackerStrategy implements WorldStateReceiver {
+public class AttackerStrategy implements WorldStateReceiver, Strategy {
 
 	private BrickCommServer brick;
-	private PitchConstants pitchConstants;
 	private ControlThread controlThread;
 
 	private boolean ballCaught = false;
 
-	public AttackerStrategy(BrickCommServer brick, PitchConstants pitchConstants) {
+	public AttackerStrategy(BrickCommServer brick) {
 		this.brick = brick;
-		this.pitchConstants = pitchConstants;
 		controlThread = new ControlThread();
 	}
 
+	@Override
+	public void stopControlThread() {
+		controlThread.stop();
+	}
+	
+	@Override
 	public void startControlThread() {
 		controlThread.start();
 	}
@@ -33,7 +38,7 @@ public class AttackerStrategy implements WorldStateReceiver {
 		float targetX = worldState.getBall().x, targetY = worldState.getBall().y;
 		int leftCheck,rightCheck;
 		float goalX, goalY;
-		int[] divs = pitchConstants.getDividers();
+		int[] divs = worldState.dividers;
 		if (worldState.weAreShootingRight) {
 			leftCheck = divs[1];
 			rightCheck = divs[2];
