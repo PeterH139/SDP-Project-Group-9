@@ -90,7 +90,7 @@ public class PassingStrategy implements WorldStateReceiver, Strategy {
 						controlThread.operation = Operation.ATKROTATE;
 						controlThread.rotateBy = (int) Math.toDegrees(ang1);
 					} else {
-						if (dist > 20) {
+						if (dist > 30) {
 							controlThread.operation = Operation.ATKTRAVEL;
 							controlThread.travelDist = (int) (dist * 3);
 							controlThread.travelSpeed = (int) (dist * 1.5);
@@ -188,7 +188,7 @@ public class PassingStrategy implements WorldStateReceiver, Strategy {
 						travelSpeed = this.travelSpeed;
 					}
 
-					System.out.println("op: " + op.toString() + " rotateBy: "
+					System.out.println("ballCaught: " + ballCaught +  " op: " + op.toString() + " rotateBy: "
 							+ rotateBy + " travelDist: " + travelDist);
 
 					switch (op) {
@@ -226,7 +226,7 @@ public class PassingStrategy implements WorldStateReceiver, Strategy {
 						ballCaught = false;
 					case DEFROTATE:
 						defenderBrick.robotRotateBy(rotateBy / 3,
-								Math.abs(rotateBy) / 2);
+								Math.abs(rotateBy) / 3);
 						break;
 					case DEFTRAVEL:
 						defenderBrick.robotPrepCatch();
