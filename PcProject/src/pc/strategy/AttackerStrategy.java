@@ -31,16 +31,21 @@ public class AttackerStrategy implements WorldStateReceiver {
 				.getAttackerRobot().y;
 		float robotO = worldState.getAttackerRobot().orientation_angle;
 		float targetX = worldState.getBall().x, targetY = worldState.getBall().y;
-		float goalX = 65, goalY = 220;
 		int leftCheck,rightCheck;
+		float goalX, goalY;
 		int[] divs = pitchConstants.getDividers();
 		if (worldState.weAreShootingRight) {
 			leftCheck = divs[1];
 			rightCheck = divs[2];
+			goalX = 640;
+			goalY = 220;
 		} else {
 			leftCheck = divs[0];
 			rightCheck = divs[1];
+			goalX = 0;
+			goalY = 220;
 		}
+		
 		if (targetX == 0 || targetY == 0 || robotX == 0 || robotY == 0
 				|| robotO == 0 || targetX < leftCheck || targetX > rightCheck) {
 			synchronized (controlThread) {
@@ -55,7 +60,7 @@ public class AttackerStrategy implements WorldStateReceiver {
 				double ang1 = calculateAngle(robotX, robotY, robotO, targetX,
 						targetY);
 				double dist = Math.hypot(robotX - targetX, robotY - targetY);
-				if (Math.abs(ang1) > Math.PI / 20) {
+				if (Math.abs(ang1) > Math.PI / 32) {
 					controlThread.operation = Operation.ROTATE;
 					controlThread.rotateBy = (int) Math.toDegrees(ang1);
 				} else {
