@@ -36,6 +36,8 @@ public class PassingStrategy implements WorldStateReceiver {
 				.getAttackerRobot().y;
 		float defenderRobotX = worldState.getDefenderRobot().x, defenderRobotY = worldState
 				.getDefenderRobot().y;
+		float enemyAttackerX = worldState.getEnemyAttackerRobot().x, enemyAttackerY = worldState
+				.getEnemyAttackerRobot().y;
 		float attackerRobotO = worldState.getAttackerRobot().orientation_angle;
 		float defenderRobotO = worldState.getDefenderRobot().orientation_angle;
 		float ballX = worldState.getBall().x, ballY = worldState.getBall().y;
@@ -56,10 +58,11 @@ public class PassingStrategy implements WorldStateReceiver {
 			}
 			return;
 		}
-	
+
 		synchronized (controlThread) {
 			controlThread.operation = Operation.DO_NOTHING;
-			if ((worldState.weAreShootingRight && ballX < defenderCheck) || (!worldState.weAreShootingRight && ballX > defenderCheck)) {
+			if ((worldState.weAreShootingRight && ballX < defenderCheck)
+					|| (!worldState.weAreShootingRight && ballX > defenderCheck)) {
 				ballAttacker = false;
 				ballDefender = true;
 			} else if (ballX > leftCheck && ballX < rightCheck) {
@@ -117,9 +120,28 @@ public class PassingStrategy implements WorldStateReceiver {
 						}
 					}
 				} else {
+					float targetY = 220;
+					if (enemyAttackerY < 220) {
+						targetY = enemyAttackerY + 100;
+					} else {
+						targetY = enemyAttackerY - 100;
+					}
 					double ang1 = calculateAngle(defenderRobotX,
 							defenderRobotY, defenderRobotO, attackerRobotX,
-							attackerRobotY);
+							targetY);
+					double ang2 = calculateAngle(attackerRobotX,
+							attackerRobotY, attackerRobotO, attackerRobotX,
+							targetY);
+					double dist = Math.hypot(0,
+							attackerRobotY - targetY);
+					if (Math.abs(ang2) > Math.PI / 32) {
+						controlThread.operation = Operation.ATKROTATE;
+						controlThread.rotateBy = (int) Math.toDegrees(ang2);
+					} else if (dist > 5) {
+						controlThread.operation = Operation.ATKTRAVEL;
+						controlThread.travelDist = (int) (dist * 3);
+						controlThread.travelSpeed = (int) (dist * 1.5);
+					}
 					if (Math.abs(ang1) > Math.PI / 32) {
 						controlThread.operation = Operation.DEFROTATE;
 						controlThread.rotateBy = (int) Math.toDegrees(ang1);
@@ -201,7 +223,8 @@ public class PassingStrategy implements WorldStateReceiver {
 						break;
 					case DEFTRAVEL:
 						defenderBrick.robotPrepCatch();
-						defenderBrick.robotTravel(-travelDist / 3, travelSpeed / 3);
+						defenderBrick.robotTravel(-travelDist / 3,
+								travelSpeed / 3);
 						break;
 					}
 					Thread.sleep(250);
