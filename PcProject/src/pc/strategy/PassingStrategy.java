@@ -3,11 +3,12 @@ package pc.strategy;
 import java.io.IOException;
 
 import pc.comms.BrickCommServer;
+import pc.strategy.interfaces.Strategy;
 import pc.vision.PitchConstants;
 import pc.vision.interfaces.WorldStateReceiver;
 import pc.world.WorldState;
 
-public class PassingStrategy implements WorldStateReceiver {
+public class PassingStrategy implements WorldStateReceiver, Strategy {
 
 	private BrickCommServer attackerBrick;
 	private BrickCommServer defenderBrick;
@@ -26,6 +27,12 @@ public class PassingStrategy implements WorldStateReceiver {
 		controlThread = new ControlThread();
 	}
 
+	@Override
+	public void stopControlThread() {
+		controlThread.stop();
+	}
+	
+	@Override
 	public void startControlThread() {
 		controlThread.start();
 	}

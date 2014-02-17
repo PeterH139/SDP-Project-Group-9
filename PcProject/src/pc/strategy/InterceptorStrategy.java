@@ -5,6 +5,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 
 import pc.comms.BrickCommServer;
+import pc.strategy.interfaces.Strategy;
 import pc.vision.Vector2f;
 import pc.vision.interfaces.WorldStateReceiver;
 import pc.world.WorldState;
@@ -13,8 +14,7 @@ import pc.world.WorldState;
  * an incoming ball. If the ball is moving away from the robot then
  * the robot will move to the centre of the goal.
  */
-public class InterceptorStrategy implements WorldStateReceiver {
-
+public class InterceptorStrategy implements WorldStateReceiver, Strategy {
 	private BrickCommServer brick;
 	private ControlThread controlThread;
 	private Deque<Vector2f> ballPositions = new ArrayDeque<Vector2f>();
@@ -26,6 +26,12 @@ public class InterceptorStrategy implements WorldStateReceiver {
 		controlThread = new ControlThread();
 	}
 
+	@Override
+	public void stopControlThread() {
+		controlThread.stop();
+	}
+	
+	@Override
 	public void startControlThread() {
 		controlThread.start();
 	}

@@ -55,6 +55,10 @@ public class Vision implements VideoReceiver {
 	public void addWorldStateReceiver(WorldStateReceiver receiver) {
 		this.worldStateReceivers.add(receiver);
 	}
+	
+	public void removeWorldStateReciver(WorldStateReceiver reciver){
+		this.worldStateReceivers.remove(reciver);
+	}
 
 	public void addRecogniser(ObjectRecogniser recogniser) {
 		this.recognisers.add(recogniser);
