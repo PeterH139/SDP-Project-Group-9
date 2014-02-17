@@ -15,6 +15,7 @@ import pc.strategy.StrategyController;
 import pc.vision.gui.VisionGUI;
 import pc.vision.gui.tools.ColourThresholdConfigTool;
 import pc.vision.gui.tools.HistogramTool;
+import pc.vision.gui.tools.StrategySelectorTool;
 import pc.vision.recognisers.BallRecogniser;
 import pc.vision.recognisers.RobotRecogniser;
 import pc.world.WorldState;
@@ -102,6 +103,9 @@ public class RunVision {
 			HistogramTool histogramTool = new HistogramTool(gui, pitchConstants);
 			gui.addTool(histogramTool, "Histogram analyser");
 			vision.addRecogniser(histogramTool);
+			
+			StrategySelectorTool stratSelect = new StrategySelectorTool(gui,strategyController);
+			gui.addTool(stratSelect, "Strategy Selector");
 
 			vision.addRecogniser(new BallRecogniser(vision, worldState,
 					pitchConstants));
