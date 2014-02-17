@@ -2,6 +2,8 @@ package nxt.testing;
 
 import lejos.nxt.Button;
 import lejos.nxt.LCD;
+import lejos.nxt.Motor;
+import lejos.nxt.NXTRegulatedMotor;
 import lejos.util.Delay;
 import lejos.util.TextMenu;
 import nxt.brick.Movement;
@@ -26,7 +28,7 @@ public class TestSuite {
 	private static Striker brick = new Striker();
 	
 	private static String[] testsList = { "Kicker test", "Movement Test",
-			"Catcher Test"};
+			"Catcher Test", "Motor Test"};
 	
 
 	public static void main(String[] args) {
@@ -42,6 +44,8 @@ public class TestSuite {
 				movementTest();
 			} else if (testsNumber == 2) {
 				catcherTest();
+			} else if (testsNumber == 3) {
+				motorTest();
 			}
 
 			Delay.msDelay(300);
@@ -139,6 +143,62 @@ public class TestSuite {
 			brick.rotate(180);
 
 		}
+	}
+	
+	private static void motorTest() {
+	
+		NXTRegulatedMotor a = Motor.A;
+		NXTRegulatedMotor b = Motor.B;
+		NXTRegulatedMotor c = Motor.C;
+		
+		Boolean aIsMoving = false;
+		Boolean bIsMoving = false;
+		Boolean cIsMoving = false;
+		
+		while (!Button.ESCAPE.isDown()) {
+			
+			if (Button.RIGHT.isDown()) {
+				if (!aIsMoving) {
+					a.forward();
+					aIsMoving = true;
+				} else {
+					a.stop();
+					aIsMoving = false;
+				}
+			}
+			
+			if (Button.RIGHT.isDown()) {
+				if (!aIsMoving) {
+					a.forward();
+					aIsMoving = true;
+				} else {
+					a.stop();
+					aIsMoving = false;
+				}
+			}
+			
+			if (Button.LEFT.isDown()) {
+				if (!bIsMoving) {
+					b.forward();
+					bIsMoving = true;
+				} else {
+					b.stop();
+					bIsMoving = false;
+				}
+			}
+			
+			if (Button.ENTER.isDown()) {
+				if (!cIsMoving) {
+					c.forward();
+					cIsMoving = true;
+				} else {
+					c.stop();
+					cIsMoving = false;
+				}
+			}
+		}
+		
+	
 	}
 	
 	}
