@@ -77,6 +77,7 @@ public class RunVision {
 			StrategyController strategyController = null;
 			if (enableBluetooth) {
 				strategyController = new StrategyController(vision);
+//				vision.addWorldStateReceiver(strategyController);
 			}
 
 			final VideoStream vStream = new VideoStream(videoDevice, width,
@@ -113,7 +114,7 @@ public class RunVision {
 					pitchConstants));
 			
 			if (enableBluetooth) {
-				strategyController.changeToStrategy(StrategyController.StrategyType.PASSING);
+				strategyController.changeToStrategy(StrategyController.StrategyType.DEFENDING);
 			}
 
 			vStream.addReceiver(distortionFix);

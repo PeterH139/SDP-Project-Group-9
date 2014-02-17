@@ -4,11 +4,9 @@ import java.io.IOException;
 
 import pc.comms.BrickCommServer;
 import pc.strategy.interfaces.Strategy;
-import pc.vision.PitchConstants;
-import pc.vision.interfaces.WorldStateReceiver;
 import pc.world.WorldState;
 
-public class PassingStrategy implements WorldStateReceiver, Strategy {
+public class PassingStrategy implements Strategy {
 
 	private BrickCommServer attackerBrick;
 	private BrickCommServer defenderBrick;
@@ -109,9 +107,13 @@ public class PassingStrategy implements WorldStateReceiver, Strategy {
 				if (!ballCaught) {
 					double ang1 = calculateAngle(defenderRobotX,
 							defenderRobotY, defenderRobotO, ballX, ballY);
+					//ang1 = (ang1 > 0) ? (ang1 + Math.toRadians(10)) : ang1 - Math.toRadians(10);
 					double dist = Math.hypot(defenderRobotX - ballX,
 							defenderRobotY - ballY);
-					if (Math.abs(ang1) > Math.PI / 32) {
+					if ((Math.abs(ang1) < Math.PI / 16) && dist < 32) { 
+						controlThread.operation = Operation.DEFCATCH;
+					}
+					else if (Math.abs(ang1) > Math.PI / 32) {
 						controlThread.operation = Operation.DEFROTATE;
 						controlThread.rotateBy = -(int) Math.toDegrees(ang1);
 					} else {
@@ -119,9 +121,7 @@ public class PassingStrategy implements WorldStateReceiver, Strategy {
 							controlThread.operation = Operation.DEFTRAVEL;
 							controlThread.travelDist = (int) (dist * 3);
 							controlThread.travelSpeed = (int) (dist);
-						} else {
-							controlThread.operation = Operation.DEFCATCH;
-						}
+						} 
 					}
 				} else {
 					float targetY = 220;

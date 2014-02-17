@@ -4,11 +4,9 @@ import java.io.IOException;
 
 import pc.comms.BrickCommServer;
 import pc.strategy.interfaces.Strategy;
-import pc.vision.PitchConstants;
-import pc.vision.interfaces.WorldStateReceiver;
 import pc.world.WorldState;
 
-public class AttackerStrategy implements WorldStateReceiver, Strategy {
+public class AttackerStrategy implements Strategy {
 
 	private BrickCommServer brick;
 	private ControlThread controlThread;
