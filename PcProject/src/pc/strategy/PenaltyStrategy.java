@@ -38,10 +38,24 @@ public class PenaltyStrategy implements WorldStateReceiver,Strategy {
 				.getEnemyDefenderRobot().y;
 		float opponentRobotO = worldState.getEnemyDefenderRobot().orientation_angle;
 		float targetX = worldState.getBall().x, targetY = worldState.getBall().y;
-		//TODO Goals shouldn't be hardcoded
-		float goalX = 63, goalY = 212;
+		int[] divs = worldState.dividers;
+		int goalX, goalY;
+		int leftCheck, rightCheck;
+		
+		if (worldState.weAreShootingRight) {
+			leftCheck = divs[1];
+			rightCheck = divs[2];
+			goalX = 640;
+			goalY = 220;
+		} else {
+			leftCheck = divs[0];
+			rightCheck = divs[1];
+			goalX = 0;
+			goalY = 220;
+		}
+		
 		if (targetX == 0 || targetY == 0 || robotX == 0 || robotY == 0
-				|| robotO == 0) {
+				|| robotO == 0 || targetX < leftCheck || targetX > rightCheck) {
 			synchronized (this.controlThread) {
 				this.controlThread.operation = Operation.DO_NOTHING;
 			}
@@ -171,6 +185,8 @@ public class PenaltyStrategy implements WorldStateReceiver,Strategy {
 		}
 
 	}
+	
+	
 	public static double calculateAngle(float robotX, float robotY,
 			float robotOrientation, float targetX, float targetY) {
 		double robotRad = Math.toRadians(robotOrientation);
@@ -191,6 +207,9 @@ public class PenaltyStrategy implements WorldStateReceiver,Strategy {
 			float robotOrientation, float opponentRobotY) {
 		double robotRad = Math.toRadians(robotOrientation);
 		double targetRad = 0.0;
+		
+		//FIXME The contents of all these ifs are identical as far as I (Daniel) can see....
+		
 		if (opponentRobotY > 245) {
 			//if opponent defender on the left side, then turn right
 			double rightY = ((212 + 134)/2);
