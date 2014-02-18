@@ -69,7 +69,7 @@ public class PenaltyStrategy implements WorldStateReceiver,Strategy {
 		}
 		
 		
-		
+		//TODO Pull stuff out of synchronized
 		synchronized (this.controlThread) {
 			this.controlThread.operation = Operation.DO_NOTHING;
 			
