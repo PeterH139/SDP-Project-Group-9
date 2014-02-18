@@ -20,7 +20,8 @@ public class StrategyController implements WorldStateReceiver {
 	private boolean ballInDefenderArea = false;
 	
 	private Vision vision;
-	private ArrayList<Strategy> currentStrategies = new ArrayList<Strategy>();
+	private static ArrayList<Strategy> currentStrategies = new ArrayList<Strategy>();
+	private static ArrayList<Strategy> removedStrategies = new ArrayList<Strategy>();
 	
 	public StrategyController(Vision vision){
 		this.vision = vision;
@@ -37,6 +38,15 @@ public class StrategyController implements WorldStateReceiver {
 		}
 	}
 	
+	public static ArrayList<Strategy> getCurrentStrategies() {
+		return currentStrategies;
+	}
+	public static ArrayList<Strategy> getRemovedStrategies() {
+		return removedStrategies;
+	}
+	public static void setRemovedStrategies(ArrayList<Strategy> removedStrategies) {
+		removedStrategies = removedStrategies;
+	}
 	/**
 	 * Change to a particular strategy, removing and stopping the previously running strategy(s).
 	 * 
@@ -46,20 +56,21 @@ public class StrategyController implements WorldStateReceiver {
 		// Stop old threads
 		for (Strategy s : this.currentStrategies){
 			s.stopControlThread();
-			this.vision.removeWorldStateReciver(s);
+			this.removedStrategies.add(s);
+			//this.vision.removeWorldStateReciver(s);
 		}
-		
+		this.currentStrategies = new ArrayList<Strategy>();
 		switch(type){
 		case PASSING:
 			Strategy ps = new PassingStrategy(this.bcsAttacker,this.bcsDefender);
 			this.currentStrategies.add(ps);
-			this.vision.addWorldStateReceiver(ps);
+			//this.vision.addWorldStateReceiver(ps);
 			ps.startControlThread();
 			break;
 		case ATTACKING:
 			Strategy as = new AttackerStrategy(this.bcsAttacker);
 			this.currentStrategies.add(as);
-			this.vision.addWorldStateReceiver(as);
+			//this.vision.addWorldStateReceiver(as);
 			as.startControlThread();
 			break;
 		case DEFENDING:
@@ -67,21 +78,21 @@ public class StrategyController implements WorldStateReceiver {
 			Strategy ds = new InterceptorStrategy(this.bcsDefender);
 			this.currentStrategies.add(ds);
 			this.currentStrategies.add(a);
-			this.vision.addWorldStateReceiver(ds);
-			this.vision.addWorldStateReceiver(a);
+			//this.vision.addWorldStateReceiver(ds);
+			//this.vision.addWorldStateReceiver(a);
 			ds.startControlThread();
 			a.startControlThread();
 			break;
 		case PENALTY:
 			Strategy pen = new PenaltyStrategy(this.bcsAttacker);
 			this.currentStrategies.add(pen);
-			this.vision.addWorldStateReceiver(pen);
+			//this.vision.addWorldStateReceiver(pen);
 			pen.startControlThread();
 			break;
 		case MARKING:
 			Strategy mar = new MarkingStrategy(this.bcsAttacker);
 			this.currentStrategies.add(mar);
-			this.vision.addWorldStateReceiver(mar);
+			//this.vision.addWorldStateReceiver(mar);
 			mar.startControlThread();
 			break;
 		}
