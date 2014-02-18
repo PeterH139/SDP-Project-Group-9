@@ -13,7 +13,7 @@ import pc.world.WorldState;
 public class StrategyController implements WorldStateReceiver {
 	
 	public enum StrategyType{
-		PASSING, ATTACKING, DEFENDING
+		PASSING, ATTACKING, DEFENDING, PENALTY
 	}
 	
 	public BrickCommServer bcsAttacker, bcsDefender;
@@ -71,6 +71,12 @@ public class StrategyController implements WorldStateReceiver {
 			vision.addWorldStateReceiver(a);
 			ds.startControlThread();
 			a.startControlThread();
+			break;
+		case PENALTY:
+			Strategy pen = new PenaltyStrategy(bcsAttacker);
+			currentStrategies.add(pen);
+			vision.addWorldStateReceiver(pen);
+			pen.startControlThread();
 			break;
 		}
 		
