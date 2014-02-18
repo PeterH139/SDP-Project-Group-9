@@ -5,16 +5,15 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 
 import pc.comms.BrickCommServer;
+import pc.strategy.interfaces.Strategy;
 import pc.vision.Vector2f;
-import pc.vision.interfaces.WorldStateReceiver;
 import pc.world.WorldState;
 
 /* This is a class that manages the strategy for the defender robot to intercept
  * an incoming ball. If the ball is moving away from the robot then
  * the robot will move to the centre of the goal.
  */
-public class InterceptorStrategy implements WorldStateReceiver {
-
+public class InterceptorStrategy implements Strategy {
 	private BrickCommServer brick;
 	private ControlThread controlThread;
 	private Deque<Vector2f> ballPositions = new ArrayDeque<Vector2f>();
@@ -26,13 +25,19 @@ public class InterceptorStrategy implements WorldStateReceiver {
 		controlThread = new ControlThread();
 	}
 
+	@Override
+	public void stopControlThread() {
+		controlThread.stop();
+	}
+
+	@Override
 	public void startControlThread() {
 		controlThread.start();
 	}
 
 	@Override
 	public void sendWorldState(WorldState worldState) {
-		float robotX = worldState.getDefenderRobot().x; 
+		float robotX = worldState.getDefenderRobot().x;
 		float robotY = worldState.getDefenderRobot().y;
 		double robotO = worldState.getDefenderRobot().orientation_angle;
 		ballPositions.addLast(new Vector2f(worldState.getBall().x, worldState
@@ -46,54 +51,47 @@ public class InterceptorStrategy implements WorldStateReceiver {
 
 		double slope = (ballY2 - ballY1) / ((ballX2 - ballX1) + 0.0001);
 		double c = ballY1 - slope * ballX1;
-		boolean ballMovement = Math.abs(ballX2 - ballX1) < 10; 
+		boolean ballMovement =  Math.abs(ballX2 - ballX1) < 10;
 		int targetY = (int) (slope * robotX + c);
-		int targetX = (int) ((targetY + c) / slope); 
+		int targetX = (int) ((targetY + c) / slope);
 
-		if (robotX <= 0.5 || targetY <= 0.5 || robotY <= 0.5 || ballMovement ||robotO <= 0.5
-				|| Math.hypot(0, robotY - targetY) < 10) {
+		if (robotX <= 0.5 || targetY <= 0.5 || robotY <= 0.5 /*|| ballMovement */
+				|| robotO <= 0.5 || Math.hypot(0, robotY - targetY) < 10) {
 			synchronized (controlThread) {
-				controlThread.rotateBy = 0;
+				//controlThread.rotateBy = 0;
 				controlThread.travelDist = 0;
 			}
 			return;
 		}
 		double robotRad = Math.toRadians(robotO);
-		//
-		// if (robotRad > Math.PI)
-		// robotRad -= 2 * Math.PI;
-		//
-		// while (ang1 > Math.PI)
-		// ang1 -= 2 * Math.PI;
-		// while (ang1 < -Math.PI)
-		// ang1 ang1 += 2 * Math.PI;
-		//
+		
 		
 		float dist;
 		int rotateBy = 0;
 		if (targetY > tempBottomY) {
 			targetY = tempBottomY;
-		}
-		else if (targetY < tempTopY) {
+		} else if (targetY < tempTopY) {
 			targetY = tempTopY;
 		}
 		if (robotRad > Math.PI)
 			robotRad -= 2 * Math.PI;
-		if (robotRad > 0) {
-			rotateBy = -(int) Math.toDegrees(Math.PI / 2 - robotRad);
+		System.out.println("RobotO: " + robotO);
+		if (robotO > 180) {
+			rotateBy = (int) (270 - robotO);
 			dist = targetY - robotY;
 		} else {
-			
-			rotateBy = -(int) Math.toDegrees(-Math.PI / 2 - robotRad);
+			rotateBy = (int) (robotO - 90);
 			dist = robotY - targetY;
 		}
-//		if (Math.abs(rotateBy) < 10) {
-//			rotateBy = 0;
-//		}
-//		else {
-//			dist = 0;
-//		}
-		System.out.println("distance: " +dist);
+		if (Math.abs(rotateBy) < 10) {
+			rotateBy = 0;
+		} else {
+			dist = 0;
+		}
+		if (ballMovement) {
+			dist = 0;
+		}
+		System.out.println("distance: " + dist);
 		synchronized (controlThread) {
 			controlThread.rotateBy = rotateBy;
 			controlThread.travelDist = (int) (dist * 0.8);
@@ -111,7 +109,7 @@ public class InterceptorStrategy implements WorldStateReceiver {
 		}
 
 		@Override
-		public void run() { 
+		public void run() {
 			try {
 				while (true) {
 					int rotateBy, travelDist;
@@ -119,12 +117,14 @@ public class InterceptorStrategy implements WorldStateReceiver {
 						rotateBy = this.rotateBy;
 						travelDist = this.travelDist;
 					}
-//					if (rotateBy != 0) {
-//						brick.robotRotateBy(rotateBy, rotateBy / 3);
-					 if (travelDist != 0) {
-						brick.robotTravel(-travelDist, (int) (Math.abs(travelDist) * 2));
+					if (rotateBy != 0) {
+						brick.robotRotateBy(rotateBy, rotateBy / 3);
+					} else if (travelDist != 0) {
+						brick.robotTravel(travelDist,
+								(int) (Math.abs(travelDist) * 2));
 					}
-					Thread.sleep(250); //TODO: Test lower values for this and see where it breaks.
+					Thread.sleep(250); // TODO: Test lower values for this and
+										// see where it breaks.
 				}
 			} catch (IOException e) {
 				e.printStackTrace();

@@ -3,15 +3,13 @@ package pc.strategy;
 import java.io.IOException;
 
 import pc.comms.BrickCommServer;
-import pc.vision.PitchConstants;
-import pc.vision.interfaces.WorldStateReceiver;
+import pc.strategy.interfaces.Strategy;
 import pc.world.WorldState;
 
-public class PassingStrategy implements WorldStateReceiver {
+public class PassingStrategy implements Strategy {
 
 	private BrickCommServer attackerBrick;
 	private BrickCommServer defenderBrick;
-	private PitchConstants pitchConstants;
 	private ControlThread controlThread;
 
 	private boolean ballCaught = false;
@@ -19,13 +17,18 @@ public class PassingStrategy implements WorldStateReceiver {
 	private boolean ballAttacker = false;
 
 	public PassingStrategy(BrickCommServer attackerBrick,
-			BrickCommServer defenderBrick, PitchConstants pitchConstants) {
+			BrickCommServer defenderBrick) {
 		this.attackerBrick = attackerBrick;
 		this.defenderBrick = defenderBrick;
-		this.pitchConstants = pitchConstants;
 		controlThread = new ControlThread();
 	}
 
+	@Override
+	public void stopControlThread() {
+		controlThread.stop();
+	}
+
+	@Override
 	public void startControlThread() {
 		controlThread.start();
 	}
@@ -36,17 +39,18 @@ public class PassingStrategy implements WorldStateReceiver {
 				.getAttackerRobot().y;
 		float defenderRobotX = worldState.getDefenderRobot().x, defenderRobotY = worldState
 				.getDefenderRobot().y;
+		float enemyAttackerX = worldState.getEnemyAttackerRobot().x, enemyAttackerY = worldState
+				.getEnemyAttackerRobot().y;
 		float attackerRobotO = worldState.getAttackerRobot().orientation_angle;
 		float defenderRobotO = worldState.getDefenderRobot().orientation_angle;
 		float ballX = worldState.getBall().x, ballY = worldState.getBall().y;
 		int leftCheck, rightCheck, defenderCheck;
-		int[] divs = pitchConstants.getDividers();
+		int[] divs = worldState.dividers;
 		leftCheck = (worldState.weAreShootingRight) ? divs[1] : divs[0];
 		rightCheck = (worldState.weAreShootingRight) ? divs[2] : divs[1];
 		defenderCheck = (worldState.weAreShootingRight) ? divs[0] : divs[2];
 		// float goalX = 65;
 		float goalX = 559, goalY = 220;
-		System.out.println(ballX);
 		if (ballX == 0 || ballY == 0 || attackerRobotX == 0
 				|| attackerRobotY == 0 || attackerRobotO == 0
 				|| defenderRobotX == 0 || defenderRobotY == 0
@@ -56,10 +60,11 @@ public class PassingStrategy implements WorldStateReceiver {
 			}
 			return;
 		}
-	
+
 		synchronized (controlThread) {
 			controlThread.operation = Operation.DO_NOTHING;
-			if ((worldState.weAreShootingRight && ballX < defenderCheck) || (!worldState.weAreShootingRight && ballX > defenderCheck)) {
+			if ((worldState.weAreShootingRight && ballX < defenderCheck)
+					|| (!worldState.weAreShootingRight && ballX > defenderCheck)) {
 				ballAttacker = false;
 				ballDefender = true;
 			} else if (ballX > leftCheck && ballX < rightCheck) {
@@ -69,7 +74,7 @@ public class PassingStrategy implements WorldStateReceiver {
 				ballAttacker = false;
 				ballDefender = false;
 			}
-			System.out.println(ballX);
+
 			if (ballAttacker) {
 				if (!ballCaught) {
 					double ang1 = calculateAngle(attackerRobotX,
@@ -80,7 +85,7 @@ public class PassingStrategy implements WorldStateReceiver {
 						controlThread.operation = Operation.ATKROTATE;
 						controlThread.rotateBy = (int) Math.toDegrees(ang1);
 					} else {
-						if (dist > 20) {
+						if (dist > 30) {
 							controlThread.operation = Operation.ATKTRAVEL;
 							controlThread.travelDist = (int) (dist * 3);
 							controlThread.travelSpeed = (int) (dist * 1.5);
@@ -102,37 +107,63 @@ public class PassingStrategy implements WorldStateReceiver {
 				if (!ballCaught) {
 					double ang1 = calculateAngle(defenderRobotX,
 							defenderRobotY, defenderRobotO, ballX, ballY);
+					//ang1 = (ang1 > 0) ? (ang1 + Math.toRadians(10)) : ang1 - Math.toRadians(10);
 					double dist = Math.hypot(defenderRobotX - ballX,
 							defenderRobotY - ballY);
-					if (Math.abs(ang1) > Math.PI / 32) {
+					if ((Math.abs(ang1) < Math.PI / 16) && dist < 32) { 
+						controlThread.operation = Operation.DEFCATCH;
+					}
+					else if (Math.abs(ang1) > Math.PI / 32) {
 						controlThread.operation = Operation.DEFROTATE;
-						controlThread.rotateBy = (int) Math.toDegrees(ang1);
+						controlThread.rotateBy = -(int) Math.toDegrees(ang1);
 					} else {
-						if (dist > 30) {
+						if (dist > 32) {
 							controlThread.operation = Operation.DEFTRAVEL;
 							controlThread.travelDist = (int) (dist * 3);
-							controlThread.travelSpeed = (int) (dist * 1.5);
-						} else {
-							controlThread.operation = Operation.DEFCATCH;
-						}
+							controlThread.travelSpeed = (int) (dist);
+						} 
 					}
 				} else {
+					float targetY = 220;
+					if (enemyAttackerY < 220) {
+						targetY = enemyAttackerY + 150;
+					} else {
+						targetY = enemyAttackerY - 150;
+					}
 					double ang1 = calculateAngle(defenderRobotX,
 							defenderRobotY, defenderRobotO, attackerRobotX,
-							attackerRobotY);
-					if (Math.abs(ang1) > Math.PI / 32) {
-						controlThread.operation = Operation.DEFROTATE;
-						controlThread.rotateBy = (int) Math.toDegrees(ang1);
-					} else {
+							targetY);
+					double ang2 = calculateAngle(attackerRobotX,
+							attackerRobotY, attackerRobotO, attackerRobotX,
+							targetY);
+					double dist = Math.hypot(0, attackerRobotY - targetY);
+					
+						controlThread.operation = Operation.ROTATENMOVE;
+						controlThread.travelSpeed = (int) (dist * 3);
+						if (Math.abs(ang2) > Math.PI / 16) {
+						controlThread.operation = Operation.ATKROTATE;
+						controlThread.rotateBy= (int) Math.toDegrees(ang2);
+						} else {
+						
+						if (Math.abs(ang1) > Math.PI / 32) {
+							controlThread.rotateBy = -(int) Math.toDegrees(ang1);
+							} else {
+								controlThread.rotateBy = 0;	
+							};
+						if (Math.abs(dist) > 5) {
+							controlThread.travelDist = (int) (dist * 3);
+						} else {
+						controlThread.travelDist = 0;
 						controlThread.operation = Operation.DEFKICK;
-					}
+						}
+						}
 				}
 			}
 		}
 	}
 
 	public enum Operation {
-		DO_NOTHING, ATKTRAVEL, ATKROTATE, ATKPREPARE_CATCH, ATKCATCH, ATKKICK, DEFTRAVEL, DEFROTATE, DEFPREPARE_CATCH, DEFCATCH, DEFKICK,
+		DO_NOTHING, ATKTRAVEL, ATKROTATE, ATKPREPARE_CATCH, ATKCATCH, ATKKICK, DEFTRAVEL, DEFROTATE, DEFPREPARE_CATCH, DEFCATCH, DEFKICK, ROTATENMOVE
 	}
 
 	private class ControlThread extends Thread {
@@ -150,7 +181,7 @@ public class PassingStrategy implements WorldStateReceiver {
 		public void run() {
 			try {
 				while (true) {
-					int travelDist, rotateBy, travelSpeed;
+					int travelDist, rotateBy, travelSpeed;;
 					Operation op;
 					synchronized (this) {
 						op = this.operation;
@@ -159,8 +190,9 @@ public class PassingStrategy implements WorldStateReceiver {
 						travelSpeed = this.travelSpeed;
 					}
 
-					System.out.println("op: " + op.toString() + " rotateBy: "
-							+ rotateBy + " travelDist: " + travelDist);
+					System.out.println("ballCaught: " + ballCaught + " op: "
+							+ op.toString() + " rotateBy: " + rotateBy
+							+ " travelDist: " + travelDist);
 
 					switch (op) {
 					case DO_NOTHING:
@@ -193,16 +225,20 @@ public class PassingStrategy implements WorldStateReceiver {
 						defenderBrick.robotPrepCatch();
 						break;
 					case DEFKICK:
-						defenderBrick.robotKick(5000);
+						defenderBrick.robotKick(200);
 						ballCaught = false;
 					case DEFROTATE:
 						defenderBrick.robotRotateBy(rotateBy / 3,
-								Math.abs(rotateBy) / 2);
+								Math.abs(rotateBy) / 3);
 						break;
 					case DEFTRAVEL:
 						defenderBrick.robotPrepCatch();
-						defenderBrick.robotTravel(-travelDist / 3, travelSpeed / 3);
+						defenderBrick.robotTravel(-travelDist / 3,
+								travelSpeed / 3);
 						break;
+					case ROTATENMOVE:
+						defenderBrick.robotRotateBy(rotateBy / 3, Math.abs(rotateBy) / 3);
+						attackerBrick.robotTravel(travelDist, travelSpeed);
 					}
 					Thread.sleep(250);
 				}
