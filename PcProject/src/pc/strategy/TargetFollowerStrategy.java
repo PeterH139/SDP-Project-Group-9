@@ -46,9 +46,8 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 		
 //		System.out.println("targetX = " + ballX2 + " targetY = " + ballY2);
 //		System.out.println("robotX = " + robotX + " robotY = " + robotY);
-		double dist = Math.hypot(robotX - ballX2, robotY - ballY2);
+		double dist = Math.hypot(ballX2 - robotX, ballY2 - robotY);
 
-		System.out.println("dist: " + dist);
 		if (dist < 10) {
 			synchronized (controlThread) {
 				controlThread.rotateBy = 0;
@@ -65,6 +64,7 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 			robotRad -= 2 * Math.PI;
 
 		double ang1 = calculateAngle(robotX, robotY, robotO, targetX, targetY);
+		System.out.println("dist: " + dist + " angle: " + ang1);
 		
 		//double dist = Math.hypot(targetX - robotX, targetY - robotY);
 		// for testing
@@ -79,7 +79,7 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 			// controlThread.operation = Operation.RESET_ORIENTATION;
 			// controlThread.rotateBy = (int) Math.toDegrees(robotO - 90);
 			// }
-			if (Math.abs(dist) > 10) {
+			if (Math.abs(dist) > 40) {
 				if (Math.abs(ang1) > 10) {
 					if (ang1 > 150) {
 						controlThread.operation = Operation.ARC_LEFT;
@@ -88,20 +88,20 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 					}
 					controlThread.radius = radius;
 					controlThread.travelDist = (int) (-dist);
-					controlThread.travelSpeed = (int) (dist / 5);
+					controlThread.travelSpeed = (int) (-dist / 2);
 				} else {
 					if (ang1 > 0) {
 						controlThread.operation = Operation.ARC_RIGHT;
 					} else if (ang1 < 0) {
 						controlThread.operation = Operation.ARC_LEFT;
 					}
-					if (dist > 40) {
+					if (dist > 90) {
 						controlThread.operation = Operation.TRAVEL;
 						controlThread.travelDist = (int) (-dist);
-						controlThread.travelSpeed = (int) (dist / 5);
+						controlThread.travelSpeed = (int) (-dist / 2);
 					}
 					controlThread.radius = radius;
-					controlThread.travelDist = (int) (-dist);
+					controlThread.travelDist = (int) (dist);
 				}
 			}
 		}
@@ -145,16 +145,16 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 					case DO_NOTHING:
 						break;
 					case TRAVEL:
-						brick.robotTravel(travelDist, travelSpeed);
+						brick.robotTravel(-travelDist, travelSpeed);
 						break;
 					case ROTATE:
 						brick.robotRotateBy(rotateBy, travelSpeed);
 						break;
 					case ARC_LEFT:
-						brick.robotArcForwards(radius, travelDist);
+						brick.robotArcForwards(-radius, travelDist);
 						break;
 					case ARC_RIGHT:
-						brick.robotArcForwards(-radius, travelDist);
+						brick.robotArcForwards(radius, travelDist);
 						break;
 					case RESET_ORIENTATION:
 						brick.robotRotateBy(rotateBy, travelSpeed);
