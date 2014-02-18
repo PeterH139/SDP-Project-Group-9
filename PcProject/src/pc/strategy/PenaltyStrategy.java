@@ -16,17 +16,17 @@ public class PenaltyStrategy implements WorldStateReceiver,Strategy {
 
 	public PenaltyStrategy(BrickCommServer brick) {
 		this.brick = brick;
-		controlThread = new ControlThread();
+		this.controlThread = new ControlThread();
 	}
 
 	@Override
 	public void startControlThread() {
-		controlThread.start();
+		this.controlThread.start();
 	}
 	
 	@Override
 	public void stopControlThread() {
-		controlThread.stop();
+		this.controlThread.stop();
 	}
 
 	@Override
@@ -38,48 +38,63 @@ public class PenaltyStrategy implements WorldStateReceiver,Strategy {
 				.getEnemyDefenderRobot().y;
 		float opponentRobotO = worldState.getEnemyDefenderRobot().orientation_angle;
 		float targetX = worldState.getBall().x, targetY = worldState.getBall().y;
+		//TODO Goals shouldn't be hardcoded
 		float goalX = 63, goalY = 212;
 		if (targetX == 0 || targetY == 0 || robotX == 0 || robotY == 0
 				|| robotO == 0) {
-			synchronized (controlThread) {
-				controlThread.operation = Operation.DO_NOTHING;
+			synchronized (this.controlThread) {
+				this.controlThread.operation = Operation.DO_NOTHING;
 			}
 			return;
 		}
 		
 		
 		
-		synchronized (controlThread) {
-			controlThread.operation = Operation.DO_NOTHING;
-			if (!ballCaught) {
+		synchronized (this.controlThread) {
+			this.controlThread.operation = Operation.DO_NOTHING;
+			
+			if (!this.ballCaught) {
+				//If we don't have the ball, then go to it, otherwise kick
 				
-				// HERE CHECK WHERE THE OPPONENT ROBOT IS
-				double ang1 = calculateAngle(robotX, robotY, robotO, targetX,
+				// TODO HERE CHECK WHERE THE OPPONENT ROBOT IS
+				double robotToBallAngle = calculateAngle(robotX, robotY, robotO, targetX,
 						targetY);
-				double dist = Math.hypot(robotX - targetX, robotY - targetY);
-				if (Math.abs(ang1) > Math.PI / 20) {
-					controlThread.operation = Operation.ROTATE;
-					controlThread.rotateBy = (int) Math.toDegrees(ang1);
+				double robotToBallDistance = Math.hypot(robotX - targetX, robotY - targetY);
+				
+				if (Math.abs(robotToBallAngle) > Math.PI / 20) {
+					//If we're not facing the ball, then turn to face it.
+					this.controlThread.operation = Operation.ROTATE;
+					this.controlThread.rotateBy = (int) Math.toDegrees(robotToBallAngle);
 				} else {
-					if (dist > 30) {
+					//We're facing the ball, so we either need to go to it, or
+					//catch it if we're not close enough
+					
+					if (robotToBallDistance > 30) {
+						//We're too far away from the ball, so move closer
 						
-						// HERE CHECK WHERE THE OPPONENT ROBOT IS
-						controlThread.operation = Operation.TRAVEL;
-						controlThread.travelDist = (int) (dist * 3);
-						controlThread.travelSpeed = (int) (dist * 1.5);
+						// TODO HERE CHECK WHERE THE OPPONENT ROBOT IS
+						this.controlThread.operation = Operation.TRAVEL;
+						this.controlThread.travelDist = (int) (robotToBallDistance * 3);
+						this.controlThread.travelSpeed = (int) (robotToBallDistance * 1.5);
 					} else {
-						double ang2 = calculateIdealAngle(robotX, robotY, robotO, opponentRobotY);
-						if (Math.abs(ang2) > Math.PI / 20) {
-							controlThread.operation = Operation.ROTATE;
-							controlThread.rotateBy = (int) Math.toDegrees(ang2);
+						//We're close enough to the ball, so rotate to the angle that we want to
+						//be at to shoot, then catch the ball
+						
+						double idealAngle = calculateIdealAngle(robotX, robotY, robotO, opponentRobotY);
+						
+						if (Math.abs(idealAngle) > Math.PI / 20) {
+							//We're not aiming where we want to, so rotate
+							this.controlThread.operation = Operation.ROTATE;
+							this.controlThread.rotateBy = (int) Math.toDegrees(idealAngle);
 						} else {
-							controlThread.operation = Operation.CATCH;
+							//We're aiming where we want to, so get the ball
+							this.controlThread.operation = Operation.CATCH;
 						}
 					}
 				}
 			} else {
-				
-				controlThread.operation = Operation.KICK;
+				//We have the ball, so kick!
+				this.controlThread.operation = Operation.KICK;
 				
 				
 			}
@@ -122,24 +137,29 @@ public class PenaltyStrategy implements WorldStateReceiver,Strategy {
 						
 						break;
 					case CATCH:
-						brick.robotCatch();
-						ballCaught = true;
+						PenaltyStrategy.this.brick.robotCatch();
+						PenaltyStrategy.this.ballCaught = true;
 						break;
 					case PREPARE_CATCH:
-						brick.robotPrepCatch();
+						PenaltyStrategy.this.brick.robotPrepCatch();
 						break;
 					case KICK:
-						brick.robotKick(10000);
-						ballCaught = false;
+						PenaltyStrategy.this.brick.robotKick(10000);
+						PenaltyStrategy.this.ballCaught = false;
 						break;
 					case ROTATE:
-						brick.robotRotateBy(rotateBy, Math.abs(rotateBy));
+						PenaltyStrategy.this.brick.robotRotateBy(rotateBy, Math.abs(rotateBy));
 						break;
 					case TRAVEL:
-						brick.robotPrepCatch();
-						brick.robotTravel(travelDist, travelSpeed);
+						PenaltyStrategy.this.brick.robotPrepCatch();
+						PenaltyStrategy.this.brick.robotTravel(travelDist, travelSpeed);
+						break;
+					default:
 						break;
 					}
+					 
+					//TODO Try lower values and see when it breaks
+					//TODO Maybe this should be defined as a constant?
 					Thread.sleep(250);
 				}
 			} catch (IOException e) {
