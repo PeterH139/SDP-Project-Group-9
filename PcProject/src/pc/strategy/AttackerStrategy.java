@@ -41,8 +41,7 @@ public class AttackerStrategy implements WorldStateReceiver {
 			leftCheck = divs[0];
 			rightCheck = divs[1];
 		}
-		if (targetX == 0 || targetY == 0 || robotX == 0 || robotY == 0
-				|| robotO == 0 || targetX < leftCheck || targetX > rightCheck) {
+		if (targetX < leftCheck || targetX > rightCheck) {
 			synchronized (controlThread) {
 				controlThread.operation = Operation.DO_NOTHING;
 			}
@@ -113,7 +112,6 @@ public class AttackerStrategy implements WorldStateReceiver {
 
 					switch (op) {
 					case DO_NOTHING:
-						
 						break;
 					case CATCH:
 						brick.robotCatch();
