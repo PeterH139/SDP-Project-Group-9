@@ -46,17 +46,24 @@ public class MarkingStrategy implements Strategy {
 		float enemyAttackerRobotX = worldState.getEnemyAttackerRobot().x;
 		float enemyAttackerRobotY = worldState.getEnemyAttackerRobot().y;
 		
-		
-		
-		//float targetY = (float) (slope * robotX + c);
-		//float targetX =  (float) ((targetY + c) / slope);
-		
+		//Calculate the midpoint
 		float targetX = (enemyAttackerRobotX + enemyDefenderRobotX) / 2;
 		float targetY = (enemyAttackerRobotY + enemyDefenderRobotY) / 2;
 		
+		int[] divs = worldState.dividers;
+		int leftCheck, rightCheck;
+		
+		if (worldState.weAreShootingRight) {
+			leftCheck = divs[1];
+			rightCheck = divs[2];
+		} else {
+			leftCheck = divs[0];
+			rightCheck = divs[1];
+		}
+		
 
 		if (robotX <= 0.5 || targetY <= 0.5 || robotY <= 0.5
-				|| robotO <= 0.5) {
+				|| robotO <= 0.5 || targetX < leftCheck || targetX > rightCheck) {
 			synchronized (this.controlThread) {
 				this.controlThread.operation = Operation.DO_NOTHING;
 			}
@@ -69,14 +76,13 @@ public class MarkingStrategy implements Strategy {
 		
 		
 		synchronized (this.controlThread) {
-			if (Math.abs(robotToTargetAngle) > Math.PI / 25) {
+			if (Math.abs(robotToTargetAngle) > Math.PI / 35) {
 				this.controlThread.operation = Operation.ROTATE;
 				this.controlThread.rotateBy = (int) Math.toDegrees(robotToTargetAngle);
-				System.out.println(Math.toDegrees(robotToTargetAngle));
 			} else if (robotToTargetDistance > 20) {
 				this.controlThread.operation = Operation.TRAVEL;
 				this.controlThread.travelDist = (int) (robotToTargetDistance * 3);
-				this.controlThread.travelSpeed = (int) (robotToTargetDistance * 2);
+				this.controlThread.travelSpeed = (int) (robotToTargetDistance * 4);
 			} else {
 				this.controlThread.operation = Operation.DO_NOTHING;
 			}
