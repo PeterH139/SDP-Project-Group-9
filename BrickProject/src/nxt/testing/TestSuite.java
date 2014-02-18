@@ -19,7 +19,6 @@ import nxt.brick.Striker;
  * -In main, add another else if statement with the index of your test name in testsList <br>
  * -From the if statement, call the test
  * 
- * TODO Write another motor test
  * @author Daniel
  *
  */
