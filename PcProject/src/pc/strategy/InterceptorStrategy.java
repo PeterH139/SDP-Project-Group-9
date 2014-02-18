@@ -86,19 +86,19 @@ public class InterceptorStrategy implements WorldStateReceiver, Strategy {
 		if (robotRad > Math.PI)
 			robotRad -= 2 * Math.PI;
 		if (robotRad > 0) {
-			rotateBy = -(int) Math.toDegrees(Math.PI / 2 - robotRad);
+			rotateBy = (int) Math.toDegrees(Math.PI / 2 - robotRad);
 			dist = targetY - robotY;
 		} else {
 			
-			rotateBy = -(int) Math.toDegrees(-Math.PI / 2 - robotRad);
+			rotateBy = (int) Math.toDegrees(-Math.PI / 2 - robotRad);
 			dist = robotY - targetY;
 		}
-//		if (Math.abs(rotateBy) < 10) {
-//			rotateBy = 0;
-//		}
-//		else {
-//			dist = 0;
-//		}
+		if (Math.abs(rotateBy) < 10) {
+			rotateBy = 0;
+		}
+		else {
+			dist = 0;
+		}
 		System.out.println("distance: " +dist);
 		synchronized (controlThread) {
 			controlThread.rotateBy = rotateBy;
@@ -125,19 +125,22 @@ public class InterceptorStrategy implements WorldStateReceiver, Strategy {
 						rotateBy = this.rotateBy;
 						travelDist = this.travelDist;
 					}
-//					if (rotateBy != 0) {
-//						brick.robotRotateBy(rotateBy, rotateBy / 3);
+					if (rotateBy != 0) {
+						brick.robotRotateBy(rotateBy, rotateBy / 3);
+					}
 					 if (travelDist != 0) {
 						brick.robotTravel(-travelDist, (int) (Math.abs(travelDist) * 2));
 					}
 					Thread.sleep(250); //TODO: Test lower values for this and see where it breaks.
 				}
-			} catch (IOException e) {
+			}
+			 catch (IOException e) {
 				e.printStackTrace();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
-
-	}
-}
+				
+			}
+		
+		}

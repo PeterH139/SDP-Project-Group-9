@@ -114,6 +114,7 @@ public class RunVision {
 			
 			if (enableBluetooth) {
 				strategyController.changeToStrategy(StrategyController.StrategyType.PASSING);
+				vision.addWorldStateReceiver(strategyController);
 			}
 
 			vStream.addReceiver(distortionFix);
