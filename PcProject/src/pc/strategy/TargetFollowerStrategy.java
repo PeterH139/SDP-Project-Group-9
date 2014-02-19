@@ -29,24 +29,8 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 		float robotX = worldState.getAttackerRobot().x, robotY = worldState
 				.getAttackerRobot().y;
 		float robotO = worldState.getAttackerRobot().orientation_angle;
-		ballPositions.addLast(new Vector2f(worldState.getBall().x, worldState
-				.getBall().y));
-		if (ballPositions.size() > 2)
-			ballPositions.removeFirst();
-
-		Vector2f ball2FramesAgo = ballPositions.getFirst();
-		float ballX1 = ball2FramesAgo.x, ballY1 = ball2FramesAgo.y;
-		float ballX2 = worldState.getBall().x, ballY2 = worldState.getBall().y;
-		;
-
-		float slope = (ballY2 - ballY1) / ((ballX2 - ballX1) + 0.0001f);
-		float c = ballY1 - slope * ballX1;
-		float targetY = slope * robotX + c;
-		float targetX = (targetY + c) / slope;
-		
-//		System.out.println("targetX = " + ballX2 + " targetY = " + ballY2);
-//		System.out.println("robotX = " + robotX + " robotY = " + robotY);
-		double dist = Math.hypot(ballX2 - robotX, ballY2 - robotY);
+		float ballX = worldState.getBall().x, ballY = worldState.getBall().y;
+		double dist = Math.hypot(ballX - robotX, ballY - robotY);
 
 		if (dist < 10) {
 			synchronized (controlThread) {
@@ -58,57 +42,92 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 			return;
 		}
 
-		double robotRad = Math.toRadians(robotO);
-
-		if (robotRad > Math.PI)
-			robotRad -= 2 * Math.PI;
-
-		double ang1 = calculateAngle(robotX, robotY, robotO, targetX, targetY);
+		double ang1 = calculateAngle(robotX, robotY, robotO, ballX, ballY);
 		System.out.println("dist: " + dist + " angle: " + ang1);
-		
-		//double dist = Math.hypot(targetX - robotX, targetY - robotY);
-		// for testing
-		
-		// double radius = Math.hypot(ballX1 - robotX, ballY1 - robotY) / 2;
-		// To be used for initial testing
-		double radius = Math.hypot(ballX2 - robotX, ballY2 - robotY) / 2;
 
-		synchronized (controlThread) {;
-			controlThread.operation = Operation.DO_NOTHING;
-			// if(!worldState.getPossession()) {
-			// controlThread.operation = Operation.RESET_ORIENTATION;
-			// controlThread.rotateBy = (int) Math.toDegrees(robotO - 90);
-			// }
-			if (Math.abs(dist) > 40) {
-				if (Math.abs(ang1) > 10) {
-					if (ang1 > 150) {
-						controlThread.operation = Operation.ARC_LEFT;
-					} else if (ang1 < -150) {
-						controlThread.operation = Operation.ARC_RIGHT;
-					}
-					controlThread.radius = radius;
-					controlThread.travelDist = (int) (-dist);
-					controlThread.travelSpeed = (int) (-dist / 2);
+		double radius = Math.hypot(ballX - robotX, ballY - robotY) / 2;
+
+		synchronized (controlThread) {
+			if (Math.abs(dist) > 100) {
+				if (Math.abs(ang1) < 90) {
+					controlThread.travelDist = (int) dist;
 				} else {
-					if (ang1 > 0) {
-						controlThread.operation = Operation.ARC_RIGHT;
-					} else if (ang1 < 0) {
+					controlThread.travelDist = (int) -dist;
+				}
+				if (Math.abs(ang1) > 150 || Math.abs(ang1) < 10) {
+					controlThread.operation = Operation.TRAVEL;
+				} else if (ang1 > 0) {
+					if (ang1 > 90) {
 						controlThread.operation = Operation.ARC_LEFT;
-					}
-					if (dist > 90) {
-						controlThread.operation = Operation.TRAVEL;
-						controlThread.travelDist = (int) (-dist);
-						controlThread.travelSpeed = (int) (-dist / 2);
+					} else {
+						controlThread.operation = Operation.ARC_RIGHT;
 					}
 					controlThread.radius = radius;
-					controlThread.travelDist = (int) (dist);
+				} else if (ang1 < 0) {
+					if (ang1 < -90) {
+						controlThread.operation = Operation.ARC_RIGHT;
+					} else {
+						controlThread.operation = Operation.ARC_LEFT;
+					}
+					controlThread.radius = radius;
 				}
+
+				controlThread.travelSpeed = (int) (dist / 2);
+			} else {
+				controlThread.operation = Operation.DO_NOTHING;
 			}
+
+			// else if (ang1 < -90 || ang1 > 0) { // || Intercepter Version
+			// // ang1 > 0
+			// controlThread.operation = Operation.ARC_RIGHT;
+			// controlThread.radius = radius;
+			// } else if (ang1 > 90 || ang1 < 0) { // || Intercepter Version
+			// // ang1 < 0
+			// controlThread.operation = Operation.ARC_LEFT;
+			// controlThread.radius = radius;
+			// }
+			// if (Math.abs(ang1) < 10) {
+			// controlThread.operation = Operation.TRAVEL;
+			// controlThread.travelDist = (int) (dist);
+			// controlThread.travelSpeed = (int) (dist / 2);
+			// } else if (Math.abs(ang1) > 150) {
+			// controlThread.operation = Operation.TRAVEL;
+			// controlThread.travelDist = (int) (-dist);
+			// controlThread.travelSpeed = (int) (dist / 2);
+			// } else if (ang1 > 90) {
+			// controlThread.operation = Operation.ARC_LEFT;
+			// controlThread.radius = radius;
+			// controlThread.travelDist = (int) (-dist);
+			// controlThread.travelSpeed = (int) (dist / 2);
+			// } else if (ang1 < -90) {
+			// controlThread.operation = Operation.ARC_RIGHT;
+			// controlThread.radius = radius;
+			// controlThread.travelDist = (int) (-dist);
+			// controlThread.travelSpeed = (int) (dist / 2);
+			// } else if (ang1 > 0) {
+			// controlThread.operation = Operation.ARC_RIGHT;
+			// controlThread.radius = radius;
+			// controlThread.travelDist = (int) (dist);
+			// controlThread.travelSpeed = (int) (dist / 2);
+			// } else if (ang1 < 0) {
+			// controlThread.operation = Operation.ARC_LEFT;
+			// controlThread.radius = radius;
+			// controlThread.travelDist = (int) (dist);
+			// controlThread.travelSpeed = (int) (dist / 2);
+			// }
+			// } else if (dist > 90) {
+			// controlThread.operation = Operation.TRAVEL;
+			// controlThread.travelDist = (int) (dist);
+			// controlThread.travelSpeed = (int) (dist / 8);
+			// } else {
+			// controlThread.operation = Operation.DO_NOTHING;
+			// }
+			// }
 		}
 	}
 
 	public enum Operation {
-		DO_NOTHING, TRAVEL, ROTATE, ARC_LEFT, ARC_RIGHT, RESET_ORIENTATION,
+		DO_NOTHING, TRAVEL, ROTATE, ARC_LEFT, ARC_RIGHT,
 	}
 
 	private class ControlThread extends Thread {
@@ -127,12 +146,12 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 		public void run() {
 			try {
 				while (true) {
-					int travelDist, rotateBy, travelSpeed;
+					int travelDist, travelSpeed; // rotateBy,
 					Operation op;
 					double radius;
 					synchronized (this) {
 						op = this.operation;
-						rotateBy = this.rotateBy;
+						// rotateBy = this.rotateBy;
 						travelDist = this.travelDist;
 						travelSpeed = this.travelSpeed;
 						radius = this.radius;
@@ -145,23 +164,20 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 					case DO_NOTHING:
 						break;
 					case TRAVEL:
-						brick.robotTravel(-travelDist, travelSpeed);
+						brick.robotTravel(travelDist, travelSpeed);
 						break;
-					case ROTATE:
-						brick.robotRotateBy(rotateBy, travelSpeed);
-						break;
+					// case ROTATE:
+					// brick.robotRotateBy(rotateBy, travelSpeed);
+					// break;
 					case ARC_LEFT:
-						brick.robotArcForwards(-radius, travelDist);
-						break;
-					case ARC_RIGHT:
 						brick.robotArcForwards(radius, travelDist);
 						break;
-					case RESET_ORIENTATION:
-						brick.robotRotateBy(rotateBy, travelSpeed);
+					case ARC_RIGHT:
+						brick.robotArcForwards(-radius, travelDist);
 						break;
 					}
 
-					Thread.sleep(1000);
+					Thread.sleep(300);
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -180,7 +196,7 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 		if (robotRad > Math.PI)
 			robotRad -= 2 * Math.PI;
 
-		double ang1 = targetRad - robotRad;
+		double ang1 = robotRad - targetRad;
 		while (ang1 > Math.PI)
 			ang1 -= 2 * Math.PI;
 		while (ang1 < -Math.PI)
