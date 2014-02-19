@@ -46,7 +46,7 @@ public class StrategyController implements WorldStateReceiver {
 		return removedStrategies;
 	}
 	public static void setRemovedStrategies(ArrayList<Strategy> removedStrategies) {
-		removedStrategies = removedStrategies;
+		StrategyController.removedStrategies = removedStrategies;
 	}
 	/**
 	 * Change to a particular strategy, removing and stopping the previously running strategy(s).
@@ -55,24 +55,24 @@ public class StrategyController implements WorldStateReceiver {
 	 */
 	public void changeToStrategy(StrategyType type){
 		// Stop old threads
-		for (Strategy s : this.currentStrategies){
+		for (Strategy s : StrategyController.currentStrategies){
 			s.stopControlThread();
-			this.removedStrategies.add(s);
+			StrategyController.removedStrategies.add(s);
 			//this.vision.removeWorldStateReciver(s);
 		}
-		this.currentStrategies = new ArrayList<Strategy>();
+		StrategyController.currentStrategies = new ArrayList<Strategy>();
 		switch(type){
 		case PASSING:
 			Strategy ps = new PassingStrategy(this.bcsAttacker,this.bcsDefender);
-			this.currentStrategies.add(ps);
+			StrategyController.currentStrategies.add(ps);
 			//this.vision.addWorldStateReceiver(ps);
 			ps.startControlThread();
 			break;
 		case ATTACKING:
 			Strategy as = new AttackerStrategy(this.bcsAttacker);
 			Strategy ic = new InterceptorStrategy(this.bcsDefender); 
-			this.currentStrategies.add(as);
-			this.currentStrategies.add(ic);
+			StrategyController.currentStrategies.add(as);
+			StrategyController.currentStrategies.add(ic);
 			//this.vision.addWorldStateReceiver(as);
 			as.startControlThread();
 			ic.startControlThread();
@@ -80,8 +80,8 @@ public class StrategyController implements WorldStateReceiver {
 		case DEFENDING:
 			Strategy ms = new MarkingStrategy(this.bcsAttacker);
 			Strategy ds = new InterceptorStrategy(this.bcsDefender);
-			this.currentStrategies.add(ds);
-			this.currentStrategies.add(ms);
+			StrategyController.currentStrategies.add(ds);
+			StrategyController.currentStrategies.add(ms);
 			//this.vision.addWorldStateReceiver(ds);
 			//this.vision.addWorldStateReceiver(a);
 			ds.startControlThread();
@@ -89,13 +89,13 @@ public class StrategyController implements WorldStateReceiver {
 			break;
 		case PENALTY:
 			Strategy pen = new PenaltyStrategy(this.bcsAttacker);
-			this.currentStrategies.add(pen);
+			StrategyController.currentStrategies.add(pen);
 			//this.vision.addWorldStateReceiver(pen);
 			pen.startControlThread();
 			break;
 		case MARKING:
 			Strategy mar = new MarkingStrategy(this.bcsAttacker);
-			this.currentStrategies.add(mar);
+			StrategyController.currentStrategies.add(mar);
 			//this.vision.addWorldStateReceiver(mar);
 			mar.startControlThread();
 			break;
@@ -132,7 +132,6 @@ public class StrategyController implements WorldStateReceiver {
 			} 
 			
 			if (this.ballInAttackerArea) {
-				changeToStrategy(StrategyType.PASSING);
 				changeToStrategy(StrategyType.ATTACKING);
 			} 
 		
