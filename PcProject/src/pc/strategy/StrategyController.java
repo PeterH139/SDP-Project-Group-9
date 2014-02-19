@@ -112,6 +112,7 @@ public class StrategyController implements WorldStateReceiver {
 		int rightCheck = (worldState.weAreShootingRight) ? worldState.dividers[2] : worldState.dividers[1];
 		float ballX = worldState.getBall().x;
 		boolean prevBallInDefenderArea = this.ballInDefenderArea;
+		boolean prevBallInAttackerArea = this.ballInAttackerArea;
 		
 		
 		if ((worldState.weAreShootingRight && ballX < defenderCheck)
@@ -126,7 +127,7 @@ public class StrategyController implements WorldStateReceiver {
 			this.ballInDefenderArea = false;
 		}
 		System.out.println("BallAttacker: " + this.ballInAttackerArea + " ballDefender: " + this.ballInDefenderArea);;
-		if (prevBallInDefenderArea != this.ballInDefenderArea){
+		if (prevBallInDefenderArea != this.ballInDefenderArea || prevBallInAttackerArea != this.ballInAttackerArea){
 			if (this.ballInDefenderArea){
 				changeToStrategy(StrategyType.PASSING);
 			} 
