@@ -81,7 +81,7 @@ public class RunVision {
 //				bcsMeow = new BrickCommServer();
 //				bcsMeow.guiConnect(BtInfo.MEOW);
 				strategyController = new StrategyController(vision);
-//				vision.addWorldStateReceiver(strategyController);
+				vision.addWorldStateReceiver(strategyController);
 			}
 
 			final VideoStream vStream = new VideoStream(videoDevice, width,

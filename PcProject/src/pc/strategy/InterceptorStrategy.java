@@ -77,10 +77,10 @@ public class InterceptorStrategy implements Strategy {
 			robotRad -= 2 * Math.PI;
 		System.out.println("RobotO: " + robotO);
 		if (robotO > 180) {
-			rotateBy = (int) (270 - robotO);
+			rotateBy = (int) (270 - robotO) / 3;
 			dist = targetY - robotY;
 		} else {
-			rotateBy = (int) (robotO - 90);
+			rotateBy = (int) (robotO - 90) / 3;
 			dist = robotY - targetY;
 		}
 		if (Math.abs(rotateBy) < 10) {
@@ -88,8 +88,11 @@ public class InterceptorStrategy implements Strategy {
 		} else {
 			dist = 0;
 		}
-		if (ballMovement) {
+		if (!ballMovement) {
 			dist = 0;
+		}
+		if (dist > 0) {
+			rotateBy = 0;
 		}
 		System.out.println("distance: " + dist);
 		synchronized (controlThread) {
@@ -118,10 +121,10 @@ public class InterceptorStrategy implements Strategy {
 						travelDist = this.travelDist;
 					}
 					if (rotateBy != 0) {
-						brick.robotRotateBy(rotateBy, rotateBy / 3);
+						brick.robotRotateBy(rotateBy, Math.abs(rotateBy / 3));
 					} else if (travelDist != 0) {
 						brick.robotTravel(travelDist,
-								(int) (Math.abs(travelDist) * 2));
+								(int) (Math.abs(travelDist) * 4));
 					}
 					Thread.sleep(250); // TODO: Test lower values for this and
 										// see where it breaks.
@@ -132,6 +135,11 @@ public class InterceptorStrategy implements Strategy {
 				e.printStackTrace();
 			}
 		}
+				
+			}
+		
 
-	}
+
+
+	
 }

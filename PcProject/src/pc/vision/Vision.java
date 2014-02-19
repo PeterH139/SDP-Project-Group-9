@@ -5,6 +5,8 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
+import pc.strategy.StrategyController;
+import pc.strategy.interfaces.Strategy;
 import pc.vision.interfaces.ObjectRecogniser;
 import pc.vision.interfaces.VideoReceiver;
 import pc.vision.interfaces.VisionDebugReceiver;
@@ -23,7 +25,7 @@ public class Vision implements VideoReceiver {
 	private final PitchConstants pitchConstants;
 	private final WorldState worldState;
 	private ArrayList<VisionDebugReceiver> visionDebugReceivers = new ArrayList<VisionDebugReceiver>();
-	private ArrayList<WorldStateReceiver> worldStateReceivers = new ArrayList<WorldStateReceiver>();
+	private static ArrayList<WorldStateReceiver> worldStateReceivers = new ArrayList<WorldStateReceiver>();
 	private ArrayList<ObjectRecogniser> recognisers = new ArrayList<ObjectRecogniser>();
 
 	public Vision(WorldState worldState, PitchConstants pitchConstants) {
@@ -53,12 +55,12 @@ public class Vision implements VideoReceiver {
 	 * @param receiver
 	 *            The object being registered
 	 */
-	public void addWorldStateReceiver(WorldStateReceiver receiver) {
-		this.worldStateReceivers.add(receiver);
+	public static void addWorldStateReceiver(WorldStateReceiver receiver) {
+		worldStateReceivers.add(receiver);
 	}
 	
-	public void removeWorldStateReciver(WorldStateReceiver reciver){
-		this.worldStateReceivers.remove(reciver);
+	public static void removeWorldStateReciver(WorldStateReceiver reciver){
+		worldStateReceivers.remove(reciver);
 	}
 
 	public void addRecogniser(ObjectRecogniser recogniser) {
@@ -99,9 +101,9 @@ public class Vision implements VideoReceiver {
 			recogniser.processFrame(pixels, frame, debugGraphics, debugOverlay);
 		for (VisionDebugReceiver receiver : this.visionDebugReceivers)
 			receiver.sendDebugOverlay(debugOverlay);
-		for (WorldStateReceiver receiver : this.worldStateReceivers)
+		for (WorldStateReceiver receiver : this.worldStateReceivers) {
 			receiver.sendWorldState(this.worldState);
-
+		}
 	}
 
 	/**

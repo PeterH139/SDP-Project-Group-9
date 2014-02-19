@@ -7,11 +7,18 @@ import pc.strategy.interfaces.Strategy;
 import pc.vision.interfaces.WorldStateReceiver;
 import pc.world.WorldState;
 
+
+/**
+ * This is responsible for taking penalties
+ * @author Daniel, Shova, Scott
+ *
+ */
+//FIXME Work out why it often shoots straight ahead
 public class PenaltyStrategy implements WorldStateReceiver,Strategy {
 	
 	private BrickCommServer brick;
 	private ControlThread controlThread;
-
+	private int goalX, goalY;
 	private boolean ballCaught = false;
 
 	public PenaltyStrategy(BrickCommServer brick) {
@@ -39,19 +46,18 @@ public class PenaltyStrategy implements WorldStateReceiver,Strategy {
 		float opponentRobotO = worldState.getEnemyDefenderRobot().orientation_angle;
 		float targetX = worldState.getBall().x, targetY = worldState.getBall().y;
 		int[] divs = worldState.dividers;
-		int goalX, goalY;
 		int leftCheck, rightCheck;
 		
 		if (worldState.weAreShootingRight) {
 			leftCheck = divs[1];
 			rightCheck = divs[2];
-			goalX = 640;
-			goalY = 220;
+			this.goalX = 640;
+			this.goalY = 220;
 		} else {
 			leftCheck = divs[0];
 			rightCheck = divs[1];
-			goalX = 0;
-			goalY = 220;
+			this.goalX = 0;
+			this.goalY = 220;
 		}
 		
 		if (targetX == 0 || targetY == 0 || robotX == 0 || robotY == 0
@@ -63,7 +69,7 @@ public class PenaltyStrategy implements WorldStateReceiver,Strategy {
 		}
 		
 		
-		
+		//TODO Pull stuff out of synchronized
 		synchronized (this.controlThread) {
 			this.controlThread.operation = Operation.DO_NOTHING;
 			
@@ -75,7 +81,7 @@ public class PenaltyStrategy implements WorldStateReceiver,Strategy {
 						targetY);
 				double robotToBallDistance = Math.hypot(robotX - targetX, robotY - targetY);
 				
-				if (Math.abs(robotToBallAngle) > Math.PI / 20) {
+				if (Math.abs(robotToBallAngle) > Math.PI / 10) {
 					//If we're not facing the ball, then turn to face it.
 					this.controlThread.operation = Operation.ROTATE;
 					this.controlThread.rotateBy = (int) Math.toDegrees(robotToBallAngle);
@@ -96,7 +102,7 @@ public class PenaltyStrategy implements WorldStateReceiver,Strategy {
 						
 						double idealAngle = calculateIdealAngle(robotX, robotY, robotO, opponentRobotY);
 						
-						if (Math.abs(idealAngle) > Math.PI / 20) {
+						if (Math.abs(idealAngle) > Math.PI / 25) {
 							//We're not aiming where we want to, so rotate
 							this.controlThread.operation = Operation.ROTATE;
 							this.controlThread.rotateBy = (int) Math.toDegrees(idealAngle);
@@ -203,38 +209,46 @@ public class PenaltyStrategy implements WorldStateReceiver,Strategy {
 		return ang1;
 	}
 	
-	public static double calculateIdealAngle(float robotX, float robotY,
+	public double calculateIdealAngle(float robotX, float robotY,
 			float robotOrientation, float opponentRobotY) {
 		double robotRad = Math.toRadians(robotOrientation);
 		double targetRad = 0.0;
 		
-		//FIXME The contents of all these ifs are identical as far as I (Daniel) can see....
+		//TODO Tweak the 2 ints below
+		//The distance from the center to aim when shooting left or right
+		int distanceFromCenter = 60;
 		
-		if (opponentRobotY > 245) {
+		//The distance from the center to classify the enemy as left or right of the center
+		// ie if it is 30, the enemy robot must be be between center + 30 or center - 30
+		// for it to be called out of the cneter
+		int centerThreshold = 30;
+		
+		
+		if (opponentRobotY > this.goalY + centerThreshold) {
 			//if opponent defender on the left side, then turn right
-			double rightY = ((212 + 134)/2);
-			double rightX = 63.0;
+			double rightY = this.goalY - distanceFromCenter;
+			double rightX = this.goalX;
 			targetRad = Math.atan2(rightY - robotY, rightX - robotX); 
 					
 		}
-		else if (opponentRobotY < 179) {
+		else if (opponentRobotY < this.goalY - centerThreshold) {
 			//if opponent defender on the left side, then turn left
-			double rightY = ((212 + 134)/2);
-			double rightX = 63.0;
+			double rightY = this.goalY + distanceFromCenter;
+			double rightX = this.goalX;
 			targetRad = Math.atan2(rightY - robotY, rightX - robotX); 
 					
 		}
 		else {
 			double random = Math.random();
 			if (random < 0.5) {
-				double rightY = ((212 + 134)/2);
-				double rightX = 63.0;
+				double rightY = this.goalY - distanceFromCenter;
+				double rightX = this.goalX;
 				targetRad = Math.atan2(rightY - robotY, rightX - robotX); 
 			}
 			else {
 				
-				double rightY = ((212 + 134)/2);
-				double rightX = 63.0;
+				double rightY = this.goalY + distanceFromCenter;
+				double rightX = this.goalX;
 				targetRad = Math.atan2(rightY - robotY, rightX - robotX); 				
 			}			
 		}

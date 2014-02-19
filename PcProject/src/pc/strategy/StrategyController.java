@@ -13,30 +13,40 @@ import pc.world.WorldState;
 public class StrategyController implements WorldStateReceiver {
 	
 	public enum StrategyType{
-		PASSING, ATTACKING, DEFENDING, PENALTY
+		PASSING, ATTACKING, DEFENDING, PENALTY, MARKING
 	}
 	
 	public BrickCommServer bcsAttacker, bcsDefender;
 	private boolean ballInDefenderArea = false;
 	
 	private Vision vision;
-	private ArrayList<Strategy> currentStrategies = new ArrayList<Strategy>();
+	private static ArrayList<Strategy> currentStrategies = new ArrayList<Strategy>();
+	private static ArrayList<Strategy> removedStrategies = new ArrayList<Strategy>();
 	
 	public StrategyController(Vision vision){
 		this.vision = vision;
 		
-		bcsAttacker = null;
-		bcsDefender = null;
+		this.bcsAttacker = null;
+		this.bcsDefender = null;
 		try {
-			bcsAttacker = new BrickCommServer();
-			bcsAttacker.guiConnect(BtInfo.group10);
-			bcsDefender = new BrickCommServer();
-			bcsDefender.guiConnect(BtInfo.MEOW);
+			this.bcsAttacker = new BrickCommServer();
+			this.bcsAttacker.guiConnect(BtInfo.group10);
+			this.bcsDefender = new BrickCommServer();
+			this.bcsDefender.guiConnect(BtInfo.MEOW);
 		} catch (NXTCommException e) {
 			e.printStackTrace();
 		}
 	}
 	
+	public static ArrayList<Strategy> getCurrentStrategies() {
+		return currentStrategies;
+	}
+	public static ArrayList<Strategy> getRemovedStrategies() {
+		return removedStrategies;
+	}
+	public static void setRemovedStrategies(ArrayList<Strategy> removedStrategies) {
+		removedStrategies = removedStrategies;
+	}
 	/**
 	 * Change to a particular strategy, removing and stopping the previously running strategy(s).
 	 * 
@@ -46,37 +56,44 @@ public class StrategyController implements WorldStateReceiver {
 		// Stop old threads
 		for (Strategy s : this.currentStrategies){
 			s.stopControlThread();
-			vision.removeWorldStateReciver(s);
+			this.removedStrategies.add(s);
+			//this.vision.removeWorldStateReciver(s);
 		}
-		
+		this.currentStrategies = new ArrayList<Strategy>();
 		switch(type){
 		case PASSING:
-			Strategy ps = new PassingStrategy(bcsAttacker,bcsDefender);
-			currentStrategies.add(ps);
-			vision.addWorldStateReceiver(ps);
+			Strategy ps = new PassingStrategy(this.bcsAttacker,this.bcsDefender);
+			this.currentStrategies.add(ps);
+			//this.vision.addWorldStateReceiver(ps);
 			ps.startControlThread();
 			break;
 		case ATTACKING:
-			Strategy as = new AttackerStrategy(bcsAttacker);
-			currentStrategies.add(as);
-			vision.addWorldStateReceiver(as);
+			Strategy as = new AttackerStrategy(this.bcsAttacker);
+			this.currentStrategies.add(as);
+			//this.vision.addWorldStateReceiver(as);
 			as.startControlThread();
 			break;
 		case DEFENDING:
-			Strategy a = new AttackerStrategy(bcsAttacker);
-			Strategy ds = new InterceptorStrategy(bcsDefender);
-			currentStrategies.add(ds);
-			currentStrategies.add(a);
-			vision.addWorldStateReceiver(ds);
-			vision.addWorldStateReceiver(a);
+			Strategy a = new AttackerStrategy(this.bcsAttacker);
+			Strategy ds = new InterceptorStrategy(this.bcsDefender);
+			this.currentStrategies.add(ds);
+			this.currentStrategies.add(a);
+			//this.vision.addWorldStateReceiver(ds);
+			//this.vision.addWorldStateReceiver(a);
 			ds.startControlThread();
 			a.startControlThread();
 			break;
 		case PENALTY:
-			Strategy pen = new PenaltyStrategy(bcsAttacker);
-			currentStrategies.add(pen);
-			vision.addWorldStateReceiver(pen);
+			Strategy pen = new PenaltyStrategy(this.bcsAttacker);
+			this.currentStrategies.add(pen);
+			//this.vision.addWorldStateReceiver(pen);
 			pen.startControlThread();
+			break;
+		case MARKING:
+			Strategy mar = new MarkingStrategy(this.bcsAttacker);
+			this.currentStrategies.add(mar);
+			//this.vision.addWorldStateReceiver(mar);
+			mar.startControlThread();
 			break;
 		}
 		
@@ -92,13 +109,13 @@ public class StrategyController implements WorldStateReceiver {
 		
 		if ((worldState.weAreShootingRight && ballX < defenderCheck)
 				|| (!worldState.weAreShootingRight && ballX > defenderCheck)) {
-			ballInDefenderArea = true;
+			this.ballInDefenderArea = true;
 		} else {
-			ballInDefenderArea = false;
+			this.ballInDefenderArea = false;
 		}
 		
 		if (prevBallInDefenderArea != this.ballInDefenderArea){
-			if (ballInDefenderArea){
+			if (this.ballInDefenderArea){
 				changeToStrategy(StrategyType.PASSING);
 			} else {
 				changeToStrategy(StrategyType.DEFENDING);

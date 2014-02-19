@@ -107,10 +107,10 @@ public class PassingStrategy implements Strategy {
 				if (!ballCaught) {
 					double ang1 = calculateAngle(defenderRobotX,
 							defenderRobotY, defenderRobotO, ballX, ballY);
-					//ang1 = (ang1 > 0) ? (ang1 + Math.toRadians(10)) : ang1 - Math.toRadians(10);
+					//ang1 = (ang1 > 0) ? (ang1 + Math.toRadians(15)) : ang1 - Math.toRadians(15);
 					double dist = Math.hypot(defenderRobotX - ballX,
 							defenderRobotY - ballY);
-					if ((Math.abs(ang1) < Math.PI / 16) && dist < 32) { 
+					if ((Math.abs(ang1) < (Math.PI / 12)) && dist < 36) { 
 						controlThread.operation = Operation.DEFCATCH;
 					}
 					else if (Math.abs(ang1) > Math.PI / 32) {
@@ -225,7 +225,7 @@ public class PassingStrategy implements Strategy {
 						defenderBrick.robotPrepCatch();
 						break;
 					case DEFKICK:
-						defenderBrick.robotKick(200);
+						defenderBrick.robotKick(150);
 						ballCaught = false;
 					case DEFROTATE:
 						defenderBrick.robotRotateBy(rotateBy / 3,

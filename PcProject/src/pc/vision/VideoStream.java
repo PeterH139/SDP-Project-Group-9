@@ -6,6 +6,8 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 
+import pc.strategy.StrategyController;
+import pc.strategy.interfaces.Strategy;
 import pc.vision.interfaces.VideoReceiver;
 import au.edu.jcu.v4l4j.CaptureCallback;
 import au.edu.jcu.v4l4j.Control;
@@ -79,10 +81,19 @@ public class VideoStream {
 //				GaussianBlur gb = new GaussianBlur();
 //				gb.blurGaussian(cp, 2, 2, 0.02);
 //				frameBuffer = cp.getBufferedImage();
-
-				for (VideoReceiver receiver : VideoStream.this.videoReceivers)
+				for (VideoReceiver receiver : VideoStream.this.videoReceivers) {
 					receiver.sendFrame(frameBuffer, delta,
-							VideoStream.this.frameCounter);
+							VideoStream.this.frameCounter); }
+				ArrayList<Strategy> currentStrategies = StrategyController.getCurrentStrategies();
+				ArrayList<Strategy> removedStrategies = StrategyController.getRemovedStrategies();
+				for (Strategy s : removedStrategies) {
+					Vision.removeWorldStateReciver(s);
+				}
+				removedStrategies = new ArrayList<Strategy>();
+				StrategyController.setRemovedStrategies(removedStrategies);
+				for (Strategy s : currentStrategies) { 
+					Vision.addWorldStateReceiver(s);
+				}
 			} else if (VideoStream.this.frameCounter > 3) {
 				VideoStream.this.ready = true;
 			}

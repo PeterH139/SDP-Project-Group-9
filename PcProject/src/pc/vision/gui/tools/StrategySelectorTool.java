@@ -57,12 +57,14 @@ public class StrategySelectorTool implements GUITool{
 		private JButton defStrat = new JButton("Intercepting");
 		private JButton passStrat = new JButton("Passing");
 		private JButton penStrat = new JButton("Penalty");
+		private JButton marStrat = new JButton("Marking");
 		
 		public StrategyPicker(){
 			this.add(atkStrat);
 			this.add(defStrat);
 			this.add(passStrat);
 			this.add(penStrat);
+			this.add(marStrat);
 			
 			atkStrat.addActionListener(new ActionListener() {
 				@Override
@@ -86,6 +88,12 @@ public class StrategySelectorTool implements GUITool{
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					sc.changeToStrategy(StrategyType.PENALTY);
+				}
+			});
+			marStrat.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					sc.changeToStrategy(StrategyType.MARKING);
 				}
 			});
 		}
