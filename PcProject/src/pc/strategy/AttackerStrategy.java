@@ -57,8 +57,6 @@ public class AttackerStrategy implements Strategy {
 			return;
 		}
 
-		double radius = Math.hypot(targetX - robotX, targetY - robotY) / 2;
-
 		synchronized (controlThread) {
 			controlThread.operation = Operation.PREPARE_CATCH;
 			if (!ballCaught) {
@@ -80,7 +78,7 @@ public class AttackerStrategy implements Strategy {
 						} else {
 							controlThread.operation = Operation.ARC_RIGHT;
 						}
-						controlThread.radius = radius;
+						controlThread.radius = dist / 2;
 					} else if (ang1 < 0) {
 						if (ang1 < -90) {
 							controlThread.operation = Operation.ARC_RIGHT;
@@ -88,6 +86,7 @@ public class AttackerStrategy implements Strategy {
 							controlThread.operation = Operation.ARC_LEFT;
 						}
 						controlThread.radius = dist * 2;
+
 					}
 
 				} else {

@@ -3,6 +3,7 @@ package pc.strategy;
 import java.io.IOException;
 
 import pc.comms.BrickCommServer;
+import pc.strategy.TargetFollowerStrategy.Operation;
 import pc.strategy.interfaces.Strategy;
 import pc.world.WorldState;
 
@@ -45,14 +46,14 @@ public class MarkingStrategy implements Strategy {
 		float enemyDefenderRobotY = worldState.getEnemyDefenderRobot().y;
 		float enemyAttackerRobotX = worldState.getEnemyAttackerRobot().x;
 		float enemyAttackerRobotY = worldState.getEnemyAttackerRobot().y;
-		
-		//Calculate the midpoint
+
+		// Calculate the midpoint
 		float targetX = (enemyAttackerRobotX + enemyDefenderRobotX) / 2;
 		float targetY = (enemyAttackerRobotY + enemyDefenderRobotY) / 2;
-		
+
 		int[] divs = worldState.dividers;
 		int leftCheck, rightCheck;
-		
+
 		if (worldState.weAreShootingRight) {
 			leftCheck = divs[1];
 			rightCheck = divs[2];
@@ -60,41 +61,59 @@ public class MarkingStrategy implements Strategy {
 			leftCheck = divs[0];
 			rightCheck = divs[1];
 		}
-		
 
-		if (robotX <= 0.5 || targetY <= 0.5 || robotY <= 0.5
-				|| robotO <= 0.5 || targetX < leftCheck || targetX > rightCheck) {
+		if (robotX <= 0.5 || targetY <= 0.5 || robotY <= 0.5 || robotO <= 0.5
+				|| targetX < leftCheck || targetX > rightCheck) {
 			synchronized (this.controlThread) {
 				this.controlThread.operation = Operation.DO_NOTHING;
 			}
 			return;
 		}
-		
-		double robotToTargetAngle = calculateAngle(robotX, robotY, robotO, targetX,
-				targetY);
-		double robotToTargetDistance = Math.hypot(robotX - targetX, robotY - targetY);
-		
-		
-		synchronized (this.controlThread) {
-			if (Math.abs(robotToTargetAngle) > Math.PI / 35) {
-				this.controlThread.operation = Operation.ROTATE;
-				this.controlThread.rotateBy = (int) Math.toDegrees(robotToTargetAngle);
-			} else if (robotToTargetDistance > 20) {
-				this.controlThread.operation = Operation.TRAVEL;
-				this.controlThread.travelDist = (int) (robotToTargetDistance * 3);
-				this.controlThread.travelSpeed = (int) (robotToTargetDistance * 4);
-			} else {
-				this.controlThread.operation = Operation.DO_NOTHING;
-			}
 
+		double robotToTargetAngle = calculateAngle(robotX, robotY, robotO,
+				targetX, targetY);
+		double robotToTargetDistance = Math.hypot(targetX - robotX, targetY
+				- robotY);
+
+		synchronized (this.controlThread) {
+			controlThread.operation = Operation.DO_NOTHING;
+			
+			if (Math.abs(robotToTargetDistance) > 25) {
+				if (Math.abs(robotToTargetAngle) < 90) {
+					controlThread.travelDist = (int) robotToTargetDistance;
+				} else {
+					controlThread.travelDist = (int) -robotToTargetDistance;
+				}
+				if (Math.abs(robotToTargetAngle) > 150
+						|| Math.abs(robotToTargetAngle) < 10) {
+					controlThread.operation = Operation.TRAVEL;
+				} else if (robotToTargetAngle > 0) {
+					controlThread.operation = Operation.ARC_RIGHT;
+					if (robotToTargetAngle > 90) {
+						controlThread.operation = Operation.ARC_LEFT;
+					}
+					controlThread.radius = robotToTargetDistance * 5;
+				} else if (robotToTargetAngle < 0) {
+					controlThread.operation = Operation.ARC_LEFT;
+					if (robotToTargetAngle < -90) {
+						controlThread.operation = Operation.ARC_RIGHT;
+					}
+					controlThread.radius = robotToTargetDistance *5;
+				}
+
+				controlThread.travelSpeed = (int) (200);
+			} else {
+				controlThread.operation = Operation.DO_NOTHING;
+			}
 		}
 	}
-	
+
 	public enum Operation {
-		DO_NOTHING, TRAVEL, ROTATE,
+		DO_NOTHING, TRAVEL, ROTATE, ARC_LEFT, ARC_RIGHT,
 	}
 
 	private class ControlThread extends Thread {
+		public double radius = 0;
 		public Operation operation = Operation.DO_NOTHING;
 		public int rotateBy = 0;
 		public int travelDist = 0;
@@ -111,32 +130,35 @@ public class MarkingStrategy implements Strategy {
 				while (true) {
 					int travelDist, rotateBy, travelSpeed;
 					Operation op;
+					double radius;
 					synchronized (this) {
 						op = this.operation;
 						rotateBy = this.rotateBy;
 						travelDist = this.travelDist;
 						travelSpeed = this.travelSpeed;
+						radius = this.radius;
 					}
-
-//					System.out.println("op: " + op.toString() + " rotateBy: "
-//							+ rotateBy + " travelDist: " + travelDist);
 
 					switch (op) {
 					case DO_NOTHING:
-						
-						break;
-					case ROTATE:
-						MarkingStrategy.this.brick.robotRotateBy(rotateBy, Math.abs(rotateBy));
+
 						break;
 					case TRAVEL:
-						MarkingStrategy.this.brick.robotTravel(travelDist, travelSpeed);
+						MarkingStrategy.this.brick.robotTravel(travelDist,
+								travelSpeed);
+						break;
+					case ARC_LEFT:
+						brick.robotArcForwards(radius, travelDist);
+						break;
+					case ARC_RIGHT:
+						brick.robotArcForwards(-radius, travelDist);
 						break;
 					default:
 						break;
 					}
-					 
-					//TODO Try lower values and see when it breaks
-					//TODO Maybe this should be defined as a constant?
+
+					// TODO Try lower values and see when it breaks
+					// TODO Maybe this should be defined as a constant?
 					Thread.sleep(250);
 				}
 			} catch (IOException e) {
@@ -144,11 +166,11 @@ public class MarkingStrategy implements Strategy {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			
+
 		}
 
 	}
-	
+
 	public static double calculateAngle(float robotX, float robotY,
 			float robotOrientation, float targetX, float targetY) {
 		double robotRad = Math.toRadians(robotOrientation);
@@ -162,7 +184,6 @@ public class MarkingStrategy implements Strategy {
 			ang1 -= 2 * Math.PI;
 		while (ang1 < -Math.PI)
 			ang1 += 2 * Math.PI;
-		return ang1;
+		return Math.toDegrees(ang1);
 	}
 }
-
