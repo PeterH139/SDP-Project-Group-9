@@ -18,6 +18,7 @@ public class StrategyController implements WorldStateReceiver {
 	
 	public BrickCommServer bcsAttacker, bcsDefender;
 	private boolean ballInDefenderArea = false;
+	private boolean ballInAttackerArea = false;
 	
 	private Vision vision;
 	private static ArrayList<Strategy> currentStrategies = new ArrayList<Strategy>();
@@ -31,8 +32,8 @@ public class StrategyController implements WorldStateReceiver {
 		try {
 			this.bcsAttacker = new BrickCommServer();
 			this.bcsAttacker.guiConnect(BtInfo.group10);
-//			this.bcsDefender = new BrickCommServer();
-//			this.bcsDefender.guiConnect(BtInfo.MEOW);
+			this.bcsDefender = new BrickCommServer();
+			this.bcsDefender.guiConnect(BtInfo.MEOW);
 		} catch (NXTCommException e) {
 			e.printStackTrace();
 		}
@@ -69,19 +70,22 @@ public class StrategyController implements WorldStateReceiver {
 			break;
 		case ATTACKING:
 			Strategy as = new AttackerStrategy(this.bcsAttacker);
+			Strategy ic = new InterceptorStrategy(this.bcsDefender); 
 			this.currentStrategies.add(as);
+			this.currentStrategies.add(ic);
 			//this.vision.addWorldStateReceiver(as);
 			as.startControlThread();
+			ic.startControlThread();
 			break;
 		case DEFENDING:
-			Strategy a = new AttackerStrategy(this.bcsAttacker);
+			Strategy ms = new MarkingStrategy(this.bcsAttacker);
 			Strategy ds = new InterceptorStrategy(this.bcsDefender);
 			this.currentStrategies.add(ds);
-			this.currentStrategies.add(a);
+			this.currentStrategies.add(ms);
 			//this.vision.addWorldStateReceiver(ds);
 			//this.vision.addWorldStateReceiver(a);
 			ds.startControlThread();
-			a.startControlThread();
+			ms.startControlThread();
 			break;
 		case PENALTY:
 			Strategy pen = new PenaltyStrategy(this.bcsAttacker);
@@ -104,20 +108,35 @@ public class StrategyController implements WorldStateReceiver {
 		// Check where the ball is, and make a decision on which strategies to run based upon that.
 		int defenderCheck = (worldState.weAreShootingRight) 
 				? worldState.dividers[0] : worldState.dividers[2];
+		int leftCheck = (worldState.weAreShootingRight) ? worldState.dividers[1] : worldState.dividers[0];
+		int rightCheck = (worldState.weAreShootingRight) ? worldState.dividers[2] : worldState.dividers[1];
 		float ballX = worldState.getBall().x;
 		boolean prevBallInDefenderArea = this.ballInDefenderArea;
+		
 		
 		if ((worldState.weAreShootingRight && ballX < defenderCheck)
 				|| (!worldState.weAreShootingRight && ballX > defenderCheck)) {
 			this.ballInDefenderArea = true;
+			this.ballInAttackerArea = false;
+		} else if (ballX > leftCheck && ballX < rightCheck){
+			this.ballInDefenderArea = false;
+			this.ballInAttackerArea = true;
 		} else {
+			this.ballInAttackerArea = false;
 			this.ballInDefenderArea = false;
 		}
-		
+		System.out.println("BallAttacker: " + this.ballInAttackerArea + " ballDefender: " + this.ballInDefenderArea);;
 		if (prevBallInDefenderArea != this.ballInDefenderArea){
 			if (this.ballInDefenderArea){
 				changeToStrategy(StrategyType.PASSING);
-			} else {
+			} 
+			
+			if (this.ballInAttackerArea) {
+				changeToStrategy(StrategyType.PASSING);
+				changeToStrategy(StrategyType.ATTACKING);
+			} 
+		
+			if(!this.ballInAttackerArea && !this.ballInDefenderArea) {
 				changeToStrategy(StrategyType.DEFENDING);
 			}
 		}  

@@ -31,6 +31,7 @@ public class AttackerStrategy implements Strategy {
 
 	@Override
 	public void sendWorldState(WorldState worldState) {
+		System.out.println("Attacking");
 		float robotX = worldState.getAttackerRobot().x, robotY = worldState
 				.getAttackerRobot().y;
 		float robotO = worldState.getAttackerRobot().orientation_angle;
@@ -78,14 +79,14 @@ public class AttackerStrategy implements Strategy {
 						} else {
 							controlThread.operation = Operation.ARC_RIGHT;
 						}
-						controlThread.radius = dist / 2;
+						controlThread.radius = dist / 3;
 					} else if (ang1 < 0) {
 						if (ang1 < -90) {
 							controlThread.operation = Operation.ARC_RIGHT;
 						} else {
 							controlThread.operation = Operation.ARC_LEFT;
 						}
-						controlThread.radius = dist * 2;
+						controlThread.radius = dist * 3;
 
 					}
 
@@ -95,7 +96,7 @@ public class AttackerStrategy implements Strategy {
 			} else {
 				double ang1 = calculateAngle(robotX, robotY, robotO, goalX,
 						goalY);
-				System.out.println("angle to goal: " + ang1);
+				//System.out.println("angle to goal: " + ang1);
 				if (Math.abs(ang1) > 5) {
 					controlThread.operation = Operation.ROTATE;
 					controlThread.rotateBy = (int) ang1;
@@ -137,8 +138,8 @@ public class AttackerStrategy implements Strategy {
 						radius = this.radius;
 					}
 
-					System.out.println("op: " + op.toString() + " rotateBy: "
-							+ rotateBy + " travelDist: " + travelDist);
+//					System.out.println("ballcaught: " + ballCaught + "op: " + op.toString() + " rotateBy: "
+//							+ rotateBy + " travelDist: " + travelDist);
 
 					switch (op) {
 					case DO_NOTHING:
@@ -155,7 +156,7 @@ public class AttackerStrategy implements Strategy {
 						ballCaught = false;
 						break;
 					case ROTATE:
-						brick.robotRotateBy(-rotateBy, travelSpeed);
+						brick.robotRotateBy(-rotateBy, Math.abs(rotateBy));
 						break;
 					case TRAVEL:
 						brick.robotPrepCatch();

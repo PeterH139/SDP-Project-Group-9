@@ -78,7 +78,7 @@ public class RunVision {
 			StrategyController strategyController = null;
 			if (enableBluetooth) {
 				strategyController = new StrategyController(vision);
-				vision.addWorldStateReceiver(strategyController);
+					Vision.addWorldStateReceiver(strategyController);
 			}
 
 			final VideoStream vStream = new VideoStream(videoDevice, width,

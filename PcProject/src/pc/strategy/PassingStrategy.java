@@ -35,6 +35,7 @@ public class PassingStrategy implements Strategy {
 
 	@Override
 	public void sendWorldState(WorldState worldState) {
+		System.out.println("Passing");
 		float attackerRobotX = worldState.getAttackerRobot().x, attackerRobotY = worldState
 				.getAttackerRobot().y;
 		float defenderRobotX = worldState.getDefenderRobot().x, defenderRobotY = worldState
@@ -190,9 +191,9 @@ public class PassingStrategy implements Strategy {
 						travelSpeed = this.travelSpeed;
 					}
 
-					System.out.println("ballCaught: " + ballCaught + " op: "
-							+ op.toString() + " rotateBy: " + rotateBy
-							+ " travelDist: " + travelDist);
+//					System.out.println("ballCaught: " + ballCaught + " op: "
+//							+ op.toString() + " rotateBy: " + rotateBy
+//							+ " travelDist: " + travelDist);
 
 					switch (op) {
 					case DO_NOTHING:

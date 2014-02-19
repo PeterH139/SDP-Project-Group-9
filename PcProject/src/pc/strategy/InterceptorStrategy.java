@@ -37,6 +37,7 @@ public class InterceptorStrategy implements Strategy {
 
 	@Override
 	public void sendWorldState(WorldState worldState) {
+		System.out.println("Intercepting");
 		float robotX = worldState.getDefenderRobot().x;
 		float robotY = worldState.getDefenderRobot().y;
 		double robotO = worldState.getDefenderRobot().orientation_angle;
@@ -122,7 +123,7 @@ public class InterceptorStrategy implements Strategy {
 						brick.robotRotateBy(rotateBy, Math.abs(rotateBy / 3));
 					} else if (travelDist != 0) {
 						brick.robotTravel(travelDist,
-								(int) (Math.abs(travelDist) * 4));
+								(int) (Math.abs(travelDist) * 2));
 					}
 					Thread.sleep(250); // TODO: Test lower values for this and
 										// see where it breaks.

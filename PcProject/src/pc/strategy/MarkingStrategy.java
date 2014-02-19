@@ -1,5 +1,6 @@
 package pc.strategy;
 
+import java.awt.Robot;
 import java.io.IOException;
 
 import pc.comms.BrickCommServer;
@@ -39,17 +40,12 @@ public class MarkingStrategy implements Strategy {
 
 	@Override
 	public void sendWorldState(WorldState worldState) {
+		System.out.println("Marking");
 		float robotX = worldState.getAttackerRobot().x;
 		float robotY = worldState.getAttackerRobot().y;
 		float robotO = worldState.getAttackerRobot().orientation_angle;
-		float enemyDefenderRobotX = worldState.getEnemyDefenderRobot().x;
 		float enemyDefenderRobotY = worldState.getEnemyDefenderRobot().y;
-		float enemyAttackerRobotX = worldState.getEnemyAttackerRobot().x;
 		float enemyAttackerRobotY = worldState.getEnemyAttackerRobot().y;
-
-		// Calculate the midpoint
-		float targetX = (enemyAttackerRobotX + enemyDefenderRobotX) / 2;
-		float targetY = (enemyAttackerRobotY + enemyDefenderRobotY) / 2;
 
 		int[] divs = worldState.dividers;
 		int leftCheck, rightCheck;
@@ -57,18 +53,16 @@ public class MarkingStrategy implements Strategy {
 		if (worldState.weAreShootingRight) {
 			leftCheck = divs[1];
 			rightCheck = divs[2];
+
+			// targetX = (2 * leftCheck + rightCheck) / 3;
 		} else {
 			leftCheck = divs[0];
 			rightCheck = divs[1];
-		}
 
-		if (robotX <= 0.5 || targetY <= 0.5 || robotY <= 0.5 || robotO <= 0.5
-				|| targetX < leftCheck || targetX > rightCheck) {
-			synchronized (this.controlThread) {
-				this.controlThread.operation = Operation.DO_NOTHING;
-			}
-			return;
+			// targetX = (leftCheck + 2 * rightCheck) / 3;
 		}
+		float targetX = (leftCheck + rightCheck) / 2;
+		float targetY = (enemyAttackerRobotY + enemyDefenderRobotY) / 2;
 
 		double robotToTargetAngle = calculateAngle(robotX, robotY, robotO,
 				targetX, targetY);
@@ -76,34 +70,60 @@ public class MarkingStrategy implements Strategy {
 				- robotY);
 
 		synchronized (this.controlThread) {
-			controlThread.operation = Operation.DO_NOTHING;
-			
-			if (Math.abs(robotToTargetDistance) > 25) {
+			this.controlThread.operation = Operation.DO_NOTHING;
+
+			if (Math.abs(robotToTargetDistance) > 15) {
+				
+				//Decide if we'll go forward or backwards
 				if (Math.abs(robotToTargetAngle) < 90) {
-					controlThread.travelDist = (int) robotToTargetDistance;
+					this.controlThread.travelDist = (int) robotToTargetDistance;
 				} else {
-					controlThread.travelDist = (int) -robotToTargetDistance;
+					this.controlThread.travelDist = (int) -robotToTargetDistance;
 				}
-				if (Math.abs(robotToTargetAngle) > 150
-						|| Math.abs(robotToTargetAngle) < 10) {
-					controlThread.operation = Operation.TRAVEL;
-				} else if (robotToTargetAngle > 0) {
-					controlThread.operation = Operation.ARC_RIGHT;
+				
+				//Decide if we need to go in a straight line or arc to the target
+				if (Math.abs(robotToTargetAngle) > 170 || Math.abs(robotToTargetAngle) < 10) {
+					//Go in a straight line
+					this.controlThread.operation = Operation.TRAVEL;
+					//System.out.println("Straight line: " + targetY);
+				} //Now we decide if we need to go left or right 
+				else if (robotToTargetAngle > 10) {
+					this.controlThread.operation = Operation.ARC_RIGHT;
 					if (robotToTargetAngle > 90) {
-						controlThread.operation = Operation.ARC_LEFT;
+						//We're going backwards, so reverse the direction
+						this.controlThread.operation = Operation.ARC_LEFT;
 					}
-					controlThread.radius = robotToTargetDistance * 5;
-				} else if (robotToTargetAngle < 0) {
-					controlThread.operation = Operation.ARC_LEFT;
+					this.controlThread.radius = robotToTargetDistance * 10;
+				} else if (robotToTargetAngle < 10) {
+					this.controlThread.operation = Operation.ARC_LEFT;
 					if (robotToTargetAngle < -90) {
-						controlThread.operation = Operation.ARC_RIGHT;
+						//We're going backwards, so reverse the direction
+						this.controlThread.operation = Operation.ARC_RIGHT;
 					}
-					controlThread.radius = robotToTargetDistance *5;
+					this.controlThread.radius = robotToTargetDistance * 10;
 				}
 
-				controlThread.travelSpeed = (int) (200);
+				this.controlThread.travelSpeed = (int) (200);
 			} else {
-				controlThread.operation = Operation.DO_NOTHING;
+				if (robotO >= 0 && robotO <= 85) {
+					this.controlThread.operation = Operation.ROTATE;
+					this.controlThread.rotateBy = (int) (90 - robotO);
+				//	System.out.println("Rotating to align");
+				} else if (robotO >= 95 && robotO <= 179) {
+					this.controlThread.operation = Operation.ROTATE;
+					this.controlThread.rotateBy = (int) -(90 - robotO);
+				//	System.out.println("Rotating to align");
+				} else if (robotO >= 180 && robotO <= 265) {
+					this.controlThread.operation = Operation.ROTATE;
+					this.controlThread.rotateBy = (int) (270 - robotO);
+				//	System.out.println("Rotating to align");
+				} else if (robotO >= 275 && robotO <= 360) {
+					this.controlThread.operation = Operation.ROTATE;
+					this.controlThread.rotateBy = (int) -(270 - robotO);
+				//	System.out.println("Rotating to align");
+				} else {
+					this.controlThread.operation = Operation.DO_NOTHING;
+				}
 			}
 		}
 	}
@@ -138,7 +158,9 @@ public class MarkingStrategy implements Strategy {
 						travelSpeed = this.travelSpeed;
 						radius = this.radius;
 					}
-
+//
+//					System.out.println("op: " + op.toString() + " rotateBy: "
+//							+ rotateBy + " travelDist: " + travelDist);
 					switch (op) {
 					case DO_NOTHING:
 
@@ -148,10 +170,16 @@ public class MarkingStrategy implements Strategy {
 								travelSpeed);
 						break;
 					case ARC_LEFT:
-						brick.robotArcForwards(radius, travelDist);
+						MarkingStrategy.this.brick.robotArcForwards(radius,
+								travelDist);
 						break;
 					case ARC_RIGHT:
-						brick.robotArcForwards(-radius, travelDist);
+						MarkingStrategy.this.brick.robotArcForwards(-radius,
+								travelDist);
+						break;
+					case ROTATE:
+						MarkingStrategy.this.brick.robotRotateBy(rotateBy,
+								Math.abs(rotateBy));
 						break;
 					default:
 						break;
