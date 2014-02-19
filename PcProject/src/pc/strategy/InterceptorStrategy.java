@@ -75,7 +75,6 @@ public class InterceptorStrategy implements Strategy {
 		}
 		if (robotRad > Math.PI)
 			robotRad -= 2 * Math.PI;
-		System.out.println("RobotO: " + robotO);
 		if (robotO > 180) {
 			rotateBy = (int) (270 - robotO) / 3;
 			dist = targetY - robotY;
@@ -94,7 +93,6 @@ public class InterceptorStrategy implements Strategy {
 		if (dist > 0) {
 			rotateBy = 0;
 		}
-		System.out.println("distance: " + dist);
 		synchronized (controlThread) {
 			controlThread.rotateBy = rotateBy;
 			controlThread.travelDist = (int) (dist * 0.8);

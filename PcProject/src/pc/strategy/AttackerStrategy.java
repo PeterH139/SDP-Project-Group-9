@@ -3,6 +3,7 @@ package pc.strategy;
 import java.io.IOException;
 
 import pc.comms.BrickCommServer;
+import pc.strategy.TargetFollowerStrategy.Operation;
 import pc.strategy.interfaces.Strategy;
 import pc.world.WorldState;
 
@@ -22,7 +23,7 @@ public class AttackerStrategy implements Strategy {
 	public void stopControlThread() {
 		controlThread.stop();
 	}
-	
+
 	@Override
 	public void startControlThread() {
 		controlThread.start();
@@ -34,7 +35,7 @@ public class AttackerStrategy implements Strategy {
 				.getAttackerRobot().y;
 		float robotO = worldState.getAttackerRobot().orientation_angle;
 		float targetX = worldState.getBall().x, targetY = worldState.getBall().y;
-		int leftCheck,rightCheck;
+		int leftCheck, rightCheck;
 		float goalX, goalY;
 		int[] divs = worldState.dividers;
 		if (worldState.weAreShootingRight) {
@@ -48,7 +49,7 @@ public class AttackerStrategy implements Strategy {
 			goalX = 0;
 			goalY = 220;
 		}
-		
+
 		if (targetX < leftCheck || targetX > rightCheck) {
 			synchronized (controlThread) {
 				controlThread.operation = Operation.DO_NOTHING;
@@ -56,30 +57,49 @@ public class AttackerStrategy implements Strategy {
 			return;
 		}
 
+		double radius = Math.hypot(targetX - robotX, targetY - robotY) / 2;
+
 		synchronized (controlThread) {
-			controlThread.operation = Operation.DO_NOTHING;
+			controlThread.operation = Operation.PREPARE_CATCH;
 			if (!ballCaught) {
 				double ang1 = calculateAngle(robotX, robotY, robotO, targetX,
 						targetY);
-				double dist = Math.hypot(robotX - targetX, robotY - targetY);
-				if (Math.abs(ang1) > Math.PI / 32) {
-					controlThread.operation = Operation.ROTATE;
-					controlThread.rotateBy = (int) Math.toDegrees(ang1);
-				} else {
-					if (dist > 30) {
-						controlThread.operation = Operation.TRAVEL;
-						controlThread.travelDist = (int) (dist * 3);
-						controlThread.travelSpeed = (int) (dist * 1.5);
+				double dist = Math.hypot(targetX - robotX, targetY - robotY);
+				if (Math.abs(dist) > 30) {
+					controlThread.travelSpeed = (int) (dist * 1.5);
+					if (Math.abs(ang1) < 90) {
+						controlThread.travelDist = (int) dist;
 					} else {
-						controlThread.operation = Operation.CATCH;
+						controlThread.travelDist = (int) -dist;
 					}
+					if (Math.abs(ang1) > 150 || Math.abs(ang1) < 10) {
+						controlThread.operation = Operation.TRAVEL;
+					} else if (ang1 > 0) {
+						if (ang1 > 90) {
+							controlThread.operation = Operation.ARC_LEFT;
+						} else {
+							controlThread.operation = Operation.ARC_RIGHT;
+						}
+						controlThread.radius = radius;
+					} else if (ang1 < 0) {
+						if (ang1 < -90) {
+							controlThread.operation = Operation.ARC_RIGHT;
+						} else {
+							controlThread.operation = Operation.ARC_LEFT;
+						}
+						controlThread.radius = dist * 2;
+					}
+
+				} else {
+					controlThread.operation = Operation.CATCH;
 				}
 			} else {
 				double ang1 = calculateAngle(robotX, robotY, robotO, goalX,
 						goalY);
-				if (Math.abs(ang1) > Math.PI / 32) {
+				System.out.println("angle to goal: " + ang1);
+				if (Math.abs(ang1) > 5) {
 					controlThread.operation = Operation.ROTATE;
-					controlThread.rotateBy = (int) Math.toDegrees(ang1);
+					controlThread.rotateBy = (int) ang1;
 				} else {
 					controlThread.operation = Operation.KICK;
 				}
@@ -88,7 +108,7 @@ public class AttackerStrategy implements Strategy {
 	}
 
 	public enum Operation {
-		DO_NOTHING, TRAVEL, ROTATE, PREPARE_CATCH, CATCH, KICK,
+		DO_NOTHING, TRAVEL, ROTATE, PREPARE_CATCH, CATCH, KICK, ARC_LEFT, ARC_RIGHT,
 	}
 
 	private class ControlThread extends Thread {
@@ -96,6 +116,7 @@ public class AttackerStrategy implements Strategy {
 		public int rotateBy = 0;
 		public int travelDist = 0;
 		public int travelSpeed = 0;
+		public double radius = 0;
 
 		public ControlThread() {
 			super("Robot control thread");
@@ -108,15 +129,17 @@ public class AttackerStrategy implements Strategy {
 				while (true) {
 					int travelDist, rotateBy, travelSpeed;
 					Operation op;
+					double radius;
 					synchronized (this) {
 						op = this.operation;
 						rotateBy = this.rotateBy;
 						travelDist = this.travelDist;
 						travelSpeed = this.travelSpeed;
+						radius = this.radius;
 					}
 
-//					System.out.println("op: " + op.toString() + " rotateBy: "
-//							+ rotateBy + " travelDist: " + travelDist);
+					System.out.println("op: " + op.toString() + " rotateBy: "
+							+ rotateBy + " travelDist: " + travelDist);
 
 					switch (op) {
 					case DO_NOTHING:
@@ -133,14 +156,23 @@ public class AttackerStrategy implements Strategy {
 						ballCaught = false;
 						break;
 					case ROTATE:
-						brick.robotRotateBy(rotateBy, Math.abs(rotateBy));
+						brick.robotRotateBy(-rotateBy, travelSpeed);
 						break;
 					case TRAVEL:
 						brick.robotPrepCatch();
 						brick.robotTravel(travelDist, travelSpeed);
 						break;
+					case ARC_LEFT:
+						brick.robotPrepCatch();
+						brick.robotArcForwards(radius, travelDist);
+						break;
+					case ARC_RIGHT:
+						brick.robotPrepCatch();
+						brick.robotArcForwards(-radius, travelDist);
+						break;
 					}
-					Thread.sleep(250); //TODO: Test lower values for this and see where it breaks.
+					Thread.sleep(250); // TODO: Test lower values for this and
+										// see where it breaks.
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -160,11 +192,11 @@ public class AttackerStrategy implements Strategy {
 		if (robotRad > Math.PI)
 			robotRad -= 2 * Math.PI;
 
-		double ang1 = targetRad - robotRad;
+		double ang1 = robotRad - targetRad;
 		while (ang1 > Math.PI)
 			ang1 -= 2 * Math.PI;
 		while (ang1 < -Math.PI)
 			ang1 += 2 * Math.PI;
-		return ang1;
+		return Math.toDegrees(ang1);
 	}
 }

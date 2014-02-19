@@ -12,6 +12,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import pc.strategy.StrategyController;
+import pc.strategy.TargetFollowerStrategy;
 import pc.vision.gui.VisionGUI;
 import pc.vision.gui.tools.ColourThresholdConfigTool;
 import pc.vision.gui.tools.HistogramTool;
@@ -76,10 +77,6 @@ public class RunVision {
 		try {
 			StrategyController strategyController = null;
 			if (enableBluetooth) {
-				bcsGroup10 = new BrickCommServer();
-				bcsGroup10.guiConnect(BtInfo.group10);
-//				bcsMeow = new BrickCommServer();
-//				bcsMeow.guiConnect(BtInfo.MEOW);
 				strategyController = new StrategyController(vision);
 				vision.addWorldStateReceiver(strategyController);
 			}

@@ -31,8 +31,8 @@ public class StrategyController implements WorldStateReceiver {
 		try {
 			this.bcsAttacker = new BrickCommServer();
 			this.bcsAttacker.guiConnect(BtInfo.group10);
-			this.bcsDefender = new BrickCommServer();
-			this.bcsDefender.guiConnect(BtInfo.MEOW);
+//			this.bcsDefender = new BrickCommServer();
+//			this.bcsDefender.guiConnect(BtInfo.MEOW);
 		} catch (NXTCommException e) {
 			e.printStackTrace();
 		}

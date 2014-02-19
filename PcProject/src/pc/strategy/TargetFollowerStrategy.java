@@ -86,43 +86,6 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 			// controlThread.operation = Operation.ARC_LEFT;
 			// controlThread.radius = radius;
 			// }
-			// if (Math.abs(ang1) < 10) {
-			// controlThread.operation = Operation.TRAVEL;
-			// controlThread.travelDist = (int) (dist);
-			// controlThread.travelSpeed = (int) (dist / 2);
-			// } else if (Math.abs(ang1) > 150) {
-			// controlThread.operation = Operation.TRAVEL;
-			// controlThread.travelDist = (int) (-dist);
-			// controlThread.travelSpeed = (int) (dist / 2);
-			// } else if (ang1 > 90) {
-			// controlThread.operation = Operation.ARC_LEFT;
-			// controlThread.radius = radius;
-			// controlThread.travelDist = (int) (-dist);
-			// controlThread.travelSpeed = (int) (dist / 2);
-			// } else if (ang1 < -90) {
-			// controlThread.operation = Operation.ARC_RIGHT;
-			// controlThread.radius = radius;
-			// controlThread.travelDist = (int) (-dist);
-			// controlThread.travelSpeed = (int) (dist / 2);
-			// } else if (ang1 > 0) {
-			// controlThread.operation = Operation.ARC_RIGHT;
-			// controlThread.radius = radius;
-			// controlThread.travelDist = (int) (dist);
-			// controlThread.travelSpeed = (int) (dist / 2);
-			// } else if (ang1 < 0) {
-			// controlThread.operation = Operation.ARC_LEFT;
-			// controlThread.radius = radius;
-			// controlThread.travelDist = (int) (dist);
-			// controlThread.travelSpeed = (int) (dist / 2);
-			// }
-			// } else if (dist > 90) {
-			// controlThread.operation = Operation.TRAVEL;
-			// controlThread.travelDist = (int) (dist);
-			// controlThread.travelSpeed = (int) (dist / 8);
-			// } else {
-			// controlThread.operation = Operation.DO_NOTHING;
-			// }
-			// }
 		}
 	}
 
