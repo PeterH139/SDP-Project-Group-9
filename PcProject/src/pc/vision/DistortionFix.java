@@ -88,7 +88,7 @@ public class DistortionFix implements VideoReceiver {
 		int x, y, z;
 		int[] xy;
 
-		//Normalise x and y
+		//Normalise x and y.
 		//This used to be calculated inside invBarrelCorrect(), now reusing the values
 		double[] normX = new double[width];
 		double[] normY = new double[height];
