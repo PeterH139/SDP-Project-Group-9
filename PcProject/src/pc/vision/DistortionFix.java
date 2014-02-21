@@ -1,6 +1,8 @@
 package pc.vision;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.Raster;
+import java.awt.image.WritableRaster;
 import java.util.ArrayList;
 
 import pc.vision.interfaces.VideoReceiver;
@@ -21,7 +23,7 @@ public class DistortionFix implements VideoReceiver {
 	private boolean active = true;
 
 	private final PitchConstants pitchConstants;
-
+	
 	public DistortionFix(final PitchConstants pitchConstants) {
 		this.pitchConstants = pitchConstants;
 	}
@@ -75,21 +77,59 @@ public class DistortionFix implements VideoReceiver {
 		BufferedImage newImage = new BufferedImage(width, height,
 				BufferedImage.TYPE_INT_RGB);
 
-		int xy[];
-		for (int i = 0; i < width; ++i) {
-			for (int j = 0; j < height; ++j) {
-				xy = invBarrelCorrect(i,j);
-				
-				//I'm not 100% sure we don't need this
-				//if (0 <= p.x && p.x < width && 0 <= p.y && p.y < height) {
-					newImage.setRGB(i, j, image.getRGB(xy[0], xy[1]));
-				//}
-			}
+		//Strip image to a one-dimensional array
+		Raster raster = image.getData();
+		int[] array = null;
+		array = raster.getPixels(0, 0, width, height, array);
+
+		//Array for the fixed image
+		int[] arrayNew = new int[921600];
+
+		int x, y, z;
+		int[] xy;
+
+		//Normalise x and y
+		//This used to be calculated inside invBarrelCorrect(), now reusing the values
+		double[] normX = new double[width];
+		double[] normY = new double[height];
+		for (int xi = 0; xi < width; xi++) {
+			normX[xi] = (2 * xi - width) / (double) width;
+		}
+		for (int yi = 0; yi < height; yi++) {
+			normY[yi] = (2 * yi - height) / (double) height;
 		}
 
-		return newImage;
-	}
+		//Apply invBarrelCorrect() to every pixel
+		//array has three cells per pixel to represent RGB
+		for (int i = 0; i < array.length; i += 3) {
 
+			//Actual values for x,y
+			x = (i/3) % (width);
+			y = (i/3) / (width);
+
+			xy = invBarrelCorrect(x, y, normX[x], normY[y]);
+
+			//The first cell of the array for this pixel
+			z = (width) * xy[1] + xy[0];
+			z *= 3;
+
+			//I'm not 100% sure we don't need this
+			// if (0 <= xy[0] && xy[0] < width && 0 <= xy[1] && xy[1] < height)
+			// {
+			arrayNew[i] = array[z];		//R
+			arrayNew[i+1] = array[z+1];	//G
+			arrayNew[i+2] = array[z+2];	//B
+			// }
+		}
+
+		//Get new image from the fixed array
+		WritableRaster newRaster = (WritableRaster) newImage.getData();
+		newRaster.setPixels(0, 0, width, height, arrayNew);
+		newImage.setData(newRaster);
+
+		return newImage;
+
+	}
 	/**
 	 * Inverse barrel correction for single points
 	 * 
@@ -101,13 +141,15 @@ public class DistortionFix implements VideoReceiver {
 	 *            x of Point to "unfix"
 	 * @param y
 	 *            y of Point to "unfix"
+	 * @param px
+	 * 			  Normalised coordinate for x 
+	 * @param py
+	 * 			  Normalised coordinate for y
 	 */
-	public static int[] invBarrelCorrect(int x, int y) {
-		// first normalise pixel
-		double px = (2 * x - width) / (double) width;
-		double py = (2 * y - height) / (double) height;
 
-		// then compute the radius of the pixel you are working with
+	public static int[] invBarrelCorrect(int x, int y, double px, double py) {
+
+		// compute the radius of the pixel you are working with
 		double rad = px * px + py * py;
 
 		// then compute new pixel
@@ -118,6 +160,8 @@ public class DistortionFix implements VideoReceiver {
 		int pixi = (int) ((px1 + 1) * width / 2);
 		int pixj = (int) ((py1 + 1) * height / 2);
 		
+		//Returning as an object or 1000*pixi+pixj was slower than int[]
+		//Any other ideas?
 		int[] xy = new int[2];
 		xy[0] = pixi;
 		xy[1] = pixj;

@@ -2,6 +2,7 @@ package pc.test;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
@@ -34,7 +35,12 @@ public class DistortionFixTest {
 		//fixes the image 20 times to simulate video handling
 		for (int i=0; i<20; i++) {      
 			BufferedImage fixed = distortionFix.removeBarrelDistortion(image, 0, 0, 0, 0);
-	    	//ImageIO.write(fixed, "jpg",new File("pitch-out"+i+".jpg"));
+	    	/*try {
+				ImageIO.write(fixed, "jpg",new File("/afs/inf.ed.ac.uk/user/s10/s1004618/git/SDP-Project-Group-9/PcProject/src/pc/test/pitch-out"+i+".jpg"));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}*/
 		}
 	      
 	    long endTime = System.nanoTime();
@@ -44,7 +50,7 @@ public class DistortionFixTest {
 	}
 	
 	public static void main(String args[]) {
-		DistortionFixTest dft = new DistortionFixTest("pitch.jpg");
+		DistortionFixTest dft = new DistortionFixTest("/afs/inf.ed.ac.uk/user/s10/s1004618/git/SDP-Project-Group-9/PcProject/src/pc/test/pitch.jpg");
 		System.out.println(dft.fixImage());
 	}
 }
