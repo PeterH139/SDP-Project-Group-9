@@ -208,7 +208,7 @@ public class BrickCommServer {
 					BrickCommServer.this.robotTravel(-100,100);
 					break;
 				case KeyEvent.VK_SPACE:
-					BrickCommServer.this.robotKick(1000);
+					BrickCommServer.this.robotKick(100);
 					break;
 				case KeyEvent.VK_1:
 					BrickCommServer.this.robotPrepCatch();
