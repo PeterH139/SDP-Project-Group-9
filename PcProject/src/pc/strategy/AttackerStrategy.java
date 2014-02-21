@@ -152,7 +152,7 @@ public class AttackerStrategy implements Strategy {
 						brick.robotPrepCatch();
 						break;
 					case KICK:
-						brick.robotKick(10000);
+						brick.robotKick(100);
 						ballCaught = false;
 						break;
 					case ROTATE:

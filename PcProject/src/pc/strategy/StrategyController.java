@@ -88,7 +88,7 @@ public class StrategyController implements WorldStateReceiver {
 			ms.startControlThread();
 			break;
 		case PENALTY:
-			Strategy pen = new PenaltyStrategy(this.bcsAttacker);
+			Strategy pen = new PenaltyAttackStrategy(this.bcsAttacker);
 			StrategyController.currentStrategies.add(pen);
 			//this.vision.addWorldStateReceiver(pen);
 			pen.startControlThread();
@@ -126,7 +126,7 @@ public class StrategyController implements WorldStateReceiver {
 			this.ballInAttackerArea = false;
 			this.ballInDefenderArea = false;
 		}
-		System.out.println("BallAttacker: " + this.ballInAttackerArea + " ballDefender: " + this.ballInDefenderArea);;
+		System.out.println("BallAttacker: " + this.ballInAttackerArea + " ballDefender: " + this.ballInDefenderArea);
 		if (prevBallInDefenderArea != this.ballInDefenderArea || prevBallInAttackerArea != this.ballInAttackerArea){
 			if (this.ballInDefenderArea){
 				changeToStrategy(StrategyType.PASSING);

@@ -56,7 +56,7 @@ public class TestSuite {
 	 * This just makes the robot kick
 	 */
 	private static void kickerTest() {
-		brick.kick(Movement.MAXIMUM_KICKER_SPEED);
+		brick.kick(100);
 	}
 
 	
