@@ -23,8 +23,7 @@ public class Logging {
 			e.printStackTrace();
 		}
 		mainLogger.addHandler(mainFileHandler);
-		CustomFormat customFormatter = new CustomFormat();
-		mainFileHandler.setFormatter(customFormatter);
+		
 	}
 	
 	public void Log(String msg){
