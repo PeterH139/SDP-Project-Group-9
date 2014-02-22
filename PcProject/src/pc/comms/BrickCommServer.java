@@ -35,40 +35,6 @@ public class BrickCommServer {
 		brickOutput = new DataOutputStream(comm.getOutputStream());
 	}
 
-	public void guiConnect(NXTInfo brickInfo) throws NXTCommException {
-		JFrame window = new JFrame("Connecting");
-		window.setSize(400, 150);
-		window.setResizable(false);
-		window.setLocationRelativeTo(null);
-		window.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		String protocol = brickInfo.protocol == NXTCommFactory.BLUETOOTH ? "Bluetooth"
-				: "USB";
-		JLabel label = new JLabel("Connecting to " + brickInfo.name + " via "
-				+ protocol, JLabel.CENTER);
-		window.add(label);
-		window.setVisible(true);
-		try {
-			while (true) {
-				try {
-					connect(brickInfo);
-					break;
-				} catch (NXTCommException e) {
-					int result = JOptionPane.showConfirmDialog(window,
-							"Connection failed. Retry?\n\n" + e.getMessage()
-									+ "\n\n" + e.getCause(),
-							"Connection failed", JOptionPane.YES_NO_OPTION,
-							JOptionPane.ERROR_MESSAGE);
-					if (result == JOptionPane.YES_OPTION)
-						continue;
-					throw e;
-				}
-			}
-		} finally {
-			window.setVisible(false);
-			window.dispose();
-		}
-	}
-
 	public void close() {
 		try {
 			if (comm != null)
@@ -79,8 +45,8 @@ public class BrickCommServer {
 	}
 
 	/**
-	 * Executes a command asynchronously.
-	 * Returns immediately and is safe to call from any thread.
+	 * Executes a command asynchronously. Returns immediately and is safe to
+	 * call from any thread.
 	 */
 	public void execute(final RobotCommand.Command command) {
 		executor.execute(new Runnable() {
@@ -97,14 +63,14 @@ public class BrickCommServer {
 	}
 
 	/**
-	 * Executes a command synchronously.
-	 * Never call this method from GUI or frame grabber thread!
+	 * Executes a command synchronously. Never call this method from GUI or
+	 * frame grabber thread!
 	 */
 	public void executeSync(RobotCommand.Command command) throws IOException {
 		command.sendToBrick(brickOutput);
 		brickOutput.flush();
 	}
-	
+
 	// Legacy methods
 
 	public void robotStop() throws IOException {

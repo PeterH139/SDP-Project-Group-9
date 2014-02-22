@@ -8,8 +8,11 @@ import java.io.IOException;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 
 import lejos.pc.comm.NXTCommException;
+import lejos.pc.comm.NXTCommFactory;
+import lejos.pc.comm.NXTInfo;
 
 @SuppressWarnings("serial")
 public class BrickControlGUI extends JFrame implements KeyListener {
@@ -82,10 +85,44 @@ public class BrickControlGUI extends JFrame implements KeyListener {
 	public void keyTyped(KeyEvent key) {
 	}
 	
+	public static void guiConnect(BrickCommServer brick, NXTInfo brickInfo)
+			throws NXTCommException {
+		JFrame window = new JFrame("Connecting");
+		window.setSize(400, 150);
+		window.setResizable(false);
+		window.setLocationRelativeTo(null);
+		window.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		String protocol = brickInfo.protocol == NXTCommFactory.BLUETOOTH ? "Bluetooth"
+				: "USB";
+		JLabel label = new JLabel("Connecting to " + brickInfo.name + " via "
+				+ protocol, JLabel.CENTER);
+		window.add(label);
+		window.setVisible(true);
+		try {
+			while (true) {
+				try {
+					brick.connect(brickInfo);
+					break;
+				} catch (NXTCommException e) {
+					int result = JOptionPane.showConfirmDialog(window,
+							"Connection failed. Retry?\n\n" + e.getMessage()
+									+ "\n\n" + e.getCause(),
+							"Connection failed", JOptionPane.YES_NO_OPTION,
+							JOptionPane.ERROR_MESSAGE);
+					if (result == JOptionPane.YES_OPTION)
+						continue;
+					throw e;
+				}
+			}
+		} finally {
+			window.setVisible(false);
+			window.dispose();
+		}
+	}
 
 	public static void main(String[] args) throws NXTCommException {
 		BrickCommServer bcs = new BrickCommServer();
-		bcs.guiConnect(BtInfo.group10);
+		BrickControlGUI.guiConnect(bcs, BtInfo.group10);
 		BrickControlGUI client = new BrickControlGUI(bcs);
 		client.setVisible(true);
 	}

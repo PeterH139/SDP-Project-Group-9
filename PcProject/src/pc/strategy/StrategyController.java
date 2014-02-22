@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import lejos.pc.comm.NXTCommException;
 import pc.comms.BrickCommServer;
+import pc.comms.BrickControlGUI;
 import pc.comms.BtInfo;
 import pc.strategy.interfaces.Strategy;
 import pc.vision.Vision;
@@ -31,9 +32,9 @@ public class StrategyController implements WorldStateReceiver {
 		this.bcsDefender = null;
 		try {
 			this.bcsAttacker = new BrickCommServer();
-			this.bcsAttacker.guiConnect(BtInfo.group10);
+			BrickControlGUI.guiConnect(this.bcsAttacker, BtInfo.group10);
 			this.bcsDefender = new BrickCommServer();
-			this.bcsDefender.guiConnect(BtInfo.MEOW);
+			BrickControlGUI.guiConnect(this.bcsDefender, BtInfo.MEOW);
 		} catch (NXTCommException e) {
 			e.printStackTrace();
 		}
