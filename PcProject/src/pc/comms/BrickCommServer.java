@@ -6,10 +6,6 @@ import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-
 import lejos.pc.comm.NXTComm;
 import lejos.pc.comm.NXTCommException;
 import lejos.pc.comm.NXTCommFactory;
@@ -73,43 +69,51 @@ public class BrickCommServer {
 
 	// Legacy methods
 
+	@Deprecated
 	public void robotStop() throws IOException {
 		brickOutput.writeInt(RobotOpcode.STOP);
 		brickOutput.flush();
 	}
 
+	@Deprecated
 	public void robotForwards() throws IOException {
 		brickOutput.writeInt(RobotOpcode.FORWARDS);
 		brickOutput.flush();
 	}
 
+	@Deprecated
 	public void robotBackwards() throws IOException {
 		brickOutput.writeInt(RobotOpcode.BACKWARDS);
 		brickOutput.flush();
 	}
 
+	@Deprecated
 	public void robotKick(int speed) throws IOException {
 		brickOutput.writeInt(RobotOpcode.KICK);
 		brickOutput.writeInt(speed);
 		brickOutput.flush();
 	}
 
+	@Deprecated
 	public void robotCatch() throws IOException {
 		brickOutput.writeInt(RobotOpcode.CATCH);
 		brickOutput.flush();
 	}
 
+	@Deprecated
 	public void robotPrepCatch() throws IOException {
 		brickOutput.writeInt(RobotOpcode.APPROACHING_BALL);
 		brickOutput.flush();
 	}
 
+	@Deprecated
 	public void robotRotate(boolean clockwise) throws IOException {
 		brickOutput.writeInt(clockwise ? RobotOpcode.ROTATE_RIGHT
 				: RobotOpcode.ROTATE_LEFT);
 		brickOutput.flush();
 	}
 
+	@Deprecated
 	public void robotRotateBy(int angle, double speed) throws IOException {
 		brickOutput.writeInt(RobotOpcode.ROTATE_BY);
 		brickOutput.writeInt(angle);
@@ -117,6 +121,7 @@ public class BrickCommServer {
 		brickOutput.flush();
 	}
 
+	@Deprecated
 	public void robotArcForwards(double arcRadius, int distance)
 			throws IOException {
 		brickOutput.writeInt(RobotOpcode.ARC_FORWARDS);
@@ -125,6 +130,7 @@ public class BrickCommServer {
 		brickOutput.flush();
 	}
 
+	@Deprecated
 	public void robotTravel(int distance, int travelSpeed) throws IOException {
 		brickOutput.writeInt(RobotOpcode.TRAVEL);
 		brickOutput.writeInt(distance);
@@ -132,7 +138,7 @@ public class BrickCommServer {
 		brickOutput.flush();
 
 	}
-
+	
 	public boolean robotTest() throws IOException {
 		brickOutput.writeInt(RobotOpcode.TEST);
 		brickOutput.flush();
