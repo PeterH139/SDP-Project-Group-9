@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
+import pc.vision.DistortionFix;
 import pc.vision.PitchConstants;
 import pc.vision.PixelInfo;
 import pc.vision.Position;
@@ -59,6 +60,24 @@ public class RobotRecogniser implements ObjectRecogniser {
 					frame.getWidth() - rightBuffer, true);
 		}
 
+		// Distortion Fixing
+		float[] blueDefxy = new float[2];
+		float[] blueAtkxy = new float[2];
+		float[] yellowDefxy = new float[2];
+		float[] yellowAtkxy = new float[2];
+		DistortionFix.invBarrelCorrectWithNorm((int) blueDef.pos.x, (int) blueDef.pos.y, blueDefxy);
+		DistortionFix.invBarrelCorrectWithNorm((int) blueAtk.pos.x, (int) blueAtk.pos.y, blueAtkxy);
+		DistortionFix.invBarrelCorrectWithNorm((int) yellowDef.pos.x, (int) yellowDef.pos.y, yellowDefxy);
+		DistortionFix.invBarrelCorrectWithNorm((int) yellowAtk.pos.x, (int) yellowAtk.pos.y, yellowAtkxy);
+		blueDef.pos.x = blueDefxy[0];
+		blueDef.pos.y = blueDefxy[1];
+		blueAtk.pos.x = blueAtkxy[0];
+		blueAtk.pos.y = blueAtkxy[1];
+		yellowDef.pos.x = yellowDefxy[0];
+		yellowDef.pos.y = yellowDefxy[1];
+		yellowAtk.pos.x = yellowAtkxy[0];
+		yellowAtk.pos.y = yellowAtkxy[1];
+		
 		// Debugging Graphics
 		debugGraphics.setColor(Color.CYAN);
 		debugGraphics.drawRect((int)blueDef.pos.x - 2, (int)blueDef.pos.y - 2, 4, 4);

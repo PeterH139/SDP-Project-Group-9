@@ -75,7 +75,7 @@ public class VideoStream {
 			// frames
 			if (VideoStream.this.ready) {
 				BufferedImage frameBuffer = frame.getBufferedImage();
-				frameBuffer = DistortionFix.removeBarrelDistortion(frameBuffer, 0, 640, 0, 480);
+				//frameBuffer = DistortionFix.removeBarrelDistortion(frameBuffer, 0, 640, 0, 480);
 				// TODO: Should we blur?
 //				ColorProcessor cp = new ColorProcessor(frameBuffer);
 //				GaussianBlur gb = new GaussianBlur();
