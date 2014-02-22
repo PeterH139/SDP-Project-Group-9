@@ -1,12 +1,10 @@
 package pc.comms;
 
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -23,7 +21,10 @@ public class BrickCommServer {
 	DataInputStream brickInput;
 	DataOutputStream brickOutput;
 
+	private ExecutorService executor;
+
 	public BrickCommServer() {
+		executor = Executors.newSingleThreadExecutor();
 	}
 
 	public void connect(NXTInfo brickInfo) throws NXTCommException {
@@ -77,6 +78,35 @@ public class BrickCommServer {
 		}
 	}
 
+	/**
+	 * Executes a command asynchronously.
+	 * Returns immediately and is safe to call from any thread.
+	 */
+	public void execute(final RobotCommand.Command command) {
+		executor.execute(new Runnable() {
+
+			@Override
+			public void run() {
+				try {
+					BrickCommServer.this.executeSync(command);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Executes a command synchronously.
+	 * Never call this method from GUI or frame grabber thread!
+	 */
+	public void executeSync(RobotCommand.Command command) throws IOException {
+		command.sendToBrick(brickOutput);
+		brickOutput.flush();
+	}
+	
+	// Legacy methods
+
 	public void robotStop() throws IOException {
 		brickOutput.writeInt(RobotOpcode.STOP);
 		brickOutput.flush();
@@ -102,6 +132,7 @@ public class BrickCommServer {
 		brickOutput.writeInt(RobotOpcode.CATCH);
 		brickOutput.flush();
 	}
+
 	public void robotPrepCatch() throws IOException {
 		brickOutput.writeInt(RobotOpcode.APPROACHING_BALL);
 		brickOutput.flush();
@@ -135,7 +166,7 @@ public class BrickCommServer {
 		brickOutput.flush();
 
 	}
-	
+
 	public boolean robotTest() throws IOException {
 		brickOutput.writeInt(RobotOpcode.TEST);
 		brickOutput.flush();
@@ -150,7 +181,7 @@ public class BrickCommServer {
 		boolean robotReceived = brickInput.readBoolean();
 		return robotReceived;
 	}
-	
+
 	public boolean robotTestDOUBLE(double param) throws IOException {
 		brickOutput.writeInt(RobotOpcode.TESTDOUBLE);
 		brickOutput.writeDouble(param);
@@ -158,87 +189,14 @@ public class BrickCommServer {
 		boolean robotReceived = brickInput.readBoolean();
 		return robotReceived;
 	}
-	
-	public boolean robotTestINTANDDOUBLE(int paramInt, double paramDouble) throws IOException {
+
+	public boolean robotTestINTANDDOUBLE(int paramInt, double paramDouble)
+			throws IOException {
 		brickOutput.writeInt(RobotOpcode.TESTINTANDDOUBLE);
 		brickOutput.writeDouble(paramDouble);
 		brickOutput.writeInt(paramInt);
 		brickOutput.flush();
 		boolean robotReceived = brickInput.readBoolean();
 		return robotReceived;
-	}
-	
-	public static void main(String[] args) throws NXTCommException {
-		BrickCommServer bcs = new BrickCommServer();
-		bcs.guiConnect(BtInfo.group10);
-		GUIClient client = bcs.new GUIClient();
-		client.setVisible(true);
-	}
-
-	@SuppressWarnings("serial")
-	public class GUIClient extends JFrame implements KeyListener {
-		public GUIClient() {
-			setTitle("Robot controller");
-			setSize(400, 200);
-			setResizable(false);
-			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-			addWindowListener(new WindowAdapter() {
-				@Override
-				public void windowClosing(WindowEvent e) {
-					BrickCommServer.this.close();
-				}
-			});
-
-			JLabel label = new JLabel("Use arrow keys to control the robot.",
-					JLabel.CENTER);
-			label.setFocusable(true);
-			add(label);
-
-			label.addKeyListener(this);
-		}
-	
-		@Override
-		public void keyPressed(KeyEvent key) {
-			try {
-				switch (key.getKeyCode()) {
-				case KeyEvent.VK_UP:
-					BrickCommServer.this.robotTravel(100,100);
-					break;
-				case KeyEvent.VK_DOWN:
-					BrickCommServer.this.robotTravel(-100,100);
-					break;
-				case KeyEvent.VK_SPACE:
-					BrickCommServer.this.robotKick(100);
-					break;
-				case KeyEvent.VK_1:
-					BrickCommServer.this.robotPrepCatch();
-					break;
-				case KeyEvent.VK_2:
-					BrickCommServer.this.robotCatch();
-					break;
-				case KeyEvent.VK_LEFT:
-					BrickCommServer.this.robotRotateBy(45,45);
-					break;
-				case KeyEvent.VK_RIGHT:
-					BrickCommServer.this.robotRotateBy(-45,45);
-					break;
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-
-		@Override
-		public void keyReleased(KeyEvent key) {
-			try {
-				BrickCommServer.this.robotStop();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-
-		@Override
-		public void keyTyped(KeyEvent key) {
-		}
 	}
 }
