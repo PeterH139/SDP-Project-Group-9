@@ -17,7 +17,7 @@ public class DistortionFix implements VideoReceiver {
 	private static int width = 640;
 	private static int height = 480;
 	public static double barrelCorrectionX = -0.03;
-	public static double barrelCorrectionY = -0.08;
+	public static double barrelCorrectionY = -0.085;
 
 	private ArrayList<VideoReceiver> videoReceivers = new ArrayList<VideoReceiver>();
 	private boolean active = true;
@@ -130,6 +130,7 @@ public class DistortionFix implements VideoReceiver {
 		return newImage;
 
 	}
+	
 	/**
 	 * Inverse barrel correction for single points
 	 * 
@@ -168,6 +169,33 @@ public class DistortionFix implements VideoReceiver {
 		return xy;
 	}
 
+	/**
+	 * Inverse Barrel Correction including normalization to be used only for calculating 
+	 * the distortion fix of 5 points: the ball and the 5 robots.
+	 */
+	
+	public static void invBarrelCorrectWithNorm(int x, int y, float[] xy) {
+		double px = (2 * x - width) / (double) width;
+		double py = (2 * y - height) / (double) height;
+		
+		// compute the radius of the pixel you are working with
+		double rad = px * px + py * py;
+
+		// then compute new pixel
+		double px1 = px * (1 + barrelCorrectionX * rad);
+		double py1 = py * (1 + barrelCorrectionY * rad);
+
+		// then convert back
+		int pixi = (int) ((px1 + 1) * width / 2);
+		int pixj = (int) ((py1 + 1) * height / 2);
+				
+		//Returning as an object or 1000*pixi+pixj was slower than int[]
+		//Any other ideas?;
+		xy[0] = pixi;
+		xy[1] = pixj;
+
+		
+	}
 	/**
 	 * Registers an object to receive frames from the distortion fix
 	 * 
