@@ -6,15 +6,12 @@ import pc.comms.BrickCommServer;
 import pc.strategy.interfaces.Strategy;
 import pc.world.WorldState;
 
-public class PassingStrategy implements Strategy {
+public class PassingStrategy extends GeneralStrategy {
 
 	private BrickCommServer attackerBrick;
 	private BrickCommServer defenderBrick;
 	private ControlThread controlThread;
-
-	private boolean ballCaught = false;
-	private boolean ballDefender = false;
-	private boolean ballAttacker = false;
+	private boolean ballCaught;
 
 	public PassingStrategy(BrickCommServer attackerBrick,
 			BrickCommServer defenderBrick) {
@@ -36,25 +33,11 @@ public class PassingStrategy implements Strategy {
 	@Override
 	public void sendWorldState(WorldState worldState) {
 		System.out.println("Passing");
-		float attackerRobotX = worldState.getAttackerRobot().x, attackerRobotY = worldState
-				.getAttackerRobot().y;
-		float defenderRobotX = worldState.getDefenderRobot().x, defenderRobotY = worldState
-				.getDefenderRobot().y;
-		float enemyAttackerY = worldState.getEnemyAttackerRobot().y;
-		float attackerRobotO = worldState.getAttackerRobot().orientation_angle;
-		float defenderRobotO = worldState.getDefenderRobot().orientation_angle;
-		float ballX = worldState.getBall().x, ballY = worldState.getBall().y;
-		int leftCheck, rightCheck, defenderCheck;
-		int[] divs = worldState.dividers;
-		leftCheck = (worldState.weAreShootingRight) ? divs[1] : divs[0];
-		rightCheck = (worldState.weAreShootingRight) ? divs[2] : divs[1];
-		defenderCheck = (worldState.weAreShootingRight) ? divs[0] : divs[2];
-		// float goalX = 65;
-		float goalX = 559, goalY = 220;
+		
 		if (ballX == 0 || ballY == 0 || attackerRobotX == 0
-				|| attackerRobotY == 0 || attackerRobotO == 0
+				|| attackerRobotY == 0 || attackerOrientation == 0
 				|| defenderRobotX == 0 || defenderRobotY == 0
-				|| defenderRobotO == 0) {
+				|| defenderOrientation == 0) {
 			synchronized (this.controlThread) {
 				this.controlThread.operation = Operation.DO_NOTHING;
 			}
@@ -63,50 +46,10 @@ public class PassingStrategy implements Strategy {
 
 		synchronized (this.controlThread) {
 			this.controlThread.operation = Operation.DO_NOTHING;
-			if ((worldState.weAreShootingRight && ballX < defenderCheck)
-					|| (!worldState.weAreShootingRight && ballX > defenderCheck)) {
-				this.ballAttacker = false;
-				this.ballDefender = true;
-			} else if (ballX > leftCheck && ballX < rightCheck) {
-				this.ballAttacker = true;
-				this.ballDefender = false;
-			} else {
-				this.ballAttacker = false;
-				this.ballDefender = false;
-			}
 
-			if (this.ballAttacker) {
-				if (!this.ballCaught) {
-					double ang1 = calculateAngle(attackerRobotX,
-							attackerRobotY, attackerRobotO, ballX, ballY);
-					double dist = Math.hypot(attackerRobotX - ballX,
-							attackerRobotY - ballY);
-					if (Math.abs(ang1) > Math.PI / 32) {
-						this.controlThread.operation = Operation.ATKROTATE;
-						this.controlThread.rotateBy = (int) Math.toDegrees(ang1);
-					} else {
-						if (dist > 30) {
-							this.controlThread.operation = Operation.ATKTRAVEL;
-							this.controlThread.travelDist = (int) (dist * 3);
-							this.controlThread.travelSpeed = (int) (dist * 1.5);
-						} else {
-							this.controlThread.operation = Operation.ATKCATCH;
-						}
-					}
-				} else {
-					double ang1 = calculateAngle(attackerRobotX,
-							attackerRobotY, attackerRobotO, goalX, goalY);
-					if (Math.abs(ang1) > Math.PI / 32) {
-						this.controlThread.operation = Operation.ATKROTATE;
-						this.controlThread.rotateBy = (int) Math.toDegrees(ang1);
-					} else {
-						this.controlThread.operation = Operation.ATKKICK;
-					}
-				}
-			} else if (this.ballDefender) {
 				if (!this.ballCaught) {
 					double ang1 = calculateAngle(defenderRobotX,
-							defenderRobotY, defenderRobotO, ballX, ballY);
+							defenderRobotY, defenderOrientation, ballX, ballY);
 					//ang1 = (ang1 > 0) ? (ang1 + Math.toRadians(15)) : ang1 - Math.toRadians(15);
 					double dist = Math.hypot(defenderRobotX - ballX,
 							defenderRobotY - ballY);
@@ -125,16 +68,16 @@ public class PassingStrategy implements Strategy {
 					}
 				} else {
 					float targetY = 220;
-					if (enemyAttackerY < 220) {
+					if (enemyAttackerRobotY < 220) {
 						targetY = 350;
 					} else {
 						targetY = 50;
 					}
 					double ang1 = calculateAngle(defenderRobotX,
-							defenderRobotY, defenderRobotO, attackerRobotX,
+							defenderRobotY, defenderOrientation, attackerRobotX,
 							targetY);
 					double ang2 = calculateAngle(attackerRobotX,
-							attackerRobotY, attackerRobotO, attackerRobotX,
+							attackerRobotY, attackerOrientation, attackerRobotX,
 							targetY);
 					double dist = Math.hypot(0, attackerRobotY - targetY);
 					
@@ -158,8 +101,8 @@ public class PassingStrategy implements Strategy {
 						}
 						}
 				}
-			}
 		}
+		
 	}
 
 	public enum Operation {
