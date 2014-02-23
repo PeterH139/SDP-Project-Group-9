@@ -133,10 +133,10 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 					// brick.robotRotateBy(rotateBy, travelSpeed);
 					// break;
 					case ARC_LEFT:
-						brick.robotArcForwards(radius, travelDist);
+						brick.robotArcForwards(radius, travelDist, travelSpeed);
 						break;
 					case ARC_RIGHT:
-						brick.robotArcForwards(-radius, travelDist);
+						brick.robotArcForwards(-radius, travelDist, travelSpeed);
 						break;
 					}
 

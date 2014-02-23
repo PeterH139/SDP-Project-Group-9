@@ -171,11 +171,11 @@ public class MarkingStrategy implements Strategy {
 						break;
 					case ARC_LEFT:
 						MarkingStrategy.this.brick.robotArcForwards(radius,
-								travelDist);
+								travelDist, travelSpeed);
 						break;
 					case ARC_RIGHT:
 						MarkingStrategy.this.brick.robotArcForwards(-radius,
-								travelDist);
+								travelDist, travelSpeed);
 						break;
 					case ROTATE:
 						MarkingStrategy.this.brick.robotRotateBy(rotateBy,

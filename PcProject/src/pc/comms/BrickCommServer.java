@@ -63,6 +63,7 @@ public class BrickCommServer {
 	 * frame grabber thread!
 	 */
 	public void executeSync(RobotCommand.Command command) throws IOException {
+		System.out.println(command.toString());
 		command.sendToBrick(brickOutput);
 		brickOutput.flush();
 	}
@@ -122,11 +123,12 @@ public class BrickCommServer {
 	}
 
 	@Deprecated
-	public void robotArcForwards(double arcRadius, int distance)
+	public void robotArcForwards(double arcRadius, int distance, int speed)
 			throws IOException {
 		brickOutput.writeInt(RobotOpcode.ARC_FORWARDS);
 		brickOutput.writeDouble(arcRadius);
 		brickOutput.writeInt(distance);
+		brickOutput.writeInt(speed);
 		brickOutput.flush();
 	}
 

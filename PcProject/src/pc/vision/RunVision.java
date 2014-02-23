@@ -115,7 +115,7 @@ public class RunVision {
 					pitchConstants));
 			
 			if (enableBluetooth) {
-				strategyController.changeToStrategy(StrategyController.StrategyType.DEFENDING);
+				strategyController.changeToStrategy(StrategyController.StrategyType.ATTACKING);
 			}
 
 			vStream.addReceiver(distortionFix);

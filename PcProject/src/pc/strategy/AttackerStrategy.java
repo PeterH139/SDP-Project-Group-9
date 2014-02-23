@@ -3,16 +3,19 @@ package pc.strategy;
 import java.io.IOException;
 
 import pc.comms.BrickCommServer;
+import pc.comms.RobotCommand;
+import pc.comms.RobotCommand.TravelArc;
+import pc.strategy.GeneralStrategy.RobotType;
 import pc.strategy.TargetFollowerStrategy.Operation;
 import pc.strategy.interfaces.Strategy;
 import pc.world.WorldState;
 
-public class AttackerStrategy implements Strategy {
+public class AttackerStrategy extends GeneralStrategy {
 
 	private BrickCommServer brick;
 	private ControlThread controlThread;
-
 	private boolean ballCaught = false;
+	private boolean stopControlThread;
 
 	public AttackerStrategy(BrickCommServer brick) {
 		this.brick = brick;
@@ -21,37 +24,20 @@ public class AttackerStrategy implements Strategy {
 
 	@Override
 	public void stopControlThread() {
-		controlThread.stop();
+		stopControlThread = true;
 	}
 
 	@Override
 	public void startControlThread() {
+		stopControlThread = false;
 		controlThread.start();
 	}
 
 	@Override
 	public void sendWorldState(WorldState worldState) {
-		System.out.println("Attacking");
-		float robotX = worldState.getAttackerRobot().x, robotY = worldState
-				.getAttackerRobot().y;
-		float robotO = worldState.getAttackerRobot().orientation_angle;
-		float targetX = worldState.getBall().x, targetY = worldState.getBall().y;
-		int leftCheck, rightCheck;
-		float goalX, goalY;
-		int[] divs = worldState.dividers;
-		if (worldState.weAreShootingRight) {
-			leftCheck = divs[1];
-			rightCheck = divs[2];
-			goalX = 640;
-			goalY = 220;
-		} else {
-			leftCheck = divs[0];
-			rightCheck = divs[1];
-			goalX = 0;
-			goalY = 220;
-		}
+		super.sendWorldState(worldState);
 
-		if (targetX < leftCheck || targetX > rightCheck) {
+		if (ballX < leftCheck || ballX > rightCheck) {
 			synchronized (controlThread) {
 				controlThread.operation = Operation.DO_NOTHING;
 			}
@@ -59,57 +45,22 @@ public class AttackerStrategy implements Strategy {
 		}
 
 		synchronized (controlThread) {
-			controlThread.operation = Operation.PREPARE_CATCH;
+			controlThread.operation = Operation.ATKPREPARE_CATCH;
 			if (!ballCaught) {
-				double ang1 = calculateAngle(robotX, robotY, robotO, targetX,
-						targetY);
-				double dist = Math.hypot(targetX - robotX, targetY - robotY);
-				if (Math.abs(dist) > 30) {
-					controlThread.travelSpeed = (int) (dist * 1.5);
-					if (Math.abs(ang1) < 90) {
-						controlThread.travelDist = (int) dist;
-					} else {
-						controlThread.travelDist = (int) -dist;
-					}
-					if (Math.abs(ang1) > 150 || Math.abs(ang1) < 10) {
-						controlThread.operation = Operation.TRAVEL;
-					} else if (ang1 > 0) {
-						if (ang1 > 90) {
-							controlThread.operation = Operation.ARC_LEFT;
-						} else {
-							controlThread.operation = Operation.ARC_RIGHT;
-						}
-						controlThread.radius = dist / 3;
-					} else if (ang1 < 0) {
-						if (ang1 < -90) {
-							controlThread.operation = Operation.ARC_RIGHT;
-						} else {
-							controlThread.operation = Operation.ARC_LEFT;
-						}
-						controlThread.radius = dist * 3;
-
-					}
-
-				} else {
-					controlThread.operation = Operation.CATCH;
-				}
+				double[] RotDistSpeed = new double[3];
+				controlThread.operation = catchBall(RobotType.ATTACKER, RotDistSpeed);
+				controlThread.radius = RotDistSpeed[0];
+				controlThread.travelDist = (int) RotDistSpeed[1];
+				controlThread.travelSpeed = (int) RotDistSpeed[2];
+				
 			} else {
-				double ang1 = calculateAngle(robotX, robotY, robotO, goalX,
-						goalY);
-				//System.out.println("angle to goal: " + ang1);
-				if (Math.abs(ang1) > 5) {
-					controlThread.operation = Operation.ROTATE;
-					controlThread.rotateBy = (int) ang1;
-				} else {
-					controlThread.operation = Operation.KICK;
-				}
+				double [] RotDist = new double[2];
+				controlThread.operation = scoreGoal(RobotType.ATTACKER, RotDist);
+				controlThread.rotateBy = (int) RotDist[0];
 			}
 		}
 	}
 
-	public enum Operation {
-		DO_NOTHING, TRAVEL, ROTATE, PREPARE_CATCH, CATCH, KICK, ARC_LEFT, ARC_RIGHT,
-	}
 
 	private class ControlThread extends Thread {
 		public Operation operation = Operation.DO_NOTHING;
@@ -126,7 +77,7 @@ public class AttackerStrategy implements Strategy {
 		@Override
 		public void run() {
 			try {
-				while (true) {
+				while (!stopControlThread) {
 					int travelDist, rotateBy, travelSpeed;
 					Operation op;
 					double radius;
@@ -144,39 +95,40 @@ public class AttackerStrategy implements Strategy {
 					switch (op) {
 					case DO_NOTHING:
 						break;
-					case CATCH:
-						brick.robotCatch();
+					case ATKCATCH:
+						brick.executeSync(new RobotCommand.Catch());
 						ballCaught = true;
 						break;
-					case PREPARE_CATCH:
-						brick.robotPrepCatch();
+					case ATKPREPARE_CATCH:
+						brick.executeSync(new RobotCommand.PrepareCatcher());
 						break;
-					case KICK:
-						brick.robotKick(100);
+					case ATKKICK:
+						brick.executeSync(new RobotCommand.Kick(100));
 						ballCaught = false;
 						break;
-					case ROTATE:
-						brick.robotRotateBy(-rotateBy, Math.abs(rotateBy));
+					case ATKROTATE:
+						brick.executeSync(new RobotCommand.Rotate(-rotateBy, Math.abs(rotateBy)));
 						break;
-					case TRAVEL:
-						brick.robotPrepCatch();
-						brick.robotTravel(travelDist, travelSpeed);
+					case ATKTRAVEL:
+						brick.executeSync(new RobotCommand.PrepareCatcher());
+						brick.executeSync(new RobotCommand.Travel(travelDist, travelSpeed));
 						break;
-					case ARC_LEFT:
-						brick.robotPrepCatch();
-						brick.robotArcForwards(radius, travelDist);
+					case ATKARC_LEFT:
+						brick.executeSync(new RobotCommand.PrepareCatcher());
+						brick.executeSync(new RobotCommand.TravelArc(radius, travelDist, travelSpeed));
 						break;
-					case ARC_RIGHT:
-						brick.robotPrepCatch();
-						brick.robotArcForwards(-radius, travelDist);
+					case ATKARC_RIGHT:
+						brick.executeSync(new RobotCommand.PrepareCatcher());
+						brick.executeSync(new RobotCommand.TravelArc(-radius, travelDist, travelSpeed));
 						break;
 					}
-					Thread.sleep(250); // TODO: Test lower values for this and
+					Thread.sleep(1000); // TODO: Test lower values for this and
 										// see where it breaks.
 				}
-			} catch (IOException e) {
+			}  catch (InterruptedException e) {
 				e.printStackTrace();
-			} catch (InterruptedException e) {
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
@@ -184,19 +136,4 @@ public class AttackerStrategy implements Strategy {
 
 	}
 
-	public static double calculateAngle(float robotX, float robotY,
-			float robotOrientation, float targetX, float targetY) {
-		double robotRad = Math.toRadians(robotOrientation);
-		double targetRad = Math.atan2(targetY - robotY, targetX - robotX);
-
-		if (robotRad > Math.PI)
-			robotRad -= 2 * Math.PI;
-
-		double ang1 = robotRad - targetRad;
-		while (ang1 > Math.PI)
-			ang1 -= 2 * Math.PI;
-		while (ang1 < -Math.PI)
-			ang1 += 2 * Math.PI;
-		return Math.toDegrees(ang1);
-	}
 }

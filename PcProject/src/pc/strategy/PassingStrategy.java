@@ -3,7 +3,6 @@ package pc.strategy;
 import java.io.IOException;
 
 import pc.comms.BrickCommServer;
-import pc.strategy.AttackerStrategy.Operation;
 import pc.strategy.interfaces.Strategy;
 import pc.world.WorldState;
 
@@ -106,44 +105,30 @@ public class PassingStrategy implements Strategy {
 				}
 			} else if (this.ballDefender) {
 				if (!this.ballCaught) {
-					double ang1 = calculateAngle(defenderRobotX, defenderRobotY, defenderRobotO, ballX,
-							ballY);
-					double dist = Math.hypot(ballX - defenderRobotX, ballY - defenderRobotY);
-					if (Math.abs(dist) > 30) {
-						controlThread.travelSpeed = (int) (dist * 1.5);
-						if (Math.abs(ang1) < 90) {
-							controlThread.travelDist = (int) dist;
-						} else {
-							controlThread.travelDist = (int) -dist;
-						}
-						if (Math.abs(ang1) > 150 || Math.abs(ang1) < 10) {
-							controlThread.operation = Operation.DEFTRAVEL;
-						} else if (ang1 > 0) {
-							if (ang1 > 90) {
-								controlThread.operation = Operation.DEFARC_LEFT;
-							} else {
-								controlThread.operation = Operation.DEFARC_RIGHT;
-							}
-							controlThread.radius = dist / 3;
-						} else if (ang1 < 0) {
-							if (ang1 < -90) {
-								controlThread.operation = Operation.DEFARC_RIGHT;
-							} else {
-								controlThread.operation = Operation.DEFARC_LEFT;
-							}
-							controlThread.radius = dist * 3;
-
-						}
-
+					double ang1 = calculateAngle(defenderRobotX,
+							defenderRobotY, defenderRobotO, ballX, ballY);
+					//ang1 = (ang1 > 0) ? (ang1 + Math.toRadians(15)) : ang1 - Math.toRadians(15);
+					double dist = Math.hypot(defenderRobotX - ballX,
+							defenderRobotY - ballY);
+					if ((Math.abs(ang1) < (Math.PI / 12)) && dist < 36) { 
+						this.controlThread.operation = Operation.DEFCATCH;
+					}
+					else if (Math.abs(ang1) > Math.PI / 32) {
+						this.controlThread.operation = Operation.DEFROTATE;
+						this.controlThread.rotateBy = -(int) Math.toDegrees(ang1);
 					} else {
-						controlThread.operation = Operation.DEFCATCH;
+						if (dist > 32) {
+							this.controlThread.operation = Operation.DEFTRAVEL;
+							this.controlThread.travelDist = (int) (dist * 3);
+							this.controlThread.travelSpeed = (int) (dist);
+						} 
 					}
 				} else {
 					float targetY = 220;
 					if (enemyAttackerY < 220) {
-						targetY = enemyAttackerY + 150;
+						targetY = 350;
 					} else {
-						targetY = enemyAttackerY - 150;
+						targetY = 50;
 					}
 					double ang1 = calculateAngle(defenderRobotX,
 							defenderRobotY, defenderRobotO, attackerRobotX,
@@ -178,8 +163,7 @@ public class PassingStrategy implements Strategy {
 	}
 
 	public enum Operation {
-		DO_NOTHING, ATKTRAVEL, ATKROTATE, ATKPREPARE_CATCH, ATKCATCH, ATKKICK, DEFTRAVEL, DEFROTATE, DEFPREPARE_CATCH, DEFCATCH, DEFKICK, ROTATENMOVE,
-		DEFARC_RIGHT, DEFARC_LEFT,
+		DO_NOTHING, ATKTRAVEL, ATKROTATE, ATKPREPARE_CATCH, ATKCATCH, ATKKICK, DEFTRAVEL, DEFROTATE, DEFPREPARE_CATCH, DEFCATCH, DEFKICK, ROTATENMOVE
 	}
 
 	private class ControlThread extends Thread {
@@ -187,7 +171,6 @@ public class PassingStrategy implements Strategy {
 		public int rotateBy = 0;
 		public int travelDist = 0;
 		public int travelSpeed = 0;
-		public double radius = 0;
 
 		public ControlThread() {
 			super("Robot control thread");
@@ -199,14 +182,12 @@ public class PassingStrategy implements Strategy {
 			try {
 				while (true) {
 					int travelDist, rotateBy, travelSpeed;
-					double radius;
 					Operation op;
 					synchronized (this) {
 						op = this.operation;
 						rotateBy = this.rotateBy;
 						travelDist = this.travelDist;
 						travelSpeed = this.travelSpeed;
-						radius = this.radius;
 					}
 
 					System.out.println("ballCaught: " + ballCaught + " op: "
@@ -260,14 +241,6 @@ public class PassingStrategy implements Strategy {
 					case ROTATENMOVE:
 						PassingStrategy.this.defenderBrick.robotRotateBy(rotateBy / 3, Math.abs(rotateBy) / 3);
 						PassingStrategy.this.attackerBrick.robotTravel(travelDist, travelSpeed);
-						break;
-					case DEFARC_LEFT:
-						defenderBrick.robotPrepCatch();
-						defenderBrick.robotArcForwards(-radius, -travelDist/3);
-						break;
-					case DEFARC_RIGHT:
-						defenderBrick.robotPrepCatch();
-						defenderBrick.robotArcForwards(radius, -travelDist/3);
 						break;
 					default:
 						

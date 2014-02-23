@@ -88,6 +88,8 @@ public class BrickCommClient {
 	private void handleArcForwards() throws IOException {
 		double radius = this.pcInput.readDouble();
 		int distance = this.pcInput.readInt();
+		int speed = this.pcInput.readInt();
+		this.rc.getMovementController().setTravelSpeed(speed);
 		this.rc.getMovementController().travelArc(radius, distance, true);
 	}
 	
