@@ -13,7 +13,7 @@ import pc.world.WorldState;
  * an incoming ball. If the ball is moving away from the robot then
  * the robot will move to the centre of the goal.
  */
-public class InterceptorStrategy implements Strategy {
+public class InterceptorStrategy extends GeneralStrategy {
 	private BrickCommServer brick;
 	private ControlThread controlThread;
 	private Deque<Vector2f> ballPositions = new ArrayDeque<Vector2f>();
@@ -37,12 +37,8 @@ public class InterceptorStrategy implements Strategy {
 
 	@Override
 	public void sendWorldState(WorldState worldState) {
+		super.sendWorldState(worldState);
 		System.out.println("Intercepting");
-		int defenderCheck = (worldState.weAreShootingRight) 
-				? worldState.dividers[0] : worldState.dividers[2];
-		float robotX = worldState.getDefenderRobot().x;
-		float robotY = worldState.getDefenderRobot().y;
-		double robotO = worldState.getDefenderRobot().orientation_angle;
 		ballPositions.addLast(new Vector2f(worldState.getBall().x, worldState
 				.getBall().y));
 		if (ballPositions.size() > 3)
@@ -55,17 +51,17 @@ public class InterceptorStrategy implements Strategy {
 		double slope = (ballY2 - ballY1) / ((ballX2 - ballX1) + 0.0001);
 		double c = ballY1 - slope * ballX1;
 		boolean ballMovement =  Math.abs(ballX2 - ballX1) < 10;
-		int targetY = (int) (slope * robotX + c);
+		int targetY = (int) (slope * defenderRobotX + c);
 
-		if (robotX <= 0.5 || targetY <= 0.5 || robotY <= 0.5 /*|| ballMovement */
-				|| robotO <= 0.5 || Math.hypot(0, robotY - targetY) < 10) {
+		if (defenderRobotX <= 0.5 || targetY <= 0.5 || defenderRobotY <= 0.5 /*|| ballMovement */
+				|| defenderOrientation <= 0.5 || Math.hypot(0, defenderRobotY - targetY) < 10) {
 			synchronized (controlThread) {
 				//controlThread.rotateBy = 0;
 				controlThread.travelDist = 0;
 			}
 			return;
 		}
-		double robotRad = Math.toRadians(robotO);
+		double robotRad = Math.toRadians(defenderOrientation);
 		
 		
 		float dist;
@@ -77,12 +73,12 @@ public class InterceptorStrategy implements Strategy {
 		}
 		if (robotRad > Math.PI)
 			robotRad -= 2 * Math.PI;
-		if (robotO > 180) {
-			rotateBy = (int) (270 - robotO) / 3;
-			dist = targetY - robotY;
+		if (defenderOrientation > 180) {
+			rotateBy = (int) (270 - defenderOrientation) / 3;
+			dist = targetY - defenderOrientation;
 		} else {
-			rotateBy = (int) (robotO - 90) / 3;
-			dist = robotY - targetY;
+			rotateBy = (int) (defenderOrientation - 90) / 3;
+			dist = defenderOrientation - targetY;
 		}
 		if (Math.abs(rotateBy) < 45) {
 			rotateBy = 0;

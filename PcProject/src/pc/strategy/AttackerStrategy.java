@@ -47,12 +47,12 @@ public class AttackerStrategy extends GeneralStrategy {
 		synchronized (controlThread) {
 			controlThread.operation = Operation.ATKPREPARE_CATCH;
 			if (!ballCaught) {
-				double[] RotDistSpeed = new double[4];
-				controlThread.operation = catchBall(RobotType.ATTACKER, RotDistSpeed);
-				controlThread.radius = RotDistSpeed[0];
-				controlThread.travelDist = (int) RotDistSpeed[1];
-				controlThread.travelSpeed = (int) RotDistSpeed[2];
-				controlThread.rotateBy = (int) RotDistSpeed[3];
+				double[] RadDistSpeedRot = new double[4];
+				controlThread.operation = catchBall(RobotType.ATTACKER, RadDistSpeedRot);
+				controlThread.radius = RadDistSpeedRot[0];
+				controlThread.travelDist = (int) RadDistSpeedRot[1];
+				controlThread.travelSpeed = (int) RadDistSpeedRot[2];
+				controlThread.rotateBy = (int) RadDistSpeedRot[3];
 				
 			} else {
 				double [] RotDist = new double[2];

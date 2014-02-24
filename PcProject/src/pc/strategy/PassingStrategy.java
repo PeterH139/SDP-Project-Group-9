@@ -33,8 +33,8 @@ public class PassingStrategy extends GeneralStrategy {
 
 	@Override
 	public void sendWorldState(WorldState worldState) {
+		super.sendWorldState(worldState);
 		System.out.println("Passing");
-		
 		if (ballX == 0 || ballY == 0 || attackerRobotX == 0
 				|| attackerRobotY == 0 || attackerOrientation == 0
 				|| defenderRobotX == 0 || defenderRobotY == 0
@@ -48,54 +48,25 @@ public class PassingStrategy extends GeneralStrategy {
 		synchronized (this.controlThread) {
 			this.controlThread.operation = Operation.DO_NOTHING;
 
-				if (!this.ballCaught) {
-							double[] RotDistSpeed = new double[3];
-							this.controlThread.operation = catchBall(RobotType.DEFENDER, RotDistSpeed);
-							this.controlThread.travelDist = (int) RotDistSpeed[1];
-							this.controlThread.travelSpeed = (int) RotDistSpeed[2];
-							this.controlThread.radius = RotDistSpeed[0];
-						
-					
-				} else {
-					float targetY = 220;
-					if (enemyAttackerRobotY < 220) {
-						targetY = 350;
-					} else {
-						targetY = 50;
-					}
-					double ang1 = calculateAngle(defenderRobotX,
-							defenderRobotY, defenderOrientation, attackerRobotX,
-							targetY);
-					double ang2 = calculateAngle(attackerRobotX,
-							attackerRobotY, attackerOrientation, attackerRobotX,
-							targetY);
-					double dist = Math.hypot(0, attackerRobotY - targetY);
-					
-						this.controlThread.operation = Operation.ROTATENMOVE;
-						this.controlThread.travelSpeed = (int) (dist * 3);
-						if (Math.abs(ang2) > Math.PI / 16) {
-						this.controlThread.operation = Operation.ATKROTATE;
-						this.controlThread.rotateBy= (int) Math.toDegrees(ang2);
-						} else {
-						
-						if (Math.abs(ang1) > Math.PI / 32) {
-							this.controlThread.rotateBy = -(int) Math.toDegrees(ang1);
-							} else {
-								this.controlThread.rotateBy = 0;	
-							}
-						if (Math.abs(dist) > 5) {
-							this.controlThread.travelDist = (int) (dist * 3);
-						} else {
-						this.controlThread.travelDist = 0;
-						this.controlThread.operation = Operation.DEFKICK;
-						}
-						}
-				}
+			if (!this.ballCaught) {
+				double[] RotDistSpeed = new double[3];
+				this.controlThread.operation = catchBall(RobotType.DEFENDER,
+						RotDistSpeed);
+				this.controlThread.travelDist = (int) RotDistSpeed[1];
+				this.controlThread.travelSpeed = (int) RotDistSpeed[2];
+				this.controlThread.radius = RotDistSpeed[0];
+
+			} else {
+				double[] RotDistSpeed = new double[3];
+				this.controlThread.operation = passBall(RobotType.DEFENDER,
+						RobotType.ATTACKER, RotDistSpeed);
+				this.controlThread.travelDist = (int) RotDistSpeed[1];
+				this.controlThread.travelSpeed = (int) RotDistSpeed[2];
+				this.controlThread.rotateBy = (int) RotDistSpeed[0];
+			}
 		}
-		
+
 	}
-
-
 
 	private class ControlThread extends Thread {
 		public Operation operation = Operation.DO_NOTHING;
@@ -133,12 +104,13 @@ public class PassingStrategy extends GeneralStrategy {
 
 						break;
 					case ATKROTATE:
-						PassingStrategy.this.attackerBrick.robotRotateBy(rotateBy,
-								Math.abs(rotateBy));
+						PassingStrategy.this.attackerBrick.robotRotateBy(
+								rotateBy, Math.abs(rotateBy));
 						break;
 					case ATKTRAVEL:
 						PassingStrategy.this.attackerBrick.robotPrepCatch();
-						PassingStrategy.this.attackerBrick.robotTravel(travelDist, travelSpeed);
+						PassingStrategy.this.attackerBrick.robotTravel(
+								travelDist, travelSpeed);
 						break;
 					case DEFCATCH:
 						PassingStrategy.this.defenderBrick.robotCatch();
@@ -148,33 +120,40 @@ public class PassingStrategy extends GeneralStrategy {
 						PassingStrategy.this.defenderBrick.robotPrepCatch();
 						break;
 					case DEFKICK:
-						//TODO The power in here was changed when speed became a percentage
+						// TODO The power in here was changed when speed became
+						// a percentage
 						PassingStrategy.this.defenderBrick.robotKick(50);
 						PassingStrategy.this.ballCaught = false;
 						break;
 					case DEFROTATE:
-						PassingStrategy.this.defenderBrick.robotRotateBy(rotateBy / 3,
-								Math.abs(rotateBy) / 3);
+						PassingStrategy.this.defenderBrick.robotRotateBy(
+								rotateBy / 3, Math.abs(rotateBy) / 3);
 						break;
 					case DEFTRAVEL:
 						PassingStrategy.this.defenderBrick.robotPrepCatch();
-						PassingStrategy.this.defenderBrick.robotTravel(travelDist,
-								travelSpeed);
+						PassingStrategy.this.defenderBrick.robotTravel(
+								travelDist, travelSpeed);
 						break;
 					case ROTATENMOVE:
-						PassingStrategy.this.defenderBrick.robotRotateBy(rotateBy / 3, Math.abs(rotateBy) / 3);
-						PassingStrategy.this.attackerBrick.robotTravel(travelDist, travelSpeed);
+						PassingStrategy.this.defenderBrick.robotRotateBy(
+								rotateBy / 3, Math.abs(rotateBy) / 3);
+						PassingStrategy.this.attackerBrick.robotTravel(
+								travelDist, travelSpeed);
 						break;
 					case DEFARC_LEFT:
-						defenderBrick.executeSync(new RobotCommand.PrepareCatcher());
-						defenderBrick.executeSync(new RobotCommand.TravelArc(radius, travelDist, travelSpeed));
+						defenderBrick
+								.executeSync(new RobotCommand.PrepareCatcher());
+						defenderBrick.executeSync(new RobotCommand.TravelArc(
+								radius, travelDist, travelSpeed));
 						break;
 					case DEFARC_RIGHT:
-						defenderBrick.executeSync(new RobotCommand.PrepareCatcher());
-						defenderBrick.executeSync(new RobotCommand.TravelArc(-radius, travelDist, travelSpeed));
+						defenderBrick
+								.executeSync(new RobotCommand.PrepareCatcher());
+						defenderBrick.executeSync(new RobotCommand.TravelArc(
+								-radius, travelDist, travelSpeed));
 						break;
 					default:
-						
+
 						break;
 					}
 					Thread.sleep(250);
@@ -190,19 +169,4 @@ public class PassingStrategy extends GeneralStrategy {
 
 	}
 
-	public static double calculateAngle(float robotX, float robotY,
-			float robotOrientation, float targetX, float targetY) {
-		double robotRad = Math.toRadians(robotOrientation);
-		double targetRad = Math.atan2(targetY - robotY, targetX - robotX);
-
-		if (robotRad > Math.PI)
-			robotRad -= 2 * Math.PI;
-
-		double ang1 = targetRad - robotRad;
-		while (ang1 > Math.PI)
-			ang1 -= 2 * Math.PI;
-		while (ang1 < -Math.PI)
-			ang1 += 2 * Math.PI;
-		return ang1;
-	}
 }
