@@ -100,6 +100,7 @@ public class RunVision {
 			gui.addTool(ctct, "Legacy config");
 			vision.addRecogniser(ctct.new PitchBoundsDebugDisplay());
 			vision.addRecogniser(ctct.new DividerLineDebugDisplay());
+			vision.addRecogniser(ctct.new GoalPositionDebugDisplay());
 
 			HistogramTool histogramTool = new HistogramTool(gui, pitchConstants);
 			gui.addTool(histogramTool, "Histogram analyser");
