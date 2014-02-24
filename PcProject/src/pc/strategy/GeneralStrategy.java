@@ -62,12 +62,14 @@ public class GeneralStrategy implements Strategy {
 		Operation toExecute = Operation.DO_NOTHING;
 		boolean isAttacker = robot == RobotType.ATTACKER;
 
-		double ang1 = calculateAngle(attackerRobotX, attackerRobotY,
-				attackerOrientation, ballX, ballY);
+		double ang1 = isAttacker? calculateAngle(attackerRobotX, attackerRobotY,
+				attackerOrientation, ballX, ballY) : calculateAngle(defenderRobotX, defenderRobotY,
+						defenderOrientation, ballX, ballY);
 		double dist = isAttacker ? Math.hypot(ballX - attackerRobotX, ballY
-				- attackerRobotY) : -((Math.hypot(ballX - attackerRobotX, ballY
-				- attackerRobotY)) / 3);
-		if (Math.abs(dist) > 32) {
+				- attackerRobotY) : -((Math.hypot(ballX - defenderRobotX, ballY
+				- defenderRobotY)) / 3);
+		boolean shouldCatch = isAttacker? Math.abs(dist) < 32 : Math.abs(dist) < 32/3;
+		if (!shouldCatch) {
 			RotDistSpeed[2] = (int) (dist * 1.5);
 			if (Math.abs(ang1) < 90) {
 				RotDistSpeed[1] = (int) dist;

@@ -78,8 +78,8 @@ public class RobotRecogniser implements ObjectRecogniser {
 		yellowAtk.pos.x = yellowAtkxy[0];
 		yellowAtk.pos.y = yellowAtkxy[1];
 		
-		heightCorrection(blueDef.pos, 250, 20);
-		System.out.println(blueDef.pos.x + " " + blueDef.pos.y);
+		//heightCorrection(blueDef.pos, 250, 20);
+		
 		
 		// Debugging Graphics
 		debugGraphics.setColor(Color.CYAN);
