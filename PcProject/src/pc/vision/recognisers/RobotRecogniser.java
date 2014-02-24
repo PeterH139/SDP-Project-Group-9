@@ -107,7 +107,10 @@ public class RobotRecogniser implements ObjectRecogniser {
 			enemyDefenderRobot = new MovingObject(blueDef.pos.x,blueDef.pos.y, blueDef.angle);
 		}
 		
-		//heightCorrection(blueAtk.pos, 250, 20);
+		heightCorrection(blueAtk.pos, 2450, 175);
+		heightCorrection(blueAtk.pos, 2450, 175);
+		heightCorrection(blueAtk.pos, 2450, 175);
+		heightCorrection(blueAtk.pos, 2450, 175);
 		worldState.setAttackerRobot(attackerRobot);
 		worldState.setDefenderRobot(defenderRobot);
 		worldState.setEnemyAttackerRobot(enemyAttackerRobot);
