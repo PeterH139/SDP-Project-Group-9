@@ -19,12 +19,13 @@ public class BallRecogniser implements ObjectRecogniser {
 	private Vision vision;
 	private WorldState worldState;
 	private PitchConstants pitchConstants;
-
+	private pc.logging.Logging logger;
 	public BallRecogniser(Vision vision, WorldState worldState,
 			PitchConstants pitchConstants) {
 		this.vision = vision;
 		this.worldState = worldState;
 		this.pitchConstants = pitchConstants;
+		logger = new pc.logging.Logging();
 	}
 
 	@Override
@@ -60,6 +61,9 @@ public class BallRecogniser implements ObjectRecogniser {
 		MovingObject ball_m = new MovingObject(xy[0], xy[1]);
 		worldState.setBall(ball_m);
 		
+		
+		//logger.Log("X="+ballPosition.x+" Y="+ballPosition.y);
+		logger.Log("["+ballPosition.x+", "+ballPosition.y+"]");
 		// Debugging Graphics
 		debugGraphics.setColor(Color.red);
 		debugGraphics.drawLine(0, (int)ballPosition.y, 640, (int)ballPosition.y);
