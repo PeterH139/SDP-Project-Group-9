@@ -3,6 +3,7 @@ package pc.strategy;
 import java.io.IOException;
 
 import pc.comms.BrickCommServer;
+import pc.comms.RobotCommand;
 import pc.strategy.interfaces.Strategy;
 import pc.world.WorldState;
 
@@ -48,24 +49,13 @@ public class PassingStrategy extends GeneralStrategy {
 			this.controlThread.operation = Operation.DO_NOTHING;
 
 				if (!this.ballCaught) {
-					double ang1 = calculateAngle(defenderRobotX,
-							defenderRobotY, defenderOrientation, ballX, ballY);
-					//ang1 = (ang1 > 0) ? (ang1 + Math.toRadians(15)) : ang1 - Math.toRadians(15);
-					double dist = Math.hypot(defenderRobotX - ballX,
-							defenderRobotY - ballY);
-					if ((Math.abs(ang1) < (Math.PI / 12)) && dist < 36) { 
-						this.controlThread.operation = Operation.DEFCATCH;
-					}
-					else if (Math.abs(ang1) > Math.PI / 32) {
-						this.controlThread.operation = Operation.DEFROTATE;
-						this.controlThread.rotateBy = -(int) Math.toDegrees(ang1);
-					} else {
-						if (dist > 32) {
-							this.controlThread.operation = Operation.DEFTRAVEL;
-							this.controlThread.travelDist = (int) (dist * 3);
-							this.controlThread.travelSpeed = (int) (dist);
-						} 
-					}
+							double[] RotDistSpeed = new double[3];
+							this.controlThread.operation = catchBall(RobotType.DEFENDER, RotDistSpeed);
+							this.controlThread.travelDist = (int) RotDistSpeed[1];
+							this.controlThread.travelSpeed = (int) RotDistSpeed[2];
+							this.controlThread.radius = RotDistSpeed[0];
+						
+					
 				} else {
 					float targetY = 220;
 					if (enemyAttackerRobotY < 220) {
@@ -112,6 +102,7 @@ public class PassingStrategy extends GeneralStrategy {
 		public int rotateBy = 0;
 		public int travelDist = 0;
 		public int travelSpeed = 0;
+		public double radius = 0;
 
 		public ControlThread() {
 			super("Robot control thread");
@@ -123,12 +114,14 @@ public class PassingStrategy extends GeneralStrategy {
 			try {
 				while (true) {
 					int travelDist, rotateBy, travelSpeed;
+					double radius;
 					Operation op;
 					synchronized (this) {
 						op = this.operation;
 						rotateBy = this.rotateBy;
 						travelDist = this.travelDist;
 						travelSpeed = this.travelSpeed;
+						radius = this.radius;
 					}
 
 					System.out.println("ballCaught: " + ballCaught + " op: "
@@ -138,17 +131,6 @@ public class PassingStrategy extends GeneralStrategy {
 					switch (op) {
 					case DO_NOTHING:
 
-						break;
-					case ATKCATCH:
-						PassingStrategy.this.attackerBrick.robotCatch();
-						PassingStrategy.this.ballCaught = true;
-						break;
-					case ATKPREPARE_CATCH:
-						PassingStrategy.this.attackerBrick.robotPrepCatch();
-						break;
-					case ATKKICK:
-						PassingStrategy.this.attackerBrick.robotKick(100);
-						PassingStrategy.this.ballCaught = false;
 						break;
 					case ATKROTATE:
 						PassingStrategy.this.attackerBrick.robotRotateBy(rotateBy,
@@ -176,12 +158,20 @@ public class PassingStrategy extends GeneralStrategy {
 						break;
 					case DEFTRAVEL:
 						PassingStrategy.this.defenderBrick.robotPrepCatch();
-						PassingStrategy.this.defenderBrick.robotTravel(-travelDist / 3,
-								travelSpeed / 3);
+						PassingStrategy.this.defenderBrick.robotTravel(travelDist,
+								travelSpeed);
 						break;
 					case ROTATENMOVE:
 						PassingStrategy.this.defenderBrick.robotRotateBy(rotateBy / 3, Math.abs(rotateBy) / 3);
 						PassingStrategy.this.attackerBrick.robotTravel(travelDist, travelSpeed);
+						break;
+					case DEFARC_LEFT:
+						defenderBrick.executeSync(new RobotCommand.PrepareCatcher());
+						defenderBrick.executeSync(new RobotCommand.TravelArc(radius, travelDist, travelSpeed));
+						break;
+					case DEFARC_RIGHT:
+						defenderBrick.executeSync(new RobotCommand.PrepareCatcher());
+						defenderBrick.executeSync(new RobotCommand.TravelArc(-radius, travelDist, travelSpeed));
 						break;
 					default:
 						

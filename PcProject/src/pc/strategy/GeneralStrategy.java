@@ -76,7 +76,7 @@ public class GeneralStrategy implements Strategy {
 			} else {
 				RotDistSpeed[1] = (int) -dist;
 			}
-			if (Math.abs(ang1) > 150 || Math.abs(ang1) < 5) {
+			if (Math.abs(ang1) > 150 || Math.abs(ang1) < 10) {
 				toExecute = isAttacker ? Operation.ATKTRAVEL
 						: Operation.DEFTRAVEL;
 			} else if (ang1 > 0) {
