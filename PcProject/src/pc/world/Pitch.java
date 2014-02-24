@@ -8,15 +8,12 @@
 package pc.world;
 
 import java.awt.Polygon;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 import java.util.Observable;
+import java.util.Observer;
 
-import com.google.gson.Gson;
+import pc.vision.YAMLConfig;
 
 public class Pitch extends Observable {
 	/*
@@ -28,11 +25,30 @@ public class Pitch extends Observable {
 	
 	private int pitchWidth = 1400;
 	private int pitchHeight = 800;
-
 	private int cornerCutoffX = 100;
 	private int cornerCutoffY = 200;
-
 	private int goalHeight = 300;
+	private int ballRadius = 20;
+
+	public Pitch(YAMLConfig yamlConfig) {
+		yamlConfig.addObserver(new Observer() {
+			
+			@SuppressWarnings("unchecked")
+			@Override
+			public void update(Observable arg0, Object yamlData) {
+				Map<String, Object> data = (Map<String, Object>) yamlData;
+				data = (Map<String, Object>) data.get("pitch");
+				List<Integer> pitchDims = (List<Integer>) data.get("size");
+				setPitchWidth(pitchDims.get(0));
+				setPitchHeight(pitchDims.get(1));
+				List<Integer> corners = (List<Integer>) data.get("corners");
+				setCornerCutoffX(corners.get(0));
+				setCornerCutoffY(corners.get(1));
+				setGoalHeight((Integer) data.get("goalHeight"));
+				setBallRadius((Integer) data.get("ballRadius"));
+			}
+		});
+	}
 
 	public int getPitchWidth() {
 		return pitchWidth;
@@ -117,38 +133,11 @@ public class Pitch extends Observable {
 		return polygon;
 	}
 
-	public void saveToFile(String filename) {
-		Gson gson = new Gson();
-		BufferedWriter writer = null;
-		try {
-			writer = new BufferedWriter(new FileWriter(filename));
-			gson.toJson(this, writer);
-			writer.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	public int getBallRadius() {
+		return ballRadius;
 	}
 
-	public void loadFromFile(String filename) {
-		Gson gson = new Gson();
-		BufferedReader reader = null;
-		try {
-			reader = new BufferedReader(new FileReader(filename));
-			Pitch newPitch = gson.fromJson(reader, Pitch.class);
-			reader.close();
-
-			pitchWidth = newPitch.getPitchWidth();
-			pitchHeight = newPitch.getPitchHeight();
-			cornerCutoffX = newPitch.getCornerCutoffX();
-			cornerCutoffY = newPitch.getCornerCutoffY();
-			goalHeight = newPitch.getGoalHeight();
-
-			setChanged();
-			notifyObservers();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	protected void setBallRadius(int ballRadius) {
+		this.ballRadius = ballRadius;
 	}
 }

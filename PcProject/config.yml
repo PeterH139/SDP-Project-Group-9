@@ -1,0 +1,5 @@
+pitch:
+  size: [1200, 800]
+  corners: [100, 200]
+  goalHeight: 300
+  ballRadius: 30

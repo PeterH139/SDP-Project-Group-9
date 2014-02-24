@@ -59,11 +59,13 @@ public class RunVision {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
+		final YAMLConfig yamlConfig = new YAMLConfig();
 		// 0 = default to main pitch
 		final PitchConstants pitchConstants = new PitchConstants(0);
-		final Pitch pitch = new Pitch();
+		final Pitch pitch = new Pitch(yamlConfig);
 		WorldState worldState = new WorldState(pitch);
-		
+
 		// Default values for the main vision window
 		String videoDevice = "/dev/video0";
 		int width = VideoStream.FRAME_WIDTH;
@@ -73,15 +75,15 @@ public class RunVision {
 		int compressionQuality = 100;
 
 		final boolean enableBluetooth = !cmdLine.hasOption("nobluetooth");
-		
+
 		// Create a new Vision object to serve the main vision window
-			Vision vision = new Vision(worldState, pitchConstants);
-			
+		Vision vision = new Vision(worldState, pitchConstants);
+
 		try {
 			StrategyController strategyController = null;
 			if (enableBluetooth) {
 				strategyController = new StrategyController(vision);
-				//	Vision.addWorldStateReceiver(strategyController);
+				// Vision.addWorldStateReceiver(strategyController);
 			}
 
 			final VideoStream vStream = new VideoStream(videoDevice, width,
@@ -90,7 +92,7 @@ public class RunVision {
 			DistortionFix distortionFix = new DistortionFix(pitchConstants);
 
 			// Create the Control GUI for threshold setting/etc
-			VisionGUI gui = new VisionGUI(width, height);
+			VisionGUI gui = new VisionGUI(width, height, yamlConfig);
 
 			gui.addWindowListener(new WindowAdapter() {
 				@Override
@@ -108,21 +110,24 @@ public class RunVision {
 			HistogramTool histogramTool = new HistogramTool(gui, pitchConstants);
 			gui.addTool(histogramTool, "Colour Thresholds");
 			vision.addRecogniser(histogramTool);
-			
-			PitchModelView pmvTool = new PitchModelView(gui, pitchConstants, pitch);
+
+			PitchModelView pmvTool = new PitchModelView(gui, pitchConstants,
+					pitch);
 			gui.addTool(pmvTool, "Pitch Model");
 			Vision.addWorldStateReceiver(pmvTool);
-			
+
 			vision.addRecogniser(new BallRecogniser(vision, worldState,
 					pitchConstants));
 			vision.addRecogniser(new RobotRecogniser(vision, worldState,
 					pitchConstants));
-			
+
 			if (enableBluetooth) {
-				StrategySelectorTool stratSelect = new StrategySelectorTool(gui,strategyController);
+				StrategySelectorTool stratSelect = new StrategySelectorTool(
+						gui, strategyController);
 				gui.addTool(stratSelect, "Strategy Selector");
-				
-				strategyController.changeToStrategy(StrategyController.StrategyType.ATTACKING);
+
+				strategyController
+						.changeToStrategy(StrategyController.StrategyType.ATTACKING);
 			}
 
 			vStream.addReceiver(distortionFix);

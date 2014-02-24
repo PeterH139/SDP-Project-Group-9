@@ -212,14 +212,6 @@ public class PitchConstants extends Observable {
 			notifyObservers();
 		}
 	}
-	
-	public int getPitchCenterX() {
-		return 320;
-	}
-	
-	public int getPitchCenterY() {
-		return 240;
-	}
 
 	/**
 	 * Tests whether debug mode is enabled for the threshold set i refers to

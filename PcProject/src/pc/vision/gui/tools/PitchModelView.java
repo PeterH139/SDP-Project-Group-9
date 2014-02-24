@@ -3,6 +3,7 @@ package pc.vision.gui.tools;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
@@ -16,6 +17,7 @@ import javax.swing.JSlider;
 
 import pc.vision.PitchConstants;
 import pc.vision.Vector2f;
+import pc.vision.YAMLConfig;
 import pc.vision.gui.GUITool;
 import pc.vision.gui.VisionGUI;
 import pc.vision.interfaces.WorldStateReceiver;
@@ -41,18 +43,17 @@ public class PitchModelView implements GUITool, WorldStateReceiver {
 		subWindow = new JFrame("Pitch Model");
 		subWindow.setResizable(false);
 		subWindow.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		subWindow.getContentPane().setLayout(
-				new BoxLayout(subWindow.getContentPane(), BoxLayout.X_AXIS));
+		subWindow.getContentPane().setLayout(new FlowLayout());
 
 		pitchView = new PitchView();
 		subWindow.getContentPane().add(pitchView);
-		// JSlider slider = new JSlider(10, 1000)
 	}
 
 	@Override
 	public void sendWorldState(WorldState worldState) {
 		ballPosition = null;
-		if (worldState.getBall().x != 0 || worldState.getBall().y != 0) {
+		if (worldState.getBall() != null
+				&& (worldState.getBall().x != 0 || worldState.getBall().y != 0)) {
 			float x = worldState.getBall().x, y = worldState.getBall().y;
 
 			float pitchCenterX = pitchConstants.getPitchLeft()
@@ -130,9 +131,10 @@ public class PitchModelView implements GUITool, WorldStateReceiver {
 			Vector2f ballPos = ballPosition;
 			if (ballPos != null) {
 				g.setColor(Color.RED);
-				g.fillOval((int) (ballPos.x - Pitch.BALL_RADIUS),
-						(int) (ballPos.y - Pitch.BALL_RADIUS),
-						2 * Pitch.BALL_RADIUS, 2 * Pitch.BALL_RADIUS);
+				int radius = p.getBallRadius();
+				g.fillOval((int) (ballPos.x - radius),
+						(int) (ballPos.y - radius),
+						2 * radius, 2 * radius);
 			}
 
 			g.dispose();
