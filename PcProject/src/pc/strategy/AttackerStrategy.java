@@ -111,12 +111,15 @@ public class AttackerStrategy extends GeneralStrategy {
 						brick.executeSync(new RobotCommand.Rotate(-rotateBy, Math.abs(rotateBy)));
 						break;
 					case ATKTRAVEL:
+						brick.executeSync(new RobotCommand.PrepareCatcher());
 						brick.executeSync(new RobotCommand.Travel(travelDist, travelSpeed));
 						break;
 					case ATKARC_LEFT:
+						brick.executeSync(new RobotCommand.PrepareCatcher());
 						brick.executeSync(new RobotCommand.TravelArc(radius, travelDist, travelSpeed));
 						break;
 					case ATKARC_RIGHT:
+						brick.executeSync(new RobotCommand.PrepareCatcher());
 						brick.executeSync(new RobotCommand.TravelArc(-radius, travelDist, travelSpeed));
 						break;
 					}
