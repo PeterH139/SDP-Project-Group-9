@@ -105,9 +105,7 @@ public class PassingStrategy extends GeneralStrategy {
 		
 	}
 
-	public enum Operation {
-		DO_NOTHING, ATKTRAVEL, ATKROTATE, ATKPREPARE_CATCH, ATKCATCH, ATKKICK, DEFTRAVEL, DEFROTATE, DEFPREPARE_CATCH, DEFCATCH, DEFKICK, ROTATENMOVE
-	}
+
 
 	private class ControlThread extends Thread {
 		public Operation operation = Operation.DO_NOTHING;
