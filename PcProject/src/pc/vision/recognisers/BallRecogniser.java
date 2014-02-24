@@ -64,14 +64,15 @@ public class BallRecogniser implements ObjectRecogniser {
 			DistortionFix.invBarrelCorrectWithNorm((int) ballPosition.x, (int) ballPosition.y, xy);
 			ballPosition.x = xy[0];
 			ballPosition.y = xy[1];
-			MovingObject ball_m = new MovingObject(xy[0], xy[1]);
-			worldState.setBall(ball_m);
 			
 			previousBallPosition = ballPosition;
 			
-			logger.Log("X="+ballPosition.x+" Y="+ballPosition.y);
+			//logger.Log("X="+ballPosition.x+" Y="+ballPosition.y);
 			//logger.Log("["+ballPosition.x+", "+ballPosition.y+"]");
 		}
+		
+		MovingObject ball_m = new MovingObject(ballPosition.x, ballPosition.y);
+		worldState.setBall(ball_m);
 		
 		// Debugging Graphics
 		debugGraphics.setColor(Color.red);

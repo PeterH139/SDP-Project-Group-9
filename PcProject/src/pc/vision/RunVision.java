@@ -127,7 +127,7 @@ public class RunVision {
 				gui.addTool(stratSelect, "Strategy Selector");
 
 				strategyController
-						.changeToStrategy(StrategyController.StrategyType.ATTACKING);
+						.changeToStrategy(StrategyController.StrategyType.PASSING);
 			}
 
 			vStream.addReceiver(distortionFix);

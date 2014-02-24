@@ -34,7 +34,6 @@ public class PassingStrategy extends GeneralStrategy {
 	@Override
 	public void sendWorldState(WorldState worldState) {
 		super.sendWorldState(worldState);
-		System.out.println("Passing");
 		if (ballX == 0 || ballY == 0 || attackerRobotX == 0
 				|| attackerRobotY == 0 || attackerOrientation == 0
 				|| defenderRobotX == 0 || defenderRobotY == 0
@@ -49,20 +48,21 @@ public class PassingStrategy extends GeneralStrategy {
 			this.controlThread.operation = Operation.DO_NOTHING;
 
 			if (!this.ballCaught) {
-				double[] RotDistSpeed = new double[3];
+				double[] RotDistSpeed = new double[4];
 				this.controlThread.operation = catchBall(RobotType.DEFENDER,
 						RotDistSpeed);
 				this.controlThread.travelDist = (int) RotDistSpeed[1];
 				this.controlThread.travelSpeed = (int) RotDistSpeed[2];
 				this.controlThread.radius = RotDistSpeed[0];
+				this.controlThread.rotateBy = (int) RotDistSpeed[3];
 
 			} else {
-				double[] RotDistSpeed = new double[3];
+				double[] RadDistSpeedRot = new double[4];
 				this.controlThread.operation = passBall(RobotType.DEFENDER,
-						RobotType.ATTACKER, RotDistSpeed);
-				this.controlThread.travelDist = (int) RotDistSpeed[1];
-				this.controlThread.travelSpeed = (int) RotDistSpeed[2];
-				this.controlThread.rotateBy = (int) RotDistSpeed[0];
+						RobotType.ATTACKER, RadDistSpeedRot);
+				this.controlThread.travelDist = (int) RadDistSpeedRot[1];
+				this.controlThread.travelSpeed = (int) RadDistSpeedRot[2];
+				this.controlThread.rotateBy = (int) RadDistSpeedRot[3];
 			}
 		}
 
@@ -126,8 +126,7 @@ public class PassingStrategy extends GeneralStrategy {
 						PassingStrategy.this.ballCaught = false;
 						break;
 					case DEFROTATE:
-						PassingStrategy.this.defenderBrick.robotRotateBy(
-								rotateBy / 3, Math.abs(rotateBy) / 3);
+						defenderBrick.executeSync(new RobotCommand.Rotate(rotateBy, Math.abs(rotateBy)));
 						break;
 					case DEFTRAVEL:
 						PassingStrategy.this.defenderBrick.robotPrepCatch();
@@ -135,8 +134,7 @@ public class PassingStrategy extends GeneralStrategy {
 								travelDist, travelSpeed);
 						break;
 					case ROTATENMOVE:
-						PassingStrategy.this.defenderBrick.robotRotateBy(
-								rotateBy / 3, Math.abs(rotateBy) / 3);
+						defenderBrick.executeSync(new RobotCommand.Rotate(rotateBy, Math.abs(rotateBy)));
 						PassingStrategy.this.attackerBrick.robotTravel(
 								travelDist, travelSpeed);
 						break;

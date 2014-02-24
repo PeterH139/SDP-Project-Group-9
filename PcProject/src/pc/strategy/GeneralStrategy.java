@@ -68,7 +68,6 @@ public class GeneralStrategy implements Strategy {
 				attackerRobotY, attackerOrientation, ballX, ballY)
 				: calculateAngle(defenderRobotX, defenderRobotY,
 						defenderOrientation, ballX, ballY);
-		System.out.println("angle : " + ang1);
 		double dist = isAttacker ? Math.hypot(ballX - attackerRobotX, ballY
 				- attackerRobotY) : -((Math.hypot(ballX - defenderRobotX, ballY
 				- defenderRobotY)) / 3);
@@ -76,7 +75,7 @@ public class GeneralStrategy implements Strategy {
 				.abs(dist) < 32 / 3);
 		if ((Math.abs(dist) > 90 || Math.abs(dist) < 40) && Math.abs(ang1) > 20) {
 			toExecute = isAttacker ? Operation.ATKROTATE : Operation.DEFROTATE;
-			RotDistSpeed[3] = isAttacker ? ang1 : -(ang1 / 3);
+			RotDistSpeed[3] = isAttacker ? ang1 : (ang1 / 3);
 		} else if (!shouldCatch) {
 			RotDistSpeed[2] = (int) (dist * 1.5);
 			if (Math.abs(ang1) < 90) {
@@ -110,7 +109,6 @@ public class GeneralStrategy implements Strategy {
 		} else {
 			toExecute = isAttacker ? Operation.ATKCATCH : Operation.DEFCATCH;
 		}
-		System.out.println(toExecute);
 		return toExecute;
 	}
 
@@ -190,30 +188,30 @@ public class GeneralStrategy implements Strategy {
 		Operation toExecute = Operation.DO_NOTHING;
 		float targetY = 220;
 		if (enemyAttackerRobotY < targetY) {
-			targetY = 350;
+			targetY = enemyAttackerRobotY + 100;
 		} else {
-			targetY = 50;
+			targetY = enemyAttackerRobotY - 100;
 		}
-		double ang1 = calculateAngle(defenderRobotX, defenderRobotY,
+		double angleToPass = calculateAngle(defenderRobotX, defenderRobotY,
 				defenderOrientation, attackerRobotX, targetY);
-		double ang2 = calculateAngle(attackerRobotX, attackerRobotY,
+		double attackerAngle = calculateAngle(attackerRobotX, attackerRobotY,
 				attackerOrientation, attackerRobotX, targetY);
 		double dist = Math.hypot(0, attackerRobotY - targetY);
 
 		toExecute = Operation.ROTATENMOVE;
 		RotDistSpeed[2] = (int) (dist * 3);
-		if (Math.abs(ang2) > Math.PI / 16) {
+		if (Math.abs(attackerAngle) > 15) {
 			toExecute = Operation.ATKROTATE;
-			RotDistSpeed[0] = (int) Math.toDegrees(ang2);
+			RotDistSpeed[3] = -(int) attackerAngle;
 		} else {
 
-			if (Math.abs(ang1) > Math.PI / 32) {
-				RotDistSpeed[0] = -(int) Math.toDegrees(ang1);
+			if (Math.abs(angleToPass) > 12) {
+				RotDistSpeed[3] = -(int) angleToPass;
 			} else {
-				RotDistSpeed[0] = 0;
+				RotDistSpeed[3] = 0;
 			}
 			if (Math.abs(dist) > 5) {
-				RotDistSpeed[1] = (int) (dist * 3);
+				RotDistSpeed[1] = (int) (dist);
 			} else {
 				RotDistSpeed[1] = 0;
 				toExecute = Operation.DEFKICK;
