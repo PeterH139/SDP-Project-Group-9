@@ -1,4 +1,4 @@
-      package pc.vision;
+package pc.vision;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -12,7 +12,6 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import pc.strategy.StrategyController;
-import pc.strategy.TargetFollowerStrategy;
 import pc.vision.gui.VisionGUI;
 import pc.vision.gui.tools.ColourThresholdConfigTool;
 import pc.vision.gui.tools.HistogramTool;
