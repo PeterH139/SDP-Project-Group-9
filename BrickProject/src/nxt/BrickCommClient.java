@@ -94,7 +94,6 @@ public class BrickCommClient {
 	}
 	
 	private void handleTravel() throws IOException {
-		this.kickerState = 0;
 		int distance = this.pcInput.readInt();
 		int speed = this.pcInput.readInt();
 		this.rc.getMovementController().setTravelSpeed(speed);

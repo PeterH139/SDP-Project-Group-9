@@ -77,7 +77,8 @@ public class RobotCommand {
 	public static class PrepareCatcher extends GenericCommand {
 		@Override
 		protected int getOpcode() {
-			return RobotOpcode.APPROACHING_BALL;
+			return RobotOpcode.APPROACHING_BALL; 
+			
 		}
 	}
 
