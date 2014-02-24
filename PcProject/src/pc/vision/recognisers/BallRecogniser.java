@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
+import pc.vision.DistortionFix;
 import pc.vision.PitchConstants;
 import pc.vision.PixelInfo;
 import pc.vision.Position;
@@ -52,7 +53,12 @@ public class BallRecogniser implements ObjectRecogniser {
 		}
 
 		Vector2f ballPosition = vision.calculatePosition(ballPoints);
-		MovingObject ball_m = new MovingObject(ballPosition.x, ballPosition.y);
+		// Distortion fixing
+		float[] xy = new float[2];
+		DistortionFix.invBarrelCorrectWithNorm((int) ballPosition.x, (int) ballPosition.y, xy);
+		ballPosition.x = xy[0];
+		ballPosition.y = xy[1];
+		MovingObject ball_m = new MovingObject(xy[0], xy[1]);
 		worldState.setBall(ball_m);
 		
 		

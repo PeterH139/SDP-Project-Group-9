@@ -14,14 +14,14 @@ import pc.world.WorldState;
  *
  */
 //FIXME Work out why it often shoots straight ahead
-public class PenaltyStrategy implements WorldStateReceiver,Strategy {
+public class PenaltyAttackStrategy implements WorldStateReceiver,Strategy {
 	
 	private BrickCommServer brick;
 	private ControlThread controlThread;
 	private int goalX, goalY;
 	private boolean ballCaught = false;
 
-	public PenaltyStrategy(BrickCommServer brick) {
+	public PenaltyAttackStrategy(BrickCommServer brick) {
 		this.brick = brick;
 		this.controlThread = new ControlThread();
 	}
@@ -41,9 +41,7 @@ public class PenaltyStrategy implements WorldStateReceiver,Strategy {
 		float robotX = worldState.getAttackerRobot().x, robotY = worldState
 				.getAttackerRobot().y;
 		float robotO = worldState.getAttackerRobot().orientation_angle;
-		float opponentRobotX = worldState.getEnemyDefenderRobot().x, opponentRobotY = worldState
-				.getEnemyDefenderRobot().y;
-		float opponentRobotO = worldState.getEnemyDefenderRobot().orientation_angle;
+		float opponentRobotY = worldState.getEnemyDefenderRobot().y;
 		float targetX = worldState.getBall().x, targetY = worldState.getBall().y;
 		int[] divs = worldState.dividers;
 		int leftCheck, rightCheck;
@@ -157,22 +155,22 @@ public class PenaltyStrategy implements WorldStateReceiver,Strategy {
 						
 						break;
 					case CATCH:
-						PenaltyStrategy.this.brick.robotCatch();
-						PenaltyStrategy.this.ballCaught = true;
+						PenaltyAttackStrategy.this.brick.robotCatch();
+						PenaltyAttackStrategy.this.ballCaught = true;
 						break;
 					case PREPARE_CATCH:
-						PenaltyStrategy.this.brick.robotPrepCatch();
+						PenaltyAttackStrategy.this.brick.robotPrepCatch();
 						break;
 					case KICK:
-						PenaltyStrategy.this.brick.robotKick(10000);
-						PenaltyStrategy.this.ballCaught = false;
+						PenaltyAttackStrategy.this.brick.robotKick(100);
+						PenaltyAttackStrategy.this.ballCaught = false;
 						break;
 					case ROTATE:
-						PenaltyStrategy.this.brick.robotRotateBy(rotateBy, Math.abs(rotateBy));
+						PenaltyAttackStrategy.this.brick.robotRotateBy(rotateBy, Math.abs(rotateBy));
 						break;
 					case TRAVEL:
-						PenaltyStrategy.this.brick.robotPrepCatch();
-						PenaltyStrategy.this.brick.robotTravel(travelDist, travelSpeed);
+						PenaltyAttackStrategy.this.brick.robotPrepCatch();
+						PenaltyAttackStrategy.this.brick.robotTravel(travelDist, travelSpeed);
 						break;
 					default:
 						break;

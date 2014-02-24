@@ -38,23 +38,24 @@ public class InterceptorStrategy implements Strategy {
 	@Override
 	public void sendWorldState(WorldState worldState) {
 		System.out.println("Intercepting");
+		int defenderCheck = (worldState.weAreShootingRight) 
+				? worldState.dividers[0] : worldState.dividers[2];
 		float robotX = worldState.getDefenderRobot().x;
 		float robotY = worldState.getDefenderRobot().y;
 		double robotO = worldState.getDefenderRobot().orientation_angle;
 		ballPositions.addLast(new Vector2f(worldState.getBall().x, worldState
 				.getBall().y));
-		if (ballPositions.size() > 2)
+		if (ballPositions.size() > 3)
 			ballPositions.removeFirst();
 
-		Vector2f ball2FramesAgo = ballPositions.getFirst();
-		float ballX1 = ball2FramesAgo.x, ballY1 = ball2FramesAgo.y;
+		Vector2f ball3FramesAgo = ballPositions.getFirst();
+		float ballX1 = ball3FramesAgo.x, ballY1 = ball3FramesAgo.y;
 		float ballX2 = worldState.getBall().x, ballY2 = worldState.getBall().y;
 
 		double slope = (ballY2 - ballY1) / ((ballX2 - ballX1) + 0.0001);
 		double c = ballY1 - slope * ballX1;
 		boolean ballMovement =  Math.abs(ballX2 - ballX1) < 10;
 		int targetY = (int) (slope * robotX + c);
-		int targetX = (int) ((targetY + c) / slope);
 
 		if (robotX <= 0.5 || targetY <= 0.5 || robotY <= 0.5 /*|| ballMovement */
 				|| robotO <= 0.5 || Math.hypot(0, robotY - targetY) < 10) {
@@ -83,7 +84,7 @@ public class InterceptorStrategy implements Strategy {
 			rotateBy = (int) (robotO - 90) / 3;
 			dist = robotY - targetY;
 		}
-		if (Math.abs(rotateBy) < 10) {
+		if (Math.abs(rotateBy) < 45) {
 			rotateBy = 0;
 		} else {
 			dist = 0;

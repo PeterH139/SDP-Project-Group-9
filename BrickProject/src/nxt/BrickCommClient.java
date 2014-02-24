@@ -5,13 +5,14 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 import nxt.brick.Movement;
-
 import reallejos.shared.RobotOpcode;
-
 import lejos.nxt.Button;
 import lejos.nxt.ButtonListener;
+import lejos.nxt.LCD;
 import lejos.nxt.comm.Bluetooth;
 import lejos.nxt.comm.NXTConnection;
+import lejos.util.Delay;
+import lejos.util.TextMenu;
 
 public class BrickCommClient {
 
@@ -30,102 +31,105 @@ public class BrickCommClient {
 
 	public void makeConnection() {
 		System.out.println("Bluetooth\nWaiting for connection");
-		connection = Bluetooth.waitForConnection();
-		pcInput = connection.openDataInputStream();
-		pcOutput = connection.openDataOutputStream();
+		this.connection = Bluetooth.waitForConnection();
+		this.pcInput = this.connection.openDataInputStream();
+		this.pcOutput = this.connection.openDataOutputStream();
 	}
 
 	public void releaseConnection() {
-		connection.close();
+		this.connection.close();
 	}
 	
 	private void handleStop() {
-		rc.getMovementController().stop();
-		movingForwards = false;
-		movingBackwards = false;
+		this.rc.getMovementController().stop();
+		this.movingForwards = false;
+		this.movingBackwards = false;
 	}
 	private void handleCatch() {
-		rc.getMovementController().resetKicker(true);
-		kickerState = 0;
+		this.rc.getMovementController().resetKicker(true);
+		this.kickerState = 0;
 	}
 	
 	private void handleForwards() {
-		rc.getMovementController().forward();
-		movingForwards = true;
+		this.rc.getMovementController().forward();
+		this.movingForwards = true;
 	}
 	
 	private void handleBackwards() {
-		rc.getMovementController().backward();
-		movingBackwards = true;
+		this.rc.getMovementController().backward();
+		this.movingBackwards = true;
 	}
 	
 	private void handleKick() throws IOException {
-		int speed = pcInput.readInt();
-		rc.getMovementController().kick(speed);
-		kickerState = 0;
+		int speed = this.pcInput.readInt();
+		this.rc.getMovementController().kick(speed);
+		this.kickerState = 0;
 	}
 	private void handlePrepCatcher() throws IOException {
-		if (kickerState == 0){
-			rc.getMovementController().prepKicker(false);
-			kickerState = 1;
+		if (this.kickerState == 0){
+			this.rc.getMovementController().prepKicker(false);
+			this.kickerState = 1;
 		}
 	}
 	private void handleRotate(boolean clockwise) throws IOException {
 		if (clockwise)
-			rc.getMovementController().rotateRight();
+			this.rc.getMovementController().rotateRight();
 		else
-			rc.getMovementController().rotateLeft();
+			this.rc.getMovementController().rotateLeft();
 	}
 	
 	private void handleRotateBy() throws IOException {
-		int angle = pcInput.readInt();
-		double speed = pcInput.readDouble();
-		rc.getMovementController().setRotateSpeed(speed);
-		rc.getMovementController().rotate(angle, true);
+		int angle = this.pcInput.readInt();
+		double speed = this.pcInput.readDouble();
+		this.rc.getMovementController().setRotateSpeed(speed);
+		this.rc.getMovementController().rotate(angle, true);
 	}
 
 	private void handleArcForwards() throws IOException {
-		double radius = pcInput.readDouble();
-		int distance = pcInput.readInt();
-		rc.getMovementController().travelArc(radius, distance, true);
+		double radius = this.pcInput.readDouble();
+		int distance = this.pcInput.readInt();
+		int speed = this.pcInput.readInt();
+		this.rc.getMovementController().setTravelSpeed(speed);
+		this.rc.getMovementController().travelArc(radius, distance, true);
 	}
 	
 	private void handleTravel() throws IOException {
-		int distance = pcInput.readInt();
-		int speed = pcInput.readInt();
-		rc.getMovementController().setTravelSpeed(speed);
-		rc.getMovementController().travel(distance, true);	
+		this.kickerState = 0;
+		int distance = this.pcInput.readInt();
+		int speed = this.pcInput.readInt();
+		this.rc.getMovementController().setTravelSpeed(speed);
+		this.rc.getMovementController().travel(distance, true);	
 	}
 		
 	private void handleTest() throws IOException {
-		pcOutput.writeBoolean(true);
-		pcOutput.flush();
+		this.pcOutput.writeBoolean(true);
+		this.pcOutput.flush();
 	}
 	
 	private void handleTestINT() throws IOException {
-		pcOutput.writeBoolean(true);
-		pcOutput.flush();
-		int test = pcInput.readInt();
+		this.pcOutput.writeBoolean(true);
+		this.pcOutput.flush();
+		int test = this.pcInput.readInt();
 	}
 	
 	private void handleTestDOUBLE() throws IOException {
-		pcOutput.writeBoolean(true);
-		pcOutput.flush();
-		double test = pcInput.readDouble();
+		this.pcOutput.writeBoolean(true);
+		this.pcOutput.flush();
+		double test = this.pcInput.readDouble();
 	}
 	
 	private void handleTestINTANDDOUBLE() throws IOException {
-		pcOutput.writeBoolean(true);
-		pcOutput.flush();
-		int testINT = pcInput.readInt();
-		double testDOUBLE = pcInput.readDouble();
+		this.pcOutput.writeBoolean(true);
+		this.pcOutput.flush();
+		int testINT = this.pcInput.readInt();
+		double testDOUBLE = this.pcInput.readDouble();
 	}
 
 	public void runController() {
 		try {
 			System.out.println("Controller ready");
 			while (true) {
-				int opcode = pcInput.readInt();
+				int opcode = this.pcInput.readInt();
 				
 				switch (opcode) {
 				case RobotOpcode.STOP:
@@ -188,6 +192,7 @@ public class BrickCommClient {
 	}
 
 	public static void main(String[] args) {
+		String[] robotsList = {"Keeper", "Attacker"};
 		Button.ESCAPE.addButtonListener(new ButtonListener() {
 			
 			@Override
@@ -199,7 +204,30 @@ public class BrickCommClient {
 			public void buttonPressed(Button b) {
 			}
 		});
-		RobotController rc = new RobotController();
+		
+		boolean selectionMade = false;
+		boolean isKeeper = false;
+		
+		while (!selectionMade) {
+			TextMenu robotSelection = new TextMenu(robotsList, 1, "What robot am I?");
+
+			int robotNumber = robotSelection.select();
+
+			if (robotNumber == 0) {
+				isKeeper = true;
+				selectionMade = true;
+			} else if (robotNumber == 1) {
+				isKeeper = false;
+				selectionMade = true;
+			} 
+			
+			Delay.msDelay(300);
+		}
+		
+		LCD.clearDisplay();
+		LCD.refresh();		
+		
+		RobotController rc = new RobotController(isKeeper);
 		rc.getMovementController().setTravelSpeed(300);
 		BrickCommClient bc = new BrickCommClient(rc);
 		while (true) {

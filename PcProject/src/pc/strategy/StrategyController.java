@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import lejos.pc.comm.NXTCommException;
 import pc.comms.BrickCommServer;
+import pc.comms.BrickControlGUI;
 import pc.comms.BtInfo;
 import pc.strategy.interfaces.Strategy;
 import pc.vision.Vision;
@@ -31,9 +32,9 @@ public class StrategyController implements WorldStateReceiver {
 		this.bcsDefender = null;
 		try {
 			this.bcsAttacker = new BrickCommServer();
-			this.bcsAttacker.guiConnect(BtInfo.group10);
-			this.bcsDefender = new BrickCommServer();
-			this.bcsDefender.guiConnect(BtInfo.MEOW);
+			BrickControlGUI.guiConnect(this.bcsAttacker, BtInfo.group10);
+//			this.bcsDefender = new BrickCommServer();
+//			BrickControlGUI.guiConnect(this.bcsDefender, BtInfo.MEOW);
 		} catch (NXTCommException e) {
 			e.printStackTrace();
 		}
@@ -72,7 +73,7 @@ public class StrategyController implements WorldStateReceiver {
 			Strategy as = new AttackerStrategy(this.bcsAttacker);
 			Strategy ic = new InterceptorStrategy(this.bcsDefender); 
 			StrategyController.currentStrategies.add(as);
-			StrategyController.currentStrategies.add(ic);
+			//StrategyController.currentStrategies.add(ic);
 			//this.vision.addWorldStateReceiver(as);
 			as.startControlThread();
 			ic.startControlThread();
@@ -88,7 +89,7 @@ public class StrategyController implements WorldStateReceiver {
 			ms.startControlThread();
 			break;
 		case PENALTY:
-			Strategy pen = new PenaltyStrategy(this.bcsAttacker);
+			Strategy pen = new PenaltyAttackStrategy(this.bcsAttacker);
 			StrategyController.currentStrategies.add(pen);
 			//this.vision.addWorldStateReceiver(pen);
 			pen.startControlThread();
@@ -126,7 +127,7 @@ public class StrategyController implements WorldStateReceiver {
 			this.ballInAttackerArea = false;
 			this.ballInDefenderArea = false;
 		}
-		System.out.println("BallAttacker: " + this.ballInAttackerArea + " ballDefender: " + this.ballInDefenderArea);;
+		System.out.println("BallAttacker: " + this.ballInAttackerArea + " ballDefender: " + this.ballInDefenderArea);
 		if (prevBallInDefenderArea != this.ballInDefenderArea || prevBallInAttackerArea != this.ballInAttackerArea){
 			if (this.ballInDefenderArea){
 				changeToStrategy(StrategyType.PASSING);

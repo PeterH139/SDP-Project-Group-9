@@ -16,6 +16,7 @@ import java.util.Random;
 
 import lejos.pc.comm.NXTInfo;
 import pc.comms.BrickCommServer;
+import pc.comms.BrickControlGUI;
 import pc.comms.BtInfo;
 
 public class BtTest {
@@ -60,7 +61,7 @@ public class BtTest {
 		BrickCommServer bcs = null;
 		bcs = new BrickCommServer();
 		try {
-			bcs.guiConnect(brickInfo);
+			BrickControlGUI.guiConnect(bcs, brickInfo);
 		}
 		catch (Exception e) {
 			e.printStackTrace();

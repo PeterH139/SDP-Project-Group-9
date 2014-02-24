@@ -41,7 +41,7 @@ public class Movement extends DifferentialPilot {
 	}
 	
 	public void setMaxPilotSpeed(int speed) {
-		maxPilotSpeed = speed;
+		this.maxPilotSpeed = speed;
 	}
 
 	public static void floatWheels() {
@@ -55,7 +55,7 @@ public class Movement extends DifferentialPilot {
 	public void prepKicker(boolean immediateReturn) {
 		int prevSpeed = KICKER.getSpeed();
 		KICKER.setSpeed(50);
-		KICKER.rotate(90/GEAR_RATIO, immediateReturn);
+		KICKER.rotate(70/GEAR_RATIO, immediateReturn);
 		KICKER.setSpeed(prevSpeed);
 	}
 	public void liftKicker(boolean immediateReturn) {
@@ -72,7 +72,11 @@ public class Movement extends DifferentialPilot {
 
 		isKicking = true;
 		
-		KICKER.setSpeed(speed);
+		if (speed > 100) {
+			speed = 100;
+		}
+		
+		KICKER.setSpeed(speed * MAXIMUM_KICKER_SPEED);
 		KICKER.setAcceleration(ACCELERATION);
 
 		// Kick
@@ -86,7 +90,7 @@ public class Movement extends DifferentialPilot {
 	public void movingKick(int speed) {
 		isKicking = true;
 		while(isKicking) {
-			setTravelSpeed(maxPilotSpeed);
+			setTravelSpeed(this.maxPilotSpeed);
 			travel(.5,true);
 			kick(speed);
 		}
