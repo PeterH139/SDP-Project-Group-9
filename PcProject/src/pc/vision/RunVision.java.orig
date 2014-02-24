@@ -12,7 +12,6 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import pc.strategy.StrategyController;
-import pc.strategy.TargetFollowerStrategy;
 import pc.vision.gui.VisionGUI;
 import pc.vision.gui.tools.ColourThresholdConfigTool;
 import pc.vision.gui.tools.HistogramTool;
@@ -104,6 +103,7 @@ public class RunVision {
 			gui.addTool(ctct, "Settings");
 			vision.addRecogniser(ctct.new PitchBoundsDebugDisplay());
 			vision.addRecogniser(ctct.new DividerLineDebugDisplay());
+			vision.addRecogniser(ctct.new GoalPositionDebugDisplay());
 
 			HistogramTool histogramTool = new HistogramTool(gui, pitchConstants);
 			gui.addTool(histogramTool, "Colour Thresholds");
@@ -119,10 +119,14 @@ public class RunVision {
 					pitchConstants));
 			
 			if (enableBluetooth) {
+<<<<<<< HEAD
 				StrategySelectorTool stratSelect = new StrategySelectorTool(gui,strategyController);
 				gui.addTool(stratSelect, "Strategy Selector");
 				
+				strategyController.changeToStrategy(StrategyController.StrategyType.DEFENDING);
+=======
 				strategyController.changeToStrategy(StrategyController.StrategyType.ATTACKING);
+>>>>>>> master
 			}
 
 			vStream.addReceiver(distortionFix);

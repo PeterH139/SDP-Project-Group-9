@@ -77,7 +77,8 @@ public class RobotCommand {
 	public static class PrepareCatcher extends GenericCommand {
 		@Override
 		protected int getOpcode() {
-			return RobotOpcode.APPROACHING_BALL;
+			return RobotOpcode.APPROACHING_BALL; 
+			
 		}
 	}
 
@@ -121,10 +122,12 @@ public class RobotCommand {
 	public static class TravelArc extends GenericCommand {
 		private double arcRadius;
 		private int distance;
+		private int speed;
 
-		public TravelArc(double arcRadius, int distance) {
+		public TravelArc(double arcRadius, int distance, int speed) {
 			this.arcRadius = arcRadius;
 			this.distance = distance;
+			this.speed = speed;
 		}
 
 		@Override

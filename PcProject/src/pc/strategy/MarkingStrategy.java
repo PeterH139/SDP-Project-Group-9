@@ -4,6 +4,7 @@ import java.awt.Robot;
 import java.io.IOException;
 
 import pc.comms.BrickCommServer;
+import pc.comms.RobotCommand;
 import pc.strategy.TargetFollowerStrategy.Operation;
 import pc.strategy.interfaces.Strategy;
 import pc.world.WorldState;
@@ -158,28 +159,23 @@ public class MarkingStrategy implements Strategy {
 						travelSpeed = this.travelSpeed;
 						radius = this.radius;
 					}
-//
-//					System.out.println("op: " + op.toString() + " rotateBy: "
-//							+ rotateBy + " travelDist: " + travelDist);
+
+
 					switch (op) {
 					case DO_NOTHING:
 
 						break;
 					case TRAVEL:
-						MarkingStrategy.this.brick.robotTravel(travelDist,
-								travelSpeed);
+						brick.executeSync(new RobotCommand.Travel(travelDist, travelSpeed));
 						break;
 					case ARC_LEFT:
-						MarkingStrategy.this.brick.robotArcForwards(radius,
-								travelDist);
+						brick.executeSync(new RobotCommand.TravelArc(radius, travelDist, travelSpeed));
 						break;
 					case ARC_RIGHT:
-						MarkingStrategy.this.brick.robotArcForwards(-radius,
-								travelDist);
+						brick.executeSync(new RobotCommand.TravelArc(-radius, travelDist, travelSpeed));
 						break;
 					case ROTATE:
-						MarkingStrategy.this.brick.robotRotateBy(rotateBy,
-								Math.abs(rotateBy));
+						brick.executeSync(new RobotCommand.Rotate(-rotateBy, Math.abs(rotateBy)));
 						break;
 					default:
 						break;

@@ -44,6 +44,8 @@ public class ColourThresholdConfigTool implements GUITool {
 	private int c;
 	private int d;
 	private int currentDivider;
+	private int currentLeftGoal;
+	private int currentRightGoal;
 
 	// Mouse listener variables
 	boolean letterAdjustment = false;
@@ -55,6 +57,7 @@ public class ColourThresholdConfigTool implements GUITool {
 
 	private MouseInputAdapter mouseSelector = new MouseInputAdapter() {
 		Rectangle selection;
+		
 
 		public void mousePressed(MouseEvent e) {
 			switch (settingsPanel.getMouseMode()) {
@@ -74,11 +77,11 @@ public class ColourThresholdConfigTool implements GUITool {
 				mouseX = e.getX();
 				mouseY = e.getY();
 				break;
-			case VisionSettingsPanel.MOUSE_MODE_YELLOW_T:
+			case VisionSettingsPanel.MOUSE_MODE_LEFT_GOAL:
 				mouseX = e.getX();
 				mouseY = e.getY();
 				break;
-			case VisionSettingsPanel.MOUSE_MODE_GREEN_PLATES:
+			case VisionSettingsPanel.MOUSE_MODE_RIGHT_GOAL:
 				mouseX = e.getX();
 				mouseY = e.getY();
 				break;
@@ -107,11 +110,11 @@ public class ColourThresholdConfigTool implements GUITool {
 				mouseX = e.getX();
 				mouseY = e.getY();
 				break;
-			case VisionSettingsPanel.MOUSE_MODE_YELLOW_T:
+			case VisionSettingsPanel.MOUSE_MODE_LEFT_GOAL:
 				mouseX = e.getX();
 				mouseY = e.getY();
 				break;
-			case VisionSettingsPanel.MOUSE_MODE_GREEN_PLATES:
+			case VisionSettingsPanel.MOUSE_MODE_RIGHT_GOAL:
 				mouseX = e.getX();
 				mouseY = e.getY();
 				break;
@@ -178,33 +181,15 @@ public class ColourThresholdConfigTool implements GUITool {
 				 * VisionGUI.this.selectorImage .getHeight(null) / 2;
 				 */
 				break;
-			case VisionSettingsPanel.MOUSE_MODE_YELLOW_T:
-				letterAdjustment = true;
-				/*
-				 * VisionGUI.this.currentFile = VisionGUI.this.imgLetterT;
-				 * VisionGUI.this.selectorImage =
-				 * VisionGUI.this.letterTSelectorImage; // Get the center
-				 * coordinates of the selector image in use
-				 * VisionGUI.this.imageCenterX = VisionGUI.this.selectorImage
-				 * .getWidth(null) / 2; VisionGUI.this.imageCenterY =
-				 * VisionGUI.this.selectorImage .getHeight(null) / 2;
-				 */
+			case VisionSettingsPanel.MOUSE_MODE_LEFT_GOAL:
+				System.out.println("Left goal selection mode");	
+				pitchConstants.getLeftGoal()[currentLeftGoal] = e.getY();
+				currentLeftGoal = (currentLeftGoal + 1) % 3;
 				break;
-			case VisionSettingsPanel.MOUSE_MODE_GREEN_PLATES:
-				if (!bluePlateAdjustment) {
-					yellowPlateAdjustment = true;
-					/*
-					 * VisionGUI.this.currentFile =
-					 * VisionGUI.this.imgYellowPlate;
-					 * VisionGUI.this.selectorImage =
-					 * VisionGUI.this.yellowPlateSelectorImage; // Get the
-					 * center coordinates of the selector image in // use
-					 * VisionGUI.this.imageCenterX =
-					 * VisionGUI.this.selectorImage .getWidth(null) / 2;
-					 * VisionGUI.this.imageCenterY =
-					 * VisionGUI.this.selectorImage .getHeight(null) / 2;
-					 */
-				}
+			case VisionSettingsPanel.MOUSE_MODE_RIGHT_GOAL:
+				System.out.println("Right goal selection mode");
+				pitchConstants.getRightGoal()[currentRightGoal] = e.getY();
+				currentRightGoal = (currentRightGoal + 1) % 3;
 				break;
 			case VisionSettingsPanel.MOUSE_MODE_DIVISIONS:
 				System.out.println("Division selection mode");
@@ -325,6 +310,26 @@ public class ColourThresholdConfigTool implements GUITool {
 			debugGraphics.drawString("3", ds[2], bot + 20);
 		}
 
+	}
+	
+	public class GoalPositionDebugDisplay implements ObjectRecogniser{
+
+		@Override
+		public void processFrame(PixelInfo[][] pixels, BufferedImage frame,
+				Graphics2D debugGraphics, BufferedImage debugOverlay) {
+			int[] lg = pitchConstants.getLeftGoal();
+			int[] rg = pitchConstants.getRightGoal();
+			int left = pitchConstants.getPitchLeft();
+			int right = left + pitchConstants.getPitchWidth();
+			debugGraphics.setColor(Color.WHITE);
+			debugGraphics.drawRect(left-5, lg[0], 4, 4);
+			debugGraphics.drawRect(left-5, lg[1], 4, 4);
+			debugGraphics.drawRect(left-5, lg[2], 4, 4);
+			debugGraphics.drawRect(right, rg[0], 4, 4);
+			debugGraphics.drawRect(right, rg[1], 4, 4);
+			debugGraphics.drawRect(right, rg[2], 4, 4);
+		}
+		
 	}
 
 	@Override

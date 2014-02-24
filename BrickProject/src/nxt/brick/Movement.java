@@ -55,7 +55,7 @@ public class Movement extends DifferentialPilot {
 	public void prepKicker(boolean immediateReturn) {
 		int prevSpeed = KICKER.getSpeed();
 		KICKER.setSpeed(50);
-		KICKER.rotate(90/GEAR_RATIO, immediateReturn);
+		KICKER.rotate(80/GEAR_RATIO, immediateReturn);
 		KICKER.setSpeed(prevSpeed);
 	}
 	public void liftKicker(boolean immediateReturn) {

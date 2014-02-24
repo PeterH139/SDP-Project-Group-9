@@ -8,8 +8,10 @@ package pc.world;
 
 public class WorldState {
 	
-	
-	public int[] dividers; //XXX: Temporary for testing.
+	//XXX: Temporary for testing.
+	public int[] dividers; 
+	public int[] leftGoal;
+	public int[] rightGoal;
 
 	// #region new world model representation
 	// TODO: convert x/y to mm values

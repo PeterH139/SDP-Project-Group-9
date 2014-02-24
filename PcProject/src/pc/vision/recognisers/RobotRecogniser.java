@@ -20,6 +20,10 @@ public class RobotRecogniser implements ObjectRecogniser {
 	private WorldState worldState;
 	private PitchConstants pitchConstants;
 	private SearchReturn blueDef, yellowAtk, blueAtk, yellowDef;
+	private SearchReturn blueDefPrev = new SearchReturn();
+	private SearchReturn yellowDefPrev = new SearchReturn();
+	private SearchReturn blueAtkPrev = new SearchReturn();
+	private SearchReturn yellowAtkPrev = new SearchReturn();
 	public RobotRecogniser(Vision vision, WorldState worldState,
 			PitchConstants pitchConstants) {
 		this.vision = vision;
@@ -59,24 +63,50 @@ public class RobotRecogniser implements ObjectRecogniser {
 			blueDef = searchColumn(pixels, debugOverlay, dividers[2],
 					frame.getWidth() - rightBuffer, true);
 		}
-
-		// Distortion Fixing
-		float[] blueDefxy = new float[2];
-		float[] blueAtkxy = new float[2];
-		float[] yellowDefxy = new float[2];
-		float[] yellowAtkxy = new float[2];
-		DistortionFix.invBarrelCorrectWithNorm((int) blueDef.pos.x, (int) blueDef.pos.y, blueDefxy);
-		DistortionFix.invBarrelCorrectWithNorm((int) blueAtk.pos.x, (int) blueAtk.pos.y, blueAtkxy);
-		DistortionFix.invBarrelCorrectWithNorm((int) yellowDef.pos.x, (int) yellowDef.pos.y, yellowDefxy);
-		DistortionFix.invBarrelCorrectWithNorm((int) yellowAtk.pos.x, (int) yellowAtk.pos.y, yellowAtkxy);
-		blueDef.pos.x = blueDefxy[0];
-		blueDef.pos.y = blueDefxy[1];
-		blueAtk.pos.x = blueAtkxy[0];
-		blueAtk.pos.y = blueAtkxy[1];
-		yellowDef.pos.x = yellowDefxy[0];
-		yellowDef.pos.y = yellowDefxy[1];
-		yellowAtk.pos.x = yellowAtkxy[0];
-		yellowAtk.pos.y = yellowAtkxy[1];
+		
+		if (blueAtk.pos.x == 0 && blueAtk.pos.y == 0){
+			blueAtk = blueAtkPrev;
+		} else {
+			float[] blueAtkxy = new float[2];
+			DistortionFix.invBarrelCorrectWithNorm((int) blueAtk.pos.x, (int) blueAtk.pos.y, blueAtkxy);
+			blueAtk.pos.x = blueAtkxy[0];
+			blueAtk.pos.y = blueAtkxy[1];
+		}
+		
+		if (blueDef.pos.x == 0 && blueDef.pos.y == 0){
+			blueDef = blueDefPrev;
+		} else {
+			float[] blueDefxy = new float[2];
+			DistortionFix.invBarrelCorrectWithNorm((int) blueDef.pos.x, (int) blueDef.pos.y, blueDefxy);
+			blueDef.pos.x = blueDefxy[0];
+			blueDef.pos.y = blueDefxy[1];
+		}
+		
+		if (yellowAtk.pos.x == 0 && yellowAtk.pos.y == 0){
+			yellowAtk = yellowAtkPrev;
+		} else {
+			float[] yellowAtkxy = new float[2];
+			DistortionFix.invBarrelCorrectWithNorm((int) yellowAtk.pos.x, (int) yellowAtk.pos.y, yellowAtkxy);
+			yellowAtk.pos.x = yellowAtkxy[0];
+			yellowAtk.pos.y = yellowAtkxy[1];
+		}
+		
+		if (yellowDef.pos.x == 0 && yellowDef.pos.y == 0){
+			yellowDef = yellowDefPrev;
+		} else {
+			float[] yellowDefxy = new float[2];
+			DistortionFix.invBarrelCorrectWithNorm((int) yellowDef.pos.x, (int) yellowDef.pos.y, yellowDefxy);
+			yellowDef.pos.x = yellowDefxy[0];
+			yellowDef.pos.y = yellowDefxy[1];
+		}
+		
+		// Update Histories
+		blueDefPrev = blueDef;
+		blueAtkPrev = blueAtk;
+		yellowDefPrev = yellowDef;
+		yellowAtkPrev = yellowAtk;
+	
+		//heightCorrection(blueDef.pos, 250, 20);
 		
 		// Debugging Graphics
 		debugGraphics.setColor(Color.CYAN);
@@ -84,7 +114,7 @@ public class RobotRecogniser implements ObjectRecogniser {
 		debugGraphics.drawRect((int)blueAtk.pos.x - 2, (int)blueAtk.pos.y - 2, 4, 4);
 		debugGraphics.drawRect((int)yellowDef.pos.x - 2, (int)yellowDef.pos.y, 4, 4);
 		debugGraphics.drawRect((int)yellowAtk.pos.x - 2, (int)yellowAtk.pos.y, 4, 4);
-
+		
 		// TODO: Using the previous position values and the time between frames,
 		// calculate the velocities of the robots and the ball.
 		// #Peter: Should this be done in the new world model?
@@ -102,13 +132,36 @@ public class RobotRecogniser implements ObjectRecogniser {
 			enemyAttackerRobot = new MovingObject(blueAtk.pos.x,blueAtk.pos.y, blueAtk.angle);
 			enemyDefenderRobot = new MovingObject(blueDef.pos.x,blueDef.pos.y, blueDef.angle);
 		}
-
+		
+		heightCorrection(blueAtk.pos, 2450, 175);
+		heightCorrection(blueAtk.pos, 2450, 175);
+		heightCorrection(blueAtk.pos, 2450, 175);
+		heightCorrection(blueAtk.pos, 2450, 175);
 		worldState.setAttackerRobot(attackerRobot);
 		worldState.setDefenderRobot(defenderRobot);
 		worldState.setEnemyAttackerRobot(enemyAttackerRobot);
 		worldState.setEnemyDefenderRobot(enemyDefenderRobot);
 	}
 
+	/**
+	 * This method recalculates the position of an object based on its distance from the camera.
+	 * It helps reduce the error caused by an object being detected higher than the surface 
+	 * of the pitch.
+	 */
+	
+	public static void heightCorrection(Vector2f object, int cameraH, int objectH) {
+		double x = 320 - object.x,
+			y = 240 - object.y;
+		double dist = Math.hypot(x, y);
+		double angle = Math.atan2(y, x);
+		// Subtract y from dist
+		dist = dist - ((objectH * dist) / cameraH);
+		
+		object.x = 320 - (float) (dist * Math.cos(angle));
+		object.y = 240 - (float) (dist * Math.sin(angle));
+
+		
+	}
 	/**
 	 * Searches a particular column for a plate. Also searches for the pixels 
 	 * that make up the ball, the grey circles on the plate, and deals with
@@ -217,6 +270,10 @@ public class RobotRecogniser implements ObjectRecogniser {
 		
 		public float angle;
 		public Vector2f pos;
+		
+		public SearchReturn(){
+			this(0,new Vector2f(0, 0));
+		}
 		
 		public SearchReturn(float angle, Vector2f pos){
 			this.angle = angle;
