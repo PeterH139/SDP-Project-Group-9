@@ -136,20 +136,20 @@ public class GeneralStrategy implements Strategy {
 		ballX = worldState.getBall().x;
 		ballY = worldState.getBall().y;
 		attackerOrientation = worldState.getAttackerRobot().orientation_angle;
-		defenderOrientation = worldState.getAttackerRobot().orientation_angle;
+		defenderOrientation = worldState.getDefenderRobot().orientation_angle;
 
 		if (worldState.weAreShootingRight) {
 			leftCheck = worldState.dividers[1];
 			rightCheck = worldState.dividers[2];
 			defenderCheck = worldState.dividers[0];
 			goalX = 640;
-			goalY = 220;
+			goalY = worldState.rightGoal[1];
 		} else {
 			leftCheck = worldState.dividers[0];
 			rightCheck = worldState.dividers[1];
 			defenderCheck = worldState.dividers[2];
 			goalX = 0;
-			goalY = 220;
+			goalY = worldState.leftGoal[1];
 		}
 
 	}
