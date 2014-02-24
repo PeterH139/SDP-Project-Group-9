@@ -20,7 +20,7 @@ public class BrickCommClient {
 	DataInputStream pcInput;
 	DataOutputStream pcOutput;
 	RobotController rc;
-	int kickerState = 0;
+	int kickerState;
 	
 	boolean movingForwards = false, movingBackwards = false;
 	int turnRadius = 0;
@@ -94,7 +94,6 @@ public class BrickCommClient {
 	}
 	
 	private void handleTravel() throws IOException {
-		this.kickerState = 0;
 		int distance = this.pcInput.readInt();
 		int speed = this.pcInput.readInt();
 		this.rc.getMovementController().setTravelSpeed(speed);
@@ -128,6 +127,7 @@ public class BrickCommClient {
 	public void runController() {
 		try {
 			System.out.println("Controller ready");
+			handleCatch();
 			while (true) {
 				int opcode = this.pcInput.readInt();
 				

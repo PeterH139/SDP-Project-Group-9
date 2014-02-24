@@ -53,8 +53,7 @@ public class GeneralStrategy implements Strategy {
 	}
 
 	public enum Operation {
-		DO_NOTHING, ATKTRAVEL, ATKROTATE, ATKPREPARE_CATCH, ATKCATCH, ATKKICK, ATKARC_LEFT, ATKARC_RIGHT,
-		DEFTRAVEL, DEFROTATE, DEFPREPARE_CATCH, DEFCATCH, DEFKICK, ROTATENMOVE, DEFARC_LEFT, DEFARC_RIGHT
+		DO_NOTHING, ATKTRAVEL, ATKROTATE, ATKPREPARE_CATCH, ATKCATCH, ATKKICK, ATKARC_LEFT, ATKARC_RIGHT, DEFTRAVEL, DEFROTATE, DEFPREPARE_CATCH, DEFCATCH, DEFKICK, ROTATENMOVE, DEFARC_LEFT, DEFARC_RIGHT
 	}
 
 	public Operation catchBall(RobotType robot, double[] RotDistSpeed) {
@@ -67,36 +66,43 @@ public class GeneralStrategy implements Strategy {
 		double dist = isAttacker ? Math.hypot(ballX - attackerRobotX, ballY
 				- attackerRobotY) : -((Math.hypot(ballX - attackerRobotX, ballY
 				- attackerRobotY)) / 3);
-		if (Math.abs(dist) > 32) {
+		if ((Math.abs(dist) > 90 || Math.abs(dist) < 40) && Math.abs(ang1) > 20) {
+			toExecute = isAttacker ? Operation.ATKROTATE : Operation.DEFROTATE;
+			RotDistSpeed[3] = ang1;
+		} else if (Math.abs(dist) > 32) {
 			RotDistSpeed[2] = (int) (dist * 1.5);
 			if (Math.abs(ang1) < 90) {
 				RotDistSpeed[1] = (int) dist;
 			} else {
 				RotDistSpeed[1] = (int) -dist;
 			}
-			if (Math.abs(ang1) > 150 || Math.abs(ang1) < 10) {
-				toExecute = isAttacker? Operation.ATKTRAVEL : Operation.DEFTRAVEL;
+			if (Math.abs(ang1) > 150 || Math.abs(ang1) < 5) {
+				toExecute = isAttacker ? Operation.ATKTRAVEL
+						: Operation.DEFTRAVEL;
 			} else if (ang1 > 0) {
 				if (ang1 > 90) {
-					toExecute = isAttacker? Operation.ATKARC_LEFT : Operation.DEFARC_LEFT;
+					toExecute = isAttacker ? Operation.ATKARC_LEFT
+							: Operation.DEFARC_LEFT;
 				} else {
-					toExecute = isAttacker? Operation.ATKARC_RIGHT : Operation.DEFARC_RIGHT;
+					toExecute = isAttacker ? Operation.ATKARC_RIGHT
+							: Operation.DEFARC_RIGHT;
 				}
 				RotDistSpeed[0] = dist / 3;
 			} else if (ang1 < 0) {
 				if (ang1 < -90) {
-					toExecute = isAttacker? Operation.ATKARC_RIGHT : Operation.DEFARC_RIGHT;
+					toExecute = isAttacker ? Operation.ATKARC_RIGHT
+							: Operation.DEFARC_RIGHT;
 				} else {
-					toExecute = isAttacker? Operation.ATKARC_LEFT : Operation.DEFARC_LEFT;
+					toExecute = isAttacker ? Operation.ATKARC_LEFT
+							: Operation.DEFARC_LEFT;
 				}
 				RotDistSpeed[0] = dist * 3;
 
 			}
-
 		} else {
-			toExecute = isAttacker? Operation.ATKCATCH : Operation.DEFCATCH;
+			toExecute = isAttacker ? Operation.ATKCATCH : Operation.DEFCATCH;
 		}
-
+		System.out.println(toExecute);
 		return toExecute;
 	}
 
