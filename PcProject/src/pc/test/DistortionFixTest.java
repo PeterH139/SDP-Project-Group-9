@@ -2,6 +2,8 @@ package pc.test;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.InputStream;
+import java.net.URL;
 
 import javax.imageio.ImageIO;
 
@@ -16,11 +18,11 @@ public class DistortionFixTest {
 	DistortionFix distortionFix;
 	BufferedImage image;
 	
-	DistortionFixTest(String fileName) {
+	DistortionFixTest(InputStream file) {
 		distortionFix = new DistortionFix(pitchConstants);
 		try
 	    {
-	      image = ImageIO.read(new File(fileName));
+	      image = ImageIO.read(file);
 	    }
 	    catch (Exception e)
 	    {
@@ -49,7 +51,8 @@ public class DistortionFixTest {
 	}
 	
 	public static void main(String args[]) {
-		DistortionFixTest dft = new DistortionFixTest("/afs/inf.ed.ac.uk/user/s10/s1004618/git/SDP-Project-Group-9/PcProject/src/pc/test/pitch.jpg");
+		InputStream file = DistortionFixTest.class.getResourceAsStream("/resources/pitch.jpg");
+		DistortionFixTest dft = new DistortionFixTest(file);
 		System.out.println(dft.fixImage());
 	}
 }

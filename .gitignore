@@ -2,3 +2,4 @@
 *.nxj
 *.nxd
 *.orig
+/*/bin/
