@@ -16,9 +16,11 @@ import pc.strategy.TargetFollowerStrategy;
 import pc.vision.gui.VisionGUI;
 import pc.vision.gui.tools.ColourThresholdConfigTool;
 import pc.vision.gui.tools.HistogramTool;
+import pc.vision.gui.tools.PitchModelView;
 import pc.vision.gui.tools.StrategySelectorTool;
 import pc.vision.recognisers.BallRecogniser;
 import pc.vision.recognisers.RobotRecogniser;
+import pc.world.Pitch;
 import pc.world.WorldState;
 import au.edu.jcu.v4l4j.V4L4JConstants;
 
@@ -59,7 +61,8 @@ public class RunVision {
 		}
 		// 0 = default to main pitch
 		final PitchConstants pitchConstants = new PitchConstants(0);
-		WorldState worldState = new WorldState();
+		final Pitch pitch = new Pitch();
+		WorldState worldState = new WorldState(pitch);
 		
 		// Default values for the main vision window
 		String videoDevice = "/dev/video0";
@@ -98,23 +101,27 @@ public class RunVision {
 
 			ColourThresholdConfigTool ctct = new ColourThresholdConfigTool(gui,
 					worldState, pitchConstants, vStream, distortionFix);
-			gui.addTool(ctct, "Legacy config");
+			gui.addTool(ctct, "Settings");
 			vision.addRecogniser(ctct.new PitchBoundsDebugDisplay());
 			vision.addRecogniser(ctct.new DividerLineDebugDisplay());
 
 			HistogramTool histogramTool = new HistogramTool(gui, pitchConstants);
-			gui.addTool(histogramTool, "Histogram analyser");
+			gui.addTool(histogramTool, "Colour Thresholds");
 			vision.addRecogniser(histogramTool);
 			
-			StrategySelectorTool stratSelect = new StrategySelectorTool(gui,strategyController);
-			gui.addTool(stratSelect, "Strategy Selector");
-
+			PitchModelView pmvTool = new PitchModelView(gui, pitchConstants, pitch);
+			gui.addTool(pmvTool, "Pitch Model");
+			Vision.addWorldStateReceiver(pmvTool);
+			
 			vision.addRecogniser(new BallRecogniser(vision, worldState,
 					pitchConstants));
 			vision.addRecogniser(new RobotRecogniser(vision, worldState,
 					pitchConstants));
 			
 			if (enableBluetooth) {
+				StrategySelectorTool stratSelect = new StrategySelectorTool(gui,strategyController);
+				gui.addTool(stratSelect, "Strategy Selector");
+				
 				strategyController.changeToStrategy(StrategyController.StrategyType.DEFENDING);
 			}
 

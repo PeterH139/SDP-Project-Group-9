@@ -46,7 +46,7 @@ public class WorldState {
 	 * Constructor, use it for initial world model initialization once the play
 	 * field data has been assembled
 	 */
-	WorldState(Pitch field) {
+	public WorldState(Pitch field) {
 		this.playingField = field;
 	}
 
@@ -54,7 +54,7 @@ public class WorldState {
 	 * Constructor, use it for initial world model initialization once the
 	 * playing field data has been assembled
 	 */
-	WorldState(Pitch field, MovingObject defenderRobot,
+	public WorldState(Pitch field, MovingObject defenderRobot,
 			MovingObject attackerRobot, MovingObject enemyDefenderRobot,
 			MovingObject enemyAttackerRobot, MovingObject ball) {
 		this.playingField = field;

@@ -140,7 +140,7 @@ public class StrategyController implements WorldStateReceiver {
 			if(!this.ballInAttackerArea && !this.ballInDefenderArea) {
 				changeToStrategy(StrategyType.DEFENDING);
 			}
-		}  
+		}
 		
 	}
 	
