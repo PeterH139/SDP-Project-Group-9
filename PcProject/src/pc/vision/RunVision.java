@@ -1,4 +1,4 @@
-package pc.vision;
+      package pc.vision;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
