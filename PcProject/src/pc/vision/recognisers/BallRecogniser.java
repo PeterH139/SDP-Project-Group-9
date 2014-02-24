@@ -19,6 +19,7 @@ public class BallRecogniser implements ObjectRecogniser {
 	private Vision vision;
 	private WorldState worldState;
 	private PitchConstants pitchConstants;
+	private Vector2f previousBallPosition = new Vector2f(0, 0);
 	private pc.logging.Logging logger;
 	public BallRecogniser(Vision vision, WorldState worldState,
 			PitchConstants pitchConstants) {
@@ -53,17 +54,25 @@ public class BallRecogniser implements ObjectRecogniser {
 		}
 
 		Vector2f ballPosition = vision.calculatePosition(ballPoints);
-		// Distortion fixing
-		float[] xy = new float[2];
-		DistortionFix.invBarrelCorrectWithNorm((int) ballPosition.x, (int) ballPosition.y, xy);
-		ballPosition.x = xy[0];
-		ballPosition.y = xy[1];
-		MovingObject ball_m = new MovingObject(xy[0], xy[1]);
-		worldState.setBall(ball_m);
 		
+		if (ballPosition.x == 0 && ballPosition.y ==0){
+			ballPosition = previousBallPosition;
+			logger.Log("Ball Lost");
+		} else {
+			// Distortion fixing
+			float[] xy = new float[2];
+			DistortionFix.invBarrelCorrectWithNorm((int) ballPosition.x, (int) ballPosition.y, xy);
+			ballPosition.x = xy[0];
+			ballPosition.y = xy[1];
+			MovingObject ball_m = new MovingObject(xy[0], xy[1]);
+			worldState.setBall(ball_m);
+			
+			previousBallPosition = ballPosition;
+			
+			logger.Log("X="+ballPosition.x+" Y="+ballPosition.y);
+			//logger.Log("["+ballPosition.x+", "+ballPosition.y+"]");
+		}
 		
-		logger.Log("X="+ballPosition.x+" Y="+ballPosition.y);
-		//logger.Log("["+ballPosition.x+", "+ballPosition.y+"]");
 		// Debugging Graphics
 		debugGraphics.setColor(Color.red);
 		debugGraphics.drawLine(0, (int)ballPosition.y, 640, (int)ballPosition.y);

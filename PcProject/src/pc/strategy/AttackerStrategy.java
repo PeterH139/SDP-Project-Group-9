@@ -47,11 +47,12 @@ public class AttackerStrategy extends GeneralStrategy {
 		synchronized (controlThread) {
 			controlThread.operation = Operation.ATKPREPARE_CATCH;
 			if (!ballCaught) {
-				double[] RotDistSpeed = new double[3];
+				double[] RotDistSpeed = new double[4];
 				controlThread.operation = catchBall(RobotType.ATTACKER, RotDistSpeed);
 				controlThread.radius = RotDistSpeed[0];
 				controlThread.travelDist = (int) RotDistSpeed[1];
 				controlThread.travelSpeed = (int) RotDistSpeed[2];
+				controlThread.rotateBy = (int) RotDistSpeed[3];
 				
 			} else {
 				double [] RotDist = new double[2];
@@ -119,7 +120,7 @@ public class AttackerStrategy extends GeneralStrategy {
 						brick.executeSync(new RobotCommand.TravelArc(-radius, travelDist, travelSpeed));
 						break;
 					}
-					Thread.sleep(1000); // TODO: Test lower values for this and
+					Thread.sleep(250); // TODO: Test lower values for this and
 										// see where it breaks.
 				}
 			}  catch (InterruptedException e) {

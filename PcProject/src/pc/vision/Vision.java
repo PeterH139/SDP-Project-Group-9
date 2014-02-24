@@ -5,8 +5,6 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
-import pc.strategy.StrategyController;
-import pc.strategy.interfaces.Strategy;
 import pc.vision.interfaces.ObjectRecogniser;
 import pc.vision.interfaces.VideoReceiver;
 import pc.vision.interfaces.VisionDebugReceiver;
@@ -101,7 +99,7 @@ public class Vision implements VideoReceiver {
 			recogniser.processFrame(pixels, frame, debugGraphics, debugOverlay);
 		for (VisionDebugReceiver receiver : this.visionDebugReceivers)
 			receiver.sendDebugOverlay(debugOverlay);
-		for (WorldStateReceiver receiver : this.worldStateReceivers) {
+		for (WorldStateReceiver receiver : Vision.worldStateReceivers) {
 			receiver.sendWorldState(this.worldState);
 		}
 	}
