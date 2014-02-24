@@ -217,7 +217,7 @@ public class ColourThresholdConfigTool implements GUITool {
 		c = pitchConstants.getPitchWidth();
 		d = pitchConstants.getPitchHeight();
 
-		subWindow = new JFrame("Colour threshold configuration");
+		subWindow = new JFrame("Settings");
 		subWindow.setResizable(false);
 		subWindow.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
