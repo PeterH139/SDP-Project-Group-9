@@ -17,6 +17,7 @@ import pc.vision.DistortionFix;
 import pc.vision.PitchConstants;
 import pc.vision.PixelInfo;
 import pc.vision.VideoStream;
+import pc.vision.YAMLConfig;
 import pc.vision.gui.GUITool;
 import pc.vision.gui.VisionGUI;
 import pc.vision.gui.VisionSettingsPanel;
@@ -202,7 +203,7 @@ public class ColourThresholdConfigTool implements GUITool {
 
 	public ColourThresholdConfigTool(VisionGUI gui, WorldState worldState,
 			PitchConstants pitchConstants, VideoStream vStream,
-			DistortionFix distortionFix) {
+			DistortionFix distortionFix, YAMLConfig yamlConfig) {
 		this.gui = gui;
 		this.worldState = worldState;
 		this.pitchConstants = pitchConstants;
@@ -222,7 +223,7 @@ public class ColourThresholdConfigTool implements GUITool {
 		subWindow.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
 		settingsPanel = new VisionSettingsPanel(worldState, pitchConstants,
-				vStream, distortionFix);
+				vStream, distortionFix, yamlConfig);
 		subWindow.add(settingsPanel);
 
 	}

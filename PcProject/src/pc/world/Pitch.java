@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 
+import pc.vision.PitchConstants;
 import pc.vision.Vector2f;
 import pc.vision.YAMLConfig;
 
@@ -37,14 +38,18 @@ public class Pitch extends Observable {
 
 	// Height is inferred from pitchWidth/pitchHeight ratio
 
-	public Pitch(YAMLConfig yamlConfig) {
+	public Pitch(YAMLConfig yamlConfig, final PitchConstants pitchConstants) {
 		yamlConfig.addObserver(new Observer() {
 
 			@SuppressWarnings("unchecked")
 			@Override
 			public void update(Observable arg0, Object yamlData) {
-				Map<String, Object> data = (Map<String, Object>) yamlData;
-				data = (Map<String, Object>) data.get("pitch");
+				String pitchName = pitchConstants.getPitchNum() == 0 ? "main"
+						: "side";
+
+				Map<String, Object> topData = (Map<String, Object>) yamlData;
+				Map<String, Object> data = (Map<String, Object>) topData.get("pitch");
+				data = (Map<String, Object>) data.get(pitchName);
 				List<Integer> pitchDims = (List<Integer>) data.get("size");
 				setPitchWidth(pitchDims.get(0));
 				setPitchHeight(pitchDims.get(1));
@@ -52,7 +57,6 @@ public class Pitch extends Observable {
 				setCornerCutoffX(corners.get(0));
 				setCornerCutoffY(corners.get(1));
 				setGoalHeight((Integer) data.get("goalHeight"));
-				setBallRadius((Integer) data.get("ballRadius"));
 
 				Map<String, Object> frameProjection = (Map<String, Object>) data
 						.get("videoFrameProjection");
@@ -61,6 +65,9 @@ public class Pitch extends Observable {
 				setPitchCenterFrameX(pitchCenter.get(0));
 				setPitchCenterFrameY(pitchCenter.get(1));
 				setPitchFrameWidth((Integer) frameProjection.get("widthPx"));
+				
+				Map<String, Object> objects = (Map<String, Object>) topData.get("objects");
+				setBallRadius((Integer) objects.get("ballRadius"));
 			}
 		});
 	}
