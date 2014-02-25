@@ -108,7 +108,7 @@ public class AttackerStrategy extends GeneralStrategy {
 						ballCaught = false;
 						break;
 					case ATKROTATE:
-						brick.executeSync(new RobotCommand.Rotate(-rotateBy, Math.abs(rotateBy) * 3));
+						brick.executeSync(new RobotCommand.Rotate(-rotateBy, Math.abs(rotateBy)));
 						break;
 					case ATKTRAVEL:
 						brick.executeSync(new RobotCommand.PrepareCatcher());
