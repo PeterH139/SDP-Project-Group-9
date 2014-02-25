@@ -205,7 +205,7 @@ public class GeneralStrategy implements Strategy {
 		} else {
 
 			if (Math.abs(angleToPass) > 12) {
-				RotDistSpeed[3] = (int) angleToPass ;
+				RotDistSpeed[3] = (int) angleToPass/3;
 			} else {
 				RotDistSpeed[3] = 0;
 			}
@@ -249,7 +249,7 @@ public class GeneralStrategy implements Strategy {
 		ballY = worldState.getBall().y;
 		attackerOrientation = worldState.getAttackerRobot().orientation_angle;
 		defenderOrientation = worldState.getDefenderRobot().orientation_angle;
-
+		
 		if (worldState.weAreShootingRight) {
 			leftCheck = worldState.dividers[1];
 			rightCheck = worldState.dividers[2];
