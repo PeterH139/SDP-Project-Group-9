@@ -130,6 +130,7 @@ public class RunVision {
 						.changeToStrategy(StrategyController.StrategyType.PASSING);
 			}
 
+			vStream.addReceiver(pmvTool);
 			vStream.addReceiver(distortionFix);
 			vStream.addReceiver(vision);
 			distortionFix.addReceiver(gui);
