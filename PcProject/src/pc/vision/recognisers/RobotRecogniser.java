@@ -68,7 +68,7 @@ public class RobotRecogniser implements ObjectRecogniser {
 			blueAtk = blueAtkPrev;
 		} else {
 			float[] blueAtkxy = new float[2];
-			DistortionFix.invBarrelCorrectWithNorm((int) blueAtk.pos.x, (int) blueAtk.pos.y, blueAtkxy);
+			DistortionFix.barrelCorrect((int) blueAtk.pos.x, (int) blueAtk.pos.y, blueAtkxy);
 			blueAtk.pos.x = blueAtkxy[0];
 			blueAtk.pos.y = blueAtkxy[1];
 		}
@@ -77,7 +77,7 @@ public class RobotRecogniser implements ObjectRecogniser {
 			blueDef = blueDefPrev;
 		} else {
 			float[] blueDefxy = new float[2];
-			DistortionFix.invBarrelCorrectWithNorm((int) blueDef.pos.x, (int) blueDef.pos.y, blueDefxy);
+			DistortionFix.barrelCorrect((int) blueDef.pos.x, (int) blueDef.pos.y, blueDefxy);
 			blueDef.pos.x = blueDefxy[0];
 			blueDef.pos.y = blueDefxy[1];
 		}
@@ -86,7 +86,7 @@ public class RobotRecogniser implements ObjectRecogniser {
 			yellowAtk = yellowAtkPrev;
 		} else {
 			float[] yellowAtkxy = new float[2];
-			DistortionFix.invBarrelCorrectWithNorm((int) yellowAtk.pos.x, (int) yellowAtk.pos.y, yellowAtkxy);
+			DistortionFix.barrelCorrect((int) yellowAtk.pos.x, (int) yellowAtk.pos.y, yellowAtkxy);
 			yellowAtk.pos.x = yellowAtkxy[0];
 			yellowAtk.pos.y = yellowAtkxy[1];
 		}
@@ -95,7 +95,7 @@ public class RobotRecogniser implements ObjectRecogniser {
 			yellowDef = yellowDefPrev;
 		} else {
 			float[] yellowDefxy = new float[2];
-			DistortionFix.invBarrelCorrectWithNorm((int) yellowDef.pos.x, (int) yellowDef.pos.y, yellowDefxy);
+			DistortionFix.barrelCorrect((int) yellowDef.pos.x, (int) yellowDef.pos.y, yellowDefxy);
 			yellowDef.pos.x = yellowDefxy[0];
 			yellowDef.pos.y = yellowDefxy[1];
 		}
@@ -134,9 +134,9 @@ public class RobotRecogniser implements ObjectRecogniser {
 		}
 		
 		heightCorrection(blueAtk.pos, 2420, 175);
-		heightCorrection(blueAtk.pos, 2420, 175);
-		heightCorrection(blueAtk.pos, 2420, 175);
-		heightCorrection(blueAtk.pos, 2420, 175);
+		heightCorrection(blueDef.pos, 2420, 175);
+		heightCorrection(yellowAtk.pos, 2420, 175);
+		heightCorrection(yellowDef.pos, 2420, 175);
 		worldState.setAttackerRobot(attackerRobot);
 		worldState.setDefenderRobot(defenderRobot);
 		worldState.setEnemyAttackerRobot(enemyAttackerRobot);

@@ -1,12 +1,10 @@
 package pc.strategy;
 
-import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
 import pc.comms.BrickCommServer;
 import pc.comms.RobotCommand;
-import pc.strategy.interfaces.Strategy;
 import pc.vision.Vector2f;
 import pc.world.WorldState;
 
@@ -14,12 +12,12 @@ import pc.world.WorldState;
  * an incoming ball. If the ball is moving away from the robot then
  * the robot will move to the centre of the goal.
  */
-public class InterceptorStrategy extends GeneralStrategy {
+public class PenaltyDefenderStrategy extends GeneralStrategy {
 	private BrickCommServer brick;
 	private ControlThread controlThread;
 	private Deque<Vector2f> ballPositions = new ArrayDeque<Vector2f>();
 
-	public InterceptorStrategy(BrickCommServer brick) {
+	public PenaltyDefenderStrategy(BrickCommServer brick) {
 		this.brick = brick;
 		controlThread = new ControlThread();
 	}
@@ -42,13 +40,9 @@ public class InterceptorStrategy extends GeneralStrategy {
 		if (ballPositions.size() > 3)
 			ballPositions.removeFirst();
 
-		Vector2f ball3FramesAgo = ballPositions.getFirst();
-		float ballX1 = ball3FramesAgo.x, ballY1 = ball3FramesAgo.y;
-		float ballX2 = worldState.getBall().x, ballY2 = worldState.getBall().y;
-
-		double slope = (ballY2 - ballY1) / ((ballX2 - ballX1) + 0.0001);
-		double c = ballY1 - slope * ballX1;
-		boolean ballMovement =  Math.abs(ballX2 - ballX1) < 10;
+		double slope = (enemyAttackerRobotY - ballY) / ((enemyAttackerRobotX - ballX) + 0.0001);
+		double c = ballY - slope * ballX;
+		boolean ballMovement =  Math.abs(enemyAttackerRobotX - ballX) < 10;
 		int targetY = (int) (slope * defenderRobotX + c);
 
 		if (defenderRobotX <= 0.5 || targetY <= 0.5 || defenderRobotY <= 0.5 /*|| ballMovement */

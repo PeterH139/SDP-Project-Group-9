@@ -57,11 +57,11 @@ public class BallRecogniser implements ObjectRecogniser {
 		
 		if (ballPosition.x == 0 && ballPosition.y ==0){
 			ballPosition = previousBallPosition;
-			logger.Log("Ball Lost");
+			//logger.Log("Ball Lost");
 		} else {
 			// Distortion fixing
 			float[] xy = new float[2];
-			DistortionFix.invBarrelCorrectWithNorm((int) ballPosition.x, (int) ballPosition.y, xy);
+			DistortionFix.barrelCorrect((int) ballPosition.x, (int) ballPosition.y, xy);
 			ballPosition.x = xy[0];
 			ballPosition.y = xy[1];
 			

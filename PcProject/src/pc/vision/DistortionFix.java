@@ -61,18 +61,9 @@ public class DistortionFix implements VideoReceiver {
 	 * 
 	 * @param image
 	 *            Frame to correct
-	 * @param left
-	 *            Left buffer
-	 * @param right
-	 *            Right buffer
-	 * @param top
-	 *            Top buffer
-	 * @param bottom
-	 *            Bottom buffer
 	 * @return A new image with no barrel distortion
 	 */
-	public static BufferedImage removeBarrelDistortion(BufferedImage image, 
-			int left, int right, int top, int bottom) {
+	public static BufferedImage removeBarrelDistortion(BufferedImage image) {
 
 		BufferedImage newImage = new BufferedImage(width, height,
 				BufferedImage.TYPE_INT_RGB);
@@ -129,6 +120,34 @@ public class DistortionFix implements VideoReceiver {
 
 		return newImage;
 
+	}
+	
+	/**
+	 * Barrel correction for single points
+	 * 
+	 * Used to correct for the distortion of individual points.
+	 * 
+	 * @see {@link #invBarrelCorrect(Point)} for correcting an image
+	 * 
+	 * @param p
+	 *            Point to fix
+	 * @return Fixed Point
+	 */
+	public static void barrelCorrect(int x, int y, float[] xy) {
+		// first normalise pixel
+		double px = (2 * x - width) / (double) width;
+		double py = (2 * y - height) / (double) height;
+
+		// then compute the radius of the pixel you are working with
+		double rad = px * px + py * py;
+
+		// then compute new pixel
+		double px1 = px * (1 - barrelCorrectionX * rad);
+		double py1 = py * (1 - barrelCorrectionY * rad);
+
+		// then convert back
+		xy[0] = (float) ((px1 + 1) * width / 2);
+		xy[1] = (float) ((py1 + 1) * height / 2);
 	}
 	
 	/**
@@ -222,13 +241,7 @@ public class DistortionFix implements VideoReceiver {
 
 		// If the distortion overlay is active, apply it
 		if (isActive()) {
-			int topBuffer = this.pitchConstants.getPitchTop();
-			int bottomBuffer = topBuffer + this.pitchConstants.getPitchHeight();
-			int leftBuffer = this.pitchConstants.getPitchLeft();
-			int rightBuffer = leftBuffer + this.pitchConstants.getPitchWidth();
-
-			processedFrame = removeBarrelDistortion(frame, 
-					topBuffer, bottomBuffer, leftBuffer, rightBuffer);
+			processedFrame = removeBarrelDistortion(frame);
 		}
 		// Otherwise just forward the frame as-is
 		else

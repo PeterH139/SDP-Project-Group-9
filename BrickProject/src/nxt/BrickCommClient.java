@@ -46,7 +46,7 @@ public class BrickCommClient {
 		this.movingBackwards = false;
 	}
 	private void handleCatch() {
-		this.rc.getMovementController().resetKicker(true);
+		this.rc.getMovementController().resetKicker(false);
 		this.kickerState = 0;
 	}
 	
@@ -127,7 +127,6 @@ public class BrickCommClient {
 	public void runController() {
 		try {
 			System.out.println("Controller ready");
-			handleCatch();
 			while (true) {
 				int opcode = this.pcInput.readInt();
 				

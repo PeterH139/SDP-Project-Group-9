@@ -41,7 +41,7 @@ public class MarkingStrategy implements Strategy {
 
 	@Override
 	public void sendWorldState(WorldState worldState) {
-		System.out.println("Marking");
+//		System.out.println("Marking");
 		float robotX = worldState.getAttackerRobot().x;
 		float robotY = worldState.getAttackerRobot().y;
 		float robotO = worldState.getAttackerRobot().orientation_angle;

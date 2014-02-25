@@ -13,8 +13,10 @@ import pc.world.WorldState;
 
 public class StrategyController implements WorldStateReceiver {
 	
+	private static final int DIVIDER_THRESHOLD = 10; // Used for checking if the robots are too close to the dividing lines.
+
 	public enum StrategyType{
-		PASSING, ATTACKING, DEFENDING, PENALTY, MARKING
+		PASSING, ATTACKING, DEFENDING, PENALTY_ATK, PENALTY_DEF, MARKING, RESET
 	}
 	
 	public BrickCommServer bcsAttacker, bcsDefender;
@@ -73,32 +75,47 @@ public class StrategyController implements WorldStateReceiver {
 			Strategy as = new AttackerStrategy(this.bcsAttacker);
 			Strategy ic = new InterceptorStrategy(this.bcsDefender); 
 			StrategyController.currentStrategies.add(as);
-			//StrategyController.currentStrategies.add(ic);
+			StrategyController.currentStrategies.add(ic);
 			//this.vision.addWorldStateReceiver(as);
 			as.startControlThread();
 			ic.startControlThread();
 			break;
 		case DEFENDING:
 			Strategy ms = new MarkingStrategy(this.bcsAttacker);
-			Strategy ds = new InterceptorStrategy(this.bcsDefender);
-			StrategyController.currentStrategies.add(ds);
+			Strategy pds = new PenaltyDefenderStrategy(this.bcsDefender);
+			StrategyController.currentStrategies.add(pds);
 			StrategyController.currentStrategies.add(ms);
 			//this.vision.addWorldStateReceiver(ds);
 			//this.vision.addWorldStateReceiver(a);
-			ds.startControlThread();
+			pds.startControlThread();
 			ms.startControlThread();
 			break;
-		case PENALTY:
-			Strategy pen = new PenaltyAttackStrategy(this.bcsAttacker);
-			StrategyController.currentStrategies.add(pen);
+		case PENALTY_ATK:
+			Strategy penAtk = new PenaltyAttackStrategy(this.bcsAttacker);
+			StrategyController.currentStrategies.add(penAtk);
 			//this.vision.addWorldStateReceiver(pen);
-			pen.startControlThread();
+			penAtk.startControlThread();
+			break;
+		case PENALTY_DEF:
+			Strategy penDef = new PenaltyDefenderStrategy(this.bcsDefender);
+			StrategyController.currentStrategies.add(penDef);
+			penDef.startControlThread();
 			break;
 		case MARKING:
 			Strategy mar = new MarkingStrategy(this.bcsAttacker);
 			StrategyController.currentStrategies.add(mar);
 			//this.vision.addWorldStateReceiver(mar);
 			mar.startControlThread();
+			break;
+		case RESET:
+			Strategy res = new ResetStrategy(bcsAttacker, true);
+			Strategy resd = new ResetStrategy(bcsDefender,true);
+			StrategyController.currentStrategies.add(res);
+			StrategyController.currentStrategies.add(resd);
+			res.startControlThread();
+			resd.startControlThread();
+			break;
+		default:
 			break;
 		}
 		
@@ -127,7 +144,7 @@ public class StrategyController implements WorldStateReceiver {
 			this.ballInAttackerArea = false;
 			this.ballInDefenderArea = false;
 		}
-		System.out.println("BallAttacker: " + this.ballInAttackerArea + " ballDefender: " + this.ballInDefenderArea);
+//		System.out.println("BallAttacker: " + this.ballInAttackerArea + " ballDefender: " + this.ballInDefenderArea);
 		if (prevBallInDefenderArea != this.ballInDefenderArea || prevBallInAttackerArea != this.ballInAttackerArea){
 			if (this.ballInDefenderArea){
 				changeToStrategy(StrategyType.PASSING);
@@ -141,6 +158,12 @@ public class StrategyController implements WorldStateReceiver {
 				changeToStrategy(StrategyType.DEFENDING);
 			}
 		}
+		
+		// Final check to make sure the robot is not too close to the dividing lines
+		boolean defXTooClose = Math.abs(worldState.getDefenderRobot().x - defenderCheck) < DIVIDER_THRESHOLD;
+		boolean atkXTooClose = Math.abs(worldState.getAttackerRobot().x - leftCheck) < DIVIDER_THRESHOLD
+				|| Math.abs(worldState.getAttackerRobot().x - rightCheck) < DIVIDER_THRESHOLD;
+		if (defXTooClose||atkXTooClose) changeToStrategy(StrategyType.RESET);
 		
 	}
 	

@@ -63,7 +63,7 @@ public class RunVision {
 		final YAMLConfig yamlConfig = new YAMLConfig();
 		// 0 = default to main pitch
 		final PitchConstants pitchConstants = new PitchConstants(0);
-		final Pitch pitch = new Pitch(yamlConfig);
+		final Pitch pitch = new Pitch(yamlConfig, pitchConstants);
 		WorldState worldState = new WorldState(pitch);
 
 		// Default values for the main vision window
@@ -83,7 +83,7 @@ public class RunVision {
 			StrategyController strategyController = null;
 			if (enableBluetooth) {
 				strategyController = new StrategyController(vision);
-				// Vision.addWorldStateReceiver(strategyController);
+				 Vision.addWorldStateReceiver(strategyController);
 			}
 
 			final VideoStream vStream = new VideoStream(videoDevice, width,
@@ -102,10 +102,11 @@ public class RunVision {
 			});
 
 			ColourThresholdConfigTool ctct = new ColourThresholdConfigTool(gui,
-					worldState, pitchConstants, vStream, distortionFix);
+					worldState, pitchConstants, vStream, distortionFix, yamlConfig);
 			gui.addTool(ctct, "Settings");
 			vision.addRecogniser(ctct.new PitchBoundsDebugDisplay());
 			vision.addRecogniser(ctct.new DividerLineDebugDisplay());
+			vision.addRecogniser(ctct.new GoalPositionDebugDisplay());
 
 			HistogramTool histogramTool = new HistogramTool(gui, pitchConstants);
 			gui.addTool(histogramTool, "Colour Thresholds");
@@ -116,6 +117,9 @@ public class RunVision {
 			gui.addTool(pmvTool, "Pitch Model");
 			Vision.addWorldStateReceiver(pmvTool);
 
+			StrategySelectorTool sst = new StrategySelectorTool(gui, strategyController);
+			gui.addTool(sst, "Strategy Selector");
+			
 			vision.addRecogniser(new BallRecogniser(vision, worldState,
 					pitchConstants));
 			vision.addRecogniser(new RobotRecogniser(vision, worldState,
@@ -127,9 +131,10 @@ public class RunVision {
 				gui.addTool(stratSelect, "Strategy Selector");
 
 				strategyController
-						.changeToStrategy(StrategyController.StrategyType.PASSING);
+						.changeToStrategy(StrategyController.StrategyType.RESET);
 			}
 
+			vStream.addReceiver(pmvTool);
 			vStream.addReceiver(distortionFix);
 			vStream.addReceiver(vision);
 			distortionFix.addReceiver(gui);

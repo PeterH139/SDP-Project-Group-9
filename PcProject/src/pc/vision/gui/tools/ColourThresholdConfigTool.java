@@ -17,6 +17,7 @@ import pc.vision.DistortionFix;
 import pc.vision.PitchConstants;
 import pc.vision.PixelInfo;
 import pc.vision.VideoStream;
+import pc.vision.YAMLConfig;
 import pc.vision.gui.GUITool;
 import pc.vision.gui.VisionGUI;
 import pc.vision.gui.VisionSettingsPanel;
@@ -202,7 +203,7 @@ public class ColourThresholdConfigTool implements GUITool {
 
 	public ColourThresholdConfigTool(VisionGUI gui, WorldState worldState,
 			PitchConstants pitchConstants, VideoStream vStream,
-			DistortionFix distortionFix) {
+			DistortionFix distortionFix, YAMLConfig yamlConfig) {
 		this.gui = gui;
 		this.worldState = worldState;
 		this.pitchConstants = pitchConstants;
@@ -222,7 +223,7 @@ public class ColourThresholdConfigTool implements GUITool {
 		subWindow.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
 		settingsPanel = new VisionSettingsPanel(worldState, pitchConstants,
-				vStream, distortionFix);
+				vStream, distortionFix, yamlConfig);
 		subWindow.add(settingsPanel);
 
 	}
@@ -317,17 +318,17 @@ public class ColourThresholdConfigTool implements GUITool {
 		@Override
 		public void processFrame(PixelInfo[][] pixels, BufferedImage frame,
 				Graphics2D debugGraphics, BufferedImage debugOverlay) {
-			int[] lg = pitchConstants.getLeftGoal();
-			int[] rg = pitchConstants.getRightGoal();
+			float[] lg = pitchConstants.getLeftGoal();
+			float[] rg = pitchConstants.getRightGoal();
 			int left = pitchConstants.getPitchLeft();
 			int right = left + pitchConstants.getPitchWidth();
 			debugGraphics.setColor(Color.WHITE);
-			debugGraphics.drawRect(left-5, lg[0], 4, 4);
-			debugGraphics.drawRect(left-5, lg[1], 4, 4);
-			debugGraphics.drawRect(left-5, lg[2], 4, 4);
-			debugGraphics.drawRect(right, rg[0], 4, 4);
-			debugGraphics.drawRect(right, rg[1], 4, 4);
-			debugGraphics.drawRect(right, rg[2], 4, 4);
+			debugGraphics.drawRect(left-5, (int) lg[0], 4, 4);
+			debugGraphics.drawRect(left-5, (int) lg[1], 4, 4);
+			debugGraphics.drawRect(left-5, (int) lg[2], 4, 4);
+			debugGraphics.drawRect(right, (int) rg[0], 4, 4);
+			debugGraphics.drawRect(right, (int) rg[1], 4, 4);
+			debugGraphics.drawRect(right, (int) rg[2], 4, 4);
 		}
 		
 	}
