@@ -61,7 +61,7 @@ public class BallRecogniser implements ObjectRecogniser {
 		} else {
 			// Distortion fixing
 			float[] xy = new float[2];
-			DistortionFix.invBarrelCorrectWithNorm((int) ballPosition.x, (int) ballPosition.y, xy);
+			DistortionFix.barrelCorrect((int) ballPosition.x, (int) ballPosition.y, xy);
 			ballPosition.x = xy[0];
 			ballPosition.y = xy[1];
 			

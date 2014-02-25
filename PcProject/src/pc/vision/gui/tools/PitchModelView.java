@@ -20,6 +20,7 @@ import java.awt.image.ColorModel;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
@@ -45,7 +46,7 @@ public class PitchModelView implements GUITool, WorldStateReceiver,
 	private PitchView pitchView;
 
 	private BufferedImage backgroundFrame;
-	private boolean frameUpdatePending = false;
+	private boolean shouldUpdateFrame = false;
 	private Vector2f ballPosition;
 
 	public PitchModelView(VisionGUI gui, PitchConstants pitchConstants,
@@ -61,13 +62,13 @@ public class PitchModelView implements GUITool, WorldStateReceiver,
 
 		pitchView = new PitchView();
 		subWindow.getContentPane().add(pitchView);
-
-		JButton grabFrameBtn = new JButton("Draw video frame");
+		
+		final JCheckBox grabFrameBtn = new JCheckBox("Draw video frame");
 		grabFrameBtn.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				frameUpdatePending = true;
+				shouldUpdateFrame = grabFrameBtn.isSelected();
 			}
 		});
 		subWindow.getContentPane().add(grabFrameBtn);
@@ -87,10 +88,11 @@ public class PitchModelView implements GUITool, WorldStateReceiver,
 
 	@Override
 	public void sendFrame(BufferedImage frame, float delta, int frameCounter) {
-		if (frameUpdatePending) {
+		if (shouldUpdateFrame) {
 			backgroundFrame = DistortionFix.removeBarrelDistortion(frame);
-			frameUpdatePending = false;
 			pitchView.repaint();
+		} else {
+			backgroundFrame = null;
 		}
 	}
 
