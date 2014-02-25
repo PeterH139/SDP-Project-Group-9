@@ -107,8 +107,8 @@ public class InterceptorStrategy extends GeneralStrategy {
 					}
 					
 
-					System.out.println(" rotateBy: "
-							+ rotateBy + " travelDist: " + travelDist);
+//					System.out.println(" rotateBy: "
+//							+ rotateBy + " travelDist: " + travelDist);
 					if (rotateBy != 0) {
 						brick.execute(new RobotCommand.Rotate(rotateBy, Math.abs(rotateBy)));
 					} else if (travelDist != 0) {

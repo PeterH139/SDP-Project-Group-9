@@ -4,18 +4,19 @@ import pc.comms.BrickCommServer;
 import pc.comms.RobotCommand;
 import pc.world.WorldState;
 
-public class AttackerStrategy extends GeneralStrategy {
+public class ResetStrategy extends GeneralStrategy{
 
 	private BrickCommServer brick;
 	private ControlThread controlThread;
-	private boolean ballCaught = false;
 	private boolean stopControlThread;
+	private RobotType robotType;
 
-	public AttackerStrategy(BrickCommServer brick) {
+	public ResetStrategy(BrickCommServer brick, boolean isAttacker){
 		this.brick = brick;
+		this.robotType = isAttacker ? RobotType.ATTACKER : RobotType.DEFENDER;
 		controlThread = new ControlThread();
 	}
-
+	
 	@Override
 	public void stopControlThread() {
 		stopControlThread = true;
@@ -26,37 +27,20 @@ public class AttackerStrategy extends GeneralStrategy {
 		stopControlThread = false;
 		controlThread.start();
 	}
-
+	
 	@Override
 	public void sendWorldState(WorldState worldState) {
 		super.sendWorldState(worldState);
-
-		if (ballX < leftCheck || ballX > rightCheck) {
-			synchronized (controlThread) {
-				controlThread.operation = Operation.DO_NOTHING;
-			}
-			return;
-		}
-
-		synchronized (controlThread) {
-			controlThread.operation = Operation.ATKPREPARE_CATCH;
-			if (!ballCaught) {
-				double[] RadDistSpeedRot = new double[4];
-				controlThread.operation = catchBall(RobotType.ATTACKER, RadDistSpeedRot);
-				controlThread.radius = RadDistSpeedRot[0];
-				controlThread.travelDist = (int) RadDistSpeedRot[1];
-				controlThread.travelSpeed = (int) RadDistSpeedRot[2];
-				controlThread.rotateBy = (int) RadDistSpeedRot[3];
-				
-			} else {
-				double [] RotDist = new double[2];
-				controlThread.operation = scoreGoal(RobotType.ATTACKER, RotDist);
-				controlThread.rotateBy = (int) RotDist[0];
-			}
+		double[] rotDistSpeed = new double[4];
+		synchronized(controlThread){
+			controlThread.operation = returnToOrigin(robotType, rotDistSpeed);
+			controlThread.radius = rotDistSpeed[0];
+			controlThread.travelDist = (int) rotDistSpeed[1];
+			controlThread.travelSpeed = (int) rotDistSpeed[2];
+			controlThread.rotateBy = (int) rotDistSpeed[3];
 		}
 	}
-
-
+	
 	private class ControlThread extends Thread {
 		public Operation operation = Operation.DO_NOTHING;
 		public int rotateBy = 0;
@@ -84,22 +68,11 @@ public class AttackerStrategy extends GeneralStrategy {
 						radius = this.radius;
 					}
 
-//					System.out.println("ballcaught: " + ballCaught + "op: " + op.toString() + " rotateBy: "
-//							+ rotateBy + " travelDist: " + travelDist);
+					System.out.println("op: " + op.toString() + " rotateBy: "
+							+ rotateBy + " travelDist: " + travelDist);
 
 					switch (op) {
 					case DO_NOTHING:
-						break;
-					case ATKCATCH:
-						brick.execute(new RobotCommand.Catch());
-						ballCaught = true;
-						break;
-					case ATKPREPARE_CATCH:
-						brick.execute(new RobotCommand.PrepareCatcher());
-						break;
-					case ATKKICK:
-						brick.execute(new RobotCommand.Kick(100));
-						ballCaught = false;
 						break;
 					case ATKROTATE:
 						brick.execute(new RobotCommand.Rotate(-rotateBy, Math.abs(rotateBy)));
@@ -116,6 +89,21 @@ public class AttackerStrategy extends GeneralStrategy {
 						brick.execute(new RobotCommand.PrepareCatcher());
 						brick.execute(new RobotCommand.TravelArc(-radius, travelDist, travelSpeed));
 						break;
+					case DEFARC_LEFT:
+						brick.execute(new RobotCommand.PrepareCatcher());
+						brick.execute(new RobotCommand.TravelArc(radius, travelDist, travelSpeed));
+						break;
+					case DEFARC_RIGHT:
+						brick.execute(new RobotCommand.PrepareCatcher());
+						brick.execute(new RobotCommand.TravelArc(-radius, travelDist, travelSpeed));
+						break;
+					case DEFROTATE:
+						brick.execute(new RobotCommand.Rotate(-rotateBy, Math.abs(rotateBy)));
+						break;
+					case DEFTRAVEL:
+						brick.execute(new RobotCommand.PrepareCatcher());
+						brick.execute(new RobotCommand.Travel(travelDist, travelSpeed));
+						break;
 					default:
 						break;
 					}
@@ -129,5 +117,5 @@ public class AttackerStrategy extends GeneralStrategy {
 		}
 
 	}
-
+	
 }

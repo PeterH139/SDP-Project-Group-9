@@ -87,7 +87,7 @@ public class StrategySelectorTool implements GUITool{
 			penStrat.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					sc.changeToStrategy(StrategyType.PENALTY);
+					sc.changeToStrategy(StrategyType.PENALTY_ATK);
 				}
 			});
 			marStrat.addActionListener(new ActionListener() {

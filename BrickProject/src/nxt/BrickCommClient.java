@@ -46,7 +46,7 @@ public class BrickCommClient {
 		this.movingBackwards = false;
 	}
 	private void handleCatch() {
-		this.rc.getMovementController().resetKicker();
+		this.rc.getMovementController().resetKicker(false);
 		this.kickerState = 0;
 	}
 	

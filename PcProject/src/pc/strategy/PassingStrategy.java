@@ -96,9 +96,9 @@ public class PassingStrategy extends GeneralStrategy {
 						radius = this.radius;
 					}
 
-					System.out.println("ballCaught: " + ballCaught + " op: "
-							+ op.toString() + " rotateBy: " + rotateBy
-							+ " travelDist: " + travelDist);
+//					System.out.println("ballCaught: " + ballCaught + " op: "
+//							+ op.toString() + " rotateBy: " + rotateBy
+//							+ " travelDist: " + travelDist);
 
 					switch (op) {
 					case DO_NOTHING:
@@ -121,7 +121,7 @@ public class PassingStrategy extends GeneralStrategy {
 					case DEFKICK:
 						// TODO The power in here was changed when speed became
 						// a percentage
-						defenderBrick.executeSync(new RobotCommand.Kick(50));
+						defenderBrick.executeSync(new RobotCommand.Kick(25));
 						ballCaught = false;
 						break;
 					case DEFROTATE:

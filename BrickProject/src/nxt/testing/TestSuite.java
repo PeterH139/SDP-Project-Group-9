@@ -82,7 +82,7 @@ public class TestSuite {
 		}
 
 		// Move the kicker down ("catch")
-		brick.resetKicker();
+		brick.resetKicker(false);
 
 	}
 
