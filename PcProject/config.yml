@@ -1,5 +1,9 @@
 pitch:
-  size: [1200, 800]
-  corners: [100, 200]
+  size: [1200, 690]
+  corners: [80, 180]
   goalHeight: 300
-  ballRadius: 30
+  ballRadius: 20
+
+  videoFrameProjection:
+    centerPx: [315, 220]
+    widthPx: 525

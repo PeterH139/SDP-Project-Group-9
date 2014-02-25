@@ -1,7 +1,10 @@
 package pc.vision.gui.tools;
 
+import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Composite;
+import java.awt.CompositeContext;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
@@ -9,22 +12,31 @@ import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
 
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 
+import pc.vision.DistortionFix;
 import pc.vision.PitchConstants;
 import pc.vision.Vector2f;
 import pc.vision.YAMLConfig;
 import pc.vision.gui.GUITool;
 import pc.vision.gui.VisionGUI;
+import pc.vision.interfaces.VideoReceiver;
 import pc.vision.interfaces.WorldStateReceiver;
 import pc.world.Pitch;
 import pc.world.WorldState;
 
-public class PitchModelView implements GUITool, WorldStateReceiver {
+public class PitchModelView implements GUITool, WorldStateReceiver,
+		VideoReceiver {
 
 	private VisionGUI gui;
 	private PitchConstants pitchConstants;
@@ -32,6 +44,8 @@ public class PitchModelView implements GUITool, WorldStateReceiver {
 	private JFrame subWindow;
 	private PitchView pitchView;
 
+	private BufferedImage backgroundFrame;
+	private boolean frameUpdatePending = false;
 	private Vector2f ballPosition;
 
 	public PitchModelView(VisionGUI gui, PitchConstants pitchConstants,
@@ -47,6 +61,16 @@ public class PitchModelView implements GUITool, WorldStateReceiver {
 
 		pitchView = new PitchView();
 		subWindow.getContentPane().add(pitchView);
+
+		JButton grabFrameBtn = new JButton("Draw video frame");
+		grabFrameBtn.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				frameUpdatePending = true;
+			}
+		});
+		subWindow.getContentPane().add(grabFrameBtn);
 	}
 
 	@Override
@@ -54,20 +78,20 @@ public class PitchModelView implements GUITool, WorldStateReceiver {
 		ballPosition = null;
 		if (worldState.getBall() != null
 				&& (worldState.getBall().x != 0 || worldState.getBall().y != 0)) {
-			float x = worldState.getBall().x, y = worldState.getBall().y;
-
-			float pitchCenterX = pitchConstants.getPitchLeft()
-					+ pitchConstants.getPitchWidth() / 2;
-			float pitchCenterY = pitchConstants.getPitchTop()
-					+ pitchConstants.getPitchHeight() / 2;
-			x -= pitchCenterX;
-			y -= pitchCenterY;
-			x *= (float) pitch.getPitchWidth() / pitchConstants.getPitchWidth();
-			y *= (float) pitch.getPitchHeight()
-					/ pitchConstants.getPitchHeight();
-			ballPosition = new Vector2f(x, y);
+			ballPosition = new Vector2f(worldState.getBall().x,
+					worldState.getBall().y);
+			pitch.framePointToModel(ballPosition);
 		}
 		pitchView.repaint();
+	}
+
+	@Override
+	public void sendFrame(BufferedImage frame, float delta, int frameCounter) {
+		if (frameUpdatePending) {
+			backgroundFrame = DistortionFix.removeBarrelDistortion(frame);
+			frameUpdatePending = false;
+			pitchView.repaint();
+		}
 	}
 
 	@Override
@@ -133,10 +157,22 @@ public class PitchModelView implements GUITool, WorldStateReceiver {
 				g.setColor(Color.RED);
 				int radius = p.getBallRadius();
 				g.fillOval((int) (ballPos.x - radius),
-						(int) (ballPos.y - radius),
-						2 * radius, 2 * radius);
+						(int) (ballPos.y - radius), 2 * radius, 2 * radius);
 			}
 
+			if (backgroundFrame != null) {
+				AffineTransform at = new AffineTransform();
+				double frameScale = (double) pitch.getPitchWidth()
+						/ pitch.getPitchFrameWidth();
+				at.scale(frameScale, frameScale);
+				at.translate(-pitch.getPitchCenterFrameX(),
+						-pitch.getPitchCenterFrameY());
+				Composite oldComposite = g.getComposite();
+				g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.3f));
+				g.drawImage(backgroundFrame, at, null);
+				g.setComposite(oldComposite);
+			}
+			
 			g.dispose();
 		}
 	}
