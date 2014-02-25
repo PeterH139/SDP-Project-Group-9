@@ -76,7 +76,7 @@ public class GeneralStrategy implements Strategy {
 			toExecute = isAttacker ? Operation.ATKROTATE : Operation.DEFROTATE;
 			RotDistSpeed[3] = isAttacker ? ang1 : (ang1 / 3);
 		} else if (!shouldCatch) {
-			RotDistSpeed[2] = isAttacker? (int) (dist * 1.5) : (int) (dist / 1.5);
+			RotDistSpeed[2] = isAttacker? (int) (Math.abs(dist) * 1.5) : (int) (Math.abs(dist) / 1.5);
 			if (Math.abs(ang1) < 90) {
 				RotDistSpeed[1] = isAttacker? (int) dist : (int) (dist / 3);
 			} else {
@@ -205,7 +205,7 @@ public class GeneralStrategy implements Strategy {
 		} else {
 
 			if (Math.abs(angleToPass) > 12) {
-				RotDistSpeed[3] = (int) angleToPass;
+				RotDistSpeed[3] = (int) angleToPass ;
 			} else {
 				RotDistSpeed[3] = 0;
 			}
