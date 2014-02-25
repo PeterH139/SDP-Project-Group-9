@@ -68,8 +68,8 @@ public class ResetStrategy extends GeneralStrategy{
 						radius = this.radius;
 					}
 
-					System.out.println("op: " + op.toString() + " rotateBy: "
-							+ rotateBy + " travelDist: " + travelDist);
+//					System.out.println("op: " + op.toString() + " rotateBy: "
+//							+ rotateBy + " travelDist: " + travelDist);
 
 					switch (op) {
 					case DO_NOTHING:

@@ -145,7 +145,17 @@ public class StrategyController implements WorldStateReceiver {
 			this.ballInDefenderArea = false;
 		}
 //		System.out.println("BallAttacker: " + this.ballInAttackerArea + " ballDefender: " + this.ballInDefenderArea);
-		if (prevBallInDefenderArea != this.ballInDefenderArea || prevBallInAttackerArea != this.ballInAttackerArea){
+		boolean defXTooClose = Math.abs(worldState.getDefenderRobot().x - defenderCheck) < DIVIDER_THRESHOLD;
+		System.out.println("defDistance: " +Math.abs(worldState.getDefenderRobot().x - defenderCheck));
+		boolean atkXTooClose = Math.abs(worldState.getAttackerRobot().x - leftCheck) < DIVIDER_THRESHOLD
+				|| Math.abs(worldState.getAttackerRobot().x - rightCheck) < DIVIDER_THRESHOLD;
+		boolean haveReset = false;
+		if (haveReset || prevBallInDefenderArea != this.ballInDefenderArea || prevBallInAttackerArea != this.ballInAttackerArea || defXTooClose || atkXTooClose){
+			if (defXTooClose||atkXTooClose) {
+				changeToStrategy(StrategyType.RESET); 
+				haveReset = true;
+			} else {
+				haveReset = false;
 			if (this.ballInDefenderArea){
 				changeToStrategy(StrategyType.PASSING);
 			} 
@@ -158,12 +168,9 @@ public class StrategyController implements WorldStateReceiver {
 				changeToStrategy(StrategyType.DEFENDING);
 			}
 		}
+		}
 		
 		// Final check to make sure the robot is not too close to the dividing lines
-		boolean defXTooClose = Math.abs(worldState.getDefenderRobot().x - defenderCheck) < DIVIDER_THRESHOLD;
-		boolean atkXTooClose = Math.abs(worldState.getAttackerRobot().x - leftCheck) < DIVIDER_THRESHOLD
-				|| Math.abs(worldState.getAttackerRobot().x - rightCheck) < DIVIDER_THRESHOLD;
-		if (defXTooClose||atkXTooClose) changeToStrategy(StrategyType.RESET);
 		
 	}
 	
