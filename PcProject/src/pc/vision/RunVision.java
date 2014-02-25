@@ -63,7 +63,7 @@ public class RunVision {
 		final YAMLConfig yamlConfig = new YAMLConfig();
 		// 0 = default to main pitch
 		final PitchConstants pitchConstants = new PitchConstants(0);
-		final Pitch pitch = new Pitch(yamlConfig);
+		final Pitch pitch = new Pitch(yamlConfig, pitchConstants);
 		WorldState worldState = new WorldState(pitch);
 
 		// Default values for the main vision window
@@ -102,7 +102,7 @@ public class RunVision {
 			});
 
 			ColourThresholdConfigTool ctct = new ColourThresholdConfigTool(gui,
-					worldState, pitchConstants, vStream, distortionFix);
+					worldState, pitchConstants, vStream, distortionFix, yamlConfig);
 			gui.addTool(ctct, "Settings");
 			vision.addRecogniser(ctct.new PitchBoundsDebugDisplay());
 			vision.addRecogniser(ctct.new DividerLineDebugDisplay());
@@ -130,6 +130,7 @@ public class RunVision {
 						.changeToStrategy(StrategyController.StrategyType.PASSING);
 			}
 
+			vStream.addReceiver(pmvTool);
 			vStream.addReceiver(distortionFix);
 			vStream.addReceiver(vision);
 			distortionFix.addReceiver(gui);

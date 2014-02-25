@@ -35,7 +35,7 @@ public class DistortionFixTest {
 		
 		//fixes the image 20 times to simulate video handling
 		for (int i=0; i<20; i++) {      
-			BufferedImage fixed = DistortionFix.removeBarrelDistortion(image, 0, 0, 0, 0);
+			BufferedImage fixed = DistortionFix.removeBarrelDistortion(image);
 	    	/*try {
 				ImageIO.write(fixed, "jpg",new File("/afs/inf.ed.ac.uk/user/s10/s1004618/git/SDP-Project-Group-9/PcProject/src/pc/test/pitch-out"+i+".jpg"));
 			} catch (IOException e) {

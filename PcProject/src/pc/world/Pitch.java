@@ -13,16 +13,18 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 
+import pc.vision.PitchConstants;
+import pc.vision.Vector2f;
 import pc.vision.YAMLConfig;
 
 public class Pitch extends Observable {
 	/*
 	 * All lengths and distances are in millimetres.
 	 */
-	
+
 	public static final int BALL_RADIUS = 25;
 	public static final int PLATE_EDGE_LENGTH = 100;
-	
+
 	private int pitchWidth = 1400;
 	private int pitchHeight = 800;
 	private int cornerCutoffX = 100;
@@ -30,14 +32,24 @@ public class Pitch extends Observable {
 	private int goalHeight = 300;
 	private int ballRadius = 20;
 
-	public Pitch(YAMLConfig yamlConfig) {
+	private int pitchCenterFrameX = 320;
+	private int pitchCenterFrameY = 240;
+	private int pitchFrameWidth = 600;
+
+	// Height is inferred from pitchWidth/pitchHeight ratio
+
+	public Pitch(YAMLConfig yamlConfig, final PitchConstants pitchConstants) {
 		yamlConfig.addObserver(new Observer() {
-			
+
 			@SuppressWarnings("unchecked")
 			@Override
 			public void update(Observable arg0, Object yamlData) {
-				Map<String, Object> data = (Map<String, Object>) yamlData;
-				data = (Map<String, Object>) data.get("pitch");
+				String pitchName = pitchConstants.getPitchNum() == 0 ? "main"
+						: "side";
+
+				Map<String, Object> topData = (Map<String, Object>) yamlData;
+				Map<String, Object> data = (Map<String, Object>) topData.get("pitch");
+				data = (Map<String, Object>) data.get(pitchName);
 				List<Integer> pitchDims = (List<Integer>) data.get("size");
 				setPitchWidth(pitchDims.get(0));
 				setPitchHeight(pitchDims.get(1));
@@ -45,7 +57,17 @@ public class Pitch extends Observable {
 				setCornerCutoffX(corners.get(0));
 				setCornerCutoffY(corners.get(1));
 				setGoalHeight((Integer) data.get("goalHeight"));
-				setBallRadius((Integer) data.get("ballRadius"));
+
+				Map<String, Object> frameProjection = (Map<String, Object>) data
+						.get("videoFrameProjection");
+				List<Integer> pitchCenter = (List<Integer>) frameProjection
+						.get("centerPx");
+				setPitchCenterFrameX(pitchCenter.get(0));
+				setPitchCenterFrameY(pitchCenter.get(1));
+				setPitchFrameWidth((Integer) frameProjection.get("widthPx"));
+				
+				Map<String, Object> objects = (Map<String, Object>) topData.get("objects");
+				setBallRadius((Integer) objects.get("ballRadius"));
 			}
 		});
 	}
@@ -109,27 +131,19 @@ public class Pitch extends Observable {
 			notifyObservers();
 		}
 	}
-	
+
 	public Polygon getBoundsPolygon() {
 		int halfPitchWidth = getPitchWidth() / 2;
 		int halfPitchHeight = getPitchHeight() / 2;
 		Polygon polygon = new Polygon();
-		polygon.addPoint(-halfPitchWidth + getCornerCutoffX(),
-				-halfPitchHeight);
-		polygon.addPoint(halfPitchWidth - getCornerCutoffX(),
-				-halfPitchHeight);
-		polygon.addPoint(halfPitchWidth,
-				-halfPitchHeight + getCornerCutoffY());
-		polygon.addPoint(halfPitchWidth,
-				halfPitchHeight - getCornerCutoffY());
-		polygon.addPoint(halfPitchWidth - getCornerCutoffX(),
-				halfPitchHeight);
-		polygon.addPoint(-halfPitchWidth + getCornerCutoffX(),
-				halfPitchHeight);
-		polygon.addPoint(-halfPitchWidth,
-				halfPitchHeight - getCornerCutoffY());
-		polygon.addPoint(-halfPitchWidth,
-				-halfPitchHeight + getCornerCutoffY());
+		polygon.addPoint(-halfPitchWidth + getCornerCutoffX(), -halfPitchHeight);
+		polygon.addPoint(halfPitchWidth - getCornerCutoffX(), -halfPitchHeight);
+		polygon.addPoint(halfPitchWidth, -halfPitchHeight + getCornerCutoffY());
+		polygon.addPoint(halfPitchWidth, halfPitchHeight - getCornerCutoffY());
+		polygon.addPoint(halfPitchWidth - getCornerCutoffX(), halfPitchHeight);
+		polygon.addPoint(-halfPitchWidth + getCornerCutoffX(), halfPitchHeight);
+		polygon.addPoint(-halfPitchWidth, halfPitchHeight - getCornerCutoffY());
+		polygon.addPoint(-halfPitchWidth, -halfPitchHeight + getCornerCutoffY());
 		return polygon;
 	}
 
@@ -139,5 +153,40 @@ public class Pitch extends Observable {
 
 	protected void setBallRadius(int ballRadius) {
 		this.ballRadius = ballRadius;
+	}
+
+	public int getPitchCenterFrameX() {
+		return pitchCenterFrameX;
+	}
+
+	public void setPitchCenterFrameX(int pitchCenterFrameX) {
+		this.pitchCenterFrameX = pitchCenterFrameX;
+	}
+
+	public int getPitchCenterFrameY() {
+		return pitchCenterFrameY;
+	}
+
+	public void setPitchCenterFrameY(int pitchCenterFrameY) {
+		this.pitchCenterFrameY = pitchCenterFrameY;
+	}
+
+	public int getPitchFrameWidth() {
+		return pitchFrameWidth;
+	}
+
+	public void setPitchFrameWidth(int pitchFrameWidth) {
+		this.pitchFrameWidth = pitchFrameWidth;
+	}
+
+	/**
+	 * Converts a given point from pixels to millimetres.
+	 */
+	public void framePointToModel(Vector2f point) {
+		point.x -= getPitchCenterFrameX();
+		point.y -= getPitchCenterFrameY();
+		float scale = (float) getPitchWidth() / getPitchFrameWidth();
+		point.x *= scale;
+		point.y *= scale;
 	}
 }
