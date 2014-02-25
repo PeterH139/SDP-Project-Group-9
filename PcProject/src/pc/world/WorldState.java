@@ -10,8 +10,8 @@ public class WorldState {
 	
 	//XXX: Temporary for testing.
 	public int[] dividers; 
-	public int[] leftGoal;
-	public int[] rightGoal;
+	public float[] leftGoal;
+	public float[] rightGoal;
 
 	// #region new world model representation
 	// TODO: convert x/y to mm values

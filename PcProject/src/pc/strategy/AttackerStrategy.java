@@ -1,13 +1,7 @@
 package pc.strategy;
 
-import java.io.IOException;
-
 import pc.comms.BrickCommServer;
 import pc.comms.RobotCommand;
-import pc.comms.RobotCommand.TravelArc;
-import pc.strategy.GeneralStrategy.RobotType;
-import pc.strategy.TargetFollowerStrategy.Operation;
-import pc.strategy.interfaces.Strategy;
 import pc.world.WorldState;
 
 public class AttackerStrategy extends GeneralStrategy {
@@ -90,46 +84,45 @@ public class AttackerStrategy extends GeneralStrategy {
 						radius = this.radius;
 					}
 
-//					System.out.println("ballcaught: " + ballCaught + "op: " + op.toString() + " rotateBy: "
-//							+ rotateBy + " travelDist: " + travelDist);
+					System.out.println("ballcaught: " + ballCaught + "op: " + op.toString() + " rotateBy: "
+							+ rotateBy + " travelDist: " + travelDist);
 
 					switch (op) {
 					case DO_NOTHING:
 						break;
 					case ATKCATCH:
-						brick.executeSync(new RobotCommand.Catch());
+						brick.execute(new RobotCommand.Catch());
 						ballCaught = true;
 						break;
 					case ATKPREPARE_CATCH:
-						brick.executeSync(new RobotCommand.PrepareCatcher());
+						brick.execute(new RobotCommand.PrepareCatcher());
 						break;
 					case ATKKICK:
-						brick.executeSync(new RobotCommand.Kick(100));
+						brick.execute(new RobotCommand.Kick(100));
 						ballCaught = false;
 						break;
 					case ATKROTATE:
-						brick.executeSync(new RobotCommand.Rotate(-rotateBy, Math.abs(rotateBy) * 3));
+						brick.execute(new RobotCommand.Rotate(-rotateBy, Math.abs(rotateBy)));
 						break;
 					case ATKTRAVEL:
-						brick.executeSync(new RobotCommand.PrepareCatcher());
-						brick.executeSync(new RobotCommand.Travel(travelDist, travelSpeed));
+						brick.execute(new RobotCommand.PrepareCatcher());
+						brick.execute(new RobotCommand.Travel(travelDist, travelSpeed));
 						break;
 					case ATKARC_LEFT:
-						brick.executeSync(new RobotCommand.PrepareCatcher());
-						brick.executeSync(new RobotCommand.TravelArc(radius, travelDist, travelSpeed));
+						brick.execute(new RobotCommand.PrepareCatcher());
+						brick.execute(new RobotCommand.TravelArc(radius, travelDist, travelSpeed));
 						break;
 					case ATKARC_RIGHT:
-						brick.executeSync(new RobotCommand.PrepareCatcher());
-						brick.executeSync(new RobotCommand.TravelArc(-radius, travelDist, travelSpeed));
+						brick.execute(new RobotCommand.PrepareCatcher());
+						brick.execute(new RobotCommand.TravelArc(-radius, travelDist, travelSpeed));
+						break;
+					default:
 						break;
 					}
 					Thread.sleep(250); // TODO: Test lower values for this and
 										// see where it breaks.
 				}
 			}  catch (InterruptedException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 

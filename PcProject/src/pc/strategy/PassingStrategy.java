@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import pc.comms.BrickCommServer;
 import pc.comms.RobotCommand;
-import pc.strategy.interfaces.Strategy;
 import pc.world.WorldState;
 
 public class PassingStrategy extends GeneralStrategy {
@@ -13,6 +12,7 @@ public class PassingStrategy extends GeneralStrategy {
 	private BrickCommServer defenderBrick;
 	private ControlThread controlThread;
 	private boolean ballCaught;
+	private boolean stopControlThread;
 
 	public PassingStrategy(BrickCommServer attackerBrick,
 			BrickCommServer defenderBrick) {
@@ -23,11 +23,12 @@ public class PassingStrategy extends GeneralStrategy {
 
 	@Override
 	public void stopControlThread() {
-		this.controlThread.stop();
+		stopControlThread = true;
 	}
 
 	@Override
 	public void startControlThread() {
+		stopControlThread = false;
 		this.controlThread.start();
 	}
 
@@ -51,9 +52,9 @@ public class PassingStrategy extends GeneralStrategy {
 				double[] RotDistSpeed = new double[4];
 				this.controlThread.operation = catchBall(RobotType.DEFENDER,
 						RotDistSpeed);
+				this.controlThread.radius = RotDistSpeed[0];
 				this.controlThread.travelDist = (int) RotDistSpeed[1];
 				this.controlThread.travelSpeed = (int) RotDistSpeed[2];
-				this.controlThread.radius = RotDistSpeed[0];
 				this.controlThread.rotateBy = (int) RotDistSpeed[3];
 
 			} else {
@@ -83,7 +84,7 @@ public class PassingStrategy extends GeneralStrategy {
 		@Override
 		public void run() {
 			try {
-				while (true) {
+				while (!stopControlThread) {
 					int travelDist, rotateBy, travelSpeed;
 					double radius;
 					Operation op;
@@ -104,40 +105,35 @@ public class PassingStrategy extends GeneralStrategy {
 
 						break;
 					case ATKROTATE:
-						PassingStrategy.this.attackerBrick.robotRotateBy(
-								rotateBy, Math.abs(rotateBy));
+						attackerBrick.executeSync(new RobotCommand.Rotate(rotateBy, Math.abs(rotateBy)));
 						break;
 					case ATKTRAVEL:
-						PassingStrategy.this.attackerBrick.robotPrepCatch();
-						PassingStrategy.this.attackerBrick.robotTravel(
-								travelDist, travelSpeed);
+						attackerBrick.executeSync(new RobotCommand.PrepareCatcher());
+						attackerBrick.executeSync(new RobotCommand.Travel(travelDist, travelSpeed));
 						break;
 					case DEFCATCH:
-						PassingStrategy.this.defenderBrick.robotCatch();
-						PassingStrategy.this.ballCaught = true;
+						defenderBrick.executeSync(new RobotCommand.Catch());
+						ballCaught = true;
 						break;
 					case DEFPREPARE_CATCH:
-						PassingStrategy.this.defenderBrick.robotPrepCatch();
+						defenderBrick.executeSync(new RobotCommand.PrepareCatcher());
 						break;
 					case DEFKICK:
 						// TODO The power in here was changed when speed became
 						// a percentage
-						PassingStrategy.this.defenderBrick.robotKick(50);
-						PassingStrategy.this.ballCaught = false;
+						defenderBrick.executeSync(new RobotCommand.Kick(50));
+						ballCaught = false;
 						break;
 					case DEFROTATE:
 						defenderBrick.executeSync(new RobotCommand.Rotate(rotateBy, Math.abs(rotateBy)));
 						break;
 					case DEFTRAVEL:
-						defenderBrick
-						.executeSync(new RobotCommand.PrepareCatcher());
-						PassingStrategy.this.defenderBrick.robotTravel(
-								travelDist, travelSpeed);
+						defenderBrick.executeSync(new RobotCommand.PrepareCatcher());
+						defenderBrick.executeSync(new RobotCommand.Travel(travelDist, travelSpeed));
 						break;
 					case ROTATENMOVE:
 						defenderBrick.executeSync(new RobotCommand.Rotate(rotateBy, Math.abs(rotateBy)));
-						PassingStrategy.this.attackerBrick.robotTravel(
-								travelDist, travelSpeed);
+						attackerBrick.executeSync(new RobotCommand.Travel(travelDist, travelSpeed));
 						break;
 					case DEFARC_LEFT:
 						defenderBrick

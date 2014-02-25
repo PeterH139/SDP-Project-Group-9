@@ -106,6 +106,7 @@ public class RunVision {
 			gui.addTool(ctct, "Settings");
 			vision.addRecogniser(ctct.new PitchBoundsDebugDisplay());
 			vision.addRecogniser(ctct.new DividerLineDebugDisplay());
+			vision.addRecogniser(ctct.new GoalPositionDebugDisplay());
 
 			HistogramTool histogramTool = new HistogramTool(gui, pitchConstants);
 			gui.addTool(histogramTool, "Colour Thresholds");
@@ -116,6 +117,9 @@ public class RunVision {
 			gui.addTool(pmvTool, "Pitch Model");
 			Vision.addWorldStateReceiver(pmvTool);
 
+			StrategySelectorTool sst = new StrategySelectorTool(gui, strategyController);
+			gui.addTool(sst, "Strategy Selector");
+			
 			vision.addRecogniser(new BallRecogniser(vision, worldState,
 					pitchConstants));
 			vision.addRecogniser(new RobotRecogniser(vision, worldState,
@@ -127,7 +131,7 @@ public class RunVision {
 				gui.addTool(stratSelect, "Strategy Selector");
 
 				strategyController
-						.changeToStrategy(StrategyController.StrategyType.PASSING);
+						.changeToStrategy(StrategyController.StrategyType.DEFENDING);
 			}
 
 			vStream.addReceiver(distortionFix);

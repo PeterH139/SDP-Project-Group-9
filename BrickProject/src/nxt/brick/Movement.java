@@ -2,6 +2,8 @@ package nxt.brick;
 
 import lejos.nxt.Motor;
 import lejos.nxt.NXTRegulatedMotor;
+import lejos.robotics.RegulatedMotor;
+import lejos.robotics.RegulatedMotorListener;
 import lejos.robotics.navigation.DifferentialPilot;
 
 /**
@@ -49,17 +51,18 @@ public class Movement extends DifferentialPilot {
 		RIGHT_WHEEL.flt();
 		KICKER.flt();
 	}
-	public void resetKicker(boolean immediateReturn) {
-		KICKER.rotateTo(0, immediateReturn);
+	public void resetKicker() {
+		KICKER.rotateTo(0);
+		KICKER.resetTachoCount();
 	}
 	public void prepKicker(boolean immediateReturn) {
 		int prevSpeed = KICKER.getSpeed();
 		KICKER.setSpeed(50);
-		KICKER.rotate(80/GEAR_RATIO, immediateReturn);
+		KICKER.rotateTo(70/GEAR_RATIO, immediateReturn);
 		KICKER.setSpeed(prevSpeed);
 	}
 	public void liftKicker(boolean immediateReturn) {
-		KICKER.rotate(120/GEAR_RATIO, immediateReturn);
+		KICKER.rotateTo(90/GEAR_RATIO, immediateReturn); 
 	}
 	public void kick(int speed){
 		this.kick(speed, false);
@@ -82,7 +85,8 @@ public class Movement extends DifferentialPilot {
 		// Kick
 		liftKicker(immediateReturn);
 		// Reset
-		resetKicker(immediateReturn);
+		KICKER.rotate(-90/GEAR_RATIO, immediateReturn);
+		KICKER.resetTachoCount();
 		
 		isKicking = false;
 	}

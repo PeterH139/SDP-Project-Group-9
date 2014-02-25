@@ -63,7 +63,6 @@ public class BrickCommServer {
 	 * frame grabber thread!
 	 */
 	public void executeSync(RobotCommand.Command command) throws IOException {
-		System.out.println(command.toString());
 		command.sendToBrick(brickOutput);
 		brickOutput.flush();
 	}

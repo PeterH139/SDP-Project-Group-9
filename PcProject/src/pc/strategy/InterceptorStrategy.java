@@ -5,6 +5,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 
 import pc.comms.BrickCommServer;
+import pc.comms.RobotCommand;
 import pc.strategy.interfaces.Strategy;
 import pc.vision.Vector2f;
 import pc.world.WorldState;
@@ -17,8 +18,6 @@ public class InterceptorStrategy extends GeneralStrategy {
 	private BrickCommServer brick;
 	private ControlThread controlThread;
 	private Deque<Vector2f> ballPositions = new ArrayDeque<Vector2f>();
-	private int tempBottomY = 315;
-	private int tempTopY = 157;
 
 	public InterceptorStrategy(BrickCommServer brick) {
 		this.brick = brick;
@@ -38,7 +37,6 @@ public class InterceptorStrategy extends GeneralStrategy {
 	@Override
 	public void sendWorldState(WorldState worldState) {
 		super.sendWorldState(worldState);
-		System.out.println("Intercepting");
 		ballPositions.addLast(new Vector2f(worldState.getBall().x, worldState
 				.getBall().y));
 		if (ballPositions.size() > 3)
@@ -56,43 +54,34 @@ public class InterceptorStrategy extends GeneralStrategy {
 		if (defenderRobotX <= 0.5 || targetY <= 0.5 || defenderRobotY <= 0.5 /*|| ballMovement */
 				|| defenderOrientation <= 0.5 || Math.hypot(0, defenderRobotY - targetY) < 10) {
 			synchronized (controlThread) {
-				//controlThread.rotateBy = 0;
+				controlThread.rotateBy = 0;
 				controlThread.travelDist = 0;
 			}
 			return;
 		}
-		double robotRad = Math.toRadians(defenderOrientation);
-		
-		
+		double ang1 = calculateAngle(defenderRobotX, defenderRobotY, defenderOrientation, defenderRobotX, defenderRobotY - 50);
+		ang1 = ang1/3;
 		float dist;
-		int rotateBy = 0;
-		if (targetY > tempBottomY) {
-			targetY = tempBottomY;
-		} else if (targetY < tempTopY) {
-			targetY = tempTopY;
+		if (ballMovement) {
+			targetY = (int) ballY;
 		}
-		if (robotRad > Math.PI)
-			robotRad -= 2 * Math.PI;
-		if (defenderOrientation > 180) {
-			rotateBy = (int) (270 - defenderOrientation) / 3;
-			dist = targetY - defenderOrientation;
-		} else {
-			rotateBy = (int) (defenderOrientation - 90) / 3;
-			dist = defenderOrientation - targetY;
+		if (targetY > worldState.rightGoal[2]) {
+			targetY = (int) worldState.rightGoal[2];
+		} else if (targetY < worldState.rightGoal[0]) {
+			targetY = (int) worldState.rightGoal[0];
 		}
-		if (Math.abs(rotateBy) < 45) {
-			rotateBy = 0;
+		
+		dist = targetY - defenderRobotY;
+	
+		
+		if (Math.abs(ang1) < 3) {
+			ang1 = 0;
 		} else {
 			dist = 0;
 		}
-		if (!ballMovement) {
-			dist = 0;
-		}
-		if (dist > 0) {
-			rotateBy = 0;
-		}
+		
 		synchronized (controlThread) {
-			controlThread.rotateBy = rotateBy;
+			controlThread.rotateBy = (int) ang1;
 			controlThread.travelDist = (int) (dist * 0.8);
 
 		}
@@ -116,17 +105,20 @@ public class InterceptorStrategy extends GeneralStrategy {
 						rotateBy = this.rotateBy;
 						travelDist = this.travelDist;
 					}
+					
+
+					System.out.println(" rotateBy: "
+							+ rotateBy + " travelDist: " + travelDist);
 					if (rotateBy != 0) {
-						brick.robotRotateBy(rotateBy, Math.abs(rotateBy / 3));
+						brick.execute(new RobotCommand.Rotate(rotateBy, Math.abs(rotateBy)));
 					} else if (travelDist != 0) {
-						brick.robotTravel(travelDist,
-								(int) (Math.abs(travelDist) * 2));
+						brick.execute(new RobotCommand.Travel(travelDist / 3, Math.abs(travelDist) * 3 + 25));
 					}
 					Thread.sleep(250); // TODO: Test lower values for this and
 										// see where it breaks.
 				}
-			} catch (IOException e) {
-				e.printStackTrace();
+//			} catch (IOException e) {
+//				e.printStackTrace();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

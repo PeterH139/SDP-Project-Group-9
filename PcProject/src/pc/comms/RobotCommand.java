@@ -141,6 +141,7 @@ public class RobotCommand {
 			super.sendToBrick(outputStream);
 			outputStream.writeDouble(arcRadius);
 			outputStream.writeInt(distance);
+			outputStream.writeInt(speed);
 		}
 	}
 

@@ -92,25 +92,25 @@ public class PitchConstants extends Observable {
 		}
 	}
 	
-	private int[] leftGoal = new int[3];
-	private int[] rightGoal = new int[3];
+	private float[] leftGoal = new float[3];
+	private float[] rightGoal = new float[3];
 	
 	/**
 	 * Order of the values is top to bottom. 	
 	 * @return the array of y values for the left goal
 	 */
-	public int[] getLeftGoal(){
+	public float[] getLeftGoal(){
 		return leftGoal;
 	}
 	/**
 	 * Order of the values is top to bottom. 	
 	 * @return the array of y values for the right goal
 	 */
-	public int[] getRightGoal(){
+	public float[] getRightGoal(){
 		return rightGoal;
 	}
 	
-	public void setLeftGoal(int[] leftGoal){
+	public void setLeftGoal(float[] leftGoal){
 		if (leftGoal.length != 3) {
 			System.err.println("Left Goal array not the right size to set!");
 		} else {
@@ -122,7 +122,7 @@ public class PitchConstants extends Observable {
 		}
 	}
 	
-	public void setRightGoal(int[] rightGoal){
+	public void setRightGoal(float[] rightGoal){
 		if (rightGoal.length != 3) {
 			System.err.println("Right Goal array not the right size to set!");
 		} else {
@@ -374,13 +374,13 @@ public class PitchConstants extends Observable {
 			this.dividers[1] = scannerDim.nextInt();
 			this.dividers[2] = scannerDim.nextInt();
 			
-			this.leftGoal[0] = scannerDim.nextInt();
-			this.leftGoal[1] = scannerDim.nextInt();
-			this.leftGoal[2] = scannerDim.nextInt();
+			this.leftGoal[0] = scannerDim.nextFloat();
+			this.leftGoal[1] = scannerDim.nextFloat();
+			this.leftGoal[2] = scannerDim.nextFloat();
 			
-			this.rightGoal[0] = scannerDim.nextInt();
-			this.rightGoal[1] = scannerDim.nextInt();
-			this.rightGoal[2] = scannerDim.nextInt();
+			this.rightGoal[0] = scannerDim.nextFloat();
+			this.rightGoal[1] = scannerDim.nextFloat();
+			this.rightGoal[2] = scannerDim.nextFloat();
 
 			scannerDim.close();
 		} catch (Exception e) {
