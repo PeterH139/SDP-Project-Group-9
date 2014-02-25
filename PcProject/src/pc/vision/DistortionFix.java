@@ -123,6 +123,34 @@ public class DistortionFix implements VideoReceiver {
 	}
 	
 	/**
+	 * Barrel correction for single points
+	 * 
+	 * Used to correct for the distortion of individual points.
+	 * 
+	 * @see {@link #invBarrelCorrect(Point)} for correcting an image
+	 * 
+	 * @param p
+	 *            Point to fix
+	 * @return Fixed Point
+	 */
+	public static void barrelCorrect(int x, int y, float[] xy) {
+		// first normalise pixel
+		double px = (2 * x - width) / (double) width;
+		double py = (2 * y - height) / (double) height;
+
+		// then compute the radius of the pixel you are working with
+		double rad = px * px + py * py;
+
+		// then compute new pixel
+		double px1 = px * (1 - barrelCorrectionX * rad);
+		double py1 = py * (1 - barrelCorrectionY * rad);
+
+		// then convert back
+		xy[0] = (float) ((px1 + 1) * width / 2);
+		xy[1] = (float) ((py1 + 1) * height / 2);
+	}
+	
+	/**
 	 * Inverse barrel correction for single points
 	 * 
 	 * Used to correct the distortion in an image without producing an odd
