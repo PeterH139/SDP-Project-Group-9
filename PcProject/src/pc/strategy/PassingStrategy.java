@@ -129,7 +129,8 @@ public class PassingStrategy extends GeneralStrategy {
 						defenderBrick.executeSync(new RobotCommand.Rotate(rotateBy, Math.abs(rotateBy)));
 						break;
 					case DEFTRAVEL:
-						PassingStrategy.this.defenderBrick.robotPrepCatch();
+						defenderBrick
+						.executeSync(new RobotCommand.PrepareCatcher());
 						PassingStrategy.this.defenderBrick.robotTravel(
 								travelDist, travelSpeed);
 						break;
