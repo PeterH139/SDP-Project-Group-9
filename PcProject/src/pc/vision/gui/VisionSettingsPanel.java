@@ -21,6 +21,8 @@ import javax.swing.SwingConstants;
 import pc.vision.DistortionFix;
 import pc.vision.PitchConstants;
 import pc.vision.VideoStream;
+import pc.vision.YAMLConfig;
+import pc.world.Pitch;
 import pc.world.WorldState;
 
 /**
@@ -44,6 +46,8 @@ public class VisionSettingsPanel extends JPanel {
 
 	// A PitchConstants class used to load/save constants for the pitch
 	private final PitchConstants pitchConstants;
+	
+	private final YAMLConfig yamlConfig;
 
 	// Stores information about the current world state, such as shooting
 	// direction, ball location, etc
@@ -75,6 +79,7 @@ public class VisionSettingsPanel extends JPanel {
 			//worldState.setMainPitch(rdbtnPitch0.isSelected());
 			//worldState.setPitch(pitchNum);
 			VisionSettingsPanel.this.pitchConstants.setPitchNum(pitchNum);
+			yamlConfig.reloadConfig();
 		}
 	};
 
@@ -145,7 +150,7 @@ public class VisionSettingsPanel extends JPanel {
 	 */
 	public VisionSettingsPanel(WorldState worldState,
 			final PitchConstants pitchConstants, final VideoStream vStream,
-			final DistortionFix distortionFix) {
+			final DistortionFix distortionFix, final YAMLConfig yamlConfig) {
 		// Both state objects must not be null.
 		assert (worldState != null) : "worldState is null";
 		assert (pitchConstants != null) : "pitchConstants is null";
@@ -153,6 +158,7 @@ public class VisionSettingsPanel extends JPanel {
 		this.worldState = worldState;
 		this.pitchConstants = pitchConstants;
 		this.distortionFix = distortionFix;
+		this.yamlConfig = yamlConfig;
 		this.camPanel = new CameraSettingsPanel(vStream,
 				System.getProperty("user.dir") + "/constants/pitch"
 						+ pitchConstants.getPitchNum() + "camera");
