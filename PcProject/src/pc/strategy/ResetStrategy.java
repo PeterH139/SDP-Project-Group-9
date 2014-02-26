@@ -98,7 +98,7 @@ public class ResetStrategy extends GeneralStrategy{
 						brick.execute(new RobotCommand.TravelArc(-radius, travelDist, travelSpeed));
 						break;
 					case DEFROTATE:
-						brick.execute(new RobotCommand.Rotate(-rotateBy, Math.abs(rotateBy)));
+						brick.execute(new RobotCommand.Rotate(rotateBy, Math.abs(rotateBy)));
 						break;
 					case DEFTRAVEL:
 						brick.execute(new RobotCommand.PrepareCatcher());

@@ -12,6 +12,7 @@ import pc.strategy.StrategyController;
 import pc.strategy.StrategyController.StrategyType;
 import pc.vision.gui.GUITool;
 import pc.vision.gui.VisionGUI;
+import pc.world.WorldState;
 
 public class StrategySelectorTool implements GUITool{
 
@@ -54,10 +55,12 @@ public class StrategySelectorTool implements GUITool{
 	public class StrategyPicker extends JPanel{
 		
 		private JButton atkStrat = new JButton("Attacking");
-		private JButton defStrat = new JButton("Intercepting");
+		private JButton defStrat = new JButton("Defending");
 		private JButton passStrat = new JButton("Passing");
 		private JButton penStrat = new JButton("Penalty");
 		private JButton marStrat = new JButton("Marking");
+		private JButton pauseController = new JButton("Pause");
+		private JButton startController = new JButton("Start");
 		
 		public StrategyPicker(){
 			this.add(atkStrat);
@@ -65,6 +68,8 @@ public class StrategySelectorTool implements GUITool{
 			this.add(passStrat);
 			this.add(penStrat);
 			this.add(marStrat);
+			this.add(pauseController);
+			this.add(startController);
 			
 			atkStrat.addActionListener(new ActionListener() {
 				@Override
@@ -94,6 +99,21 @@ public class StrategySelectorTool implements GUITool{
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					sc.changeToStrategy(StrategyType.MARKING);
+				}
+			});
+			pauseController.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					sc.pauseStrategyController = true;
+				}
+			});
+			startController.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					sc.pauseStrategyController = false;
+					sc.changeToStrategy(StrategyType.DEFENDING);
 				}
 			});
 		}

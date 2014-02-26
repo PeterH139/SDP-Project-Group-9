@@ -1,11 +1,9 @@
 package pc.strategy;
 
-import java.awt.Robot;
 import java.io.IOException;
 
 import pc.comms.BrickCommServer;
 import pc.comms.RobotCommand;
-import pc.strategy.TargetFollowerStrategy.Operation;
 import pc.strategy.interfaces.Strategy;
 import pc.world.WorldState;
 

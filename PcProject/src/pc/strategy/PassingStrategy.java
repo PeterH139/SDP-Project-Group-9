@@ -121,7 +121,7 @@ public class PassingStrategy extends GeneralStrategy {
 					case DEFKICK:
 						// TODO The power in here was changed when speed became
 						// a percentage
-						defenderBrick.executeSync(new RobotCommand.Kick(25));
+						defenderBrick.executeSync(new RobotCommand.Kick(15));
 						ballCaught = false;
 						break;
 					case DEFROTATE:

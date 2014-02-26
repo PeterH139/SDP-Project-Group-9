@@ -71,7 +71,12 @@ public class GeneralStrategy implements Strategy {
 		double dist = isAttacker ? Math.hypot(ballX - attackerRobotX, ballY
 				- attackerRobotY) : -((Math.hypot(ballX - defenderRobotX, ballY
 				- defenderRobotY)));
-		boolean shouldCatch = (Math.abs(dist) < 32);
+		
+		int defCatchDist = (ballY < 220) ? 27 : 34;
+		int atkCatchDist = (ballY < 220) ? 32 : 32;
+		boolean shouldCatch = isAttacker ?
+				(Math.abs(dist) < atkCatchDist) : (Math.abs(dist) < defCatchDist);
+		
 		if (Math.abs(ang1) > 45) {
 			toExecute = isAttacker ? Operation.ATKROTATE : Operation.DEFROTATE;
 			RotDistSpeed[3] = isAttacker ? ang1 : (ang1 / 3);
@@ -192,9 +197,9 @@ public class GeneralStrategy implements Strategy {
 		Operation toExecute = Operation.DO_NOTHING;
 		float targetY = 220;
 		if (enemyAttackerRobotY < targetY) {
-			targetY = enemyAttackerRobotY + 100;
+			targetY = enemyAttackerRobotY + 125;
 		} else {
-			targetY = enemyAttackerRobotY - 100;
+			targetY = enemyAttackerRobotY - 125;
 		}
 		double angleToPass = calculateAngle(defenderRobotX, defenderRobotY,
 				defenderOrientation, attackerRobotX, targetY);
@@ -233,11 +238,14 @@ public class GeneralStrategy implements Strategy {
 				attackerRobotY, 10, RotDistSpeed) : travelTo(robot,
 				defenderResetX, defenderRobotY, 10, RotDistSpeed);
 
-//		if (RotDistSpeed[1] < 15) {
-//			RotDistSpeed[3] = isAttacker ? (int) (attackerOrientation - 270)
-//					: (int) (270 - defenderOrientation) / 3;
-//			toExecute = isAttacker ? Operation.ATKROTATE : Operation.DEFROTATE;
-//		}
+		if (RotDistSpeed[1] < 15) {
+			double ang1 = isAttacker ?
+					calculateAngle(attackerRobotX, attackerRobotY, attackerOrientation, attackerRobotX, ballY): 
+					calculateAngle(defenderRobotX, defenderRobotY, defenderOrientation, defenderRobotX, defenderRobotY - 50);
+			RotDistSpeed[3] = isAttacker ? (int) (ang1)
+					: (int) (ang1) / 3;
+			toExecute = isAttacker ? Operation.ATKROTATE : Operation.DEFROTATE;
+		}
 
 		return toExecute;
 	}
