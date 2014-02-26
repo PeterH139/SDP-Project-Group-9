@@ -68,19 +68,12 @@ public class Movement extends DifferentialPilot {
 		KICKER.setSpeed(prevSpeed);
 		kickerIsDown = false;
 	}
-	public void liftKicker() {
+	
+	public void kick(int speed) {
+
 		if (!kickerIsDown) {
 			return;
 		}
-		KICKER.rotate(120/GEAR_RATIO);
-	}
-	public void kick(int speed) {
-
-		if (isKicking) {
-			return;
-		}
-
-		isKicking = true;
 		
 		if (speed > 100) {
 			speed = 100;
@@ -90,11 +83,11 @@ public class Movement extends DifferentialPilot {
 		KICKER.setAcceleration(ACCELERATION);
 
 		// Kick
-		liftKicker();
+		KICKER.rotate(120/GEAR_RATIO);
 		// Reset
 		KICKER.rotateTo(80/GEAR_RATIO);
+		
 		kickerIsDown = false;
-		isKicking = false;
 	}
 	
 	public void movingKick(int speed) {
