@@ -72,7 +72,7 @@ public class TestSuite {
 	 */
 	private static void catcherTest() {
 		// Kicker goes up
-		brick.prepKicker(false);
+		brick.prepKicker();
 
 		// 1.5 second delay
 		try {
@@ -82,7 +82,7 @@ public class TestSuite {
 		}
 
 		// Move the kicker down ("catch")
-		brick.resetKicker(false);
+		brick.resetKicker();
 
 	}
 

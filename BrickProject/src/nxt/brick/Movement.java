@@ -31,6 +31,7 @@ public class Movement extends DifferentialPilot {
 	public static final int ACCELERATION = MAXIMUM_KICKER_SPEED * 8;
 	public static final int REVERSE_KICKER_DIRECTION = -1;
 	public static final int GEAR_RATIO = 5 * REVERSE_KICKER_DIRECTION;
+	public boolean kickerIsDown = true;
 
 	private static volatile boolean isKicking = false;
 
@@ -38,6 +39,7 @@ public class Movement extends DifferentialPilot {
 		super(TYRE_DIAMETER, trackWidth, LEFT_WHEEL, RIGHT_WHEEL);
 		floatWheels();
 		KICKER.resetTachoCount();
+		prepKicker();
 	}
 	
 	public void setMaxPilotSpeed(int speed) {
@@ -49,22 +51,30 @@ public class Movement extends DifferentialPilot {
 		RIGHT_WHEEL.flt();
 		KICKER.flt();
 	}
-	public void resetKicker(boolean immediateReturn) {
-		KICKER.rotateTo(0, immediateReturn);
+	public void resetKicker() {
+		if (kickerIsDown) {
+			return;
+		}
+		KICKER.rotateTo(0);
+		kickerIsDown = true;
 	}
-	public void prepKicker(boolean immediateReturn) {
+	public void prepKicker() {
+		if (!kickerIsDown) {
+			return;
+		}
 		int prevSpeed = KICKER.getSpeed();
 		KICKER.setSpeed(50);
-		KICKER.rotate(80/GEAR_RATIO, immediateReturn);
+		KICKER.rotate(80/GEAR_RATIO);
 		KICKER.setSpeed(prevSpeed);
+		kickerIsDown = false;
 	}
-	public void liftKicker(boolean immediateReturn) {
-		KICKER.rotate(120/GEAR_RATIO, immediateReturn);
+	public void liftKicker() {
+		if (!kickerIsDown) {
+			return;
+		}
+		KICKER.rotate(120/GEAR_RATIO);
 	}
-	public void kick(int speed){
-		this.kick(speed, false);
-	}
-	public void kick(int speed, boolean immediateReturn) {
+	public void kick(int speed) {
 
 		if (isKicking) {
 			return;
@@ -80,10 +90,10 @@ public class Movement extends DifferentialPilot {
 		KICKER.setAcceleration(ACCELERATION);
 
 		// Kick
-		liftKicker(immediateReturn);
+		liftKicker();
 		// Reset
-		resetKicker(immediateReturn);
-		
+		KICKER.rotateTo(80/GEAR_RATIO);
+		kickerIsDown = false;
 		isKicking = false;
 	}
 	

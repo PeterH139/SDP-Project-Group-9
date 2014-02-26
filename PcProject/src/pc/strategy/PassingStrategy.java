@@ -108,15 +108,11 @@ public class PassingStrategy extends GeneralStrategy {
 						attackerBrick.executeSync(new RobotCommand.Rotate(rotateBy, Math.abs(rotateBy)));
 						break;
 					case ATKTRAVEL:
-						attackerBrick.executeSync(new RobotCommand.PrepareCatcher());
 						attackerBrick.executeSync(new RobotCommand.Travel(travelDist, travelSpeed));
 						break;
 					case DEFCATCH:
 						defenderBrick.executeSync(new RobotCommand.Catch());
 						ballCaught = true;
-						break;
-					case DEFPREPARE_CATCH:
-						defenderBrick.executeSync(new RobotCommand.PrepareCatcher());
 						break;
 					case DEFKICK:
 						// TODO The power in here was changed when speed became
@@ -128,7 +124,6 @@ public class PassingStrategy extends GeneralStrategy {
 						defenderBrick.executeSync(new RobotCommand.Rotate(rotateBy, Math.abs(rotateBy)));
 						break;
 					case DEFTRAVEL:
-						defenderBrick.executeSync(new RobotCommand.PrepareCatcher());
 						defenderBrick.executeSync(new RobotCommand.Travel(travelDist, travelSpeed));
 						break;
 					case ROTATENMOVE:
@@ -136,14 +131,10 @@ public class PassingStrategy extends GeneralStrategy {
 						attackerBrick.executeSync(new RobotCommand.Travel(travelDist, travelSpeed));
 						break;
 					case DEFARC_LEFT:
-						defenderBrick
-								.executeSync(new RobotCommand.PrepareCatcher());
 						defenderBrick.executeSync(new RobotCommand.TravelArc(
 								radius, travelDist, travelSpeed));
 						break;
 					case DEFARC_RIGHT:
-						defenderBrick
-								.executeSync(new RobotCommand.PrepareCatcher());
 						defenderBrick.executeSync(new RobotCommand.TravelArc(
 								-radius, travelDist, travelSpeed));
 						break;

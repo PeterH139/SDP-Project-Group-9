@@ -57,7 +57,7 @@ public class GeneralStrategy implements Strategy {
 	}
 
 	public enum Operation {
-		DO_NOTHING, ATKTRAVEL, ATKROTATE, ATKPREPARE_CATCH, ATKCATCH, ATKKICK, ATKARC_LEFT, ATKARC_RIGHT, DEFTRAVEL, DEFROTATE, DEFPREPARE_CATCH, DEFCATCH, DEFKICK, ROTATENMOVE, DEFARC_LEFT, DEFARC_RIGHT
+		DO_NOTHING, ATKTRAVEL, ATKROTATE, ATKCATCH, ATKKICK, ATKARC_LEFT, ATKARC_RIGHT, DEFTRAVEL, DEFROTATE, DEFCATCH, DEFKICK, ROTATENMOVE, DEFARC_LEFT, DEFARC_RIGHT
 	}
 
 	public Operation catchBall(RobotType robot, double[] RotDistSpeed) {
@@ -71,11 +71,7 @@ public class GeneralStrategy implements Strategy {
 		double dist = isAttacker ? Math.hypot(ballX - attackerRobotX, ballY
 				- attackerRobotY) : -((Math.hypot(ballX - defenderRobotX, ballY
 				- defenderRobotY)));
-		
-		int defCatchDist = (ballY < 220) ? 27 : 34;
-		int atkCatchDist = (ballY < 220) ? 32 : 32;
-		boolean shouldCatch = isAttacker ?
-				(Math.abs(dist) < atkCatchDist) : (Math.abs(dist) < defCatchDist);
+		boolean shouldCatch = Math.abs(dist) < 32;
 		
 		if (Math.abs(ang1) > 45) {
 			toExecute = isAttacker ? Operation.ATKROTATE : Operation.DEFROTATE;

@@ -20,7 +20,6 @@ public class BrickCommClient {
 	DataInputStream pcInput;
 	DataOutputStream pcOutput;
 	RobotController rc;
-	int kickerState;
 	
 	boolean movingForwards = false, movingBackwards = false;
 	int turnRadius = 0;
@@ -46,8 +45,7 @@ public class BrickCommClient {
 		this.movingBackwards = false;
 	}
 	private void handleCatch() {
-		this.rc.getMovementController().resetKicker(false);
-		this.kickerState = 0;
+		this.rc.getMovementController().resetKicker();
 	}
 	
 	private void handleForwards() {
@@ -63,13 +61,6 @@ public class BrickCommClient {
 	private void handleKick() throws IOException {
 		int speed = this.pcInput.readInt();
 		this.rc.getMovementController().kick(speed);
-		this.kickerState = 0;
-	}
-	private void handlePrepCatcher() throws IOException {
-		if (this.kickerState == 0){
-			this.rc.getMovementController().prepKicker(false);
-			this.kickerState = 1;
-		}
 	}
 	private void handleRotate(boolean clockwise) throws IOException {
 		if (clockwise)
@@ -157,9 +148,6 @@ public class BrickCommClient {
 					break;
 				case RobotOpcode.TRAVEL:
 					handleTravel();
-					break;
-				case RobotOpcode.APPROACHING_BALL:
-					handlePrepCatcher();
 					break;
 				case RobotOpcode.CATCH:
 					handleCatch();

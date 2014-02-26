@@ -39,7 +39,6 @@ public class AttackerStrategy extends GeneralStrategy {
 		}
 
 		synchronized (controlThread) {
-			controlThread.operation = Operation.ATKPREPARE_CATCH;
 			if (!ballCaught) {
 				double[] RadDistSpeedRot = new double[4];
 				controlThread.operation = catchBall(RobotType.ATTACKER, RadDistSpeedRot);
@@ -94,9 +93,6 @@ public class AttackerStrategy extends GeneralStrategy {
 						brick.execute(new RobotCommand.Catch());
 						ballCaught = true;
 						break;
-					case ATKPREPARE_CATCH:
-						brick.execute(new RobotCommand.PrepareCatcher());
-						break;
 					case ATKKICK:
 						brick.execute(new RobotCommand.Kick(100));
 						ballCaught = false;
@@ -105,15 +101,12 @@ public class AttackerStrategy extends GeneralStrategy {
 						brick.execute(new RobotCommand.Rotate(-rotateBy, Math.abs(rotateBy)));
 						break;
 					case ATKTRAVEL:
-						brick.execute(new RobotCommand.PrepareCatcher());
 						brick.execute(new RobotCommand.Travel(travelDist, travelSpeed));
 						break;
 					case ATKARC_LEFT:
-						brick.execute(new RobotCommand.PrepareCatcher());
 						brick.execute(new RobotCommand.TravelArc(radius, travelDist, travelSpeed));
 						break;
 					case ATKARC_RIGHT:
-						brick.execute(new RobotCommand.PrepareCatcher());
 						brick.execute(new RobotCommand.TravelArc(-radius, travelDist, travelSpeed));
 						break;
 					default:

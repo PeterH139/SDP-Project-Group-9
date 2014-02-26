@@ -55,9 +55,6 @@ public class BrickControlGUI extends JFrame implements KeyListener {
 			command = new RobotCommand.Kick(100);
 			break;
 		case KeyEvent.VK_1:
-			command = new RobotCommand.PrepareCatcher();
-			break;
-		case KeyEvent.VK_2:
 			command = new RobotCommand.Catch();
 			break;
 		case KeyEvent.VK_LEFT:
