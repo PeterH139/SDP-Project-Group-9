@@ -41,6 +41,7 @@ public class PitchModelView implements GUITool, WorldStateReceiver,
 
 	private VisionGUI gui;
 	private PitchConstants pitchConstants;
+	private DistortionFix distortionFix;
 	private Pitch pitch;
 	private JFrame subWindow;
 	private PitchView pitchView;
@@ -50,10 +51,11 @@ public class PitchModelView implements GUITool, WorldStateReceiver,
 	private Vector2f ballPosition;
 
 	public PitchModelView(VisionGUI gui, PitchConstants pitchConstants,
-			Pitch pitch) {
+			Pitch pitch, DistortionFix distortionFix) {
 		this.gui = gui;
 		this.pitchConstants = pitchConstants;
 		this.pitch = pitch;
+		this.distortionFix = distortionFix;
 
 		subWindow = new JFrame("Pitch Model");
 		subWindow.setResizable(false);
@@ -89,7 +91,7 @@ public class PitchModelView implements GUITool, WorldStateReceiver,
 	@Override
 	public void sendFrame(BufferedImage frame, float delta, int frameCounter) {
 		if (shouldUpdateFrame) {
-			backgroundFrame = DistortionFix.removeBarrelDistortion(frame);
+			backgroundFrame = distortionFix.removeBarrelDistortion(frame);
 			pitchView.repaint();
 		} else {
 			backgroundFrame = null;

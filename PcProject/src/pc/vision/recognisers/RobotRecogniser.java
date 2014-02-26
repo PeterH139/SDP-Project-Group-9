@@ -2,6 +2,7 @@ package pc.vision.recognisers;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
@@ -19,16 +20,18 @@ public class RobotRecogniser implements ObjectRecogniser {
 	private Vision vision;
 	private WorldState worldState;
 	private PitchConstants pitchConstants;
+	private DistortionFix distortionFix;
 	private SearchReturn blueDef, yellowAtk, blueAtk, yellowDef;
 	private SearchReturn blueDefPrev = new SearchReturn();
 	private SearchReturn yellowDefPrev = new SearchReturn();
 	private SearchReturn blueAtkPrev = new SearchReturn();
 	private SearchReturn yellowAtkPrev = new SearchReturn();
 	public RobotRecogniser(Vision vision, WorldState worldState,
-			PitchConstants pitchConstants) {
+			PitchConstants pitchConstants, DistortionFix distortionFix) {
 		this.vision = vision;
 		this.worldState = worldState;
 		this.pitchConstants = pitchConstants;
+		this.distortionFix = distortionFix;
 	}
  
 	@Override
@@ -67,37 +70,41 @@ public class RobotRecogniser implements ObjectRecogniser {
 		if (blueAtk.pos.x == 0 && blueAtk.pos.y == 0){
 			blueAtk = blueAtkPrev;
 		} else {
-			float[] blueAtkxy = new float[2];
-			DistortionFix.barrelCorrect((int) blueAtk.pos.x, (int) blueAtk.pos.y, blueAtkxy);
-			blueAtk.pos.x = blueAtkxy[0];
-			blueAtk.pos.y = blueAtkxy[1];
+			Point2D.Double point = new Point2D.Double(blueAtk.pos.x, blueAtk.pos.y);
+			distortionFix.barrelCorrect(point);
+			blueAtk.pos.x = (float) point.x;
+			blueAtk.pos.y = (float) point.y;
+			heightCorrection(blueAtk.pos, 2420, 175);
 		}
 		
 		if (blueDef.pos.x == 0 && blueDef.pos.y == 0){
 			blueDef = blueDefPrev;
 		} else {
-			float[] blueDefxy = new float[2];
-			DistortionFix.barrelCorrect((int) blueDef.pos.x, (int) blueDef.pos.y, blueDefxy);
-			blueDef.pos.x = blueDefxy[0];
-			blueDef.pos.y = blueDefxy[1];
+			Point2D.Double point = new Point2D.Double(blueDef.pos.x, blueDef.pos.y);
+			distortionFix.barrelCorrect(point);
+			blueDef.pos.x = (float) point.x;
+			blueDef.pos.y = (float) point.y;
+			heightCorrection(blueDef.pos, 2420, 175);
 		}
 		
 		if (yellowAtk.pos.x == 0 && yellowAtk.pos.y == 0){
 			yellowAtk = yellowAtkPrev;
 		} else {
-			float[] yellowAtkxy = new float[2];
-			DistortionFix.barrelCorrect((int) yellowAtk.pos.x, (int) yellowAtk.pos.y, yellowAtkxy);
-			yellowAtk.pos.x = yellowAtkxy[0];
-			yellowAtk.pos.y = yellowAtkxy[1];
+			Point2D.Double point = new Point2D.Double(yellowAtk.pos.x, yellowAtk.pos.y);
+			distortionFix.barrelCorrect(point);
+			yellowAtk.pos.x = (float) point.x;
+			yellowAtk.pos.y = (float) point.y;
+			heightCorrection(yellowAtk.pos, 2420, 175);
 		}
 		
 		if (yellowDef.pos.x == 0 && yellowDef.pos.y == 0){
 			yellowDef = yellowDefPrev;
 		} else {
-			float[] yellowDefxy = new float[2];
-			DistortionFix.barrelCorrect((int) yellowDef.pos.x, (int) yellowDef.pos.y, yellowDefxy);
-			yellowDef.pos.x = yellowDefxy[0];
-			yellowDef.pos.y = yellowDefxy[1];
+			Point2D.Double point = new Point2D.Double(yellowDef.pos.x, yellowDef.pos.y);
+			distortionFix.barrelCorrect(point);
+			yellowDef.pos.x = (float) point.x;
+			yellowDef.pos.y = (float) point.y;
+			heightCorrection(yellowDef.pos, 2420, 175);
 		}
 		
 		// Update Histories
@@ -105,8 +112,6 @@ public class RobotRecogniser implements ObjectRecogniser {
 		blueAtkPrev = blueAtk;
 		yellowDefPrev = yellowDef;
 		yellowAtkPrev = yellowAtk;
-	
-		//heightCorrection(blueDef.pos, 250, 20);
 		
 		// Debugging Graphics
 		debugGraphics.setColor(Color.CYAN);
@@ -133,10 +138,6 @@ public class RobotRecogniser implements ObjectRecogniser {
 			enemyDefenderRobot = new MovingObject(blueDef.pos.x,blueDef.pos.y, blueDef.angle);
 		}
 		
-		heightCorrection(blueAtk.pos, 2420, 175);
-		heightCorrection(blueDef.pos, 2420, 175);
-		heightCorrection(yellowAtk.pos, 2420, 175);
-		heightCorrection(yellowDef.pos, 2420, 175);
 		worldState.setAttackerRobot(attackerRobot);
 		worldState.setDefenderRobot(defenderRobot);
 		worldState.setEnemyAttackerRobot(enemyAttackerRobot);

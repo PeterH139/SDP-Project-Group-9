@@ -2,6 +2,7 @@ package pc.vision.recognisers;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
@@ -19,13 +20,15 @@ public class BallRecogniser implements ObjectRecogniser {
 	private Vision vision;
 	private WorldState worldState;
 	private PitchConstants pitchConstants;
+	private DistortionFix distortionFix;
 	private Vector2f previousBallPosition = new Vector2f(0, 0);
 	private pc.logging.Logging logger;
 	public BallRecogniser(Vision vision, WorldState worldState,
-			PitchConstants pitchConstants) {
+			PitchConstants pitchConstants, DistortionFix distortionFix) {
 		this.vision = vision;
 		this.worldState = worldState;
 		this.pitchConstants = pitchConstants;
+		this.distortionFix = distortionFix;
 		logger = new pc.logging.Logging();
 	}
 
@@ -60,10 +63,10 @@ public class BallRecogniser implements ObjectRecogniser {
 			//logger.Log("Ball Lost");
 		} else {
 			// Distortion fixing
-			float[] xy = new float[2];
-			DistortionFix.barrelCorrect((int) ballPosition.x, (int) ballPosition.y, xy);
-			ballPosition.x = xy[0];
-			ballPosition.y = xy[1];
+			Point2D.Double point = new Point2D.Double(ballPosition.x, ballPosition.y);
+			distortionFix.barrelCorrect(point);
+			ballPosition.x = (float) point.x;
+			ballPosition.y = (float) point.y;
 			
 			previousBallPosition = ballPosition;
 			
