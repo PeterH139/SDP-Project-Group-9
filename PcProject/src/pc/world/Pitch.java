@@ -31,6 +31,9 @@ public class Pitch extends Observable {
 	private int cornerCutoffY = 200;
 	private int goalHeight = 300;
 	private int ballRadius = 20;
+	
+	private int zoneDividerWidth = 100;
+	private int zoneDividerOffset = 400;
 
 	private int pitchCenterFrameX = 320;
 	private int pitchCenterFrameY = 240;
@@ -57,6 +60,10 @@ public class Pitch extends Observable {
 				setCornerCutoffX(corners.get(0));
 				setCornerCutoffY(corners.get(1));
 				setGoalHeight((Integer) data.get("goalHeight"));
+				
+				Map<String, Object> zoneDivs = (Map<String, Object>) data.get("zoneDividers");
+				setZoneDividerWidth((Integer) zoneDivs.get("width"));
+				setZoneDividerOffset((Integer) zoneDivs.get("offset"));
 
 				Map<String, Object> frameProjection = (Map<String, Object>) data
 						.get("videoFrameProjection");
@@ -188,5 +195,21 @@ public class Pitch extends Observable {
 		float scale = (float) getPitchWidth() / getPitchFrameWidth();
 		point.x *= scale;
 		point.y *= scale;
+	}
+
+	public int getZoneDividerWidth() {
+		return zoneDividerWidth;
+	}
+
+	public void setZoneDividerWidth(int zoneDividerWidth) {
+		this.zoneDividerWidth = zoneDividerWidth;
+	}
+
+	public int getZoneDividerOffset() {
+		return zoneDividerOffset;
+	}
+
+	public void setZoneDividerOffset(int zoneDividerOffset) {
+		this.zoneDividerOffset = zoneDividerOffset;
 	}
 }

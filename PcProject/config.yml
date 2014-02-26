@@ -8,6 +8,10 @@ pitch:
     corners: [78, 180]
     goalHeight: 320
 
+    zoneDividers:
+      width: 33
+      offset: 343
+
     distortion:
       rotate: 0.5 # degrees CW
 
@@ -19,7 +23,11 @@ pitch:
     size: [1200, 690]
     corners: [80, 180]
     goalHeight: 300
-    
+
+    zoneDividers:
+      width: 33
+      offset: 343
+
     distortion:
       rotate: 0 # degrees CW
 

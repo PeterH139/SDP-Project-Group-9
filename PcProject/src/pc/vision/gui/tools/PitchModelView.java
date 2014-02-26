@@ -64,7 +64,7 @@ public class PitchModelView implements GUITool, WorldStateReceiver,
 
 		pitchView = new PitchView();
 		subWindow.getContentPane().add(pitchView);
-		
+
 		final JCheckBox grabFrameBtn = new JCheckBox("Draw video frame");
 		grabFrameBtn.addActionListener(new ActionListener() {
 
@@ -148,6 +148,17 @@ public class PitchModelView implements GUITool, WorldStateReceiver,
 			g.setColor(Color.GRAY);
 			g.fillPolygon(p.getBoundsPolygon());
 
+			// Draw zone dividers
+			g.setColor(Color.WHITE);
+			int halfPitchHeight = p.getPitchHeight() / 2;
+			int halfWidth = p.getZoneDividerWidth() / 2;
+			g.fillRect(-p.getZoneDividerOffset() - halfWidth, -halfPitchHeight,
+					2 * halfWidth, 2 * halfPitchHeight);
+			g.fillRect(-halfWidth, -halfPitchHeight, 2 * halfWidth,
+					2 * halfPitchHeight);
+			g.fillRect(p.getZoneDividerOffset() - halfWidth, -halfPitchHeight,
+					2 * halfWidth, 2 * halfPitchHeight);
+
 			g.setColor(Color.YELLOW);
 			g.setStroke(new BasicStroke(10));
 			int halfPitchWidth = p.getPitchWidth() / 2;
@@ -172,11 +183,12 @@ public class PitchModelView implements GUITool, WorldStateReceiver,
 				at.translate(-pitch.getPitchCenterFrameX(),
 						-pitch.getPitchCenterFrameY());
 				Composite oldComposite = g.getComposite();
-				g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.3f));
+				g.setComposite(AlphaComposite.getInstance(
+						AlphaComposite.SRC_OVER, 0.3f));
 				g.drawImage(backgroundFrame, at, null);
 				g.setComposite(oldComposite);
 			}
-			
+
 			g.dispose();
 		}
 	}
