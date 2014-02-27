@@ -76,7 +76,7 @@ public class GeneralStrategy implements Strategy {
 		int atkCatchDist = (ballY < 220) ? 32 : 32;
 		boolean shouldCatch = isAttacker ?
 				(Math.abs(dist) < atkCatchDist) : (Math.abs(dist) < defCatchDist);
-		
+				
 		if (Math.abs(ang1) > 45) {
 			toExecute = isAttacker ? Operation.ATKROTATE : Operation.DEFROTATE;
 			RotDistSpeed[3] = isAttacker ? ang1 : (ang1 / 3);

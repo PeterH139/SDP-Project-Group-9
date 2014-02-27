@@ -31,6 +31,7 @@ public class Movement extends DifferentialPilot {
 	public static final int ACCELERATION = MAXIMUM_KICKER_SPEED * 8;
 	public static final int REVERSE_KICKER_DIRECTION = -1;
 	public static final int GEAR_RATIO = 5 * REVERSE_KICKER_DIRECTION;
+	public boolean kickerIsDown = true;
 
 	private static volatile boolean isKicking = false;
 
@@ -38,6 +39,7 @@ public class Movement extends DifferentialPilot {
 		super(TYRE_DIAMETER, trackWidth, LEFT_WHEEL, RIGHT_WHEEL);
 		floatWheels();
 		KICKER.resetTachoCount();
+		prepKicker();
 	}
 	
 	public void setMaxPilotSpeed(int speed) {
@@ -49,28 +51,29 @@ public class Movement extends DifferentialPilot {
 		RIGHT_WHEEL.flt();
 		KICKER.flt();
 	}
-	public void resetKicker(boolean immediateReturn) {
-		KICKER.rotateTo(0, immediateReturn);
-	}
-	public void prepKicker(boolean immediateReturn) {
-		int prevSpeed = KICKER.getSpeed();
-		KICKER.setSpeed(50);
-		KICKER.rotate(80/GEAR_RATIO, immediateReturn);
-		KICKER.setSpeed(prevSpeed);
-	}
-	public void liftKicker(boolean immediateReturn) {
-		KICKER.rotate(120/GEAR_RATIO, immediateReturn);
-	}
-	public void kick(int speed){
-		this.kick(speed, false);
-	}
-	public void kick(int speed, boolean immediateReturn) {
-
-		if (isKicking) {
+	public void resetKicker() {
+		if (kickerIsDown) {
 			return;
 		}
+		KICKER.rotateTo(0);
+		kickerIsDown = true;
+	}
+	public void prepKicker() {
+		if (!kickerIsDown) {
+			return;
+		}
+		int prevSpeed = KICKER.getSpeed();
+		KICKER.setSpeed(50);
+		KICKER.rotate(80/GEAR_RATIO);
+		KICKER.setSpeed(prevSpeed);
+		kickerIsDown = false;
+	}
+	
+	public void kick(int speed) {
 
-		isKicking = true;
+		if (!kickerIsDown) {
+			return;
+		}
 		
 		if (speed > 100) {
 			speed = 100;
@@ -80,11 +83,11 @@ public class Movement extends DifferentialPilot {
 		KICKER.setAcceleration(ACCELERATION);
 
 		// Kick
-		liftKicker(immediateReturn);
+		KICKER.rotate(120/GEAR_RATIO);
 		// Reset
-		resetKicker(immediateReturn);
+		KICKER.rotateTo(80/GEAR_RATIO);
 		
-		isKicking = false;
+		kickerIsDown = false;
 	}
 	
 	public void movingKick(int speed) {

@@ -63,6 +63,9 @@ public class BrickCommServer {
 	 * frame grabber thread!
 	 */
 	public void executeSync(RobotCommand.Command command) throws IOException {
+		if (brickOutput == null)
+			return;
+		System.err.println(command.toString());
 		command.sendToBrick(brickOutput);
 		brickOutput.flush();
 	}
@@ -100,11 +103,6 @@ public class BrickCommServer {
 		brickOutput.flush();
 	}
 
-	@Deprecated
-	public void robotPrepCatch() throws IOException {
-		brickOutput.writeInt(RobotOpcode.APPROACHING_BALL);
-		brickOutput.flush();
-	}
 
 	@Deprecated
 	public void robotRotate(boolean clockwise) throws IOException {

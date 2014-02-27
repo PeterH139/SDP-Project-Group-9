@@ -78,30 +78,24 @@ public class ResetStrategy extends GeneralStrategy{
 						brick.execute(new RobotCommand.Rotate(-rotateBy, Math.abs(rotateBy)));
 						break;
 					case ATKTRAVEL:
-						brick.execute(new RobotCommand.PrepareCatcher());
 						brick.execute(new RobotCommand.Travel(travelDist, travelSpeed));
 						break;
 					case ATKARC_LEFT:
-						brick.execute(new RobotCommand.PrepareCatcher());
 						brick.execute(new RobotCommand.TravelArc(radius, travelDist, travelSpeed));
 						break;
 					case ATKARC_RIGHT:
-						brick.execute(new RobotCommand.PrepareCatcher());
 						brick.execute(new RobotCommand.TravelArc(-radius, travelDist, travelSpeed));
 						break;
 					case DEFARC_LEFT:
-						brick.execute(new RobotCommand.PrepareCatcher());
 						brick.execute(new RobotCommand.TravelArc(radius, travelDist, travelSpeed));
 						break;
 					case DEFARC_RIGHT:
-						brick.execute(new RobotCommand.PrepareCatcher());
 						brick.execute(new RobotCommand.TravelArc(-radius, travelDist, travelSpeed));
 						break;
 					case DEFROTATE:
 						brick.execute(new RobotCommand.Rotate(rotateBy, Math.abs(rotateBy)));
 						break;
 					case DEFTRAVEL:
-						brick.execute(new RobotCommand.PrepareCatcher());
 						brick.execute(new RobotCommand.Travel(travelDist, travelSpeed));
 						break;
 					default:
