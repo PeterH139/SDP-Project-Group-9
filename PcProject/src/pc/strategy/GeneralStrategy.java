@@ -72,7 +72,7 @@ public class GeneralStrategy implements Strategy {
 				- attackerRobotY) : -((Math.hypot(ballX - defenderRobotX, ballY
 				- defenderRobotY)));
 		
-		int defCatchDist = (ballY < 220) ? 27 : 34;
+		int defCatchDist = (ballY < 220) ? 30 : 32;
 		int atkCatchDist = (ballY < 220) ? 32 : 32;
 		boolean shouldCatch = isAttacker ?
 				(Math.abs(dist) < atkCatchDist) : (Math.abs(dist) < defCatchDist);
