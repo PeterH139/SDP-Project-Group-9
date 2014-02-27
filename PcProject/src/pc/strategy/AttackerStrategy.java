@@ -49,9 +49,12 @@ public class AttackerStrategy extends GeneralStrategy {
 				controlThread.rotateBy = (int) RadDistSpeedRot[3];
 
 			} else {
-				double[] RotDist = new double[2];
-				controlThread.operation = scoreGoal(RobotType.ATTACKER, RotDist);
-				controlThread.rotateBy = (int) RotDist[0];
+				double[] RadDistSpeedRot = new double[4];
+				controlThread.operation = scoreGoal(RobotType.ATTACKER, RadDistSpeedRot);
+				controlThread.radius = (int) RadDistSpeedRot[0];
+				controlThread.travelDist = (int) RadDistSpeedRot[1];
+				controlThread.travelSpeed = (int) RadDistSpeedRot[2];
+				controlThread.rotateBy = (int) RadDistSpeedRot[3];
 			}
 		}
 	}

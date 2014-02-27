@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import pc.comms.BrickCommServer;
 import pc.comms.RobotCommand;
+import pc.strategy.GeneralStrategy.Operation;
 import pc.strategy.interfaces.Strategy;
 import pc.world.WorldState;
 
@@ -81,23 +82,27 @@ public class MarkingStrategy implements Strategy {
 				}
 				
 				//Decide if we need to go in a straight line or arc to the target
-				if (Math.abs(robotToTargetAngle) > 170 || Math.abs(robotToTargetAngle) < 10) {
+				if (Math.abs(robotToTargetAngle) > 45) {
+					controlThread.operation= Operation.ROTATE;
+					controlThread.rotateBy = (int) -robotToTargetAngle;
+				}
+				else if (Math.abs(robotToTargetAngle) > 150 || Math.abs(robotToTargetAngle) < 10) {
 					//Go in a straight line
 					this.controlThread.operation = Operation.TRAVEL;
 					//System.out.println("Straight line: " + targetY);
 				} //Now we decide if we need to go left or right 
 				else if (robotToTargetAngle > 10) {
-					this.controlThread.operation = Operation.ARC_RIGHT;
+					this.controlThread.operation = Operation.ARC_LEFT;
 					if (robotToTargetAngle > 90) {
 						//We're going backwards, so reverse the direction
-						this.controlThread.operation = Operation.ARC_LEFT;
+						this.controlThread.operation = Operation.ARC_RIGHT;
 					}
 					this.controlThread.radius = robotToTargetDistance * 10;
 				} else if (robotToTargetAngle < 10) {
-					this.controlThread.operation = Operation.ARC_LEFT;
+					this.controlThread.operation = Operation.ARC_RIGHT;
 					if (robotToTargetAngle < -90) {
 						//We're going backwards, so reverse the direction
-						this.controlThread.operation = Operation.ARC_RIGHT;
+						this.controlThread.operation = Operation.ARC_LEFT;
 					}
 					this.controlThread.radius = robotToTargetDistance * 10;
 				}
