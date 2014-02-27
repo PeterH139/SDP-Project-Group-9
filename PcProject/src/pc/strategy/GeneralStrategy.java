@@ -61,13 +61,13 @@ public class GeneralStrategy implements Strategy {
 	}
 
 	public Operation catchBall(RobotType robot, double[] RotDistSpeed) {
-		
 		Operation toExecute = Operation.DO_NOTHING;
 		boolean isAttacker = robot == RobotType.ATTACKER;
 		
 		toExecute = travelTo(robot, ballX, ballY, 30, RotDistSpeed);
-		
-		if (RotDistSpeed[1] < 32){
+		RotDistSpeed[1] = isAttacker? RotDistSpeed[1] : RotDistSpeed[1] * 3;
+		RotDistSpeed[3] = isAttacker? RotDistSpeed[3] : RotDistSpeed[3] * 3;
+		if (Math.abs(RotDistSpeed[1]) < 32 && Math.abs(RotDistSpeed[3]) < 25){
 			toExecute = isAttacker ? Operation.ATKCATCH : Operation.DEFCATCH;
 		}
 		
@@ -76,9 +76,9 @@ public class GeneralStrategy implements Strategy {
 
 	public Operation scoreGoal(RobotType robot, double[] RadDistSpeedRot) {
 		Operation toExecute = Operation.DO_NOTHING;
-		toExecute = travelTo(robot, attackerRobotX, goalY[1], 10, RadDistSpeedRot);
+		toExecute = travelTo(robot, (leftCheck + rightCheck) / 2, goalY[1], 40, RadDistSpeedRot);
 		RadDistSpeedRot[2] = 2 * RadDistSpeedRot[2];
-		if (RadDistSpeedRot[1] < 15) {
+		if (RadDistSpeedRot[1] < 45) {
 			float aimY = goalY[1];
 			if (robot == RobotType.ATTACKER) {
 				if (enemyDefenderRobotY > goalY[1]) {

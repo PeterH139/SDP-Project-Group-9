@@ -65,7 +65,7 @@ public class BrickCommServer {
 	public void executeSync(RobotCommand.Command command) throws IOException {
 		if (brickOutput == null)
 			return;
-		System.err.println(command.toString());
+//		System.err.println(command.toString());
 		command.sendToBrick(brickOutput);
 		brickOutput.flush();
 	}

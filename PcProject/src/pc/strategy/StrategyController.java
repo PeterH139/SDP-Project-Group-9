@@ -26,6 +26,8 @@ public class StrategyController implements WorldStateReceiver {
 	public BrickCommServer bcsAttacker, bcsDefender;
 	private boolean ballInDefenderArea = false;
 	private boolean ballInAttackerArea = false;
+	private boolean ballInEnemyAttackerArea = false;
+	private boolean ballInEnemyDefenderArea = false;
 
 	private Vision vision;
 
@@ -98,14 +100,14 @@ public class StrategyController implements WorldStateReceiver {
 			System.out.println("Changing to Attacking.");
 			break;
 		case DEFENDING:
-			Strategy ms = new MarkingStrategy(this.bcsAttacker);
+			Strategy AS = new AttackerStrategy(this.bcsAttacker);
 			Strategy pds = new PenaltyDefenderStrategy(this.bcsDefender);
 			StrategyController.currentStrategies.add(pds);
-			StrategyController.currentStrategies.add(ms);
+			StrategyController.currentStrategies.add(AS);
 			// this.vision.addWorldStateReceiver(ds);
 			// this.vision.addWorldStateReceiver(a);
 			pds.startControlThread();
-			ms.startControlThread();
+			AS.startControlThread();
 			System.out.println("Changing to Defending.");
 			break;
 		case PENALTY_ATK:
@@ -123,9 +125,12 @@ public class StrategyController implements WorldStateReceiver {
 			break;
 		case MARKING:
 			Strategy mar = new MarkingStrategy(this.bcsAttacker);
+			Strategy ics = new InterceptorStrategy(this.bcsDefender);
 			StrategyController.currentStrategies.add(mar);
+			StrategyController.currentStrategies.add(ics);
 			// this.vision.addWorldStateReceiver(mar);
 			mar.startControlThread();
+			ics.startControlThread();
 			System.out.println("Changing to Marking.");
 			break;
 		case RESET_ATK:
@@ -167,26 +172,39 @@ public class StrategyController implements WorldStateReceiver {
 			float ballX = worldState.getBall().x;
 			boolean prevBallInDefenderArea = this.ballInDefenderArea;
 			boolean prevBallInAttackerArea = this.ballInAttackerArea;
+			boolean prevBallInEnemyDefenderArea = this.ballInEnemyDefenderArea;
+			boolean prevBallInEnemyAttackerArea = this.ballInEnemyAttackerArea;
 			boolean prevHaveReset = this.haveReset;
 
 			if ((worldState.weAreShootingRight && ballX < defenderCheck)
 					|| (!worldState.weAreShootingRight && ballX > defenderCheck)) {
 				this.ballInDefenderArea = true;
 				this.ballInAttackerArea = false;
+				this.ballInEnemyDefenderArea = false;
+				this.ballInEnemyAttackerArea = false;
 			} else if (ballX > leftCheck && ballX < rightCheck) {
 				this.ballInDefenderArea = false;
 				this.ballInAttackerArea = true;
-			} else {
+				this.ballInEnemyDefenderArea = false;
+				this.ballInEnemyAttackerArea = false;
+			} else if (worldState.weAreShootingRight && ballX > defenderCheck
+					&& ballX < leftCheck) {
+				this.ballInEnemyAttackerArea = true;
+				this.ballInEnemyDefenderArea = false;
+				this.ballInAttackerArea = false;
+				this.ballInDefenderArea = false;
+			} else if (ballX > rightCheck) {
+				this.ballInEnemyAttackerArea = false;
+				this.ballInEnemyDefenderArea = true;
 				this.ballInAttackerArea = false;
 				this.ballInDefenderArea = false;
 			}
-
-			// System.out.println("BallAttacker: " + this.ballInAttackerArea +
-			// " ballDefender: " + this.ballInDefenderArea);
+//			 System.out.println("BallAttacker: " + this.ballInAttackerArea +
+//			 " ballDefender: " + this.ballInDefenderArea +
+//			 " ballEnemyAttacker: " + this.ballInEnemyAttackerArea + 
+//			 " ballEnemyDefender: " + this.ballInEnemyDefenderArea);
 			boolean defXTooClose = Math.abs(worldState.getDefenderRobot().x
 					- defenderCheck) < DIVIDER_THRESHOLD;
-			// System.out.println("defDistance: "
-			// +Math.abs(worldState.getDefenderRobot().x - defenderCheck));
 			boolean atkXTooClose = Math.abs(worldState.getAttackerRobot().x
 					- leftCheck) < DIVIDER_THRESHOLD
 					|| Math.abs(worldState.getAttackerRobot().x - rightCheck) < DIVIDER_THRESHOLD;
@@ -196,30 +214,34 @@ public class StrategyController implements WorldStateReceiver {
 				haveReset = false;
 			}
 
-			if (prevHaveReset != haveReset
-					|| prevBallInDefenderArea != this.ballInDefenderArea
-					|| prevBallInAttackerArea != this.ballInAttackerArea) {
-				if (haveReset) {
-					if (defXTooClose) {
-						// changeToStrategy(StrategyType.RESET_DEF);
-					} else if (atkXTooClose) {
-						changeToStrategy(StrategyType.RESET_ATK);
-					}
-				} else {
-					if (this.ballInDefenderArea) {
-						changeToStrategy(StrategyType.PASSING);
-					}
+			if (/*
+				 * prevHaveReset != haveReset ||
+				 */prevBallInDefenderArea != this.ballInDefenderArea
+					|| prevBallInAttackerArea != this.ballInAttackerArea
+					|| prevBallInEnemyAttackerArea != this.ballInEnemyAttackerArea
+					|| prevBallInEnemyDefenderArea != this.ballInEnemyDefenderArea) {
+				// if (haveReset) {
+				// if (defXTooClose) {
+				// changeToStrategy(StrategyType.RESET_DEF);
+				// } else if (atkXTooClose) {
+				// changeToStrategy(StrategyType.RESET_ATK);
+				// }
+				// } else {
+				if (this.ballInDefenderArea) {
+					changeToStrategy(StrategyType.PASSING);
+				}
 
-					if (this.ballInAttackerArea) {
-						changeToStrategy(StrategyType.ATTACKING);
-					}
-					
-					// TODO: Change strategy so that it doesn't change when we pass the ball.
-					if (!this.ballInAttackerArea && !this.ballInDefenderArea) {
-						changeToStrategy(StrategyType.DEFENDING);
-					}
+				if (this.ballInAttackerArea) {
+					changeToStrategy(StrategyType.ATTACKING);
+				}
+				if (this.ballInEnemyAttackerArea) {
+					changeToStrategy(StrategyType.DEFENDING);
+				}
+				if (this.ballInEnemyDefenderArea) {
+					changeToStrategy(StrategyType.MARKING);
 				}
 			}
+			// }
 		} else {
 			System.out.println("Strategy Controller Paused");
 			changeToStrategy(StrategyType.DO_NOTHING);

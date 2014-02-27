@@ -74,7 +74,7 @@ public class RobotRecogniser implements ObjectRecogniser {
 			distortionFix.barrelCorrect(point);
 			blueAtk.pos.x = (float) point.x;
 			blueAtk.pos.y = (float) point.y;
-			heightCorrection(blueAtk.pos, 2420, 175);
+			heightCorrection(blueAtk.pos, 2450, 175);
 		}
 		
 		if (blueDef.pos.x == 0 && blueDef.pos.y == 0){
@@ -84,7 +84,7 @@ public class RobotRecogniser implements ObjectRecogniser {
 			distortionFix.barrelCorrect(point);
 			blueDef.pos.x = (float) point.x;
 			blueDef.pos.y = (float) point.y;
-			heightCorrection(blueDef.pos, 2420, 175);
+			heightCorrection(blueDef.pos, 2450, 175);
 		}
 		
 		if (yellowAtk.pos.x == 0 && yellowAtk.pos.y == 0){
@@ -94,7 +94,7 @@ public class RobotRecogniser implements ObjectRecogniser {
 			distortionFix.barrelCorrect(point);
 			yellowAtk.pos.x = (float) point.x;
 			yellowAtk.pos.y = (float) point.y;
-			heightCorrection(yellowAtk.pos, 2420, 175);
+			heightCorrection(yellowAtk.pos, 2450, 175);
 		}
 		
 		if (yellowDef.pos.x == 0 && yellowDef.pos.y == 0){
@@ -104,7 +104,7 @@ public class RobotRecogniser implements ObjectRecogniser {
 			distortionFix.barrelCorrect(point);
 			yellowDef.pos.x = (float) point.x;
 			yellowDef.pos.y = (float) point.y;
-			heightCorrection(yellowDef.pos, 2420, 175);
+			heightCorrection(yellowDef.pos, 2450, 175);
 		}
 		
 		// Update Histories

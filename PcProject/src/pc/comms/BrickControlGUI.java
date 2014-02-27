@@ -52,7 +52,7 @@ public class BrickControlGUI extends JFrame implements KeyListener {
 			command = new RobotCommand.Travel(-10000, 100);
 			break;
 		case KeyEvent.VK_SPACE:
-			command = new RobotCommand.Kick(100);
+			command = new RobotCommand.Kick(30);
 			break;
 		case KeyEvent.VK_1:
 			command = new RobotCommand.Catch();
@@ -119,7 +119,7 @@ public class BrickControlGUI extends JFrame implements KeyListener {
 
 	public static void main(String[] args) throws NXTCommException {
 		BrickCommServer bcs = new BrickCommServer();
-		BrickControlGUI.guiConnect(bcs, BtInfo.group10);
+		BrickControlGUI.guiConnect(bcs, BtInfo.MEOW);
 		BrickControlGUI client = new BrickControlGUI(bcs);
 		client.setVisible(true);
 	}

@@ -76,6 +76,8 @@ public class PassingStrategy extends GeneralStrategy {
 		public int travelSpeed = 0;
 		public double radius = 0;
 
+		private long lastKickerEventTime = 0;
+		
 		public ControlThread() {
 			super("Robot control thread");
 			setDaemon(true);
@@ -111,14 +113,18 @@ public class PassingStrategy extends GeneralStrategy {
 						attackerBrick.executeSync(new RobotCommand.Travel(travelDist, travelSpeed));
 						break;
 					case DEFCATCH:
-						defenderBrick.executeSync(new RobotCommand.Catch());
-						ballCaught = true;
+						if (System.currentTimeMillis() - lastKickerEventTime > 500) {
+							defenderBrick.execute(new RobotCommand.Catch());
+							ballCaught = true;
+							lastKickerEventTime = System.currentTimeMillis();
+						}
 						break;
 					case DEFKICK:
-						// TODO The power in here was changed when speed became
-						// a percentage
-						defenderBrick.executeSync(new RobotCommand.Kick(15));
-						ballCaught = false;
+						if (System.currentTimeMillis() - lastKickerEventTime > 500) {
+							defenderBrick.execute(new RobotCommand.Kick(30));
+							ballCaught = false;
+							lastKickerEventTime = System.currentTimeMillis();
+						}
 						break;
 					case DEFROTATE:
 						defenderBrick.executeSync(new RobotCommand.Rotate(rotateBy, Math.abs(rotateBy)));
@@ -127,8 +133,8 @@ public class PassingStrategy extends GeneralStrategy {
 						defenderBrick.executeSync(new RobotCommand.Travel(travelDist, travelSpeed));
 						break;
 					case ROTATENMOVE:
-						defenderBrick.executeSync(new RobotCommand.Rotate(rotateBy, Math.abs(rotateBy)));
-						attackerBrick.executeSync(new RobotCommand.Travel(travelDist, travelSpeed));
+						defenderBrick.execute(new RobotCommand.Rotate(rotateBy, Math.abs(rotateBy)));
+						attackerBrick.execute(new RobotCommand.Travel(travelDist, travelSpeed));
 						break;
 					case DEFARC_LEFT:
 						defenderBrick.executeSync(new RobotCommand.TravelArc(

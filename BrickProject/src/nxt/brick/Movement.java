@@ -79,7 +79,7 @@ public class Movement extends DifferentialPilot {
 			speed = 100;
 		}
 		
-		KICKER.setSpeed(speed * MAXIMUM_KICKER_SPEED);
+		KICKER.setSpeed(speed * MAXIMUM_KICKER_SPEED/100);
 		KICKER.setAcceleration(ACCELERATION);
 
 		// Kick
