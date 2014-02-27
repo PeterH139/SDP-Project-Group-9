@@ -188,12 +188,12 @@ public class StrategyController implements WorldStateReceiver {
 				this.ballInEnemyDefenderArea = false;
 				this.ballInEnemyAttackerArea = false;
 			} else if (worldState.weAreShootingRight && ballX > defenderCheck
-					&& ballX < leftCheck) {
+					&& ballX < leftCheck || !worldState.weAreShootingRight && ballX < defenderCheck && ballX > rightCheck) {
 				this.ballInEnemyAttackerArea = true;
 				this.ballInEnemyDefenderArea = false;
 				this.ballInAttackerArea = false;
 				this.ballInDefenderArea = false;
-			} else if (ballX > rightCheck) {
+			} else if (!worldState.weAreShootingRight && (ballX < leftCheck) || worldState.weAreShootingRight && (ballX > rightCheck) )  {
 				this.ballInEnemyAttackerArea = false;
 				this.ballInEnemyDefenderArea = true;
 				this.ballInAttackerArea = false;
@@ -230,7 +230,6 @@ public class StrategyController implements WorldStateReceiver {
 				if (this.ballInDefenderArea) {
 					changeToStrategy(StrategyType.PASSING);
 				}
-
 				if (this.ballInAttackerArea) {
 					changeToStrategy(StrategyType.ATTACKING);
 				}

@@ -10,6 +10,7 @@ public class AttackerStrategy extends GeneralStrategy {
 	private ControlThread controlThread;
 	private boolean ballCaught = false;
 	private boolean stopControlThread;
+	private boolean ballInEnemyAttackerArea = false;
 
 	public AttackerStrategy(BrickCommServer brick) {
 		this.brick = brick;
@@ -31,7 +32,14 @@ public class AttackerStrategy extends GeneralStrategy {
 	public void sendWorldState(WorldState worldState) {
 		super.sendWorldState(worldState);
 
-		if (ballX < leftCheck || ballX > rightCheck) {
+		if (worldState.weAreShootingRight && ballX > defenderCheck
+				&& ballX < leftCheck || !worldState.weAreShootingRight && ballX < defenderCheck && ballX > rightCheck) {
+			this.ballInEnemyAttackerArea = true;
+		} else {
+			this.ballInEnemyAttackerArea = false;
+		}
+		if ((ballX < leftCheck || ballX > rightCheck)
+				&& !ballInEnemyAttackerArea) {
 			synchronized (controlThread) {
 				controlThread.operation = Operation.DO_NOTHING;
 			}
@@ -39,22 +47,36 @@ public class AttackerStrategy extends GeneralStrategy {
 		}
 
 		synchronized (controlThread) {
-			if (!ballCaught) {
-				double[] RadDistSpeedRot = new double[4];
-				controlThread.operation = catchBall(RobotType.ATTACKER,
-						RadDistSpeedRot);
-				controlThread.radius = RadDistSpeedRot[0];
-				controlThread.travelDist = (int) RadDistSpeedRot[1];
-				controlThread.travelSpeed = (int) RadDistSpeedRot[2];
-				controlThread.rotateBy = (int) RadDistSpeedRot[3];
-
+			if (ballInEnemyAttackerArea) {
+				controlThread.operation = Operation.ATKROTATE;
+				controlThread.rotateBy = (int) calculateAngle(attackerRobotX,
+						attackerRobotY, attackerOrientation, ballX, ballY);
+				controlThread.rotateSpeed = (int) Math.abs(controlThread.rotateBy * 1.5);
 			} else {
-				double[] RadDistSpeedRot = new double[4];
-				controlThread.operation = scoreGoal(RobotType.ATTACKER, RadDistSpeedRot);
-				controlThread.radius = (int) RadDistSpeedRot[0];
-				controlThread.travelDist = (int) RadDistSpeedRot[1];
-				controlThread.travelSpeed = (int) RadDistSpeedRot[2];
-				controlThread.rotateBy = (int) RadDistSpeedRot[3];
+				if (!ballCaught) {
+					double[] RadDistSpeedRot = new double[5];
+					controlThread.operation = catchBall(RobotType.ATTACKER,
+							RadDistSpeedRot);
+					controlThread.radius = RadDistSpeedRot[0];
+					controlThread.travelDist = (int) RadDistSpeedRot[1];
+					controlThread.travelSpeed = (int) RadDistSpeedRot[2];
+					controlThread.rotateBy = (int) RadDistSpeedRot[3];
+					controlThread.rotateSpeed = (int) RadDistSpeedRot[3];
+
+				} else {
+					double[] RadDistSpeedRot = new double[5];
+					controlThread.operation = scoreGoal(RobotType.ATTACKER,
+							RadDistSpeedRot);
+					controlThread.radius = (int) RadDistSpeedRot[0];
+					controlThread.travelDist = (int) RadDistSpeedRot[1];
+					controlThread.travelSpeed = (int) RadDistSpeedRot[2];
+					controlThread.rotateBy = (int) RadDistSpeedRot[3];
+					controlThread.rotateSpeed = (int) RadDistSpeedRot[4];
+				}
+				// kicks if detected false catch
+				if (ballCaught && (Math.hypot(ballX - attackerRobotX, ballY - attackerRobotY) > 45)) {
+					controlThread.operation = Operation.ATKKICK;
+				}
 			}
 		}
 	}
@@ -65,6 +87,7 @@ public class AttackerStrategy extends GeneralStrategy {
 		public int travelDist = 0;
 		public int travelSpeed = 0;
 		public double radius = 0;
+		public int rotateSpeed = 0;
 
 		private long lastKickerEventTime = 0;
 
@@ -110,8 +133,7 @@ public class AttackerStrategy extends GeneralStrategy {
 						}
 						break;
 					case ATKROTATE:
-						brick.execute(new RobotCommand.Rotate(-rotateBy, Math
-								.abs(rotateBy)));
+						brick.execute(new RobotCommand.Rotate(-rotateBy, rotateSpeed));
 						break;
 					case ATKTRAVEL:
 						brick.execute(new RobotCommand.Travel(travelDist,

@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import pc.comms.BrickCommServer;
 import pc.comms.RobotCommand;
+import pc.strategy.GeneralStrategy.Operation;
 import pc.world.WorldState;
 
 public class PassingStrategy extends GeneralStrategy {
@@ -64,6 +65,10 @@ public class PassingStrategy extends GeneralStrategy {
 				this.controlThread.travelDist = (int) RadDistSpeedRot[1];
 				this.controlThread.travelSpeed = (int) RadDistSpeedRot[2];
 				this.controlThread.rotateBy = (int) RadDistSpeedRot[3];
+			}
+			// kicks if detected false catch
+			if (ballCaught && (Math.hypot(ballX - defenderRobotX, ballY - defenderRobotY) > 45)) {
+				controlThread.operation = Operation.DEFKICK;
 			}
 		}
 
@@ -133,8 +138,8 @@ public class PassingStrategy extends GeneralStrategy {
 						defenderBrick.executeSync(new RobotCommand.Travel(travelDist, travelSpeed));
 						break;
 					case ROTATENMOVE:
-						defenderBrick.execute(new RobotCommand.Rotate(rotateBy, Math.abs(rotateBy)));
 						attackerBrick.execute(new RobotCommand.Travel(travelDist, travelSpeed));
+						defenderBrick.execute(new RobotCommand.Rotate(rotateBy, Math.abs(rotateBy)));
 						break;
 					case DEFARC_LEFT:
 						defenderBrick.executeSync(new RobotCommand.TravelArc(
