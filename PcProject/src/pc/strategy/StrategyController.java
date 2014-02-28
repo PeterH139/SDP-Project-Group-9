@@ -4,10 +4,7 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 
-import lejos.pc.comm.NXTCommException;
 import pc.comms.BrickCommServer;
-import pc.comms.BrickControlGUI;
-import pc.comms.BtInfo;
 import pc.strategy.interfaces.Strategy;
 import pc.vision.Vision;
 import pc.vision.interfaces.WorldStateReceiver;

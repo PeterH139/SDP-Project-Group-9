@@ -56,14 +56,17 @@ public class PassingStrategy extends GeneralStrategy {
 				this.controlThread.travelDist = (int) RotDistSpeed[1];
 				this.controlThread.travelSpeed = (int) RotDistSpeed[2];
 				this.controlThread.rotateBy = (int) RotDistSpeed[3];
+				this.controlThread.rotateSpeed = (int) Math.abs(RotDistSpeed[3]);
 
 			} else {
-				double[] RadDistSpeedRot = new double[4];
+				double[] RadDistSpeedRot = new double[5];
 				this.controlThread.operation = passBall(RobotType.DEFENDER,
 						RobotType.ATTACKER, RadDistSpeedRot);
-				this.controlThread.travelDist = (int) RadDistSpeedRot[1];
-				this.controlThread.travelSpeed = (int) RadDistSpeedRot[2];
-				this.controlThread.rotateBy = (int) RadDistSpeedRot[3];
+				controlThread.radius = (int) RadDistSpeedRot[0];
+				controlThread.travelDist = (int) RadDistSpeedRot[1];
+				controlThread.travelSpeed = (int) RadDistSpeedRot[2];
+				controlThread.rotateBy = (int) RadDistSpeedRot[3];
+				controlThread.rotateSpeed = (int) RadDistSpeedRot[4];
 			}
 			// kicks if detected false catch
 			if (ballCaughtDefender && (Math.hypot(ballX - defenderRobotX, ballY - defenderRobotY) > 45)) {
@@ -78,6 +81,7 @@ public class PassingStrategy extends GeneralStrategy {
 		public int rotateBy = 0;
 		public int travelDist = 0;
 		public int travelSpeed = 0;
+		public int rotateSpeed = 0;
 		public double radius = 0;
 
 		private long lastKickerEventTime = 0;
@@ -91,7 +95,7 @@ public class PassingStrategy extends GeneralStrategy {
 		public void run() {
 			try {
 				while (!stopControlThread) {
-					int travelDist, rotateBy, travelSpeed;
+					int travelDist, rotateBy, travelSpeed, rotateSpeed;
 					double radius;
 					Operation op;
 					synchronized (this) {
@@ -99,10 +103,11 @@ public class PassingStrategy extends GeneralStrategy {
 						rotateBy = this.rotateBy;
 						travelDist = this.travelDist;
 						travelSpeed = this.travelSpeed;
+						rotateSpeed = this.rotateSpeed;
 						radius = this.radius;
 					}
 
-//					System.out.println("ballCaught: " + ballCaught + " op: "
+//					System.out.println("ballCaught: " + ballCaughtDefender + " op: "
 //							+ op.toString() + " rotateBy: " + rotateBy
 //							+ " travelDist: " + travelDist);
 

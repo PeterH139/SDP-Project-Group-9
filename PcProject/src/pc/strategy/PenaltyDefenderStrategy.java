@@ -106,7 +106,7 @@ public class PenaltyDefenderStrategy extends GeneralStrategy {
 					if (rotateBy != 0) {
 						brick.execute(new RobotCommand.Rotate(rotateBy, Math.abs(rotateBy)));
 					} else if (travelDist != 0) {
-						brick.execute(new RobotCommand.Travel(travelDist / 3, Math.abs(travelDist) * 3 + 25));
+						brick.execute(new RobotCommand.Travel(travelDist / 3, Math.abs(travelDist) * 3 + 60));
 					}
 					Thread.sleep(250); // TODO: Test lower values for this and
 										// see where it breaks.
