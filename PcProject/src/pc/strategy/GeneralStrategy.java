@@ -211,6 +211,8 @@ public class GeneralStrategy implements Strategy {
 	public Operation passBall(RobotType passer, RobotType receiver,
 			double[] RotDistSpeed) {
 		Operation toExecute = Operation.DO_NOTHING;
+		toExecute = travelToNoArc(passer, defenderResetX, defenderResetY, 20, RotDistSpeed);
+		if (toExecute == Operation.DO_NOTHING) {
 		float targetY = 220;
 		if (enemyAttackerRobotY < targetY) {
 			targetY = enemyAttackerRobotY + 125;
@@ -234,14 +236,15 @@ public class GeneralStrategy implements Strategy {
 			if (Math.abs(angleToPass) > 10) {
 				RotDistSpeed[3] = (int) angleToPass / 3;
 			} else {
-				RotDistSpeed[3] = 0;
+				RotDistSpeed[3] = 0; }
 				if (Math.abs(dist) > 5) {
 					RotDistSpeed[1] = (int) (dist);
 				} else {
 					RotDistSpeed[1] = 0;
 					toExecute = Operation.DEFKICK;
 				}
-			}
+			
+		}
 		}
 		return toExecute;
 	}
@@ -286,14 +289,14 @@ public class GeneralStrategy implements Strategy {
 			leftCheck = worldState.dividers[1];
 			rightCheck = worldState.dividers[2];
 			defenderCheck = worldState.dividers[0];
-			defenderResetX = defenderCheck / 2;
+			defenderResetX = (defenderCheck / 2) + 20;
 			goalX = 640;
 			goalY = worldState.rightGoal;
 		} else {
 			leftCheck = worldState.dividers[0];
 			rightCheck = worldState.dividers[1];
 			defenderCheck = worldState.dividers[2];
-			defenderResetX = (defenderCheck + 640) / 2;
+			defenderResetX = ((defenderCheck + 640) / 2) - 40;
 			goalX = 0;
 			goalY = worldState.leftGoal;
 		}

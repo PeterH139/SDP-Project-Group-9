@@ -50,7 +50,7 @@ public class AttackerStrategy extends GeneralStrategy {
 				controlThread.operation = Operation.ATKROTATE;
 				controlThread.rotateBy = (int) calculateAngle(attackerRobotX,
 						attackerRobotY, attackerOrientation, ballX, ballY);
-				controlThread.rotateSpeed = (int) Math.abs(controlThread.rotateBy * 1.5);
+				controlThread.rotateSpeed = (int) Math.abs(controlThread.rotateBy * 3);
 			} else {
 				if (!ballCaughtAttacker) {
 					double[] RadDistSpeedRot = new double[5];

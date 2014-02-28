@@ -6,6 +6,7 @@ import java.util.Deque;
 
 import pc.comms.BrickCommServer;
 import pc.comms.RobotCommand;
+import pc.strategy.GeneralStrategy.Operation;
 import pc.strategy.interfaces.Strategy;
 import pc.vision.Vector2f;
 import pc.world.WorldState;
@@ -83,13 +84,20 @@ public class InterceptorStrategy extends GeneralStrategy {
 		synchronized (controlThread) {
 			controlThread.rotateBy = (int) ang1;
 			controlThread.travelDist = (int) (dist * 0.8);
+			controlThread.operation = Operation.DEFTRAVEL;
+			if (ballCaughtDefender && (Math.hypot(ballX - defenderRobotX, ballY - defenderRobotY) > 45)) {
+				controlThread.operation = Operation.DEFKICK;
+			}
 
 		}
 	}
 
 	private class ControlThread extends Thread {
+		public Operation operation = Operation.DO_NOTHING;
 		public int rotateBy = 0;
 		public int travelDist = 0;
+		private ControlThread controlThread;
+		private long lastKickerEventTime = 0;
 
 		public ControlThread() {
 			super("Robot control thread");
@@ -100,19 +108,33 @@ public class InterceptorStrategy extends GeneralStrategy {
 		public void run() {
 			try {
 				while (true) {
+					Operation op;
 					int rotateBy, travelDist;
 					synchronized (this) {
+						op = this.operation;
 						rotateBy = this.rotateBy;
 						travelDist = this.travelDist;
 					}
 					
-
+					switch(op) {
+					case DEFTRAVEL:
 //					System.out.println(" rotateBy: "
 //							+ rotateBy + " travelDist: " + travelDist);
 					if (rotateBy != 0) {
 						brick.execute(new RobotCommand.Rotate(rotateBy, Math.abs(rotateBy)));
 					} else if (travelDist != 0) {
 						brick.execute(new RobotCommand.Travel(travelDist / 3, Math.abs(travelDist) * 3 + 25));
+					}
+					break;
+					case DEFKICK:
+						if (System.currentTimeMillis() - lastKickerEventTime > 1000) {
+							brick.execute(new RobotCommand.Kick(30));
+							ballCaughtDefender = false;
+							lastKickerEventTime = System.currentTimeMillis();
+						}
+					break;
+					default:
+						break;
 					}
 					Thread.sleep(250); // TODO: Test lower values for this and
 										// see where it breaks.

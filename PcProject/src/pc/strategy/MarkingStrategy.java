@@ -18,7 +18,7 @@ import pc.world.WorldState;
  * @author Daniel
  * 
  */
-public class MarkingStrategy implements Strategy {
+public class MarkingStrategy extends GeneralStrategy {
 
 	private BrickCommServer brick;
 	private ControlThread controlThread;
@@ -129,11 +129,14 @@ public class MarkingStrategy implements Strategy {
 					this.controlThread.operation = Operation.DO_NOTHING;
 				}
 			}
+			if (ballCaughtAttacker && (Math.hypot(ballX - attackerRobotX, ballY - attackerRobotY) > 45)) {
+				controlThread.operation = Operation.ATKKICK;
+			}
 		}
 	}
 
 	public enum Operation {
-		DO_NOTHING, TRAVEL, ROTATE, ARC_LEFT, ARC_RIGHT,
+		DO_NOTHING, TRAVEL, ROTATE, ARC_LEFT, ARC_RIGHT, ATKKICK
 	}
 
 	private class ControlThread extends Thread {
@@ -142,6 +145,8 @@ public class MarkingStrategy implements Strategy {
 		public int rotateBy = 0;
 		public int travelDist = 0;
 		public int travelSpeed = 0;
+		
+		private long lastKickerEventTime = 0;
 
 		public ControlThread() {
 			super("Robot control thread");
@@ -167,6 +172,13 @@ public class MarkingStrategy implements Strategy {
 					switch (op) {
 					case DO_NOTHING:
 
+						break;
+					case ATKKICK:
+						if (System.currentTimeMillis() - lastKickerEventTime > 500) {
+							brick.execute(new RobotCommand.Kick(100));
+							ballCaughtAttacker = false;
+							lastKickerEventTime = System.currentTimeMillis();
+						}
 						break;
 					case TRAVEL:
 						brick.executeSync(new RobotCommand.Travel(travelDist, travelSpeed));
