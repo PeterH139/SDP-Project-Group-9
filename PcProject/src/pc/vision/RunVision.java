@@ -44,15 +44,6 @@ public class RunVision {
 	 *            Program arguments.
 	 */
 	public static void main(String[] args) {
-		CommandLine cmdLine;
-		try {
-			CommandLineParser parser = new GnuParser();
-			cmdLine = parser.parse(cmdLineOptions, args);
-		} catch (ParseException e) {
-			System.err.println(e.getMessage());
-			return;
-		}
-
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception e) {
@@ -73,17 +64,13 @@ public class RunVision {
 		int videoStandard = V4L4JConstants.STANDARD_PAL;
 		int compressionQuality = 100;
 
-		final boolean enableBluetooth = !cmdLine.hasOption("nobluetooth");
-
 		// Create a new Vision object to serve the main vision window
 		Vision vision = new Vision(worldState, pitchConstants);
 
 		try {
 			StrategyController strategyController = null;
-			if (enableBluetooth) {
-				strategyController = new StrategyController(vision);
-				Vision.addWorldStateReceiver(strategyController);
-			}
+			strategyController = new StrategyController(vision);
+			Vision.addWorldStateReceiver(strategyController);
 
 			final VideoStream vStream = new VideoStream(videoDevice, width,
 					height, channel, videoStandard, compressionQuality);
@@ -118,23 +105,14 @@ public class RunVision {
 			gui.addTool(pmvTool, "Pitch Model");
 			Vision.addWorldStateReceiver(pmvTool);
 
-			StrategySelectorTool sst = new StrategySelectorTool(gui,
-					strategyController);
-			gui.addTool(sst, "Strategy Selector");
-
 			vision.addRecogniser(new BallRecogniser(vision, worldState,
 					pitchConstants, distortionFix));
 			vision.addRecogniser(new RobotRecogniser(vision, worldState,
 					pitchConstants, distortionFix));
 
-			if (enableBluetooth) {
-				StrategySelectorTool stratSelect = new StrategySelectorTool(
-						gui, strategyController);
-				gui.addTool(stratSelect, "Strategy Selector");
-
-				strategyController
-						.changeToStrategy(StrategyController.StrategyType.DO_NOTHING);
-			}
+			StrategySelectorTool stratSelect = new StrategySelectorTool(gui,
+					strategyController);
+			gui.addTool(stratSelect, "Robot and strategy control");
 
 			vStream.addReceiver(pmvTool);
 			vStream.addReceiver(distortionFix);

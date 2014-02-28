@@ -188,8 +188,6 @@ public class MarkingStrategy implements Strategy {
 					// TODO Maybe this should be defined as a constant?
 					Thread.sleep(250);
 				}
-			} catch (IOException e) {
-				e.printStackTrace();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

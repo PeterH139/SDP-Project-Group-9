@@ -3,8 +3,11 @@ package pc.comms;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 import lejos.pc.comm.NXTComm;
 import lejos.pc.comm.NXTCommException;
@@ -16,11 +19,25 @@ public class BrickCommServer {
 	NXTComm comm;
 	DataInputStream brickInput;
 	DataOutputStream brickOutput;
+	private boolean connected;
 
 	private ExecutorService executor;
+	private List<StateChangeListener> stateChangeListeners;
+	
+	private final static ThreadFactory EXECUTOR_FACTORY = new ThreadFactory() {
+		
+		@Override
+		public Thread newThread(Runnable runnable) {
+			Thread t = new Thread(runnable, "BrickCommServer executor");
+			t.setDaemon(true);
+			return t;
+		}
+	};
 
 	public BrickCommServer() {
-		executor = Executors.newSingleThreadExecutor();
+		stateChangeListeners = new ArrayList<BrickCommServer.StateChangeListener>();
+		connected = false;
+		executor = Executors.newSingleThreadExecutor(EXECUTOR_FACTORY);
 	}
 
 	public void connect(NXTInfo brickInfo) throws NXTCommException {
@@ -29,6 +46,21 @@ public class BrickCommServer {
 			return;
 		brickInput = new DataInputStream(comm.getInputStream());
 		brickOutput = new DataOutputStream(comm.getOutputStream());
+		setConnected(true);
+	}
+
+	public boolean isConnected() {
+		return connected;
+	}
+	
+	private void setConnected(boolean connected) {
+		if (this.connected != connected) {
+			this.connected = connected;
+			
+			for (StateChangeListener listener : stateChangeListeners) {
+				listener.stateChanged();
+			}
+		}
 	}
 
 	public void close() {
@@ -38,6 +70,18 @@ public class BrickCommServer {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
+		brickInput = null;
+		brickOutput = null;
+		setConnected(false);
+	}
+	
+	public void addStateChangeListener(StateChangeListener listener) {
+		stateChangeListeners.add(listener);
+	}
+	
+	public void removeStateChangeListener(StateChangeListener listener) {
+		stateChangeListeners.remove(listener);
 	}
 
 	/**
@@ -49,11 +93,7 @@ public class BrickCommServer {
 
 			@Override
 			public void run() {
-				try {
-					BrickCommServer.this.executeSync(command);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+				BrickCommServer.this.executeSync(command);
 			}
 		});
 	}
@@ -62,33 +102,19 @@ public class BrickCommServer {
 	 * Executes a command synchronously. Never call this method from GUI or
 	 * frame grabber thread!
 	 */
-	public void executeSync(RobotCommand.Command command) throws IOException {
+	public void executeSync(RobotCommand.Command command) {
 		if (brickOutput == null)
 			return;
-//		System.err.println(command.toString());
-		command.sendToBrick(brickOutput);
-		brickOutput.flush();
+		try {
+			command.sendToBrick(brickOutput);
+			brickOutput.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+			close();
+		}
 	}
 
 	// Legacy methods
-
-	@Deprecated
-	public void robotStop() throws IOException {
-		brickOutput.writeInt(RobotOpcode.STOP);
-		brickOutput.flush();
-	}
-
-	@Deprecated
-	public void robotForwards() throws IOException {
-		brickOutput.writeInt(RobotOpcode.FORWARDS);
-		brickOutput.flush();
-	}
-
-	@Deprecated
-	public void robotBackwards() throws IOException {
-		brickOutput.writeInt(RobotOpcode.BACKWARDS);
-		brickOutput.flush();
-	}
 
 	@Deprecated
 	public void robotKick(int speed) throws IOException {
@@ -100,14 +126,6 @@ public class BrickCommServer {
 	@Deprecated
 	public void robotCatch() throws IOException {
 		brickOutput.writeInt(RobotOpcode.CATCH);
-		brickOutput.flush();
-	}
-
-
-	@Deprecated
-	public void robotRotate(boolean clockwise) throws IOException {
-		brickOutput.writeInt(clockwise ? RobotOpcode.ROTATE_RIGHT
-				: RobotOpcode.ROTATE_LEFT);
 		brickOutput.flush();
 	}
 
@@ -137,7 +155,7 @@ public class BrickCommServer {
 		brickOutput.flush();
 
 	}
-	
+
 	public boolean robotTest() throws IOException {
 		brickOutput.writeInt(RobotOpcode.TEST);
 		brickOutput.flush();
@@ -169,5 +187,9 @@ public class BrickCommServer {
 		brickOutput.flush();
 		boolean robotReceived = brickInput.readBoolean();
 		return robotReceived;
+	}
+
+	public interface StateChangeListener {
+		void stateChanged();
 	}
 }

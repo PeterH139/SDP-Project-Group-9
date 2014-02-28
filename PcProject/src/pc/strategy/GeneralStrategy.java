@@ -137,7 +137,7 @@ public class GeneralStrategy implements Strategy {
 					DistSpeedRot[1] = isAttacker ? -dist : -dist / 3;
 					DistSpeedRot[2] = Math.abs(dist) * 3;
 				}
-				System.out.println("angle 1 : " + Math.abs(ang1) + "dist: " + Math.abs(dist));
+				//System.out.println("angle 1 : " + Math.abs(ang1) + "dist: " + Math.abs(dist));
 			} else {
 				if (Math.abs(ang1) > 15) {
 					toExecute = isAttacker ? Operation.ATKROTATE

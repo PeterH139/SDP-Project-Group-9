@@ -125,7 +125,7 @@ public class PassingStrategy extends GeneralStrategy {
 						break;
 					case DEFKICK:
 						if (System.currentTimeMillis() - lastKickerEventTime > 1000) {
-							defenderBrick.execute(new RobotCommand.Kick(30));
+							defenderBrick.execute(new RobotCommand.Kick(10));
 							ballCaughtDefender = false;
 							lastKickerEventTime = System.currentTimeMillis();
 						}
@@ -155,8 +155,6 @@ public class PassingStrategy extends GeneralStrategy {
 					Thread.sleep(250);
 				}
 
-			} catch (IOException e) {
-				e.printStackTrace();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
