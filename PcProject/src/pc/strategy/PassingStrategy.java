@@ -12,7 +12,6 @@ public class PassingStrategy extends GeneralStrategy {
 	private BrickCommServer attackerBrick;
 	private BrickCommServer defenderBrick;
 	private ControlThread controlThread;
-	private boolean ballCaught;
 	private boolean stopControlThread;
 
 	public PassingStrategy(BrickCommServer attackerBrick,
@@ -49,7 +48,7 @@ public class PassingStrategy extends GeneralStrategy {
 		synchronized (this.controlThread) {
 			this.controlThread.operation = Operation.DO_NOTHING;
 
-			if (!this.ballCaught) {
+			if (!this.ballCaughtDefender) {
 				double[] RotDistSpeed = new double[4];
 				this.controlThread.operation = catchBall(RobotType.DEFENDER,
 						RotDistSpeed);
@@ -67,7 +66,7 @@ public class PassingStrategy extends GeneralStrategy {
 				this.controlThread.rotateBy = (int) RadDistSpeedRot[3];
 			}
 			// kicks if detected false catch
-			if (ballCaught && (Math.hypot(ballX - defenderRobotX, ballY - defenderRobotY) > 45)) {
+			if (ballCaughtDefender && (Math.hypot(ballX - defenderRobotX, ballY - defenderRobotY) > 45)) {
 				controlThread.operation = Operation.DEFKICK;
 			}
 		}
@@ -118,16 +117,16 @@ public class PassingStrategy extends GeneralStrategy {
 						attackerBrick.executeSync(new RobotCommand.Travel(travelDist, travelSpeed));
 						break;
 					case DEFCATCH:
-						if (System.currentTimeMillis() - lastKickerEventTime > 500) {
+						if (System.currentTimeMillis() - lastKickerEventTime > 1000) {
 							defenderBrick.execute(new RobotCommand.Catch());
-							ballCaught = true;
+							ballCaughtDefender = true;
 							lastKickerEventTime = System.currentTimeMillis();
 						}
 						break;
 					case DEFKICK:
-						if (System.currentTimeMillis() - lastKickerEventTime > 500) {
+						if (System.currentTimeMillis() - lastKickerEventTime > 1000) {
 							defenderBrick.execute(new RobotCommand.Kick(30));
-							ballCaught = false;
+							ballCaughtDefender = false;
 							lastKickerEventTime = System.currentTimeMillis();
 						}
 						break;

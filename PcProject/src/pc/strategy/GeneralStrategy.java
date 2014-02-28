@@ -29,6 +29,8 @@ public class GeneralStrategy implements Strategy {
 	protected float defenderResetY;
 	protected float attackerResetX;
 	protected float attackerResetY;
+	protected boolean ballCaughtDefender;
+	protected boolean ballCaughtAttacker;
 
 	@Override
 	public void stopControlThread() {
@@ -67,6 +69,7 @@ public class GeneralStrategy implements Strategy {
 		toExecute = travelTo(robot, ballX, ballY, 30, RotDistSpeed);
 		RotDistSpeed[1] = isAttacker ? RotDistSpeed[1] : RotDistSpeed[1] * 3;
 		RotDistSpeed[3] = isAttacker ? RotDistSpeed[3] : RotDistSpeed[3] * 3;
+		// TODO: implement some form of check for whether the ball is against the wall or not
 		if (Math.abs(RotDistSpeed[1]) < 32 && Math.abs(RotDistSpeed[3]) < 25) {
 			toExecute = isAttacker ? Operation.ATKCATCH : Operation.DEFCATCH;
 		}

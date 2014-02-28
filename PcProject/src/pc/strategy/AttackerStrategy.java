@@ -8,7 +8,6 @@ public class AttackerStrategy extends GeneralStrategy {
 
 	private BrickCommServer brick;
 	private ControlThread controlThread;
-	private boolean ballCaught = false;
 	private boolean stopControlThread;
 	private boolean ballInEnemyAttackerArea = false;
 
@@ -53,7 +52,7 @@ public class AttackerStrategy extends GeneralStrategy {
 						attackerRobotY, attackerOrientation, ballX, ballY);
 				controlThread.rotateSpeed = (int) Math.abs(controlThread.rotateBy * 1.5);
 			} else {
-				if (!ballCaught) {
+				if (!ballCaughtAttacker) {
 					double[] RadDistSpeedRot = new double[5];
 					controlThread.operation = catchBall(RobotType.ATTACKER,
 							RadDistSpeedRot);
@@ -74,7 +73,7 @@ public class AttackerStrategy extends GeneralStrategy {
 					controlThread.rotateSpeed = (int) RadDistSpeedRot[4];
 				}
 				// kicks if detected false catch
-				if (ballCaught && (Math.hypot(ballX - attackerRobotX, ballY - attackerRobotY) > 45)) {
+				if (ballCaughtAttacker && (Math.hypot(ballX - attackerRobotX, ballY - attackerRobotY) > 45)) {
 					controlThread.operation = Operation.ATKKICK;
 				}
 			}
@@ -121,14 +120,14 @@ public class AttackerStrategy extends GeneralStrategy {
 					case ATKCATCH:
 						if (System.currentTimeMillis() - lastKickerEventTime > 500) {
 							brick.execute(new RobotCommand.Catch());
-							ballCaught = true;
+							ballCaughtAttacker = true;
 							lastKickerEventTime = System.currentTimeMillis();
 						}
 						break;
 					case ATKKICK:
 						if (System.currentTimeMillis() - lastKickerEventTime > 500) {
 							brick.execute(new RobotCommand.Kick(100));
-							ballCaught = false;
+							ballCaughtAttacker = false;
 							lastKickerEventTime = System.currentTimeMillis();
 						}
 						break;
