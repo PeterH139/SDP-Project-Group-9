@@ -4,15 +4,12 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-import nxt.brick.Movement;
-import reallejos.shared.RobotOpcode;
 import lejos.nxt.Button;
 import lejos.nxt.ButtonListener;
-import lejos.nxt.LCD;
 import lejos.nxt.comm.Bluetooth;
 import lejos.nxt.comm.NXTConnection;
-import lejos.util.Delay;
-import lejos.util.TextMenu;
+import nxt.brick.Movement;
+import reallejos.shared.RobotOpcode;
 
 public class BrickCommClient {
 
@@ -20,7 +17,7 @@ public class BrickCommClient {
 	DataInputStream pcInput;
 	DataOutputStream pcOutput;
 	RobotController rc;
-	
+
 	boolean movingForwards = false, movingBackwards = false;
 	int turnRadius = 0;
 
@@ -38,37 +35,39 @@ public class BrickCommClient {
 	public void releaseConnection() {
 		this.connection.close();
 	}
-	
+
 	private void handleStop() {
 		this.rc.getMovementController().stop();
 		this.movingForwards = false;
 		this.movingBackwards = false;
 	}
+
 	private void handleCatch() {
 		this.rc.getMovementController().resetKicker();
 	}
-	
+
 	private void handleForwards() {
 		this.rc.getMovementController().forward();
 		this.movingForwards = true;
 	}
-	
+
 	private void handleBackwards() {
 		this.rc.getMovementController().backward();
 		this.movingBackwards = true;
 	}
-	
+
 	private void handleKick() throws IOException {
 		int speed = this.pcInput.readInt();
 		this.rc.getMovementController().kick(speed);
 	}
+
 	private void handleRotate(boolean clockwise) throws IOException {
 		if (clockwise)
 			this.rc.getMovementController().rotateRight();
 		else
 			this.rc.getMovementController().rotateLeft();
 	}
-	
+
 	private void handleRotateBy() throws IOException {
 		int angle = this.pcInput.readInt();
 		double speed = this.pcInput.readDouble();
@@ -83,31 +82,31 @@ public class BrickCommClient {
 		this.rc.getMovementController().setTravelSpeed(speed);
 		this.rc.getMovementController().travelArc(radius, distance, true);
 	}
-	
+
 	private void handleTravel() throws IOException {
 		int distance = this.pcInput.readInt();
 		int speed = this.pcInput.readInt();
 		this.rc.getMovementController().setTravelSpeed(speed);
-		this.rc.getMovementController().travel(distance, true);	
+		this.rc.getMovementController().travel(distance, true);
 	}
-		
+
 	private void handleTest() throws IOException {
 		this.pcOutput.writeBoolean(true);
 		this.pcOutput.flush();
 	}
-	
+
 	private void handleTestINT() throws IOException {
 		this.pcOutput.writeBoolean(true);
 		this.pcOutput.flush();
 		int test = this.pcInput.readInt();
 	}
-	
+
 	private void handleTestDOUBLE() throws IOException {
 		this.pcOutput.writeBoolean(true);
 		this.pcOutput.flush();
 		double test = this.pcInput.readDouble();
 	}
-	
+
 	private void handleTestINTANDDOUBLE() throws IOException {
 		this.pcOutput.writeBoolean(true);
 		this.pcOutput.flush();
@@ -120,7 +119,7 @@ public class BrickCommClient {
 			System.out.println("Controller ready");
 			while (true) {
 				int opcode = this.pcInput.readInt();
-				
+
 				switch (opcode) {
 				case RobotOpcode.STOP:
 					handleStop();
@@ -164,7 +163,7 @@ public class BrickCommClient {
 				case RobotOpcode.TESTINTANDDOUBLE:
 					handleTestINTANDDOUBLE();
 					break;
-				
+
 				case RobotOpcode.QUIT:
 					return;
 				default:
@@ -179,7 +178,6 @@ public class BrickCommClient {
 	}
 
 	public static void main(String[] args) {
-		String[] robotsList = {"Keeper", "Attacker"};
 		Button.ESCAPE.addButtonListener(new ButtonListener() {
 			
 			@Override
@@ -192,28 +190,9 @@ public class BrickCommClient {
 			}
 		});
 		
-		boolean selectionMade = false;
-		boolean isKeeper = false;
-		
-		while (!selectionMade) {
-			TextMenu robotSelection = new TextMenu(robotsList, 1, "What robot am I?");
+		boolean isKeeper = Bluetooth.getFriendlyName().equals("MEOW");
+		System.out.println("Mode: " + (isKeeper ? "Keeper" : "Attacker"));
 
-			int robotNumber = robotSelection.select();
-
-			if (robotNumber == 0) {
-				isKeeper = true;
-				selectionMade = true;
-			} else if (robotNumber == 1) {
-				isKeeper = false;
-				selectionMade = true;
-			} 
-			
-			Delay.msDelay(300);
-		}
-		
-		LCD.clearDisplay();
-		LCD.refresh();		
-		
 		RobotController rc = new RobotController(isKeeper);
 		rc.getMovementController().setTravelSpeed(300);
 		BrickCommClient bc = new BrickCommClient(rc);
