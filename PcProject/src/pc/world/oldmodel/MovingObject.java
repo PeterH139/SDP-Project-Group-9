@@ -6,6 +6,10 @@
  * */
 package pc.world.oldmodel;
 
+import java.awt.geom.Point2D;
+
+import pc.world.DirectedPoint;
+
 public class MovingObject {
 	//x,y, representation on the grid
 	//x,y are mm representations
@@ -41,4 +45,8 @@ public class MovingObject {
 	
 	//rotating point of robots, need to represent
 	//robot dimension extension from plates
+	
+	public Point2D asPoint() {
+		return new Point2D.Double(x, y);
+	}
 }

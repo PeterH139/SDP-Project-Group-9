@@ -8,6 +8,7 @@
 package pc.world;
 
 import java.awt.Polygon;
+import java.awt.geom.Point2D;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
@@ -189,12 +190,10 @@ public class Pitch extends Observable {
 	/**
 	 * Converts a given point from pixels to millimetres.
 	 */
-	public void framePointToModel(Vector2f point) {
-		point.x -= getPitchCenterFrameX();
-		point.y -= getPitchCenterFrameY();
-		float scale = (float) getPitchWidth() / getPitchFrameWidth();
-		point.x *= scale;
-		point.y *= scale;
+	public void framePointToModel(Point2D point) {
+		double scale = (double) getPitchWidth() / getPitchFrameWidth();
+		point.setLocation(scale * (point.getX() - getPitchCenterFrameX()),
+				scale * (point.getY() - getPitchCenterFrameY()));
 	}
 
 	public int getZoneDividerWidth() {

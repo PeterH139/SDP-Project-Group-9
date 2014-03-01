@@ -56,7 +56,7 @@ public class RunVision {
 		final PitchConstants pitchConstants = new PitchConstants(0);
 		final Pitch pitch = new Pitch(yamlConfig, pitchConstants);
 		WorldState worldState = new WorldState(pitch);
-		
+
 		DynamicWorldState dynamicWorldState = new DynamicWorldState();
 
 		// Default values for the main vision window
@@ -68,7 +68,8 @@ public class RunVision {
 		int compressionQuality = 100;
 
 		// Create a new Vision object to serve the main vision window
-		Vision vision = new Vision(worldState, pitchConstants, dynamicWorldState);
+		Vision vision = new Vision(worldState, pitchConstants,
+				dynamicWorldState);
 
 		try {
 			StrategyController strategyController = null;
@@ -106,11 +107,15 @@ public class RunVision {
 			PitchModelView pmvTool = new PitchModelView(gui, pitchConstants,
 					pitch, distortionFix, dynamicWorldState);
 			gui.addTool(pmvTool, "Pitch Model");
+			pmvTool.addViewProvider(new BallRecogniser.ViewProvider(
+					dynamicWorldState, pitch));
+			pmvTool.addViewProvider(new RobotRecogniser.ViewProvider(
+					dynamicWorldState, pitch));
 
 			vision.addRecogniser(new BallRecogniser(vision, worldState,
-					pitchConstants, distortionFix));
+					pitchConstants, distortionFix, pitch));
 			vision.addRecogniser(new RobotRecogniser(vision, worldState,
-					pitchConstants, distortionFix));
+					pitchConstants, distortionFix, pitch));
 
 			StrategySelectorTool stratSelect = new StrategySelectorTool(gui,
 					strategyController);

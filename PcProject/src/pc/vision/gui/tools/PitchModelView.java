@@ -18,6 +18,8 @@ import java.awt.event.ActionListener;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -32,6 +34,7 @@ import pc.vision.Vector2f;
 import pc.vision.YAMLConfig;
 import pc.vision.gui.GUITool;
 import pc.vision.gui.VisionGUI;
+import pc.vision.interfaces.PitchViewProvider;
 import pc.vision.interfaces.VideoReceiver;
 import pc.vision.interfaces.WorldStateReceiver;
 import pc.world.DynamicWorldState;
@@ -42,6 +45,9 @@ import pc.world.oldmodel.WorldState;
 public class PitchModelView implements GUITool, VideoReceiver,
 		StateUpdateListener {
 
+	private static final int WIDTH = 480;
+	private static final int HEIGHT = 320;
+
 	private VisionGUI gui;
 	private PitchConstants pitchConstants;
 	private DistortionFix distortionFix;
@@ -50,9 +56,10 @@ public class PitchModelView implements GUITool, VideoReceiver,
 	private PitchView pitchView;
 	private DynamicWorldState dynamicWorldState;
 
-	private BufferedImage backgroundFrame;
+	private List<PitchViewProvider> viewProviders = new ArrayList<PitchViewProvider>();
+
+	private BufferedImage backgroundFrame, overlayFrame;
 	private boolean shouldUpdateFrame = false;
-	private Point ballPosition;
 
 	public PitchModelView(VisionGUI gui, PitchConstants pitchConstants,
 			Pitch pitch, DistortionFix distortionFix,
@@ -62,6 +69,9 @@ public class PitchModelView implements GUITool, VideoReceiver,
 		this.pitch = pitch;
 		this.distortionFix = distortionFix;
 		this.dynamicWorldState = dynamicWorldState;
+
+		overlayFrame = new BufferedImage(WIDTH, HEIGHT,
+				BufferedImage.TYPE_4BYTE_ABGR);
 
 		dynamicWorldState.addStateListener(this);
 
@@ -86,8 +96,27 @@ public class PitchModelView implements GUITool, VideoReceiver,
 
 	@Override
 	public void stateUpdated() {
-		ballPosition = dynamicWorldState.getBall();
+		synchronized (overlayFrame) {
+			Graphics2D g = overlayFrame.createGraphics();
+			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+					RenderingHints.VALUE_ANTIALIAS_ON);
+
+			g.setBackground(new Color(255, 255, 255, 0));
+			g.clearRect(0, 0, overlayFrame.getWidth(), overlayFrame.getHeight());
+
+			pitchView.transformGraphics(g);
+
+			for (PitchViewProvider provider : viewProviders) {
+				provider.drawOnPitch(g);
+			}
+
+			g.dispose();
+		}
 		pitchView.repaint();
+	}
+
+	public void addViewProvider(PitchViewProvider provider) {
+		viewProviders.add(provider);
 	}
 
 	@Override
@@ -127,7 +156,16 @@ public class PitchModelView implements GUITool, VideoReceiver,
 	private class PitchView extends JPanel {
 		public PitchView() {
 			super();
-			setPreferredSize(new Dimension(480, 320));
+			setPreferredSize(new Dimension(PitchModelView.WIDTH,
+					PitchModelView.HEIGHT));
+		}
+
+		public void transformGraphics(Graphics2D g) {
+			double scale = 0.9 * Math.min(
+					(double) getWidth() / pitch.getPitchWidth(),
+					(double) getHeight() / pitch.getPitchHeight());
+			g.translate(getWidth() / 2, getHeight() / 2);
+			g.scale(scale, scale);
 		}
 
 		@Override
@@ -136,18 +174,14 @@ public class PitchModelView implements GUITool, VideoReceiver,
 			Graphics2D g = (Graphics2D) originalGraphics.create();
 			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 					RenderingHints.VALUE_ANTIALIAS_ON);
-			double width = getWidth();
-			double height = getHeight();
 			Pitch p = pitch;
 
 			g.setColor(Color.DARK_GRAY);
 			g.fillRect(0, 0, getWidth(), getHeight());
 
-			double scale = 0.9 * Math.min(width / p.getPitchWidth(),
-					height / p.getPitchHeight());
-			g.translate(width / 2, height / 2);
-			g.scale(scale, scale);
+			transformGraphics(g);
 
+			// Draw pitch boundary
 			g.setColor(Color.GRAY);
 			g.fillPolygon(p.getBoundsPolygon());
 
@@ -162,6 +196,7 @@ public class PitchModelView implements GUITool, VideoReceiver,
 			g.fillRect(p.getZoneDividerOffset() - halfWidth, -halfPitchHeight,
 					2 * halfWidth, 2 * halfPitchHeight);
 
+			// Draw goals
 			g.setColor(Color.YELLOW);
 			g.setStroke(new BasicStroke(10));
 			int halfPitchWidth = p.getPitchWidth() / 2;
@@ -170,12 +205,9 @@ public class PitchModelView implements GUITool, VideoReceiver,
 			g.drawLine(halfPitchWidth, -p.getGoalHeight() / 2, halfPitchWidth,
 					p.getGoalHeight() / 2);
 
-			Point ballPos = ballPosition;
-			if (ballPos != null) {
-				g.setColor(Color.RED);
-				int radius = p.getBallRadius();
-				g.fillOval((int) (ballPos.x - radius),
-						(int) (ballPos.y - radius), 2 * radius, 2 * radius);
+			// Draw ball and robots
+			synchronized (overlayFrame) {
+				originalGraphics.drawImage(overlayFrame, 0, 0, null);
 			}
 
 			if (backgroundFrame != null) {
@@ -187,7 +219,7 @@ public class PitchModelView implements GUITool, VideoReceiver,
 						-pitch.getPitchCenterFrameY());
 				Composite oldComposite = g.getComposite();
 				g.setComposite(AlphaComposite.getInstance(
-						AlphaComposite.SRC_OVER, 0.3f));
+						AlphaComposite.SRC_OVER, 0.5f));
 				g.drawImage(backgroundFrame, at, null);
 				g.setComposite(oldComposite);
 			}

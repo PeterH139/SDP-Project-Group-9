@@ -14,11 +14,15 @@ import pc.vision.Position;
 import pc.vision.Vector2f;
 import pc.vision.Vision;
 import pc.vision.interfaces.ObjectRecogniser;
+import pc.vision.interfaces.PitchViewProvider;
+import pc.world.DynamicWorldState;
+import pc.world.Pitch;
 import pc.world.StaticWorldState;
 import pc.world.oldmodel.MovingObject;
 import pc.world.oldmodel.WorldState;
 
 public class BallRecogniser implements ObjectRecogniser {
+	private Pitch pitch;
 	private Vision vision;
 	private WorldState worldState;
 	private PitchConstants pitchConstants;
@@ -27,7 +31,9 @@ public class BallRecogniser implements ObjectRecogniser {
 	private pc.logging.Logging logger;
 
 	public BallRecogniser(Vision vision, WorldState worldState,
-			PitchConstants pitchConstants, DistortionFix distortionFix) {
+			PitchConstants pitchConstants, DistortionFix distortionFix,
+			Pitch pitch) {
+		this.pitch = pitch;
 		this.vision = vision;
 		this.worldState = worldState;
 		this.pitchConstants = pitchConstants;
@@ -81,15 +87,30 @@ public class BallRecogniser implements ObjectRecogniser {
 
 		MovingObject ball_m = new MovingObject(ballPosition.x, ballPosition.y);
 		worldState.setBall(ball_m);
-		
-		result.setBall(new Point(0, 0));
 
-		// Debugging Graphics
-		debugGraphics.setColor(Color.red);
-		debugGraphics.drawLine(0, (int) ballPosition.y, 640,
-				(int) ballPosition.y);
-		debugGraphics.drawLine((int) ballPosition.x, 0, (int) ballPosition.x,
-				480);
+		Point2D position = new Point2D.Double(ballPosition.x, ballPosition.y);
+		pitch.framePointToModel(position);
+		result.setBall(new Point((int) position.getX(), (int) position.getY()));
 	}
 
+	public static class ViewProvider implements PitchViewProvider {
+		private DynamicWorldState dynamicWorldState;
+		private Pitch pitch;
+		
+		public ViewProvider(DynamicWorldState dynamicWorldState, Pitch pitch) {
+			this.dynamicWorldState = dynamicWorldState;
+			this.pitch = pitch;
+		}
+		
+		@Override
+		public void drawOnPitch(Graphics2D g) {
+			Point ballPos = dynamicWorldState.getBall();
+			if (ballPos != null) {
+				g.setColor(Color.RED);
+				int radius = pitch.getBallRadius();
+				g.fillOval((int) (ballPos.x - radius),
+						(int) (ballPos.y - radius), 2 * radius, 2 * radius);
+			}
+		}
+	}
 }
