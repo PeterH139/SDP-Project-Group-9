@@ -8,7 +8,7 @@ import pc.comms.BrickCommServer;
 import pc.strategy.interfaces.Strategy;
 import pc.vision.Vision;
 import pc.vision.interfaces.WorldStateReceiver;
-import pc.world.WorldState;
+import pc.world.oldmodel.WorldState;
 
 public class StrategyController implements WorldStateReceiver {
 	boolean haveReset = false;

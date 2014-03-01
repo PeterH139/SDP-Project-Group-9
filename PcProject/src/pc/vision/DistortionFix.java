@@ -219,12 +219,12 @@ public class DistortionFix implements VideoReceiver {
 	 *            The current frame index
 	 */
 	@Override
-	public void sendFrame(BufferedImage frame, float delta, int frameCounter) {
+	public void sendFrame(BufferedImage frame, float delta, int frameCounter, long timestamp) {
 		BufferedImage processedFrame = frame;
 		if (isActive())
 			processedFrame = removeBarrelDistortion(frame);
 
 		for (VideoReceiver receiver : this.videoReceivers)
-			receiver.sendFrame(processedFrame, delta, frameCounter);
+			receiver.sendFrame(processedFrame, delta, frameCounter, timestamp);
 	}
 }

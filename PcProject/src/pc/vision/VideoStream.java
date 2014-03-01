@@ -75,23 +75,29 @@ public class VideoStream {
 			// frames
 			if (VideoStream.this.ready) {
 				BufferedImage frameBuffer = frame.getBufferedImage();
-				//frameBuffer = DistortionFix.removeBarrelDistortion(frameBuffer, 0, 640, 0, 480);
+				// frameBuffer =
+				// DistortionFix.removeBarrelDistortion(frameBuffer, 0, 640, 0,
+				// 480);
 				// TODO: Should we blur?
-//				ColorProcessor cp = new ColorProcessor(frameBuffer);
-//				GaussianBlur gb = new GaussianBlur();
-//				gb.blurGaussian(cp, 2, 2, 0.02);
-//				frameBuffer = cp.getBufferedImage();
+				// ColorProcessor cp = new ColorProcessor(frameBuffer);
+				// GaussianBlur gb = new GaussianBlur();
+				// gb.blurGaussian(cp, 2, 2, 0.02);
+				// frameBuffer = cp.getBufferedImage();
 				for (VideoReceiver receiver : VideoStream.this.videoReceivers) {
 					receiver.sendFrame(frameBuffer, delta,
-							VideoStream.this.frameCounter); }
-				ArrayList<Strategy> currentStrategies = StrategyController.getCurrentStrategies();
-				ArrayList<Strategy> removedStrategies = StrategyController.getRemovedStrategies();
+							VideoStream.this.frameCounter,
+							frame.getCaptureTime());
+				}
+				ArrayList<Strategy> currentStrategies = StrategyController
+						.getCurrentStrategies();
+				ArrayList<Strategy> removedStrategies = StrategyController
+						.getRemovedStrategies();
 				for (Strategy s : removedStrategies) {
 					Vision.removeWorldStateReciver(s);
 				}
 				removedStrategies = new ArrayList<Strategy>();
 				StrategyController.setRemovedStrategies(removedStrategies);
-				for (Strategy s : currentStrategies) { 
+				for (Strategy s : currentStrategies) {
 					Vision.addWorldStateReceiver(s);
 				}
 			} else if (VideoStream.this.frameCounter > 3) {
@@ -153,12 +159,12 @@ public class VideoStream {
 			System.exit(1);
 		}
 
-		/*Runtime.getRuntime().addShutdownHook(new Thread() {
-			@Override
-			public void run() {
-				VideoStream.this.frameGrabber.stopCapture();
-			}
-		});*/
+		/*
+		 * Runtime.getRuntime().addShutdownHook(new Thread() {
+		 * 
+		 * @Override public void run() {
+		 * VideoStream.this.frameGrabber.stopCapture(); } });
+		 */
 	}
 
 	/**
@@ -178,7 +184,7 @@ public class VideoStream {
 		this.frameGrabber.setCaptureCallback(this.frameGrabberCallback);
 		this.frameGrabber.startCapture();
 	}
-	
+
 	public void shutdown() {
 		this.frameGrabber.stopCapture();
 	}

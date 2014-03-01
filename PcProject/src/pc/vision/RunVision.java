@@ -19,8 +19,9 @@ import pc.vision.gui.tools.PitchModelView;
 import pc.vision.gui.tools.StrategySelectorTool;
 import pc.vision.recognisers.BallRecogniser;
 import pc.vision.recognisers.RobotRecogniser;
+import pc.world.DynamicWorldState;
 import pc.world.Pitch;
-import pc.world.WorldState;
+import pc.world.oldmodel.WorldState;
 import au.edu.jcu.v4l4j.V4L4JConstants;
 
 /**
@@ -55,6 +56,8 @@ public class RunVision {
 		final PitchConstants pitchConstants = new PitchConstants(0);
 		final Pitch pitch = new Pitch(yamlConfig, pitchConstants);
 		WorldState worldState = new WorldState(pitch);
+		
+		DynamicWorldState dynamicWorldState = new DynamicWorldState();
 
 		// Default values for the main vision window
 		String videoDevice = "/dev/video0";
@@ -65,7 +68,7 @@ public class RunVision {
 		int compressionQuality = 100;
 
 		// Create a new Vision object to serve the main vision window
-		Vision vision = new Vision(worldState, pitchConstants);
+		Vision vision = new Vision(worldState, pitchConstants, dynamicWorldState);
 
 		try {
 			StrategyController strategyController = null;
@@ -101,9 +104,8 @@ public class RunVision {
 			vision.addRecogniser(histogramTool);
 
 			PitchModelView pmvTool = new PitchModelView(gui, pitchConstants,
-					pitch, distortionFix);
+					pitch, distortionFix, dynamicWorldState);
 			gui.addTool(pmvTool, "Pitch Model");
-			Vision.addWorldStateReceiver(pmvTool);
 
 			vision.addRecogniser(new BallRecogniser(vision, worldState,
 					pitchConstants, distortionFix));

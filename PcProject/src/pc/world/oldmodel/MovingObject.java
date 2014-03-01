@@ -4,7 +4,7 @@
  * Description : Stores data relating to an object capable of movement:
  * Coordinates, velocity, angular orientation
  * */
-package pc.world;
+package pc.world.oldmodel;
 
 public class MovingObject {
 	//x,y, representation on the grid

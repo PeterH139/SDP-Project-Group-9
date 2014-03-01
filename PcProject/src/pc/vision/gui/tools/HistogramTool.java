@@ -33,15 +33,15 @@ import pc.vision.gui.GUITool;
 import pc.vision.gui.InvertibleRangeSlider;
 import pc.vision.gui.VisionGUI;
 import pc.vision.interfaces.ObjectRecogniser;
+import pc.world.StaticWorldState;
 
 public class HistogramTool implements GUITool, ObjectRecogniser {
 	private static final String[] CHANNEL_NAMES = { "Red", "Green", "Blue",
 			"Hue", "Saturation", "Brightness" };
-	
+
 	/**
-	 * Maximum values for colour channels.
-	 * RGB channels range from 0 to 255.
-	 * HSV channels range from 0 to 1.
+	 * Maximum values for colour channels. RGB channels range from 0 to 255. HSV
+	 * channels range from 0 to 1.
 	 */
 	private static final float[] CHANNEL_VALUE_DIVIDERS = { 255, 255, 255, 1,
 			1, 1, };
@@ -53,10 +53,10 @@ public class HistogramTool implements GUITool, ObjectRecogniser {
 	private JList objectList;
 	private GUIMouseListener mouseListener = new GUIMouseListener();
 	private int currentObject = -1;
-	
+
 	/**
-	 * When silentGUIChange is true, UI changes will not be represented
-	 * in PitchConstants object.
+	 * When silentGUIChange is true, UI changes will not be represented in
+	 * PitchConstants object.
 	 */
 	private boolean silentGUIChange = false;
 
@@ -64,21 +64,21 @@ public class HistogramTool implements GUITool, ObjectRecogniser {
 	 * Specifies whether this tool is currently selected.
 	 */
 	private boolean isActive = false;
-	
+
 	/**
-	 * Centre point of the measuring circle.
-	 * If null, the circle will not be drawn.
+	 * Centre point of the measuring circle. If null, the circle will not be
+	 * drawn.
 	 */
 	private Point centerPoint;
-	
+
 	/**
 	 * Radius of the measuring circle.
 	 */
 	private int radius;
-	
+
 	/**
-	 * Specifies whether histograms need to be refreshed in
-	 * the next frame processing.
+	 * Specifies whether histograms need to be refreshed in the next frame
+	 * processing.
 	 */
 	private boolean needsRefresh = true;
 
@@ -145,10 +145,10 @@ public class HistogramTool implements GUITool, ObjectRecogniser {
 			return;
 
 		/*
-		 * silentGUIChange is a temporary workaround that prevents PitchConstants
-		 * data corruption. slider.setValues() fires a callback that sets
-		 * PitchConstants.thresholdInverted to the state of UI, which is not
-		 * updated yet.
+		 * silentGUIChange is a temporary workaround that prevents
+		 * PitchConstants data corruption. slider.setValues() fires a callback
+		 * that sets PitchConstants.thresholdInverted to the state of UI, which
+		 * is not updated yet.
 		 */
 		silentGUIChange = true;
 		for (int channel = 0; channel < PitchConstants.NUM_CHANNELS; channel++) {
@@ -225,8 +225,9 @@ public class HistogramTool implements GUITool, ObjectRecogniser {
 	 * Draw the measuring circle and refresh the histograms (if necessary)
 	 */
 	@Override
-	public void processFrame(PixelInfo[][] pixels, BufferedImage frame, Graphics2D debugGraphics,
-			BufferedImage debugOverlay) {
+	public void processFrame(PixelInfo[][] pixels, BufferedImage frame,
+			Graphics2D debugGraphics, BufferedImage debugOverlay,
+			StaticWorldState staticWorldState) {
 		if (needsRefresh) {
 			needsRefresh = false;
 			BufferedImage[] histogramImages = refreshHistogram(frame);
@@ -244,8 +245,8 @@ public class HistogramTool implements GUITool, ObjectRecogniser {
 	}
 
 	/**
-	 * Given a raw frame, creates a histogram for each channel and returns
-	 * a list of them.
+	 * Given a raw frame, creates a histogram for each channel and returns a
+	 * list of them.
 	 */
 	private BufferedImage[] refreshHistogram(BufferedImage frame) {
 		BufferedImage[] result = new BufferedImage[6];

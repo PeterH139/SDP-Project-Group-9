@@ -23,7 +23,7 @@ import pc.strategy.StrategyController;
 import pc.strategy.StrategyController.StrategyType;
 import pc.vision.gui.GUITool;
 import pc.vision.gui.VisionGUI;
-import pc.world.WorldState;
+import pc.world.oldmodel.WorldState;
 
 public class StrategySelectorTool implements GUITool {
 
