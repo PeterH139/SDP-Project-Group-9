@@ -47,10 +47,20 @@ public class AttackerStrategy extends GeneralStrategy {
 
 		synchronized (controlThread) {
 			if (ballInEnemyAttackerArea) {
-				controlThread.operation = Operation.ATKROTATE;
-				controlThread.rotateBy = (int) calculateAngle(attackerRobotX,
-						attackerRobotY, attackerOrientation, ballX, ballY);
-				controlThread.rotateSpeed = (int) Math.abs(controlThread.rotateBy * 3);
+				double[] rotDistSpeed = new double[5];
+				controlThread.operation = returnToOrigin(RobotType.ATTACKER, rotDistSpeed);
+				controlThread.radius = rotDistSpeed[0];
+				controlThread.travelDist = (int) rotDistSpeed[1];
+				controlThread.travelSpeed = (int) rotDistSpeed[2];
+				controlThread.rotateBy = (int) rotDistSpeed[3];
+				controlThread.rotateSpeed = (int) rotDistSpeed[4];
+				
+//				if (controlThread.operation == Operation.DO_NOTHING) {
+//				controlThread.operation = Operation.ATKROTATE;
+//				controlThread.rotateBy = (int) calculateAngle(attackerRobotX,
+//						attackerRobotY, attackerOrientation, ballX, ballY);
+//				controlThread.rotateSpeed = (int) Math.abs(controlThread.rotateBy * 3);
+//				}
 			} else {
 				if (!ballCaughtAttacker) {
 					double[] RadDistSpeedRot = new double[5];
@@ -63,6 +73,7 @@ public class AttackerStrategy extends GeneralStrategy {
 					controlThread.rotateSpeed = (int) RadDistSpeedRot[3];
 
 				} else {
+					attackerHasArrived = false;
 					double[] RadDistSpeedRot = new double[5];
 					controlThread.operation = scoreGoal(RobotType.ATTACKER,
 							RadDistSpeedRot);
