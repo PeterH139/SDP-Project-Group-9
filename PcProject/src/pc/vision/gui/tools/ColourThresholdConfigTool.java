@@ -22,7 +22,8 @@ import pc.vision.gui.GUITool;
 import pc.vision.gui.VisionGUI;
 import pc.vision.gui.VisionSettingsPanel;
 import pc.vision.interfaces.ObjectRecogniser;
-import pc.world.WorldState;
+import pc.world.StaticWorldState;
+import pc.world.oldmodel.WorldState;
 
 public class ColourThresholdConfigTool implements GUITool {
 	private VisionGUI gui;
@@ -58,7 +59,6 @@ public class ColourThresholdConfigTool implements GUITool {
 
 	private MouseInputAdapter mouseSelector = new MouseInputAdapter() {
 		Rectangle selection;
-		
 
 		public void mousePressed(MouseEvent e) {
 			switch (settingsPanel.getMouseMode()) {
@@ -183,7 +183,7 @@ public class ColourThresholdConfigTool implements GUITool {
 				 */
 				break;
 			case VisionSettingsPanel.MOUSE_MODE_LEFT_GOAL:
-				System.out.println("Left goal selection mode");	
+				System.out.println("Left goal selection mode");
 				pitchConstants.getLeftGoal()[currentLeftGoal] = e.getY();
 				currentLeftGoal = (currentLeftGoal + 1) % 3;
 				break;
@@ -253,8 +253,9 @@ public class ColourThresholdConfigTool implements GUITool {
 	public class PitchBoundsDebugDisplay implements ObjectRecogniser {
 
 		@Override
-		public void processFrame(PixelInfo[][] pixels, BufferedImage frame, Graphics2D debugGraphics,
-				BufferedImage debugOverlay) {
+		public void processFrame(PixelInfo[][] pixels, BufferedImage frame,
+				Graphics2D debugGraphics, BufferedImage debugOverlay,
+				StaticWorldState staticWorldState) {
 			// Eliminating area around the pitch dimensions
 			if (!selectionActive) {
 				int left = pitchConstants.getPitchLeft();
@@ -296,8 +297,9 @@ public class ColourThresholdConfigTool implements GUITool {
 	public class DividerLineDebugDisplay implements ObjectRecogniser {
 
 		@Override
-		public void processFrame(PixelInfo[][] pixels, BufferedImage frame, Graphics2D debugGraphics,
-				BufferedImage debugOverlay) {
+		public void processFrame(PixelInfo[][] pixels, BufferedImage frame,
+				Graphics2D debugGraphics, BufferedImage debugOverlay,
+				StaticWorldState staticWorldState) {
 			// Drawing the dividing lines
 			int[] ds = pitchConstants.getDividers();
 			int top = pitchConstants.getPitchTop();
@@ -312,25 +314,26 @@ public class ColourThresholdConfigTool implements GUITool {
 		}
 
 	}
-	
-	public class GoalPositionDebugDisplay implements ObjectRecogniser{
+
+	public class GoalPositionDebugDisplay implements ObjectRecogniser {
 
 		@Override
 		public void processFrame(PixelInfo[][] pixels, BufferedImage frame,
-				Graphics2D debugGraphics, BufferedImage debugOverlay) {
+				Graphics2D debugGraphics, BufferedImage debugOverlay,
+				StaticWorldState staticWorldState) {
 			float[] lg = pitchConstants.getLeftGoal();
 			float[] rg = pitchConstants.getRightGoal();
 			int left = pitchConstants.getPitchLeft();
 			int right = left + pitchConstants.getPitchWidth();
 			debugGraphics.setColor(Color.WHITE);
-			debugGraphics.drawRect(left-5, (int) lg[0], 4, 4);
-			debugGraphics.drawRect(left-5, (int) lg[1], 4, 4);
-			debugGraphics.drawRect(left-5, (int) lg[2], 4, 4);
+			debugGraphics.drawRect(left - 5, (int) lg[0], 4, 4);
+			debugGraphics.drawRect(left - 5, (int) lg[1], 4, 4);
+			debugGraphics.drawRect(left - 5, (int) lg[2], 4, 4);
 			debugGraphics.drawRect(right, (int) rg[0], 4, 4);
 			debugGraphics.drawRect(right, (int) rg[1], 4, 4);
 			debugGraphics.drawRect(right, (int) rg[2], 4, 4);
 		}
-		
+
 	}
 
 	@Override

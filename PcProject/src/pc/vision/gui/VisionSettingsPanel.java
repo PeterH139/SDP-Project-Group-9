@@ -23,7 +23,7 @@ import pc.vision.PitchConstants;
 import pc.vision.VideoStream;
 import pc.vision.YAMLConfig;
 import pc.world.Pitch;
-import pc.world.WorldState;
+import pc.world.oldmodel.WorldState;
 
 /**
  * Creates and maintains the swing-based Control GUI, which provides both

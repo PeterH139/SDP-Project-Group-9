@@ -9,7 +9,9 @@ import pc.vision.interfaces.ObjectRecogniser;
 import pc.vision.interfaces.VideoReceiver;
 import pc.vision.interfaces.VisionDebugReceiver;
 import pc.vision.interfaces.WorldStateReceiver;
-import pc.world.WorldState;
+import pc.world.DynamicWorldState;
+import pc.world.StaticWorldState;
+import pc.world.oldmodel.WorldState;
 
 /**
  * The main class for showing the video feed and processing the video data.
@@ -22,14 +24,17 @@ public class Vision implements VideoReceiver {
 	// Variables used in processing video
 	private final PitchConstants pitchConstants;
 	private final WorldState worldState;
+	private final DynamicWorldState dynamicWorldState;
 	private ArrayList<VisionDebugReceiver> visionDebugReceivers = new ArrayList<VisionDebugReceiver>();
 	private static ArrayList<WorldStateReceiver> worldStateReceivers = new ArrayList<WorldStateReceiver>();
 	private ArrayList<ObjectRecogniser> recognisers = new ArrayList<ObjectRecogniser>();
 
-	public Vision(WorldState worldState, PitchConstants pitchConstants) {
+	public Vision(WorldState worldState, PitchConstants pitchConstants,
+			DynamicWorldState dynamicWorldState) {
 		// Set the state fields.
 		this.worldState = worldState;
 		this.pitchConstants = pitchConstants;
+		this.dynamicWorldState = dynamicWorldState;
 		worldState.dividers = pitchConstants.getDividers();
 		worldState.leftGoal = pitchConstants.getLeftGoal();
 		worldState.rightGoal = pitchConstants.getRightGoal();
@@ -58,8 +63,8 @@ public class Vision implements VideoReceiver {
 	public static void addWorldStateReceiver(WorldStateReceiver receiver) {
 		worldStateReceivers.add(receiver);
 	}
-	
-	public static void removeWorldStateReciver(WorldStateReceiver reciver){
+
+	public static void removeWorldStateReciver(WorldStateReceiver reciver) {
 		worldStateReceivers.remove(reciver);
 	}
 
@@ -79,26 +84,29 @@ public class Vision implements VideoReceiver {
 	 * @param counter
 	 *            The index of the current frame
 	 */
-	public void sendFrame(BufferedImage frame, float delta, int counter) {
+	public void sendFrame(BufferedImage frame, float delta, int counter, long timestamp) {
 		BufferedImage debugOverlay = new BufferedImage(frame.getWidth(),
 				frame.getHeight(), BufferedImage.TYPE_INT_ARGB);
 		Graphics2D debugGraphics = (Graphics2D) debugOverlay.getGraphics();
-		
+
 		int top = pitchConstants.getPitchTop();
 		int left = pitchConstants.getPitchLeft();
 		int right = left + pitchConstants.getPitchWidth();
 		int bottom = top + pitchConstants.getPitchHeight();
 		PixelInfo[][] pixels = new PixelInfo[VideoStream.FRAME_WIDTH][VideoStream.FRAME_HEIGHT];
-		for (int row = top; row < bottom; row++){
-			for (int column = left; column < right; column++){
+		for (int row = top; row < bottom; row++) {
+			for (int column = left; column < right; column++) {
 				Color c = new Color(frame.getRGB(column, row));
 				PixelInfo p = new PixelInfo(c);
 				pixels[column][row] = p;
 			}
 		}
-		
-		for (ObjectRecogniser recogniser : recognisers) 
-			recogniser.processFrame(pixels, frame, debugGraphics, debugOverlay);
+		StaticWorldState staticWorldState = new StaticWorldState();
+		for (ObjectRecogniser recogniser : recognisers)
+			recogniser.processFrame(pixels, frame, debugGraphics, debugOverlay,
+					staticWorldState);
+		dynamicWorldState.pushState(staticWorldState, timestamp);
+
 		for (VisionDebugReceiver receiver : this.visionDebugReceivers)
 			receiver.sendDebugOverlay(debugOverlay);
 		for (WorldStateReceiver receiver : Vision.worldStateReceivers) {
@@ -157,14 +165,14 @@ public class Vision implements VideoReceiver {
 	 * @param pixel
 	 *            The pixel info for a particular pixel
 	 * @param colourId
-	 *            Indication which object we're looking for. Taken from PitchConstants.
-	 *            eg. PitchConstants.
+	 *            Indication which object we're looking for. Taken from
+	 *            PitchConstants. eg. PitchConstants.
 	 * @return True if the RGB and HSV values are within the defined thresholds
 	 *         (and thus the pixel is part of the blue T), false otherwise.
 	 */
 	public boolean isColour(PixelInfo pixel, int colourId) {
-		float[] colourValues = { pixel.r, pixel.g,
-				pixel.b, pixel.h, pixel.s, pixel.v, };
+		float[] colourValues = { pixel.r, pixel.g, pixel.b, pixel.h, pixel.s,
+				pixel.v, };
 
 		for (int ch = 0; ch < PitchConstants.NUM_CHANNELS; ch++)
 			if (!Vision.checkBounds(colourValues[ch],
@@ -172,7 +180,7 @@ public class Vision implements VideoReceiver {
 					this.pitchConstants.getUpperThreshold(colourId, ch),
 					this.pitchConstants.isThresholdInverted(colourId, ch)))
 				return false;
-		
+
 		return true;
 	}
 }

@@ -1,5 +1,6 @@
 package pc.prediction;
-import pc.world.Point;
+import pc.world.oldmodel.Point2;
+
 import java.util.ArrayList;
 
 public final class Calculations {
@@ -8,7 +9,7 @@ public final class Calculations {
 	 * 
 	 * @return returns the distance between 2 points in a 2D plane
 	 * */
-	public static float GetDistance(Point a, Point b){
+	public static float GetDistance(Point2 a, Point2 b){
 		double x1,x2,y1,y2;
 		x1 = (double) a.getX();
 		x2 = (double) b.getX();

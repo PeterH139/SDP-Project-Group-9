@@ -1,6 +1,6 @@
 package pc.vision.interfaces;
 
-import pc.world.WorldState;
+import pc.world.oldmodel.WorldState;
 
 //import world.state.WorldState;
 

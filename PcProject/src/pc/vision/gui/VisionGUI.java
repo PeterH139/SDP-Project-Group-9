@@ -133,7 +133,7 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 	}
 
 	@Override
-	public void sendFrame(BufferedImage frame, float delta, int frameCounter) {
+	public void sendFrame(BufferedImage frame, float delta, int frameCounter, long timestamp) {
 		this.rawFrame = frame;
 		this.delta = delta;
 		this.frameCounter = frameCounter;

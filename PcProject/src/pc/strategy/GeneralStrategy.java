@@ -1,7 +1,7 @@
 package pc.strategy;
 
 import pc.strategy.interfaces.Strategy;
-import pc.world.WorldState;
+import pc.world.oldmodel.WorldState;
 
 public class GeneralStrategy implements Strategy {
 

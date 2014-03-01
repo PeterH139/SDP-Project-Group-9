@@ -7,7 +7,8 @@
 
 package pc.test;
 import pc.prediction.*;
-import pc.world.Point;
+import pc.world.oldmodel.Point2;
+
 import java.util.ArrayList;
 import java.io.*;
 import javax.xml.parsers.DocumentBuilder;
@@ -27,17 +28,17 @@ public class PredictionTests {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		//Testing point distance calculation
-		Point a1 = new Point(10.0f, 20.0f);
-		Point a2 = new Point(20.0f, 30.0f);
-		Point a3 = new Point(30.0f, 40.0f);
-		Point a4 = new Point(12.154f, 35.6f);
-		Point a5 = new Point(78.5689f, 123.485f);
+		Point2 a1 = new Point2(10.0f, 20.0f);
+		Point2 a2 = new Point2(20.0f, 30.0f);
+		Point2 a3 = new Point2(30.0f, 40.0f);
+		Point2 a4 = new Point2(12.154f, 35.6f);
+		Point2 a5 = new Point2(78.5689f, 123.485f);
 		
-		Point b1 = new Point(11.0f, 0.0f);
-		Point b2 = new Point(21.0f, 10.0f);
-		Point b3 = new Point(31.0f, 20.0f);
-		Point b4 = new Point(65.75f, 23.69f);
-		Point b5 = new Point(215.2835f, 65.98f);
+		Point2 b1 = new Point2(11.0f, 0.0f);
+		Point2 b2 = new Point2(21.0f, 10.0f);
+		Point2 b3 = new Point2(31.0f, 20.0f);
+		Point2 b4 = new Point2(65.75f, 23.69f);
+		Point2 b5 = new Point2(215.2835f, 65.98f);
 		
 		float distance_a1_b1 = Calculations.GetDistance(a1, b1);
 		float distance_a1_b2 = Calculations.GetDistance(a1, b2);
@@ -56,17 +57,17 @@ public class PredictionTests {
 		else
 			System.out.println("Distance between points tests passed");
 		
-		ArrayList<Point> travelPath = new ArrayList<Point>();
+		ArrayList<Point2> travelPath = new ArrayList<Point2>();
 		//Real trajectory test
-		Point p1 = new Point(437.75714f, 209.81429f);
-		Point p2 = new Point(435.75714f, 210.2f);
-		Point p3 = new Point(431.72562f, 209.0061f);
-		Point p4 = new Point(189.83582f, 141.14925f);
-		Point p5 = new Point(166.12643f, 135.06897f);
-		Point p6 = new Point(139.70946f, 130.41216f);
-		Point p7 = new Point(111.51923f, 123.21795f);
-		Point p8 = new Point(96.982605f, 119.4087f);
-		Point p9 = new Point(96.982605f, 119.4087f);
+		Point2 p1 = new Point2(437.75714f, 209.81429f);
+		Point2 p2 = new Point2(435.75714f, 210.2f);
+		Point2 p3 = new Point2(431.72562f, 209.0061f);
+		Point2 p4 = new Point2(189.83582f, 141.14925f);
+		Point2 p5 = new Point2(166.12643f, 135.06897f);
+		Point2 p6 = new Point2(139.70946f, 130.41216f);
+		Point2 p7 = new Point2(111.51923f, 123.21795f);
+		Point2 p8 = new Point2(96.982605f, 119.4087f);
+		Point2 p9 = new Point2(96.982605f, 119.4087f);
 		
 		travelPath.add(p1);
 		travelPath.add(p2);
@@ -133,7 +134,7 @@ public class PredictionTests {
 			doc.normalize();
 		
 		//Extract each message, get values and parse as a Point
-		ArrayList<Point> allPointSamples = new ArrayList<Point>();
+		ArrayList<Point2> allPointSamples = new ArrayList<Point2>();
 		NodeList messages = doc.getElementsByTagName("message");
 		for(int i=0; i < messages.getLength(); i++){
 			Node messageNode = messages.item(i);
@@ -143,7 +144,7 @@ public class PredictionTests {
 				//extracting message, creating point, adding it to list
 				String parseMe = message.getTextContent();
 				String[] parts = parseMe.split(" ");
-				Point newPoint = new Point(Float.valueOf(parts[0].substring(2)), Float.valueOf(parts[1].substring(2)));
+				Point2 newPoint = new Point2(Float.valueOf(parts[0].substring(2)), Float.valueOf(parts[1].substring(2)));
 				allPointSamples.add(newPoint);
 			}			
 		}

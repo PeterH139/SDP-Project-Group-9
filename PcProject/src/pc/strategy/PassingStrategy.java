@@ -5,7 +5,7 @@ import java.io.IOException;
 import pc.comms.BrickCommServer;
 import pc.comms.RobotCommand;
 import pc.strategy.GeneralStrategy.Operation;
-import pc.world.WorldState;
+import pc.world.oldmodel.WorldState;
 
 public class PassingStrategy extends GeneralStrategy {
 

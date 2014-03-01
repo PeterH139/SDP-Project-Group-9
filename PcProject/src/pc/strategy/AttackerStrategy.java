@@ -2,7 +2,7 @@ package pc.strategy;
 
 import pc.comms.BrickCommServer;
 import pc.comms.RobotCommand;
-import pc.world.WorldState;
+import pc.world.oldmodel.WorldState;
 
 public class AttackerStrategy extends GeneralStrategy {
 

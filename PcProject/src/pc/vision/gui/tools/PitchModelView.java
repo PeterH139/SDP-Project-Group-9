@@ -9,6 +9,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
@@ -33,11 +34,13 @@ import pc.vision.gui.GUITool;
 import pc.vision.gui.VisionGUI;
 import pc.vision.interfaces.VideoReceiver;
 import pc.vision.interfaces.WorldStateReceiver;
+import pc.world.DynamicWorldState;
+import pc.world.DynamicWorldState.StateUpdateListener;
 import pc.world.Pitch;
-import pc.world.WorldState;
+import pc.world.oldmodel.WorldState;
 
-public class PitchModelView implements GUITool, WorldStateReceiver,
-		VideoReceiver {
+public class PitchModelView implements GUITool, VideoReceiver,
+		StateUpdateListener {
 
 	private VisionGUI gui;
 	private PitchConstants pitchConstants;
@@ -45,17 +48,22 @@ public class PitchModelView implements GUITool, WorldStateReceiver,
 	private Pitch pitch;
 	private JFrame subWindow;
 	private PitchView pitchView;
+	private DynamicWorldState dynamicWorldState;
 
 	private BufferedImage backgroundFrame;
 	private boolean shouldUpdateFrame = false;
-	private Vector2f ballPosition;
+	private Point ballPosition;
 
 	public PitchModelView(VisionGUI gui, PitchConstants pitchConstants,
-			Pitch pitch, DistortionFix distortionFix) {
+			Pitch pitch, DistortionFix distortionFix,
+			DynamicWorldState dynamicWorldState) {
 		this.gui = gui;
 		this.pitchConstants = pitchConstants;
 		this.pitch = pitch;
 		this.distortionFix = distortionFix;
+		this.dynamicWorldState = dynamicWorldState;
+
+		dynamicWorldState.addStateListener(this);
 
 		subWindow = new JFrame("Pitch Model");
 		subWindow.setResizable(false);
@@ -77,19 +85,14 @@ public class PitchModelView implements GUITool, WorldStateReceiver,
 	}
 
 	@Override
-	public void sendWorldState(WorldState worldState) {
-		ballPosition = null;
-		if (worldState.getBall() != null
-				&& (worldState.getBall().x != 0 || worldState.getBall().y != 0)) {
-			ballPosition = new Vector2f(worldState.getBall().x,
-					worldState.getBall().y);
-			pitch.framePointToModel(ballPosition);
-		}
+	public void stateUpdated() {
+		ballPosition = dynamicWorldState.getBall();
 		pitchView.repaint();
 	}
 
 	@Override
-	public void sendFrame(BufferedImage frame, float delta, int frameCounter) {
+	public void sendFrame(BufferedImage frame, float delta, int frameCounter,
+			long timestamp) {
 		if (shouldUpdateFrame) {
 			backgroundFrame = distortionFix.removeBarrelDistortion(frame);
 			pitchView.repaint();
@@ -167,7 +170,7 @@ public class PitchModelView implements GUITool, WorldStateReceiver,
 			g.drawLine(halfPitchWidth, -p.getGoalHeight() / 2, halfPitchWidth,
 					p.getGoalHeight() / 2);
 
-			Vector2f ballPos = ballPosition;
+			Point ballPos = ballPosition;
 			if (ballPos != null) {
 				g.setColor(Color.RED);
 				int radius = p.getBallRadius();

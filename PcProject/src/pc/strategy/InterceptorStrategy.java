@@ -9,7 +9,7 @@ import pc.comms.RobotCommand;
 import pc.strategy.GeneralStrategy.Operation;
 import pc.strategy.interfaces.Strategy;
 import pc.vision.Vector2f;
-import pc.world.WorldState;
+import pc.world.oldmodel.WorldState;
 
 /* This is a class that manages the strategy for the defender robot to intercept
  * an incoming ball. If the ball is moving away from the robot then

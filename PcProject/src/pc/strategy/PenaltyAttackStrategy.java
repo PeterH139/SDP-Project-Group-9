@@ -5,7 +5,7 @@ import java.io.IOException;
 import pc.comms.BrickCommServer;
 import pc.strategy.interfaces.Strategy;
 import pc.vision.interfaces.WorldStateReceiver;
-import pc.world.WorldState;
+import pc.world.oldmodel.WorldState;
 
 
 /**

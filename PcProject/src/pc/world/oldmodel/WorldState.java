@@ -4,7 +4,9 @@
  * Most of the methods and properties are kept for legacy purposes
  * The robots and ball are represented by MovingObject classes
  */
-package pc.world;
+package pc.world.oldmodel;
+
+import pc.world.Pitch;
 
 public class WorldState {
 	

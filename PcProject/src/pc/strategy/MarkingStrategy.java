@@ -6,7 +6,7 @@ import pc.comms.BrickCommServer;
 import pc.comms.RobotCommand;
 import pc.strategy.GeneralStrategy.Operation;
 import pc.strategy.interfaces.Strategy;
-import pc.world.WorldState;
+import pc.world.oldmodel.WorldState;
 
 /**
  * This is a strategy to "mark" the enemy attacker when their defender has the
