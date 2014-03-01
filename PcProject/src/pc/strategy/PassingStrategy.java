@@ -107,9 +107,9 @@ public class PassingStrategy extends GeneralStrategy {
 						radius = this.radius;
 					}
 
-//					System.out.println("ballCaught: " + ballCaughtDefender + " op: "
-//							+ op.toString() + " rotateBy: " + rotateBy
-//							+ " travelDist: " + travelDist);
+					System.out.println("ballCaught: " + ballCaughtDefender + " op: "
+							+ op.toString() + " rotateBy: " + rotateBy
+							+ " travelDist: " + travelDist);
 
 					switch (op) {
 					case DO_NOTHING:
@@ -130,7 +130,7 @@ public class PassingStrategy extends GeneralStrategy {
 						break;
 					case DEFKICK:
 						if (System.currentTimeMillis() - lastKickerEventTime > 1000) {
-							defenderBrick.execute(new RobotCommand.Kick(10));
+							defenderBrick.execute(new RobotCommand.Kick(20));
 							ballCaughtDefender = false;
 							lastKickerEventTime = System.currentTimeMillis();
 						}
