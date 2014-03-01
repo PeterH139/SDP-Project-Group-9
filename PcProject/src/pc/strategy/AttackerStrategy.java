@@ -118,14 +118,14 @@ public class AttackerStrategy extends GeneralStrategy {
 					case DO_NOTHING:
 						break;
 					case ATKCATCH:
-						if (System.currentTimeMillis() - lastKickerEventTime > 500) {
+						if (System.currentTimeMillis() - lastKickerEventTime > 1000) {
 							brick.execute(new RobotCommand.Catch());
 							ballCaughtAttacker = true;
 							lastKickerEventTime = System.currentTimeMillis();
 						}
 						break;
 					case ATKKICK:
-						if (System.currentTimeMillis() - lastKickerEventTime > 500) {
+						if (System.currentTimeMillis() - lastKickerEventTime > 1000) {
 							brick.execute(new RobotCommand.Kick(100));
 							ballCaughtAttacker = false;
 							lastKickerEventTime = System.currentTimeMillis();

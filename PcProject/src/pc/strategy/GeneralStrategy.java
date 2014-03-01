@@ -124,10 +124,10 @@ public class GeneralStrategy implements Strategy {
 					toExecute = isAttacker ? Operation.ATKROTATE
 							: Operation.DEFROTATE;
 					if (ang1 > 0) {
-						ang1 = 180 - ang1; 
+						ang1 = -(180 - ang1); 
 						}
 					else {
-						ang1 = -180 - ang1;
+						ang1 = -(-180 - ang1);
 					}
 					DistSpeedRot[3] = isAttacker ? ang1 : ang1 / 3;
 					DistSpeedRot[4] = Math.abs(ang1);
@@ -169,7 +169,7 @@ public class GeneralStrategy implements Strategy {
 				travelToY - attackerRobotY) : -((Math.hypot(travelToX
 				- defenderRobotX, travelToY - defenderRobotY)));
 		boolean haveArrived = (Math.abs(dist) < distThresh);
-		if (Math.abs(ang1) > 45 && (dist < 40 || dist > 120)) {
+		if (Math.abs(ang1) > 30 && (dist < 40 || dist > 120)) {
 			toExecute = isAttacker ? Operation.ATKROTATE : Operation.DEFROTATE;
 			RotDistSpeed[3] = isAttacker ? ang1 : (ang1 / 3);
 		} else if (!haveArrived) {
