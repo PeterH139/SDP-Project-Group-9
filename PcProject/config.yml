@@ -1,0 +1,36 @@
+# All lengths are in millimetres
+objects:
+  ballRadius: 16
+
+pitch:
+  main:
+    size: [1200, 690]
+    corners: [78, 180]
+    goalHeight: 320
+
+    zoneDividers:
+      width: 33
+      offset: 343
+
+    distortion:
+      rotate: 0.5 # degrees CW
+
+    videoFrameProjection:
+      centerPx: [313, 217]
+      widthPx: 525
+
+  side:
+    size: [1200, 690]
+    corners: [80, 180]
+    goalHeight: 300
+
+    zoneDividers:
+      width: 33
+      offset: 343
+
+    distortion:
+      rotate: 0 # degrees CW
+
+    videoFrameProjection:
+      centerPx: [315, 220]
+      widthPx: 525

@@ -74,12 +74,6 @@ public class RobotCommand {
 		}
 	}
 
-	public static class PrepareCatcher extends GenericCommand {
-		@Override
-		protected int getOpcode() {
-			return RobotOpcode.APPROACHING_BALL;
-		}
-	}
 
 	public static class RotateLeft extends GenericCommand {
 		@Override
@@ -140,6 +134,7 @@ public class RobotCommand {
 			super.sendToBrick(outputStream);
 			outputStream.writeDouble(arcRadius);
 			outputStream.writeInt(distance);
+			outputStream.writeInt(speed);
 		}
 	}
 

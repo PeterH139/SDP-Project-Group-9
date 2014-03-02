@@ -3,12 +3,12 @@
  * Author: Dimitar Petrov
  * Description: represents a point in a 2D plane 
  */
-package pc.world;
+package pc.world.oldmodel;
 
-public class Point {
+public class Point2 {
 	private float x, y;
 
-	public Point(float x, float y){
+	public Point2(float x, float y){
 		this.x = x;
 		this.y = y;		
 	}

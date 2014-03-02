@@ -1,12 +1,12 @@
 package pc.strategy;
 
-import java.awt.Robot;
 import java.io.IOException;
 
 import pc.comms.BrickCommServer;
-import pc.strategy.TargetFollowerStrategy.Operation;
+import pc.comms.RobotCommand;
+import pc.strategy.GeneralStrategy.Operation;
 import pc.strategy.interfaces.Strategy;
-import pc.world.WorldState;
+import pc.world.oldmodel.WorldState;
 
 /**
  * This is a strategy to "mark" the enemy attacker when their defender has the
@@ -18,7 +18,7 @@ import pc.world.WorldState;
  * @author Daniel
  * 
  */
-public class MarkingStrategy implements Strategy {
+public class MarkingStrategy extends GeneralStrategy {
 
 	private BrickCommServer brick;
 	private ControlThread controlThread;
@@ -40,7 +40,7 @@ public class MarkingStrategy implements Strategy {
 
 	@Override
 	public void sendWorldState(WorldState worldState) {
-		System.out.println("Marking");
+//		System.out.println("Marking");
 		float robotX = worldState.getAttackerRobot().x;
 		float robotY = worldState.getAttackerRobot().y;
 		float robotO = worldState.getAttackerRobot().orientation_angle;
@@ -82,23 +82,27 @@ public class MarkingStrategy implements Strategy {
 				}
 				
 				//Decide if we need to go in a straight line or arc to the target
-				if (Math.abs(robotToTargetAngle) > 170 || Math.abs(robotToTargetAngle) < 10) {
+				if (Math.abs(robotToTargetAngle) > 45) {
+					controlThread.operation= Operation.ROTATE;
+					controlThread.rotateBy = (int) -robotToTargetAngle;
+				}
+				else if (Math.abs(robotToTargetAngle) > 150 || Math.abs(robotToTargetAngle) < 10) {
 					//Go in a straight line
 					this.controlThread.operation = Operation.TRAVEL;
 					//System.out.println("Straight line: " + targetY);
 				} //Now we decide if we need to go left or right 
 				else if (robotToTargetAngle > 10) {
-					this.controlThread.operation = Operation.ARC_RIGHT;
+					this.controlThread.operation = Operation.ARC_LEFT;
 					if (robotToTargetAngle > 90) {
 						//We're going backwards, so reverse the direction
-						this.controlThread.operation = Operation.ARC_LEFT;
+						this.controlThread.operation = Operation.ARC_RIGHT;
 					}
 					this.controlThread.radius = robotToTargetDistance * 10;
 				} else if (robotToTargetAngle < 10) {
-					this.controlThread.operation = Operation.ARC_LEFT;
+					this.controlThread.operation = Operation.ARC_RIGHT;
 					if (robotToTargetAngle < -90) {
 						//We're going backwards, so reverse the direction
-						this.controlThread.operation = Operation.ARC_RIGHT;
+						this.controlThread.operation = Operation.ARC_LEFT;
 					}
 					this.controlThread.radius = robotToTargetDistance * 10;
 				}
@@ -125,11 +129,14 @@ public class MarkingStrategy implements Strategy {
 					this.controlThread.operation = Operation.DO_NOTHING;
 				}
 			}
+			if (ballCaughtAttacker && (Math.hypot(ballX - attackerRobotX, ballY - attackerRobotY) > 45)) {
+				controlThread.operation = Operation.ATKKICK;
+			}
 		}
 	}
 
 	public enum Operation {
-		DO_NOTHING, TRAVEL, ROTATE, ARC_LEFT, ARC_RIGHT,
+		DO_NOTHING, TRAVEL, ROTATE, ARC_LEFT, ARC_RIGHT, ATKKICK
 	}
 
 	private class ControlThread extends Thread {
@@ -138,6 +145,8 @@ public class MarkingStrategy implements Strategy {
 		public int rotateBy = 0;
 		public int travelDist = 0;
 		public int travelSpeed = 0;
+		
+		private long lastKickerEventTime = 0;
 
 		public ControlThread() {
 			super("Robot control thread");
@@ -158,28 +167,30 @@ public class MarkingStrategy implements Strategy {
 						travelSpeed = this.travelSpeed;
 						radius = this.radius;
 					}
-//
-//					System.out.println("op: " + op.toString() + " rotateBy: "
-//							+ rotateBy + " travelDist: " + travelDist);
+
+
 					switch (op) {
 					case DO_NOTHING:
 
 						break;
+					case ATKKICK:
+						if (System.currentTimeMillis() - lastKickerEventTime > 500) {
+							brick.execute(new RobotCommand.Kick(100));
+							ballCaughtAttacker = false;
+							lastKickerEventTime = System.currentTimeMillis();
+						}
+						break;
 					case TRAVEL:
-						MarkingStrategy.this.brick.robotTravel(travelDist,
-								travelSpeed);
+						brick.executeSync(new RobotCommand.Travel(travelDist, travelSpeed));
 						break;
 					case ARC_LEFT:
-						MarkingStrategy.this.brick.robotArcForwards(radius,
-								travelDist, travelSpeed);
+						brick.executeSync(new RobotCommand.TravelArc(radius, travelDist, travelSpeed));
 						break;
 					case ARC_RIGHT:
-						MarkingStrategy.this.brick.robotArcForwards(-radius,
-								travelDist, travelSpeed);
+						brick.executeSync(new RobotCommand.TravelArc(-radius, travelDist, travelSpeed));
 						break;
 					case ROTATE:
-						MarkingStrategy.this.brick.robotRotateBy(rotateBy,
-								Math.abs(rotateBy));
+						brick.executeSync(new RobotCommand.Rotate(-rotateBy, Math.abs(rotateBy)));
 						break;
 					default:
 						break;
@@ -189,8 +200,6 @@ public class MarkingStrategy implements Strategy {
 					// TODO Maybe this should be defined as a constant?
 					Thread.sleep(250);
 				}
-			} catch (IOException e) {
-				e.printStackTrace();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

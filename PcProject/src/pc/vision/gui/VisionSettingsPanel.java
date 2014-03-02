@@ -21,8 +21,9 @@ import javax.swing.SwingConstants;
 import pc.vision.DistortionFix;
 import pc.vision.PitchConstants;
 import pc.vision.VideoStream;
-import pc.world.WorldState;
-//import world.state.WorldState;
+import pc.vision.YAMLConfig;
+import pc.world.Pitch;
+import pc.world.oldmodel.WorldState;
 
 /**
  * Creates and maintains the swing-based Control GUI, which provides both
@@ -31,19 +32,22 @@ import pc.world.WorldState;
  * 
  * @author s0840449 - original
  * @author Alex Adams (s1046358) - heavy refactoring & improvements
+ * @author Peter Henderson (s1117205) - further improvements
  */
 @SuppressWarnings("serial")
 public class VisionSettingsPanel extends JPanel {
 	public static final int MOUSE_MODE_OFF = 0;
 	public static final int MOUSE_MODE_PITCH_BOUNDARY = 1;
 	public static final int MOUSE_MODE_BLUE_T = 2;
-	public static final int MOUSE_MODE_YELLOW_T = 3;
-	public static final int MOUSE_MODE_GREEN_PLATES = 4;
+	public static final int MOUSE_MODE_LEFT_GOAL = 3;
+	public static final int MOUSE_MODE_RIGHT_GOAL = 4;
 	public static final int MOUSE_MODE_DIVISIONS = 5;
 	public static final int MOUSE_MODE_TARGET = 6;
 
 	// A PitchConstants class used to load/save constants for the pitch
 	private final PitchConstants pitchConstants;
+	
+	private final YAMLConfig yamlConfig;
 
 	// Stores information about the current world state, such as shooting
 	// direction, ball location, etc
@@ -75,6 +79,7 @@ public class VisionSettingsPanel extends JPanel {
 			//worldState.setMainPitch(rdbtnPitch0.isSelected());
 			//worldState.setPitch(pitchNum);
 			VisionSettingsPanel.this.pitchConstants.setPitchNum(pitchNum);
+			yamlConfig.reloadConfig();
 		}
 	};
 
@@ -129,9 +134,9 @@ public class VisionSettingsPanel extends JPanel {
 	private final JRadioButton rdbtnMouseModeOff = new JRadioButton();
 	private final JRadioButton rdbtnMouseModePitch = new JRadioButton();
 	private final JRadioButton rdbtnMouseModeBlue = new JRadioButton();
-	private final JRadioButton rdbtnMouseModeYellow = new JRadioButton();
-	private final JRadioButton rdbtnMouseModeGreenPlates = new JRadioButton();
-	private final JRadioButton rdbtnMouseModeGreyCircles = new JRadioButton();
+	private final JRadioButton rdbtnMouseModeLeftGoal = new JRadioButton();
+	private final JRadioButton rdbtnMouseModeRightGoal = new JRadioButton();
+	private final JRadioButton rdbtnMouseModeDividers = new JRadioButton();
 	private final JRadioButton targetSelection = new JRadioButton();
 
 	/**
@@ -145,7 +150,7 @@ public class VisionSettingsPanel extends JPanel {
 	 */
 	public VisionSettingsPanel(WorldState worldState,
 			final PitchConstants pitchConstants, final VideoStream vStream,
-			final DistortionFix distortionFix) {
+			final DistortionFix distortionFix, final YAMLConfig yamlConfig) {
 		// Both state objects must not be null.
 		assert (worldState != null) : "worldState is null";
 		assert (pitchConstants != null) : "pitchConstants is null";
@@ -153,6 +158,7 @@ public class VisionSettingsPanel extends JPanel {
 		this.worldState = worldState;
 		this.pitchConstants = pitchConstants;
 		this.distortionFix = distortionFix;
+		this.yamlConfig = yamlConfig;
 		this.camPanel = new CameraSettingsPanel(vStream,
 				System.getProperty("user.dir") + "/constants/pitch"
 						+ pitchConstants.getPitchNum() + "camera");
@@ -277,9 +283,9 @@ public class VisionSettingsPanel extends JPanel {
 		mouseModeChoice.add(this.rdbtnMouseModeOff);
 		mouseModeChoice.add(this.rdbtnMouseModePitch);
 		mouseModeChoice.add(this.rdbtnMouseModeBlue);
-		mouseModeChoice.add(this.rdbtnMouseModeYellow);
-		mouseModeChoice.add(this.rdbtnMouseModeGreenPlates);
-		mouseModeChoice.add(this.rdbtnMouseModeGreyCircles);
+		mouseModeChoice.add(this.rdbtnMouseModeLeftGoal);
+		mouseModeChoice.add(this.rdbtnMouseModeRightGoal);
+		mouseModeChoice.add(this.rdbtnMouseModeDividers);
 		mouseModeChoice.add(this.targetSelection);
 
 		GridBagConstraints gbc_rdbtnMouseModeOff = new GridBagConstraints();
@@ -372,95 +378,95 @@ public class VisionSettingsPanel extends JPanel {
 		});
 		mouseModePanel.add(mouseModeBlueLabel, gbc_mouseModeBlueLabel);
 
-		GridBagConstraints gbc_rdbtnMouseModeYellow = new GridBagConstraints();
-		gbc_rdbtnMouseModeYellow.anchor = GridBagConstraints.EAST;
-		gbc_rdbtnMouseModeYellow.insets = new Insets(0, 0, 5, 5);
-		gbc_rdbtnMouseModeYellow.fill = GridBagConstraints.VERTICAL;
-		gbc_rdbtnMouseModeYellow.gridx = 0;
-		gbc_rdbtnMouseModeYellow.gridy = 4;
-		mouseModePanel.add(this.rdbtnMouseModeYellow, gbc_rdbtnMouseModeYellow);
-		this.rdbtnMouseModeYellow.addActionListener(new ActionListener() {
+		GridBagConstraints gbc_rdbtnMouseModeLeftGoal = new GridBagConstraints();
+		gbc_rdbtnMouseModeLeftGoal.anchor = GridBagConstraints.EAST;
+		gbc_rdbtnMouseModeLeftGoal.insets = new Insets(0, 0, 5, 5);
+		gbc_rdbtnMouseModeLeftGoal.fill = GridBagConstraints.VERTICAL;
+		gbc_rdbtnMouseModeLeftGoal.gridx = 0;
+		gbc_rdbtnMouseModeLeftGoal.gridy = 4;
+		mouseModePanel.add(this.rdbtnMouseModeLeftGoal, gbc_rdbtnMouseModeLeftGoal);
+		this.rdbtnMouseModeLeftGoal.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				if (VisionSettingsPanel.this.rdbtnMouseModeYellow.isSelected())
-					setMouseMode(MOUSE_MODE_YELLOW_T);
+				if (VisionSettingsPanel.this.rdbtnMouseModeLeftGoal.isSelected())
+					setMouseMode(MOUSE_MODE_LEFT_GOAL);
 			}
 		});
 
-		GridBagConstraints gbc_mouseModeYellowLabel = new GridBagConstraints();
-		gbc_mouseModeYellowLabel.anchor = GridBagConstraints.WEST;
-		gbc_mouseModeYellowLabel.insets = new Insets(0, 0, 5, 5);
-		gbc_mouseModeYellowLabel.gridx = 1;
-		gbc_mouseModeYellowLabel.gridy = 4;
-		JLabel mouseModeYellowLabel = new JLabel("Yellow T Plate Selection");
+		GridBagConstraints gbc_mouseModeLeftGoalLabel = new GridBagConstraints();
+		gbc_mouseModeLeftGoalLabel.anchor = GridBagConstraints.WEST;
+		gbc_mouseModeLeftGoalLabel.insets = new Insets(0, 0, 5, 5);
+		gbc_mouseModeLeftGoalLabel.gridx = 1;
+		gbc_mouseModeLeftGoalLabel.gridy = 4;
+		JLabel mouseModeYellowLabel = new JLabel("Left Goal Selection");
 		mouseModeYellowLabel.setHorizontalAlignment(SwingConstants.LEFT);
 		mouseModeYellowLabel.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				VisionSettingsPanel.this.rdbtnMouseModeYellow.doClick();
+				VisionSettingsPanel.this.rdbtnMouseModeLeftGoal.doClick();
 			}
 		});
-		mouseModePanel.add(mouseModeYellowLabel, gbc_mouseModeYellowLabel);
+		mouseModePanel.add(mouseModeYellowLabel, gbc_mouseModeLeftGoalLabel);
 
-		GridBagConstraints gbc_rdbtnMouseModeGreenPlates = new GridBagConstraints();
-		gbc_rdbtnMouseModeGreenPlates.anchor = GridBagConstraints.EAST;
-		gbc_rdbtnMouseModeGreenPlates.insets = new Insets(0, 0, 5, 5);
-		gbc_rdbtnMouseModeGreenPlates.fill = GridBagConstraints.VERTICAL;
-		gbc_rdbtnMouseModeGreenPlates.gridx = 0;
-		gbc_rdbtnMouseModeGreenPlates.gridy = 5;
-		mouseModePanel.add(this.rdbtnMouseModeGreenPlates,
-				gbc_rdbtnMouseModeGreenPlates);
-		this.rdbtnMouseModeGreenPlates.addActionListener(new ActionListener() {
+		GridBagConstraints gbc_rdbtnMouseModeRightGoal = new GridBagConstraints();
+		gbc_rdbtnMouseModeRightGoal.anchor = GridBagConstraints.EAST;
+		gbc_rdbtnMouseModeRightGoal.insets = new Insets(0, 0, 5, 5);
+		gbc_rdbtnMouseModeRightGoal.fill = GridBagConstraints.VERTICAL;
+		gbc_rdbtnMouseModeRightGoal.gridx = 0;
+		gbc_rdbtnMouseModeRightGoal.gridy = 5;
+		mouseModePanel.add(this.rdbtnMouseModeRightGoal,
+				gbc_rdbtnMouseModeRightGoal);
+		this.rdbtnMouseModeRightGoal.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				if (VisionSettingsPanel.this.rdbtnMouseModeGreenPlates.isSelected())
-					setMouseMode(MOUSE_MODE_GREEN_PLATES);
+				if (VisionSettingsPanel.this.rdbtnMouseModeRightGoal.isSelected())
+					setMouseMode(MOUSE_MODE_RIGHT_GOAL);
 			}
 		});
 
-		GridBagConstraints gbc_mouseModeGreenPlatesLabel = new GridBagConstraints();
-		gbc_mouseModeGreenPlatesLabel.anchor = GridBagConstraints.WEST;
-		gbc_mouseModeGreenPlatesLabel.insets = new Insets(0, 0, 5, 5);
-		gbc_mouseModeGreenPlatesLabel.gridx = 1;
-		gbc_mouseModeGreenPlatesLabel.gridy = 5;
-		JLabel mouseModeGreenPlatesLabel = new JLabel("Green Plate Selection");
+		GridBagConstraints gbc_mouseModeRightGoalLabel = new GridBagConstraints();
+		gbc_mouseModeRightGoalLabel.anchor = GridBagConstraints.WEST;
+		gbc_mouseModeRightGoalLabel.insets = new Insets(0, 0, 5, 5);
+		gbc_mouseModeRightGoalLabel.gridx = 1;
+		gbc_mouseModeRightGoalLabel.gridy = 5;
+		JLabel mouseModeGreenPlatesLabel = new JLabel("Right Goal Selection");
 		mouseModeGreenPlatesLabel.setHorizontalAlignment(SwingConstants.LEFT);
 		mouseModeGreenPlatesLabel.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				VisionSettingsPanel.this.rdbtnMouseModeGreenPlates.doClick();
+				VisionSettingsPanel.this.rdbtnMouseModeRightGoal.doClick();
 			}
 		});
 		mouseModePanel.add(mouseModeGreenPlatesLabel,
-				gbc_mouseModeGreenPlatesLabel);
+				gbc_mouseModeRightGoalLabel);
 
-		GridBagConstraints gbc_rdbtnMouseModeGreyCircles = new GridBagConstraints();
-		gbc_rdbtnMouseModeGreyCircles.anchor = GridBagConstraints.EAST;
-		gbc_rdbtnMouseModeGreyCircles.insets = new Insets(0, 0, 5, 5);
-		gbc_rdbtnMouseModeGreyCircles.fill = GridBagConstraints.VERTICAL;
-		gbc_rdbtnMouseModeGreyCircles.gridx = 0;
-		gbc_rdbtnMouseModeGreyCircles.gridy = 6;
-		mouseModePanel.add(this.rdbtnMouseModeGreyCircles,
-				gbc_rdbtnMouseModeGreyCircles);
-		this.rdbtnMouseModeGreyCircles.addActionListener(new ActionListener() {
+		GridBagConstraints gbc_rdbtnMouseModeDividers = new GridBagConstraints();
+		gbc_rdbtnMouseModeDividers.anchor = GridBagConstraints.EAST;
+		gbc_rdbtnMouseModeDividers.insets = new Insets(0, 0, 5, 5);
+		gbc_rdbtnMouseModeDividers.fill = GridBagConstraints.VERTICAL;
+		gbc_rdbtnMouseModeDividers.gridx = 0;
+		gbc_rdbtnMouseModeDividers.gridy = 6;
+		mouseModePanel.add(this.rdbtnMouseModeDividers,
+				gbc_rdbtnMouseModeDividers);
+		this.rdbtnMouseModeDividers.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				if (VisionSettingsPanel.this.rdbtnMouseModeGreyCircles.isSelected())
+				if (VisionSettingsPanel.this.rdbtnMouseModeDividers.isSelected())
 					setMouseMode(MOUSE_MODE_DIVISIONS);
 			}
 		});
 
-		GridBagConstraints gbc_mouseModeGreyCirclesLabel = new GridBagConstraints();
-		gbc_mouseModeGreyCirclesLabel.anchor = GridBagConstraints.WEST;
-		gbc_mouseModeGreyCirclesLabel.insets = new Insets(0, 0, 5, 5);
-		gbc_mouseModeGreyCirclesLabel.gridx = 1;
-		gbc_mouseModeGreyCirclesLabel.gridy = 6;
-		JLabel mouseModeGreyCirclesLabel = new JLabel("Pitch Dividers Selection");
-		mouseModeGreyCirclesLabel.setHorizontalAlignment(SwingConstants.LEFT);
-		mouseModeGreyCirclesLabel.addMouseListener(new MouseAdapter() {
+		GridBagConstraints gbc_mouseModeDividersLabel = new GridBagConstraints();
+		gbc_mouseModeDividersLabel.anchor = GridBagConstraints.WEST;
+		gbc_mouseModeDividersLabel.insets = new Insets(0, 0, 5, 5);
+		gbc_mouseModeDividersLabel.gridx = 1;
+		gbc_mouseModeDividersLabel.gridy = 6;
+		JLabel mouseModeDividersLabel = new JLabel("Pitch Dividers Selection");
+		mouseModeDividersLabel.setHorizontalAlignment(SwingConstants.LEFT);
+		mouseModeDividersLabel.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				VisionSettingsPanel.this.rdbtnMouseModeGreyCircles.doClick();
+				VisionSettingsPanel.this.rdbtnMouseModeDividers.doClick();
 			}
 		});
 
@@ -494,8 +500,8 @@ public class VisionSettingsPanel extends JPanel {
 		});
 		mouseModePanel.add(targetSelectionLabel, gbc_targetSelectionLabel);
 
-		mouseModePanel.add(mouseModeGreyCirclesLabel,
-				gbc_mouseModeGreyCirclesLabel);
+		mouseModePanel.add(mouseModeDividersLabel,
+				gbc_mouseModeDividersLabel);
 
 		// Save/load buttons
 		JPanel saveLoadPanel = new JPanel();

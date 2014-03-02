@@ -1,5 +1,6 @@
 package pc.vision.gui;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -7,6 +8,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
@@ -17,6 +19,8 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import pc.vision.YAMLConfig;
+import pc.vision.gui.tools.TextConfigPanel;
 import pc.vision.interfaces.VideoReceiver;
 import pc.vision.interfaces.VisionDebugReceiver;
 
@@ -56,19 +60,22 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 		}
 	};
 
-	public VisionGUI(int videoWidth, int videoHeight) {
+	public VisionGUI(int videoWidth, int videoHeight, YAMLConfig yamlConfig) {
 		super("Vision");
 		this.videoWidth = videoWidth;
 		this.videoHeight = videoHeight;
 
-		getContentPane().setLayout(
-				new BoxLayout(getContentPane(), BoxLayout.X_AXIS));
+		getContentPane().setLayout(new BorderLayout());
 
 		Dimension videoSize = new Dimension(videoWidth, videoHeight);
 		this.videoDisplay.setPreferredSize(videoSize);
-		getContentPane().add(this.videoDisplay);
+		getContentPane().add(this.videoDisplay, BorderLayout.WEST);
 
 		//getContentPane().add(Box.createHorizontalStrut(10));
+		
+		JPanel rightPanel = new JPanel();
+		rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
+		getContentPane().add(rightPanel, BorderLayout.EAST);
 
 		toolList = new JList(new DefaultListModel());
 		toolList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -81,7 +88,10 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 		});
 		JScrollPane listScroller = new JScrollPane(toolList);
 		listScroller.setPreferredSize(new Dimension(150, 0));
-		getContentPane().add(listScroller);
+		rightPanel.add(listScroller);
+		
+		rightPanel.add(Box.createVerticalStrut(5));
+		rightPanel.add(new TextConfigPanel(yamlConfig));
 
 		setResizable(false);
 		pack();
@@ -123,7 +133,7 @@ public class VisionGUI extends JFrame implements VideoReceiver,
 	}
 
 	@Override
-	public void sendFrame(BufferedImage frame, float delta, int frameCounter) {
+	public void sendFrame(BufferedImage frame, float delta, int frameCounter, long timestamp) {
 		this.rawFrame = frame;
 		this.delta = delta;
 		this.frameCounter = frameCounter;

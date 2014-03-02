@@ -1,17 +1,13 @@
 package nxt.testing;
 
-<<<<<<< HEAD
 import lejos.nxt.Button;
 import lejos.nxt.LCD;
-=======
->>>>>>> 27af62ffff7695a4c9960111b9f180601c9a72af
 import nxt.brick.Striker;
 
-/*
+/**
  * Short test to check how durable the designs are under fast movements
  * 
  * @author Ross Grassie
- * 
  */
 
 public class MovementTest {
@@ -24,6 +20,8 @@ public class MovementTest {
 		striker.steer(10,90);
 		while (!(Button.ESCAPE.isDown())) {
 		while (count < 50) {
+//			LCD.drawString(striker.getLeftTacho() + " " + striker.getRightTacho(),0,1);
+			LCD.drawString(" Travelled: " + striker.getMovementIncrement(), 0, 2);
 			striker.backward();
 
 			if (striker.getMovementIncrement() < -0.4) {
@@ -36,6 +34,8 @@ public class MovementTest {
 		striker.rotate(90);
 		
 		while (count > 49 && count < 100) {
+//			LCD.drawString(striker.getLeftTacho() + " " + striker.getRightTacho(),0,1);
+			LCD.drawString(" Travelled: " + striker.getMovementIncrement(), 0, 2);
 			striker.forward();
 			
 			if (striker.getMovementIncrement() > 0.4) {
@@ -47,6 +47,8 @@ public class MovementTest {
 		striker.rotate(30);
 		
 		while (count > 99 && count < 150) {
+//			LCD.drawString(striker.getLeftTacho() + " " + striker.getRightTacho(),0,1);
+			LCD.drawString(" Travelled: " + striker.getMovementIncrement(), 0, 2);
 			striker.backward();
 			
 			if (striker.getMovementIncrement() < -0.4) {

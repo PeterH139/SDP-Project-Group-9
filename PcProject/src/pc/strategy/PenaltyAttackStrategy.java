@@ -5,7 +5,7 @@ import java.io.IOException;
 import pc.comms.BrickCommServer;
 import pc.strategy.interfaces.Strategy;
 import pc.vision.interfaces.WorldStateReceiver;
-import pc.world.WorldState;
+import pc.world.oldmodel.WorldState;
 
 
 /**
@@ -158,9 +158,6 @@ public class PenaltyAttackStrategy implements WorldStateReceiver,Strategy {
 						PenaltyAttackStrategy.this.brick.robotCatch();
 						PenaltyAttackStrategy.this.ballCaught = true;
 						break;
-					case PREPARE_CATCH:
-						PenaltyAttackStrategy.this.brick.robotPrepCatch();
-						break;
 					case KICK:
 						PenaltyAttackStrategy.this.brick.robotKick(100);
 						PenaltyAttackStrategy.this.ballCaught = false;
@@ -169,7 +166,6 @@ public class PenaltyAttackStrategy implements WorldStateReceiver,Strategy {
 						PenaltyAttackStrategy.this.brick.robotRotateBy(rotateBy, Math.abs(rotateBy));
 						break;
 					case TRAVEL:
-						PenaltyAttackStrategy.this.brick.robotPrepCatch();
 						PenaltyAttackStrategy.this.brick.robotTravel(travelDist, travelSpeed);
 						break;
 					default:

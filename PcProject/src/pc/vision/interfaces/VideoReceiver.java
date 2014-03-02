@@ -9,5 +9,6 @@ import java.awt.image.BufferedImage;
  * @author Alex Adams (s1046358)
  */
 public interface VideoReceiver {
-	void sendFrame(BufferedImage frame, float delta, int frameCounter);
+	void sendFrame(BufferedImage frame, float delta, int frameCounter,
+			long timestamp);
 }

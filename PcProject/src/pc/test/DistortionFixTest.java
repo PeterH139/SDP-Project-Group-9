@@ -2,7 +2,8 @@ package pc.test;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 
 import javax.imageio.ImageIO;
 
@@ -17,11 +18,11 @@ public class DistortionFixTest {
 	DistortionFix distortionFix;
 	BufferedImage image;
 	
-	DistortionFixTest(String fileName) {
-		distortionFix = new DistortionFix(pitchConstants);
+	DistortionFixTest(InputStream file) {
+		distortionFix = new DistortionFix();
 		try
 	    {
-	      image = ImageIO.read(new File(fileName));
+	      image = ImageIO.read(file);
 	    }
 	    catch (Exception e)
 	    {
@@ -34,7 +35,7 @@ public class DistortionFixTest {
 		
 		//fixes the image 20 times to simulate video handling
 		for (int i=0; i<20; i++) {      
-			BufferedImage fixed = distortionFix.removeBarrelDistortion(image, 0, 0, 0, 0);
+			BufferedImage fixed = distortionFix.removeBarrelDistortion(image);
 	    	/*try {
 				ImageIO.write(fixed, "jpg",new File("/afs/inf.ed.ac.uk/user/s10/s1004618/git/SDP-Project-Group-9/PcProject/src/pc/test/pitch-out"+i+".jpg"));
 			} catch (IOException e) {
@@ -50,7 +51,8 @@ public class DistortionFixTest {
 	}
 	
 	public static void main(String args[]) {
-		DistortionFixTest dft = new DistortionFixTest("/afs/inf.ed.ac.uk/user/s10/s1004618/git/SDP-Project-Group-9/PcProject/src/pc/test/pitch.jpg");
+		InputStream file = DistortionFixTest.class.getResourceAsStream("/resources/pitch.jpg");
+		DistortionFixTest dft = new DistortionFixTest(file);
 		System.out.println(dft.fixImage());
 	}
 }

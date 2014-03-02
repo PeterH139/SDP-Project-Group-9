@@ -1,9 +1,16 @@
 package pc.vision;
 
+import java.awt.Point;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.NoninvertibleTransformException;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 
 import pc.vision.interfaces.VideoReceiver;
 
@@ -14,18 +21,46 @@ import pc.vision.interfaces.VideoReceiver;
  * @author James Hulme
  */
 public class DistortionFix implements VideoReceiver {
-	private static int width = 640;
-	private static int height = 480;
-	public static double barrelCorrectionX = -0.03;
-	public static double barrelCorrectionY = -0.085;
+	private final static int WIDTH = 640;
+	private final static int HEIGHT = 480;
+	private double barrelCorrectionX = -0.03;
+	private double barrelCorrectionY = -0.085;
+	private AffineTransform affineTransform;
 
 	private ArrayList<VideoReceiver> videoReceivers = new ArrayList<VideoReceiver>();
 	private boolean active = true;
 
-	private final PitchConstants pitchConstants;
-	
-	public DistortionFix(final PitchConstants pitchConstants) {
-		this.pitchConstants = pitchConstants;
+	public DistortionFix() {
+		affineTransform = new AffineTransform(); // Identity transformation
+	}
+
+	public DistortionFix(final YAMLConfig yamlConfig,
+			final PitchConstants pitchConstants) {
+		this();
+
+		yamlConfig.addObserver(new Observer() {
+
+			@SuppressWarnings("unchecked")
+			@Override
+			public void update(Observable arg0, Object yamlData) {
+				String pitchName = pitchConstants.getPitchNum() == 0 ? "main"
+						: "side";
+
+				Map<String, Object> topData = (Map<String, Object>) yamlData;
+				Map<String, Object> data = (Map<String, Object>) topData
+						.get("pitch");
+				data = (Map<String, Object>) data.get(pitchName);
+				data = (Map<String, Object>) data.get("distortion");
+				Object rotateDegreesObj = data.get("rotate");
+				double rotateDegrees;
+				if (rotateDegreesObj instanceof Double)
+					rotateDegrees = (Double) rotateDegreesObj;
+				else
+					rotateDegrees = (Integer) rotateDegreesObj;
+				affineTransform = AffineTransform.getRotateInstance(
+						Math.toRadians(rotateDegrees), WIDTH / 2, HEIGHT / 2);
+			}
+		});
 	}
 
 	/**
@@ -53,102 +88,103 @@ public class DistortionFix implements VideoReceiver {
 	 * Remove barrel distortion on whole image
 	 * 
 	 * Buffers used so we only correct the pitch area not the useless background
-	 * area
-	 * TODO: Actually use these buffers
+	 * area TODO: Actually use these buffers
 	 * 
 	 * TODO: find an efficient way to merge pixels based on rounding up/down to
 	 * avoid "duplicate" pixels - mostly aesthetic
 	 * 
 	 * @param image
 	 *            Frame to correct
-	 * @param left
-	 *            Left buffer
-	 * @param right
-	 *            Right buffer
-	 * @param top
-	 *            Top buffer
-	 * @param bottom
-	 *            Bottom buffer
 	 * @return A new image with no barrel distortion
 	 */
-	public static BufferedImage removeBarrelDistortion(BufferedImage image, 
-			int left, int right, int top, int bottom) {
+	public BufferedImage removeBarrelDistortion(BufferedImage image) {
 
-		BufferedImage newImage = new BufferedImage(width, height,
+		BufferedImage newImage = new BufferedImage(WIDTH, HEIGHT,
 				BufferedImage.TYPE_INT_RGB);
 
-		//Strip image to a one-dimensional array
+		// Strip image to a one-dimensional array
 		Raster raster = image.getData();
 		int[] array = null;
-		array = raster.getPixels(0, 0, width, height, array);
+		array = raster.getPixels(0, 0, WIDTH, HEIGHT, array);
 
-		//Array for the fixed image
+		// Array for the fixed image
 		int[] arrayNew = new int[921600];
 
-		int x, y, z;
-		int[] xy;
-
-		//Normalise x and y.
-		//This used to be calculated inside invBarrelCorrect(), now reusing the values
-		double[] normX = new double[width];
-		double[] normY = new double[height];
-		for (int xi = 0; xi < width; xi++) {
-			normX[xi] = (2 * xi - width) / (double) width;
-		}
-		for (int yi = 0; yi < height; yi++) {
-			normY[yi] = (2 * yi - height) / (double) height;
-		}
-
-		//Apply invBarrelCorrect() to every pixel
-		//array has three cells per pixel to represent RGB
+		Point2D.Double point = new Point2D.Double();
+		// Apply invBarrelCorrect() to every pixel
+		// array has three cells per pixel to represent RGB
 		for (int i = 0; i < array.length; i += 3) {
 
-			//Actual values for x,y
-			x = (i/3) % (width);
-			y = (i/3) / (width);
+			// Actual values for x,y
+			point.x = (i / 3) % (WIDTH);
+			point.y = (i / 3) / (WIDTH);
 
-			xy = invBarrelCorrect(x, y, normX[x], normY[y]);
+			invBarrelCorrect(point);
 
-			//The first cell of the array for this pixel
-			z = (width) * xy[1] + xy[0];
-			z *= 3;
+			// The first cell of the array for this pixel
+			int z = 3 * ((WIDTH) * (int) (point.y) + (int) (point.x));
 
-			//I'm not 100% sure we don't need this
-			// if (0 <= xy[0] && xy[0] < width && 0 <= xy[1] && xy[1] < height)
-			// {
-			arrayNew[i] = array[z];		//R
-			arrayNew[i+1] = array[z+1];	//G
-			arrayNew[i+2] = array[z+2];	//B
-			// }
+			if (0 <= z && z < arrayNew.length) {
+				arrayNew[i] = array[z]; // R
+				arrayNew[i + 1] = array[z + 1]; // G
+				arrayNew[i + 2] = array[z + 2]; // B
+			}
 		}
 
-		//Get new image from the fixed array
+		// Get new image from the fixed array
 		WritableRaster newRaster = (WritableRaster) newImage.getData();
-		newRaster.setPixels(0, 0, width, height, arrayNew);
+		newRaster.setPixels(0, 0, WIDTH, HEIGHT, arrayNew);
 		newImage.setData(newRaster);
 
 		return newImage;
 
 	}
-	
+
+	/**
+	 * Barrel correction for single points
+	 * 
+	 * Used to correct for the distortion of individual points.
+	 * 
+	 * @see {@link #invBarrelCorrect(Point)} for correcting an image
+	 */
+	public void barrelCorrect(Point2D.Double point) {
+		// first normalise pixel
+		double px = (2 * point.x - WIDTH) / (double) WIDTH;
+		double py = (2 * point.y - HEIGHT) / (double) HEIGHT;
+
+		// then compute the radius of the pixel you are working with
+		double rad = px * px + py * py;
+
+		// then compute new pixel
+		double px1 = px * (1 - barrelCorrectionX * rad);
+		double py1 = py * (1 - barrelCorrectionY * rad);
+
+		// then convert back
+		point.x = (px1 + 1) * WIDTH / 2;
+		point.y = (py1 + 1) * HEIGHT / 2;
+
+		// apply affine transformation
+		affineTransform.transform(point, point);
+	}
+
 	/**
 	 * Inverse barrel correction for single points
 	 * 
 	 * Used to correct the distortion in an image without producing an odd
-	 * grid-like visual artifact
-	 * Done with an array instead of a Position for a small improvement in speed.
-	 * 
-	 * @param x
-	 *            x of Point to "unfix"
-	 * @param y
-	 *            y of Point to "unfix"
-	 * @param px
-	 * 			  Normalised coordinate for x 
-	 * @param py
-	 * 			  Normalised coordinate for y
+	 * grid-like visual artifact Done with an array instead of a Position for a
+	 * small improvement in speed.
 	 */
 
-	public static int[] invBarrelCorrect(int x, int y, double px, double py) {
+	public void invBarrelCorrect(Point2D.Double point) {
+		// apply inverse transformation
+		try {
+			affineTransform.inverseTransform(point, point);
+		} catch (NoninvertibleTransformException e) {
+			// Will never happen in rotation transform
+		}
+
+		double px = (2 * point.x - WIDTH) / (double) WIDTH;
+		double py = (2 * point.y - HEIGHT) / (double) HEIGHT;
 
 		// compute the radius of the pixel you are working with
 		double rad = px * px + py * py;
@@ -158,44 +194,10 @@ public class DistortionFix implements VideoReceiver {
 		double py1 = py * (1 + barrelCorrectionY * rad);
 
 		// then convert back
-		int pixi = (int) ((px1 + 1) * width / 2);
-		int pixj = (int) ((py1 + 1) * height / 2);
-		
-		//Returning as an object or 1000*pixi+pixj was slower than int[]
-		//Any other ideas?
-		int[] xy = new int[2];
-		xy[0] = pixi;
-		xy[1] = pixj;
-		return xy;
+		point.x = (px1 + 1) * WIDTH / 2;
+		point.y = (py1 + 1) * HEIGHT / 2;
 	}
 
-	/**
-	 * Inverse Barrel Correction including normalization to be used only for calculating 
-	 * the distortion fix of 5 points: the ball and the 5 robots.
-	 */
-	
-	public static void invBarrelCorrectWithNorm(int x, int y, float[] xy) {
-		double px = (2 * x - width) / (double) width;
-		double py = (2 * y - height) / (double) height;
-		
-		// compute the radius of the pixel you are working with
-		double rad = px * px + py * py;
-
-		// then compute new pixel
-		double px1 = px * (1 + barrelCorrectionX * rad);
-		double py1 = py * (1 + barrelCorrectionY * rad);
-
-		// then convert back
-		int pixi = (int) ((px1 + 1) * width / 2);
-		int pixj = (int) ((py1 + 1) * height / 2);
-				
-		//Returning as an object or 1000*pixi+pixj was slower than int[]
-		//Any other ideas?;
-		xy[0] = pixi;
-		xy[1] = pixj;
-
-		
-	}
 	/**
 	 * Registers an object to receive frames from the distortion fix
 	 * 
@@ -217,24 +219,12 @@ public class DistortionFix implements VideoReceiver {
 	 *            The current frame index
 	 */
 	@Override
-	public void sendFrame(BufferedImage frame, float delta, int frameCounter) {
-		BufferedImage processedFrame;
-
-		// If the distortion overlay is active, apply it
-		if (isActive()) {
-			int topBuffer = this.pitchConstants.getPitchTop();
-			int bottomBuffer = topBuffer + this.pitchConstants.getPitchHeight();
-			int leftBuffer = this.pitchConstants.getPitchLeft();
-			int rightBuffer = leftBuffer + this.pitchConstants.getPitchWidth();
-
-			processedFrame = removeBarrelDistortion(frame, 
-					topBuffer, bottomBuffer, leftBuffer, rightBuffer);
-		}
-		// Otherwise just forward the frame as-is
-		else
-			processedFrame = frame;
+	public void sendFrame(BufferedImage frame, float delta, int frameCounter, long timestamp) {
+		BufferedImage processedFrame = frame;
+		if (isActive())
+			processedFrame = removeBarrelDistortion(frame);
 
 		for (VideoReceiver receiver : this.videoReceivers)
-			receiver.sendFrame(processedFrame, delta, frameCounter);
+			receiver.sendFrame(processedFrame, delta, frameCounter, timestamp);
 	}
 }

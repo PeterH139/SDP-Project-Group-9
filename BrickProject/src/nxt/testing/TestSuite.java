@@ -27,7 +27,7 @@ public class TestSuite {
 	private static Striker brick = new Striker();
 	
 	private static String[] testsList = { "Kicker test", "Movement Test",
-			"Catcher Test", "Motor Test"};
+			"Catcher Test", "Motor Test", "Motor Speeds"};
 	
 
 	public static void main(String[] args) {
@@ -45,6 +45,8 @@ public class TestSuite {
 				catcherTest();
 			} else if (testsNumber == 3) {
 				motorTest();
+			} else if (testsNumber == 4) {
+				showMotorSpeeds();
 			}
 
 			Delay.msDelay(300);
@@ -70,7 +72,7 @@ public class TestSuite {
 	 */
 	private static void catcherTest() {
 		// Kicker goes up
-		brick.liftKicker(false);
+		brick.prepKicker();
 
 		// 1.5 second delay
 		try {
@@ -80,7 +82,7 @@ public class TestSuite {
 		}
 
 		// Move the kicker down ("catch")
-		brick.resetKicker(false);
+		brick.resetKicker();
 
 	}
 
@@ -94,14 +96,13 @@ public class TestSuite {
 
 		int count = 0;
 
-		brick.steer(10, 90);
 		while (!(Button.ESCAPE.isDown())) {
 			while (count < 50) {
 				// LCD.drawString(brick.getLeftTacho() + " " +
 				// brick.getRightTacho(),0,1);
 				LCD.drawString(" Travelled: " + brick.getMovementIncrement(),
 						0, 2);
-				brick.backward();
+				brick.forward();
 
 				if (brick.getMovementIncrement() < -0.4) {
 					count++;
@@ -198,6 +199,23 @@ public class TestSuite {
 		}
 		
 	
+	}
+	
+	private static void showMotorSpeeds() {
+		LCD.clear();
+		LCD.refresh();
+		
+		NXTRegulatedMotor a = Motor.A;
+		NXTRegulatedMotor b = Motor.B;
+		NXTRegulatedMotor c = Motor.C;
+		
+		System.out.println("Motor A: " + a.getMaxSpeed());
+		System.out.println("Motor B: " + b.getMaxSpeed());
+		System.out.println("Motor C: " + c.getMaxSpeed());
+		
+		while (!Button.ESCAPE.isDown()) {
+			
+		}
 	}
 	
 	}

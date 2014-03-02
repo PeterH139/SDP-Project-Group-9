@@ -1,3 +1,5 @@
 *.class
 *.nxj
 *.nxd
+*.orig
+/*/bin/

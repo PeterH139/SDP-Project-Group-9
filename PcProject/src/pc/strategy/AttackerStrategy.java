@@ -1,21 +1,15 @@
 package pc.strategy;
 
-import java.io.IOException;
-
 import pc.comms.BrickCommServer;
 import pc.comms.RobotCommand;
-import pc.comms.RobotCommand.TravelArc;
-import pc.strategy.GeneralStrategy.RobotType;
-import pc.strategy.TargetFollowerStrategy.Operation;
-import pc.strategy.interfaces.Strategy;
-import pc.world.WorldState;
+import pc.world.oldmodel.WorldState;
 
 public class AttackerStrategy extends GeneralStrategy {
 
 	private BrickCommServer brick;
 	private ControlThread controlThread;
-	private boolean ballCaught = false;
 	private boolean stopControlThread;
+	private boolean ballInEnemyAttackerArea = false;
 
 	public AttackerStrategy(BrickCommServer brick) {
 		this.brick = brick;
@@ -37,7 +31,14 @@ public class AttackerStrategy extends GeneralStrategy {
 	public void sendWorldState(WorldState worldState) {
 		super.sendWorldState(worldState);
 
-		if (ballX < leftCheck || ballX > rightCheck) {
+		if (worldState.weAreShootingRight && ballX > defenderCheck
+				&& ballX < leftCheck || !worldState.weAreShootingRight && ballX < defenderCheck && ballX > rightCheck) {
+			this.ballInEnemyAttackerArea = true;
+		} else {
+			this.ballInEnemyAttackerArea = false;
+		}
+		if ((ballX < leftCheck || ballX > rightCheck)
+				&& !ballInEnemyAttackerArea) {
 			synchronized (controlThread) {
 				controlThread.operation = Operation.DO_NOTHING;
 			}
@@ -45,22 +46,50 @@ public class AttackerStrategy extends GeneralStrategy {
 		}
 
 		synchronized (controlThread) {
-			controlThread.operation = Operation.ATKPREPARE_CATCH;
-			if (!ballCaught) {
-				double[] RotDistSpeed = new double[3];
-				controlThread.operation = catchBall(RobotType.ATTACKER, RotDistSpeed);
-				controlThread.radius = RotDistSpeed[0];
-				controlThread.travelDist = (int) RotDistSpeed[1];
-				controlThread.travelSpeed = (int) RotDistSpeed[2];
+			if (ballInEnemyAttackerArea) {
+				double[] rotDistSpeed = new double[5];
+				controlThread.operation = returnToOrigin(RobotType.ATTACKER, rotDistSpeed);
+				controlThread.radius = rotDistSpeed[0];
+				controlThread.travelDist = (int) rotDistSpeed[1];
+				controlThread.travelSpeed = (int) rotDistSpeed[2];
+				controlThread.rotateBy = (int) rotDistSpeed[3];
+				controlThread.rotateSpeed = (int) rotDistSpeed[4];
 				
+//				if (controlThread.operation == Operation.DO_NOTHING) {
+//				controlThread.operation = Operation.ATKROTATE;
+//				controlThread.rotateBy = (int) calculateAngle(attackerRobotX,
+//						attackerRobotY, attackerOrientation, ballX, ballY);
+//				controlThread.rotateSpeed = (int) Math.abs(controlThread.rotateBy * 3);
+//				}
 			} else {
-				double [] RotDist = new double[2];
-				controlThread.operation = scoreGoal(RobotType.ATTACKER, RotDist);
-				controlThread.rotateBy = (int) RotDist[0];
+				if (!ballCaughtAttacker) {
+					double[] RadDistSpeedRot = new double[5];
+					controlThread.operation = catchBall(RobotType.ATTACKER,
+							RadDistSpeedRot);
+					controlThread.radius = RadDistSpeedRot[0];
+					controlThread.travelDist = (int) RadDistSpeedRot[1];
+					controlThread.travelSpeed = (int) RadDistSpeedRot[2];
+					controlThread.rotateBy = (int) RadDistSpeedRot[3];
+					controlThread.rotateSpeed = (int) RadDistSpeedRot[3];
+
+				} else {
+					attackerHasArrived = false;
+					double[] RadDistSpeedRot = new double[5];
+					controlThread.operation = scoreGoal(RobotType.ATTACKER,
+							RadDistSpeedRot);
+					controlThread.radius = (int) RadDistSpeedRot[0];
+					controlThread.travelDist = (int) RadDistSpeedRot[1];
+					controlThread.travelSpeed = (int) RadDistSpeedRot[2];
+					controlThread.rotateBy = (int) RadDistSpeedRot[3];
+					controlThread.rotateSpeed = (int) RadDistSpeedRot[4];
+				}
+				// kicks if detected false catch
+				if (ballCaughtAttacker && (Math.hypot(ballX - attackerRobotX, ballY - attackerRobotY) > 45)) {
+					controlThread.operation = Operation.ATKKICK;
+				}
 			}
 		}
 	}
-
 
 	private class ControlThread extends Thread {
 		public Operation operation = Operation.DO_NOTHING;
@@ -68,6 +97,9 @@ public class AttackerStrategy extends GeneralStrategy {
 		public int travelDist = 0;
 		public int travelSpeed = 0;
 		public double radius = 0;
+		public int rotateSpeed = 0;
+
+		private long lastKickerEventTime = 0;
 
 		public ControlThread() {
 			super("Robot control thread");
@@ -89,46 +121,49 @@ public class AttackerStrategy extends GeneralStrategy {
 						radius = this.radius;
 					}
 
-//					System.out.println("ballcaught: " + ballCaught + "op: " + op.toString() + " rotateBy: "
-//							+ rotateBy + " travelDist: " + travelDist);
+					// System.out.println("ballcaught: " + ballCaught + "op: " +
+					// op.toString() + " rotateBy: "
+					// + rotateBy + " travelDist: " + travelDist);
 
 					switch (op) {
 					case DO_NOTHING:
 						break;
 					case ATKCATCH:
-						brick.executeSync(new RobotCommand.Catch());
-						ballCaught = true;
-						break;
-					case ATKPREPARE_CATCH:
-						brick.executeSync(new RobotCommand.PrepareCatcher());
+						if (System.currentTimeMillis() - lastKickerEventTime > 1000) {
+							brick.execute(new RobotCommand.Catch());
+							ballCaughtAttacker = true;
+							lastKickerEventTime = System.currentTimeMillis();
+						}
 						break;
 					case ATKKICK:
-						brick.executeSync(new RobotCommand.Kick(100));
-						ballCaught = false;
+						if (System.currentTimeMillis() - lastKickerEventTime > 1000) {
+							brick.execute(new RobotCommand.Kick(100));
+							ballCaughtAttacker = false;
+							lastKickerEventTime = System.currentTimeMillis();
+						}
 						break;
 					case ATKROTATE:
-						brick.executeSync(new RobotCommand.Rotate(-rotateBy, Math.abs(rotateBy)));
+						brick.execute(new RobotCommand.Rotate(-rotateBy, rotateSpeed));
 						break;
 					case ATKTRAVEL:
-						brick.executeSync(new RobotCommand.PrepareCatcher());
-						brick.executeSync(new RobotCommand.Travel(travelDist, travelSpeed));
+						brick.execute(new RobotCommand.Travel(travelDist,
+								travelSpeed));
 						break;
 					case ATKARC_LEFT:
-						brick.executeSync(new RobotCommand.PrepareCatcher());
-						brick.executeSync(new RobotCommand.TravelArc(radius, travelDist, travelSpeed));
+						brick.execute(new RobotCommand.TravelArc(radius,
+								travelDist, travelSpeed));
 						break;
 					case ATKARC_RIGHT:
-						brick.executeSync(new RobotCommand.PrepareCatcher());
-						brick.executeSync(new RobotCommand.TravelArc(-radius, travelDist, travelSpeed));
+						brick.execute(new RobotCommand.TravelArc(-radius,
+								travelDist, travelSpeed));
+						break;
+					default:
 						break;
 					}
-					Thread.sleep(1000); // TODO: Test lower values for this and
+					Thread.sleep(250); // TODO: Test lower values for this and
 										// see where it breaks.
 				}
-			}  catch (InterruptedException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
+			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 

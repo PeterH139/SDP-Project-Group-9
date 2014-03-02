@@ -7,7 +7,7 @@ import java.util.Deque;
 import pc.comms.BrickCommServer;
 import pc.vision.Vector2f;
 import pc.vision.interfaces.WorldStateReceiver;
-import pc.world.WorldState;
+import pc.world.oldmodel.WorldState;
 
 public class TargetFollowerStrategy implements WorldStateReceiver {
 

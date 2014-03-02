@@ -91,6 +91,48 @@ public class PitchConstants extends Observable {
 			notifyObservers();
 		}
 	}
+	
+	private float[] leftGoal = new float[3];
+	private float[] rightGoal = new float[3];
+	
+	/**
+	 * Order of the values is top to bottom. 	
+	 * @return the array of y values for the left goal
+	 */
+	public float[] getLeftGoal(){
+		return leftGoal;
+	}
+	/**
+	 * Order of the values is top to bottom. 	
+	 * @return the array of y values for the right goal
+	 */
+	public float[] getRightGoal(){
+		return rightGoal;
+	}
+	
+	public void setLeftGoal(float[] leftGoal){
+		if (leftGoal.length != 3) {
+			System.err.println("Left Goal array not the right size to set!");
+		} else {
+			if (!Arrays.equals(this.leftGoal, leftGoal)) {
+				this.leftGoal = leftGoal;
+				setChanged();
+			}
+			notifyObservers();
+		}
+	}
+	
+	public void setRightGoal(float[] rightGoal){
+		if (rightGoal.length != 3) {
+			System.err.println("Right Goal array not the right size to set!");
+		} else {
+			if (!Arrays.equals(this.rightGoal, rightGoal)) {
+				this.rightGoal = rightGoal;
+				setChanged();
+			}
+			notifyObservers();
+		}
+	}
 
 	/**
 	 * Default constructor.
@@ -275,6 +317,12 @@ public class PitchConstants extends Observable {
 			pitchDimFile.write(String.valueOf(this.dividers[0]) + "\n");
 			pitchDimFile.write(String.valueOf(this.dividers[1]) + "\n");
 			pitchDimFile.write(String.valueOf(this.dividers[2]) + "\n");
+			pitchDimFile.write(String.valueOf(this.leftGoal[0]) + "\n");
+			pitchDimFile.write(String.valueOf(this.leftGoal[1]) + "\n");
+			pitchDimFile.write(String.valueOf(this.leftGoal[2]) + "\n");
+			pitchDimFile.write(String.valueOf(this.rightGoal[0]) + "\n");
+			pitchDimFile.write(String.valueOf(this.rightGoal[1]) + "\n");
+			pitchDimFile.write(String.valueOf(this.rightGoal[2]) + "\n");
 			pitchDimFile.close();
 
 			FileWriter pitchFile = new FileWriter(new File("constants/pitch"
@@ -325,6 +373,14 @@ public class PitchConstants extends Observable {
 			this.dividers[0] = scannerDim.nextInt();
 			this.dividers[1] = scannerDim.nextInt();
 			this.dividers[2] = scannerDim.nextInt();
+			
+			this.leftGoal[0] = scannerDim.nextFloat();
+			this.leftGoal[1] = scannerDim.nextFloat();
+			this.leftGoal[2] = scannerDim.nextFloat();
+			
+			this.rightGoal[0] = scannerDim.nextFloat();
+			this.rightGoal[1] = scannerDim.nextFloat();
+			this.rightGoal[2] = scannerDim.nextFloat();
 
 			scannerDim.close();
 		} catch (Exception e) {
