@@ -73,35 +73,48 @@ public class GeneralStrategy implements Strategy {
 				attackerRobotY, attackerOrientation, ballX, ballY)
 				: calculateAngle(defenderRobotX, defenderRobotY,
 						defenderOrientation, ballX, ballY);
-		int catchDist = 32;
+		double catchDist = 32;
+		int catchThresh = 32;
 		float targetY = ballY;
+		System.out.println("dist from divider: " + Math.abs(leftCheck - ballX) + " and the other: " + Math.abs(rightCheck - ballX));
 		if (ballY > 345) {
 			targetY = ballY - 40;
-			catchDist = 37;
+			catchDist = 37.2;
+			catchThresh = 15;
+			if (Math.abs(leftCheck - ballX) < 20 || Math.abs(rightCheck - ballX) < 20 ) {
+				catchDist = 200;
+				catchThresh = 200;
+			}
 		} else if (ballY < 80) {
 			targetY = ballY + 40;
-			catchDist = 35;
+			catchDist = 37.2;
+			catchThresh = 15;
+			if (Math.abs(leftCheck - ballX) < 20 || Math.abs(rightCheck - ballX) < 20 ) {
+				catchDist = 200;
+				catchThresh = 200;
+			}
+		} else {
+			attackerHasArrived = false;
 		}
 		if (!attackerHasArrived) {
-			toExecute = travelTo(robot, ballX, targetY, 32, RotDistSpeed);
+			toExecute = travelTo(robot, ballX, targetY, catchThresh, RotDistSpeed);
 			if (toExecute == Operation.DO_NOTHING) {
 				attackerHasArrived = true;
 			}
 		} else {
-			System.out.println("angle to ball: " + angToBall + " dist: " + distanceToBall);
-			if (Math.abs(angToBall) > 10) {
+			if (Math.abs(angToBall) >2) {
 				toExecute = Operation.ATKROTATE;
 				RotDistSpeed[3] = isAttacker? angToBall : angToBall / 3;
 			} else if (Math.abs(distanceToBall) > catchDist) {
 				toExecute = Operation.ATKTRAVEL;
 				RotDistSpeed[1] = isAttacker? distanceToBall : distanceToBall / 3;
-				RotDistSpeed[2] = Math.abs(distanceToBall) / 2;
+				RotDistSpeed[2] = Math.abs(distanceToBall);
 			}
 			RotDistSpeed[4] = Math.abs(angToBall);
-			if (toExecute == Operation.DO_NOTHING) {
-				toExecute = isAttacker ? Operation.ATKCATCH
-						: Operation.DEFCATCH;
 			}
+		if (toExecute == Operation.DO_NOTHING) {
+			toExecute = isAttacker ? Operation.ATKCATCH
+					: Operation.DEFCATCH;
 		}
 		// TODO: implement some form of check for whether the ball is
 		// against
@@ -115,6 +128,7 @@ public class GeneralStrategy implements Strategy {
 	}
 
 	public Operation scoreGoal(RobotType robot, double[] RadDistSpeedRot) {
+		attackerHasArrived = false;
 		Operation toExecute = Operation.DO_NOTHING;
 		double angleForSideCatch = calculateAngle(attackerRobotX,
 				attackerRobotY, attackerOrientation, attackerRobotX + 20,

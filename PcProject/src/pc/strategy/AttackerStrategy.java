@@ -73,7 +73,6 @@ public class AttackerStrategy extends GeneralStrategy {
 					controlThread.rotateSpeed = (int) RadDistSpeedRot[3];
 
 				} else {
-					attackerHasArrived = false;
 					double[] RadDistSpeedRot = new double[5];
 					controlThread.operation = scoreGoal(RobotType.ATTACKER,
 							RadDistSpeedRot);
