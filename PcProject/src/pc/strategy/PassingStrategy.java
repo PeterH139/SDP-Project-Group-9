@@ -49,7 +49,7 @@ public class PassingStrategy extends GeneralStrategy {
 			this.controlThread.operation = Operation.DO_NOTHING;
 
 			if (!this.ballCaughtDefender) {
-				double[] RotDistSpeed = new double[4];
+				double[] RotDistSpeed = new double[5];
 				this.controlThread.operation = catchBall(RobotType.DEFENDER,
 						RotDistSpeed);
 				this.controlThread.radius = RotDistSpeed[0];
@@ -130,7 +130,7 @@ public class PassingStrategy extends GeneralStrategy {
 						break;
 					case DEFKICK:
 						if (System.currentTimeMillis() - lastKickerEventTime > 1000) {
-							defenderBrick.execute(new RobotCommand.Kick(20));
+							defenderBrick.execute(new RobotCommand.Kick(10));
 							ballCaughtDefender = false;
 							lastKickerEventTime = System.currentTimeMillis();
 						}

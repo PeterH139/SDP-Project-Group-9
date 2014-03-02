@@ -32,7 +32,7 @@ public class GeneralStrategy implements Strategy {
 	protected boolean ballCaughtDefender;
 	protected boolean ballCaughtAttacker;
 	protected boolean attackerHasArrived;
-
+	protected boolean defenderHasArrived;
 	@Override
 	public void stopControlThread() {
 		controlThread.stop();
@@ -66,6 +66,7 @@ public class GeneralStrategy implements Strategy {
 	public Operation catchBall(RobotType robot, double[] RotDistSpeed) {
 		Operation toExecute = Operation.DO_NOTHING;
 		boolean isAttacker = robot == RobotType.ATTACKER;
+		if (isAttacker) {
 		double distanceToBall = isAttacker ? Math.hypot(ballX - attackerRobotX,
 				ballY - attackerRobotY) : Math.hypot(ballX - defenderRobotX,
 				ballY - defenderRobotY);
@@ -76,8 +77,8 @@ public class GeneralStrategy implements Strategy {
 		double catchDist = 32;
 		int catchThresh = 32;
 		float targetY = ballY;
-		System.out.println("dist from divider: " + Math.abs(leftCheck - ballX) + " and the other: " + Math.abs(rightCheck - ballX));
-		if (ballY > 345) {
+		//System.out.println("dist from divider: " + Math.abs(leftCheck - ballX) + " and the other: " + Math.abs(rightCheck - ballX));
+		if (ballY > 345 && isAttacker) {
 			targetY = ballY - 40;
 			catchDist = 37.2;
 			catchThresh = 15;
@@ -85,7 +86,7 @@ public class GeneralStrategy implements Strategy {
 				catchDist = 200;
 				catchThresh = 200;
 			}
-		} else if (ballY < 80) {
+		} else if (ballY < 80 && isAttacker) {
 			targetY = ballY + 40;
 			catchDist = 37.2;
 			catchThresh = 15;
@@ -108,10 +109,14 @@ public class GeneralStrategy implements Strategy {
 			} else if (Math.abs(distanceToBall) > catchDist) {
 				toExecute = Operation.ATKTRAVEL;
 				RotDistSpeed[1] = isAttacker? distanceToBall : distanceToBall / 3;
-				RotDistSpeed[2] = Math.abs(distanceToBall);
+				RotDistSpeed[2] = isAttacker? Math.abs(distanceToBall) : Math.abs(distanceToBall) / 3;
 			}
-			RotDistSpeed[4] = Math.abs(angToBall);
+			RotDistSpeed[4] = isAttacker? Math.abs(angToBall) : Math.abs(angToBall);
 			}
+		} else {
+			defenderHasArrived = false;
+			toExecute = travelTo(robot, ballX, ballY, 32, RotDistSpeed);
+		}
 		if (toExecute == Operation.DO_NOTHING) {
 			toExecute = isAttacker ? Operation.ATKCATCH
 					: Operation.DEFCATCH;
@@ -152,7 +157,7 @@ public class GeneralStrategy implements Strategy {
 				double ang1 = calculateAngle(attackerRobotX, attackerRobotY,
 						attackerOrientation, goalX, aimY);
 				// System.out.println("angle to goal: " + ang1);
-				if (Math.abs(ang1) > 5) {
+				if (Math.abs(ang1) > 3) {
 					toExecute = Operation.ATKROTATE;
 					RadDistSpeedRot[3] = (int) ang1;
 					RadDistSpeedRot[4] = (int) Math.abs(ang1) * 1.5;
@@ -235,7 +240,7 @@ public class GeneralStrategy implements Strategy {
 			RotDistSpeed[3] = isAttacker ? ang1 : (ang1 / 3);
 		} else if (!haveArrived) {
 			RotDistSpeed[2] = isAttacker ? (int) (Math.abs(dist) * 1.5)
-					: (int) (Math.abs(dist) / 1.5);
+					: (int) (Math.abs(dist) / 3);
 			if (Math.abs(ang1) < 90) {
 				RotDistSpeed[1] = isAttacker ? (int) dist : (int) (dist / 3);
 			} else {
@@ -272,20 +277,23 @@ public class GeneralStrategy implements Strategy {
 	public Operation passBall(RobotType passer, RobotType receiver,
 			double[] RotDistSpeed) {
 		Operation toExecute = Operation.DO_NOTHING;
+		if (!defenderHasArrived) {
 		toExecute = travelToNoArc(passer, defenderResetX, defenderResetY, 20,
 				RotDistSpeed);
+		}
 		if (toExecute == Operation.DO_NOTHING) {
+			defenderHasArrived = true;
 			float targetY = 220;
 			if (enemyAttackerRobotY < targetY) {
 				targetY = enemyAttackerRobotY + 125;
 			} else {
 				targetY = enemyAttackerRobotY - 125;
 			}
-			double angleToPass = calculateAngle(defenderRobotX, defenderRobotY,
-					defenderOrientation, attackerRobotX, targetY);
 			double attackerAngle = calculateAngle(attackerRobotX,
 					attackerRobotY, attackerOrientation, attackerRobotX,
 					targetY);
+			double angleToPass = calculateAngle(defenderRobotX, defenderRobotY,
+					defenderOrientation, attackerRobotX, targetY);
 			double dist = Math.hypot(attackerRobotX - attackerRobotX,
 					attackerRobotY - targetY);
 
