@@ -61,7 +61,7 @@ public class GeneralStrategy implements Strategy {
 	}
 
 	public enum Operation {
-		DO_NOTHING, ATKTRAVEL, ATKROTATE, ATKPREPARE_CATCH, ATKCATCH, ATKKICK, ATKARC_LEFT, ATKARC_RIGHT, DEFTRAVEL, DEFROTATE, DEFPREPARE_CATCH, DEFCATCH, DEFKICK, ROTATENMOVE, DEFARC_LEFT, DEFARC_RIGHT
+		DO_NOTHING, ATKTRAVEL, ATKMOVEKICK, ATKROTATE, ATKPREPARE_CATCH, ATKCATCH, ATKKICK, ATKARC_LEFT, ATKARC_RIGHT, DEFTRAVEL, DEFROTATE, DEFPREPARE_CATCH, DEFCATCH, DEFKICK, ROTATENMOVE, DEFARC_LEFT, DEFARC_RIGHT
 	}
 
 	public Operation catchBall(RobotType robot, double[] RotDistSpeed) {
@@ -69,6 +69,7 @@ public class GeneralStrategy implements Strategy {
 		// necessary variables
 		Operation toExecute = Operation.DO_NOTHING;
 		boolean isAttacker = robot == RobotType.ATTACKER;
+
 		double distanceToBall = isAttacker ? Math.hypot(ballX - attackerRobotX,
 				ballY - attackerRobotY) : Math.hypot(ballX - defenderRobotX,
 				ballY - defenderRobotY);
@@ -189,17 +190,15 @@ public class GeneralStrategy implements Strategy {
 	public Operation scoreGoal(RobotType robot, double[] RadDistSpeedRot) {
 		attackerHasArrived = false;
 		Operation toExecute = Operation.DO_NOTHING;
-		double angleForSideCatch = calculateAngle(attackerRobotX,
-				attackerRobotY, attackerOrientation, attackerRobotX + 20,
-				attackerRobotY);
-		// if (Math.abs(angleForSideCatch) > 15
-		// && (attackerRobotY > 320 || attackerRobotY < 120)) {
-		// toExecute = Operation.ATKROTATE;
-		// RadDistSpeedRot[3] = (int) angleForSideCatch;
-		// RadDistSpeedRot[4] = (int) Math.abs(angleForSideCatch) * 1.5;
-		// } else {
+		float toTravelX;
+		if (Math.abs(enemyDefenderRobotX - rightCheck) < 30
+				|| Math.abs(enemyDefenderRobotX - leftCheck) < 30) {
+			toTravelX = goalY[0] - 50;
+		} else {
+			toTravelX = goalY[1];
+		}
 		toExecute = travelToNoArc(robot, (leftCheck + rightCheck) / 2,
-				goalY[1], 40, RadDistSpeedRot);
+				toTravelX, 40, RadDistSpeedRot);
 		if (toExecute == Operation.DO_NOTHING) {
 			float aimY = goalY[1];
 			if (robot == RobotType.ATTACKER) {
@@ -208,15 +207,24 @@ public class GeneralStrategy implements Strategy {
 				} else {
 					aimY = goalY[2];
 				}
-				double ang1 = calculateAngle(attackerRobotX, attackerRobotY,
-						attackerOrientation, goalX, aimY);
+				double ang1 = 0;
+				if (Math.abs(enemyDefenderRobotX - rightCheck) < 30) {
+					ang1 = calculateAngle(attackerRobotX, attackerRobotY,
+							attackerOrientation, (rightCheck + 560) / 2, 60);
+				} else if (Math.abs(enemyDefenderRobotX - leftCheck) < 30) {
+					ang1 = calculateAngle(attackerRobotX, attackerRobotY,
+							attackerOrientation, (leftCheck + 80) / 2, 60);
+				} else {
+					ang1 = calculateAngle(attackerRobotX, attackerRobotY,
+							attackerOrientation, goalX, aimY);
+				}
 				// System.out.println("angle to goal: " + ang1);
 				if (Math.abs(ang1) > 3) {
 					toExecute = Operation.ATKROTATE;
 					RadDistSpeedRot[3] = (int) ang1;
 					RadDistSpeedRot[4] = (int) Math.abs(ang1) * 1.5;
 				} else {
-					toExecute = Operation.ATKKICK;
+					toExecute = Operation.ATKMOVEKICK;
 				}
 			}
 
