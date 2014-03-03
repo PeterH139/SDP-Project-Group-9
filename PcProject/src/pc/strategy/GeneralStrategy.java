@@ -33,6 +33,7 @@ public class GeneralStrategy implements Strategy {
 	protected boolean ballCaughtAttacker;
 	protected boolean attackerHasArrived;
 	protected boolean defenderHasArrived;
+
 	@Override
 	public void stopControlThread() {
 		controlThread.stop();
@@ -64,9 +65,10 @@ public class GeneralStrategy implements Strategy {
 	}
 
 	public Operation catchBall(RobotType robot, double[] RotDistSpeed) {
+
+		// necessary variables
 		Operation toExecute = Operation.DO_NOTHING;
 		boolean isAttacker = robot == RobotType.ATTACKER;
-		if (isAttacker) {
 		double distanceToBall = isAttacker ? Math.hypot(ballX - attackerRobotX,
 				ballY - attackerRobotY) : Math.hypot(ballX - defenderRobotX,
 				ballY - defenderRobotY);
@@ -77,49 +79,102 @@ public class GeneralStrategy implements Strategy {
 		double catchDist = 32;
 		int catchThresh = 32;
 		float targetY = ballY;
-		//System.out.println("dist from divider: " + Math.abs(leftCheck - ballX) + " and the other: " + Math.abs(rightCheck - ballX));
-		if (ballY > 345 && isAttacker) {
-			targetY = ballY - 40;
-			catchDist = 37.2;
-			catchThresh = 15;
-			if (Math.abs(leftCheck - ballX) < 20 || Math.abs(rightCheck - ballX) < 20 ) {
-				catchDist = 200;
-				catchThresh = 200;
+		float targetX = ballX;
+		double slope = 0;
+		float c = (float) (ballY - slope * ballX);
+
+		System.out.println("ball position: (" + ballX + "," + ballY + ")");
+		// attacker's case
+		if (isAttacker) {
+			if (ballY > 345 && isAttacker) {
+				targetY = ballY - 40;
+				catchDist = 37.2;
+				catchThresh = 15;
+				if (Math.abs(leftCheck - ballX) < 20
+						|| Math.abs(rightCheck - ballX) < 20) {
+					catchDist = 200;
+					catchThresh = 200;
+				}
+			} else if (ballY < 80 && isAttacker) {
+				targetY = ballY + 40;
+				catchDist = 37.2;
+				catchThresh = 15;
+				if (Math.abs(leftCheck - ballX) < 20
+						|| Math.abs(rightCheck - ballX) < 20) {
+					catchDist = 200;
+					catchThresh = 200;
+				}
+			} else {
+				attackerHasArrived = false;
 			}
-		} else if (ballY < 80 && isAttacker) {
-			targetY = ballY + 40;
-			catchDist = 37.2;
-			catchThresh = 15;
-			if (Math.abs(leftCheck - ballX) < 20 || Math.abs(rightCheck - ballX) < 20 ) {
-				catchDist = 200;
-				catchThresh = 200;
+			if (!attackerHasArrived) {
+				toExecute = travelTo(robot, ballX, targetY, catchThresh,
+						RotDistSpeed);
+				if (toExecute == Operation.DO_NOTHING) {
+					attackerHasArrived = true;
+				}
+			} else {
+				if (Math.abs(angToBall) > 2) {
+					toExecute = Operation.ATKROTATE;
+					RotDistSpeed[3] = isAttacker ? angToBall : angToBall / 3;
+				} else if (Math.abs(distanceToBall) > catchDist) {
+					toExecute = Operation.ATKTRAVEL;
+					RotDistSpeed[1] = isAttacker ? distanceToBall
+							: distanceToBall / 3;
+					RotDistSpeed[2] = isAttacker ? Math.abs(distanceToBall)
+							: Math.abs(distanceToBall) / 3;
+				}
+				RotDistSpeed[4] = isAttacker ? Math.abs(angToBall) : Math
+						.abs(angToBall);
 			}
+
+			// defender's case
 		} else {
-			attackerHasArrived = false;
-		}
-		if (!attackerHasArrived) {
-			toExecute = travelTo(robot, ballX, targetY, catchThresh, RotDistSpeed);
-			if (toExecute == Operation.DO_NOTHING) {
-				attackerHasArrived = true;
+			if (ballX < 87 && !isAttacker) {
+				targetX = 120;
+				catchDist = 37.2;
+				catchThresh = 15;
+				if (ballY < 135) {
+					slope = 0.45;
+					c += 10;
+
+				} else if (ballY > 287) {
+					slope = -0.44;
+					c -= 10;
+				}
+				targetY = (float) (slope * targetX + c);
+				if (Math.abs(defenderCheck - ballX) < 20) {
+					catchDist = 200;
+					catchThresh = 200;
+				}
+			} else if (ballX > 538 && !isAttacker) {
+				targetX = 498;
+				catchDist = 37.2;
+				catchThresh = 15;
+				if (ballY < 135) {
+					slope = -0.43;
+					c += 10;
+				} else if (ballY > 287) {
+					slope = 0.39;
+					c -= 10;
+				}
+				targetY = (float) (slope * targetX + c);
+				if (Math.abs(defenderCheck - ballX) < 20) {
+					catchDist = 200;
+					catchThresh = 200;
+				}
+			} else {
+				defenderHasArrived = false;
 			}
-		} else {
-			if (Math.abs(angToBall) >2) {
-				toExecute = Operation.ATKROTATE;
-				RotDistSpeed[3] = isAttacker? angToBall : angToBall / 3;
-			} else if (Math.abs(distanceToBall) > catchDist) {
-				toExecute = Operation.ATKTRAVEL;
-				RotDistSpeed[1] = isAttacker? distanceToBall : distanceToBall / 3;
-				RotDistSpeed[2] = isAttacker? Math.abs(distanceToBall) : Math.abs(distanceToBall) / 3;
+			if (!defenderHasArrived) {
+				toExecute = travelTo(robot, targetX, targetY, catchThresh,
+						RotDistSpeed);
+				if (toExecute == Operation.DO_NOTHING) {
+					defenderHasArrived = true;
+				}
+			} else {
+				travelToNoArc(robot, ballX, ballY, catchThresh, RotDistSpeed);
 			}
-			RotDistSpeed[4] = isAttacker? Math.abs(angToBall) : Math.abs(angToBall);
-			}
-		} else {
-			defenderHasArrived = false;
-			toExecute = travelTo(robot, ballX, ballY, 32, RotDistSpeed);
-		}
-		if (toExecute == Operation.DO_NOTHING) {
-			toExecute = isAttacker ? Operation.ATKCATCH
-					: Operation.DEFCATCH;
 		}
 		// TODO: implement some form of check for whether the ball is
 		// against
@@ -128,7 +183,6 @@ public class GeneralStrategy implements Strategy {
 		// && Math.abs(angToBall) < 25) {
 		// toExecute = Operation.DO_NOTHING;
 		// }
-
 		return toExecute;
 	}
 
@@ -202,8 +256,6 @@ public class GeneralStrategy implements Strategy {
 					DistSpeedRot[1] = isAttacker ? -dist : -dist / 3;
 					DistSpeedRot[2] = isAttacker ? Math.abs(dist) * 3 : 30;
 				}
-				// System.out.println("angle 1 : " + Math.abs(ang1) + "dist: " +
-				// Math.abs(dist));
 			} else {
 				if (Math.abs(ang1) > 15) {
 					toExecute = isAttacker ? Operation.ATKROTATE
@@ -278,8 +330,8 @@ public class GeneralStrategy implements Strategy {
 			double[] RotDistSpeed) {
 		Operation toExecute = Operation.DO_NOTHING;
 		if (!defenderHasArrived) {
-		toExecute = travelToNoArc(passer, defenderResetX, defenderResetY, 20,
-				RotDistSpeed);
+			toExecute = travelToNoArc(passer, defenderResetX, defenderResetY,
+					20, RotDistSpeed);
 		}
 		if (toExecute == Operation.DO_NOTHING) {
 			defenderHasArrived = true;
