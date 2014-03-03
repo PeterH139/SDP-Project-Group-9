@@ -3,14 +3,11 @@ package pc.vision.recognisers;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Stroke;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-
-import org.apache.bcel.generic.DASTORE;
 
 import pc.vision.DistortionFix;
 import pc.vision.PitchConstants;
@@ -35,11 +32,9 @@ public class RobotRecogniser implements ObjectRecogniser {
 	private DistortionFix distortionFix;
 	private Pitch pitch;
 	private SearchReturn blueDef, yellowAtk, blueAtk, yellowDef;
-	private SearchReturn blueDefPrev = new SearchReturn();
-	private SearchReturn yellowDefPrev = new SearchReturn();
-	private SearchReturn blueAtkPrev = new SearchReturn();
-	private SearchReturn yellowAtkPrev = new SearchReturn();
-
+	private SearchReturn blueDefPrev, yellowDefPrev, blueAtkPrev, yellowAtkPrev;
+	private boolean blueAtkNotOnPitch, blueDefNotOnPitch,yellowAtkNotOnPitch,yellowDefNotOnPitch;
+	
 	public RobotRecogniser(Vision vision, WorldState worldState,
 			PitchConstants pitchConstants, DistortionFix distortionFix,
 			Pitch pitch) {
@@ -84,8 +79,16 @@ public class RobotRecogniser implements ObjectRecogniser {
 					frame.getWidth() - rightBuffer, true);
 		}
 
+		// Reset to default
+		blueAtkNotOnPitch = false;
+		blueDefNotOnPitch = false;
+		yellowAtkNotOnPitch = false;
+		yellowDefNotOnPitch = false;
+		
+		// Determine if the plates are on the pitch or not.
 		if (blueAtk.pos.x == 0 && blueAtk.pos.y == 0) {
 			blueAtk = blueAtkPrev;
+			blueAtkNotOnPitch = true;
 		} else {
 			Point2D.Double point = new Point2D.Double(blueAtk.pos.x,
 					blueAtk.pos.y);
@@ -97,6 +100,7 @@ public class RobotRecogniser implements ObjectRecogniser {
 
 		if (blueDef.pos.x == 0 && blueDef.pos.y == 0) {
 			blueDef = blueDefPrev;
+			blueDefNotOnPitch = true;
 		} else {
 			Point2D.Double point = new Point2D.Double(blueDef.pos.x,
 					blueDef.pos.y);
@@ -108,6 +112,7 @@ public class RobotRecogniser implements ObjectRecogniser {
 
 		if (yellowAtk.pos.x == 0 && yellowAtk.pos.y == 0) {
 			yellowAtk = yellowAtkPrev;
+			yellowAtkNotOnPitch = true;
 		} else {
 			Point2D.Double point = new Point2D.Double(yellowAtk.pos.x,
 					yellowAtk.pos.y);
@@ -119,6 +124,7 @@ public class RobotRecogniser implements ObjectRecogniser {
 
 		if (yellowDef.pos.x == 0 && yellowDef.pos.y == 0) {
 			yellowDef = yellowDefPrev;
+			yellowDefNotOnPitch = true;
 		} else {
 			Point2D.Double point = new Point2D.Double(yellowDef.pos.x,
 					yellowDef.pos.y);
@@ -134,10 +140,6 @@ public class RobotRecogniser implements ObjectRecogniser {
 		yellowDefPrev = yellowDef;
 		yellowAtkPrev = yellowAtk;
 
-		// TODO: Using the previous position values and the time between frames,
-		// calculate the velocities of the robots and the ball.
-		// #Peter: Should this be done in the new world model?
-
 		// #Peter: Robots are now decided based on which colour plates we are
 		// using.
 		MovingObject attackerRobot, defenderRobot, enemyAttackerRobot, enemyDefenderRobot;
@@ -150,7 +152,10 @@ public class RobotRecogniser implements ObjectRecogniser {
 					yellowAtk.pos.y, yellowAtk.angle);
 			enemyDefenderRobot = new MovingObject(yellowDef.pos.x,
 					yellowDef.pos.y, yellowDef.angle);
-
+			worldState.attackerNotOnPitch = blueAtkNotOnPitch;
+			worldState.defenderNotOnPitch = blueDefNotOnPitch;
+			worldState.enemyAttackerNotOnPitch = yellowAtkNotOnPitch;
+			worldState.enemyDefenderNotOnPitch = yellowDefNotOnPitch;
 		} else {
 			attackerRobot = new MovingObject(yellowAtk.pos.x, yellowAtk.pos.y,
 					yellowAtk.angle);
@@ -160,6 +165,10 @@ public class RobotRecogniser implements ObjectRecogniser {
 					blueAtk.angle);
 			enemyDefenderRobot = new MovingObject(blueDef.pos.x, blueDef.pos.y,
 					blueDef.angle);
+			worldState.attackerNotOnPitch = yellowAtkNotOnPitch;
+			worldState.defenderNotOnPitch = yellowDefNotOnPitch;
+			worldState.enemyAttackerNotOnPitch = blueAtkNotOnPitch;
+			worldState.enemyDefenderNotOnPitch = blueDefNotOnPitch;
 		}
 
 		worldState.setAttackerRobot(attackerRobot);
