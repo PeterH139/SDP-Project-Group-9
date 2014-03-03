@@ -13,6 +13,7 @@ import org.apache.commons.cli.ParseException;
 
 import pc.strategy.StrategyController;
 import pc.vision.gui.VisionGUI;
+import pc.vision.gui.tools.AlignmentTool;
 import pc.vision.gui.tools.ColourThresholdConfigTool;
 import pc.vision.gui.tools.HistogramTool;
 import pc.vision.gui.tools.PitchModelView;
@@ -120,6 +121,10 @@ public class RunVision {
 			StrategySelectorTool stratSelect = new StrategySelectorTool(gui,
 					strategyController);
 			gui.addTool(stratSelect, "Robot and strategy control");
+			
+			AlignmentTool alignmentTool = new AlignmentTool(gui);
+			gui.addTool(alignmentTool, "Alignment");
+			vision.addRecogniser(alignmentTool.new FrameDisplay());
 
 			vStream.addReceiver(pmvTool);
 			vStream.addReceiver(distortionFix);
