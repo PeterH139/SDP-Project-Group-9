@@ -37,6 +37,7 @@ public class AttackerStrategy extends GeneralStrategy {
 		} else {
 			this.ballInEnemyAttackerArea = false;
 		}
+		//System.out.println("ballX: " + ballX + " ballY: " + ballY);
 		if ((ballX < leftCheck || ballX > rightCheck)
 				&& !ballInEnemyAttackerArea) {
 			synchronized (controlThread) {
@@ -131,6 +132,14 @@ public class AttackerStrategy extends GeneralStrategy {
 						if (System.currentTimeMillis() - lastKickerEventTime > 1000) {
 							brick.execute(new RobotCommand.Catch());
 							ballCaughtAttacker = true;
+							lastKickerEventTime = System.currentTimeMillis();
+						}
+						break;
+					case ATKMOVEKICK:
+						if (System.currentTimeMillis() - lastKickerEventTime > 1000) {
+							brick.execute(new RobotCommand.Travel(100, 10000));
+							brick.execute(new RobotCommand.Kick(100));
+							ballCaughtAttacker = false;
 							lastKickerEventTime = System.currentTimeMillis();
 						}
 						break;
