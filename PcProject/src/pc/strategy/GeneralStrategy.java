@@ -2,6 +2,7 @@ package pc.strategy;
 
 import pc.strategy.interfaces.Strategy;
 import pc.world.oldmodel.WorldState;
+import pc.world.Pitch;
 
 public class GeneralStrategy implements Strategy {
 
@@ -65,7 +66,7 @@ public class GeneralStrategy implements Strategy {
 	}
 
 	public Operation catchBall(RobotType robot, double[] RotDistSpeed) {
-
+System.out.println("defenderHasArrived : " + defenderHasArrived);
 		// necessary variables
 		Operation toExecute = Operation.DO_NOTHING;
 		boolean isAttacker = robot == RobotType.ATTACKER;
@@ -83,8 +84,6 @@ public class GeneralStrategy implements Strategy {
 		float targetX = ballX;
 		double slope = 0;
 		float c = (float) (ballY - slope * ballX);
-
-		System.out.println("ball position: (" + ballX + "," + ballY + ")");
 		// attacker's case
 		if (isAttacker) {
 			if (ballY > 345 && isAttacker) {
@@ -137,11 +136,11 @@ public class GeneralStrategy implements Strategy {
 				catchThresh = 15;
 				if (ballY < 135) {
 					slope = 0.45;
-					c += 10;
+					c -= 10;
 
 				} else if (ballY > 287) {
 					slope = -0.44;
-					c -= 10;
+					c += 10;
 				}
 				targetY = (float) (slope * targetX + c);
 				if (Math.abs(defenderCheck - ballX) < 20) {
@@ -153,13 +152,14 @@ public class GeneralStrategy implements Strategy {
 				catchDist = 37.2;
 				catchThresh = 15;
 				if (ballY < 135) {
-					slope = -0.43;
-					c += 10;
+					slope = 0.43;
+					c -= 20;
+					targetY = (float) (slope * targetX - c);
 				} else if (ballY > 287) {
-					slope = 0.39;
-					c -= 10;
+					slope = -0.39;
+					c += 20;
+					targetY = (float) (slope * targetX + c);
 				}
-				targetY = (float) (slope * targetX + c);
 				if (Math.abs(defenderCheck - ballX) < 20) {
 					catchDist = 200;
 					catchThresh = 200;
@@ -170,11 +170,23 @@ public class GeneralStrategy implements Strategy {
 			if (!defenderHasArrived) {
 				toExecute = travelTo(robot, targetX, targetY, catchThresh,
 						RotDistSpeed);
+				System.out.println("dist: " + RotDistSpeed[1] + " slope: " + slope + " x: " + ballX + " y: " + ballY + " target y: " + targetY + " c: " + c);
 				if (toExecute == Operation.DO_NOTHING) {
 					defenderHasArrived = true;
 				}
 			} else {
-				travelToNoArc(robot, ballX, ballY, catchThresh, RotDistSpeed);
+				if (Math.abs(angToBall) > 2) {
+					toExecute = Operation.DEFROTATE;
+					RotDistSpeed[3] = isAttacker ? angToBall : angToBall / 3;
+				} else if (Math.abs(distanceToBall) > catchDist) {
+					toExecute = Operation.DEFTRAVEL;
+					RotDistSpeed[1] = isAttacker ? distanceToBall
+							: -distanceToBall / 3;
+					RotDistSpeed[2] = isAttacker ? Math.abs(distanceToBall)
+							: Math.abs(distanceToBall) / 3;
+				}
+				RotDistSpeed[4] = isAttacker ? Math.abs(angToBall) : Math
+						.abs(angToBall);
 			}
 		}
 		// TODO: implement some form of check for whether the ball is
@@ -336,6 +348,7 @@ public class GeneralStrategy implements Strategy {
 
 	public Operation passBall(RobotType passer, RobotType receiver,
 			double[] RotDistSpeed) {
+		defenderHasArrived = false;
 		Operation toExecute = Operation.DO_NOTHING;
 		if (!defenderHasArrived) {
 			toExecute = travelToNoArc(passer, defenderResetX, defenderResetY,
