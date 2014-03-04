@@ -69,7 +69,7 @@ public class PassingStrategy extends GeneralStrategy {
 				controlThread.rotateSpeed = (int) RadDistSpeedRot[4];
 			}
 			// kicks if detected false catch
-			if (ballCaughtDefender && (Math.hypot(ballX - defenderRobotX, ballY - defenderRobotY) > 45)) {
+			if (ballCaughtDefender && (Math.hypot(ballX - defenderRobotX, ballY - defenderRobotY) > 90)) {
 				controlThread.operation = Operation.DEFKICK;
 			}
 		}
@@ -130,7 +130,7 @@ public class PassingStrategy extends GeneralStrategy {
 						break;
 					case DEFKICK:
 						if (System.currentTimeMillis() - lastKickerEventTime > 1000) {
-							defenderBrick.execute(new RobotCommand.Kick(10));
+							defenderBrick.execute(new RobotCommand.Kick(60));
 							ballCaughtDefender = false;
 							lastKickerEventTime = System.currentTimeMillis();
 						}
