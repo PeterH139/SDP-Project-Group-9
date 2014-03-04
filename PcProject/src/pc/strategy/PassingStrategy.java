@@ -13,7 +13,8 @@ public class PassingStrategy extends GeneralStrategy {
 	private BrickCommServer defenderBrick;
 	private ControlThread controlThread;
 	private boolean stopControlThread;
-
+	private int numberOfLostBalls = 0;
+	
 	public PassingStrategy(BrickCommServer attackerBrick,
 			BrickCommServer defenderBrick) {
 		this.attackerBrick = attackerBrick;
@@ -70,7 +71,14 @@ public class PassingStrategy extends GeneralStrategy {
 			}
 			// kicks if detected false catch
 			if (ballCaughtDefender && (Math.hypot(ballX - defenderRobotX, ballY - defenderRobotY) > 90)) {
-				controlThread.operation = Operation.DEFKICK;
+				
+				numberOfLostBalls++;
+				
+				if (numberOfLostBalls > 8) {
+					controlThread.operation = Operation.DEFPREPARE_CATCH;
+				}
+			} else {
+				numberOfLostBalls = 0;
 			}
 		}
 
@@ -130,7 +138,7 @@ public class PassingStrategy extends GeneralStrategy {
 						break;
 					case DEFKICK:
 						if (System.currentTimeMillis() - lastKickerEventTime > 1000) {
-							defenderBrick.execute(new RobotCommand.Kick(60));
+							defenderBrick.execute(new RobotCommand.Kick(25));
 							ballCaughtDefender = false;
 							lastKickerEventTime = System.currentTimeMillis();
 						}

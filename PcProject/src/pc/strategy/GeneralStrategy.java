@@ -366,7 +366,7 @@ public class GeneralStrategy implements Strategy {
 		Operation toExecute = Operation.DO_NOTHING;
 		if (!defenderHasArrived) {
 			toExecute = travelToNoArc(passer, defenderResetX, defenderResetY,
-					20, RotDistSpeed);
+					23, RotDistSpeed);
 		}
 		if (toExecute == Operation.DO_NOTHING) {
 			defenderHasArrived = true;
@@ -402,7 +402,7 @@ public class GeneralStrategy implements Strategy {
 				} else {
 					RotDistSpeed[3] = 0;
 				}
-				if (Math.abs(dist) > 20) {
+				if (Math.abs(dist) > 30) {
 					RotDistSpeed[1] = (int) (dist);
 				} else {
 					RotDistSpeed[1] = 0;
