@@ -31,7 +31,10 @@ public class RobotRecogniser implements ObjectRecogniser {
 	private PitchConstants pitchConstants;
 	private DistortionFix distortionFix;
 	private Pitch pitch;
-	private SearchReturn blueDef, yellowAtk, blueAtk, yellowDef;
+	private SearchReturn blueDef = new SearchReturn();
+	private SearchReturn yellowAtk = new SearchReturn();
+	private SearchReturn blueAtk= new SearchReturn();
+	private SearchReturn yellowDef= new SearchReturn();
 	private SearchReturn blueDefPrev, yellowDefPrev, blueAtkPrev, yellowAtkPrev;
 	private boolean blueAtkNotOnPitch, blueDefNotOnPitch,yellowAtkNotOnPitch,yellowDefNotOnPitch;
 	
