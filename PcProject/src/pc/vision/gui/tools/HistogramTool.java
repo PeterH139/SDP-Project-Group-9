@@ -1,5 +1,6 @@
 package pc.vision.gui.tools;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
@@ -162,6 +163,17 @@ public class HistogramTool implements GUITool, ObjectRecogniser {
 					channel));
 		}
 		silentGUIChange = false;
+
+		for (int channel = 0; channel < PitchConstants.NUM_CHANNELS; channel++) {
+			histograms[channel].histogramDisplay
+					.setHighlight(
+							(int) (255 * pitchConstants.getLowerThreshold(
+									currentObject, channel) / CHANNEL_VALUE_DIVIDERS[channel]),
+							(int) (255 * pitchConstants.getUpperThreshold(
+									currentObject, channel) / CHANNEL_VALUE_DIVIDERS[channel]),
+							pitchConstants.isThresholdInverted(currentObject,
+									channel));
+		}
 	}
 
 	private void registerChangeListeners() {
@@ -369,11 +381,26 @@ public class HistogramTool implements GUITool, ObjectRecogniser {
 		public static final int HISTOGRAM_HEIGHT = 120;
 
 		private BufferedImage histogramImage;
+		private int highlightLeft, highlightRight;
+		private boolean highlightInvert;
 
 		private JPanel imagePanel = new JPanel() {
 			protected void paintComponent(java.awt.Graphics g) {
 				super.paintComponent(g);
 				g.drawImage(histogramImage, 0, 0, null);
+				Graphics2D g2d = (Graphics2D) g.create();
+				g2d.setComposite(AlphaComposite.getInstance(
+						AlphaComposite.SRC_OVER, 0.3f));
+				g2d.setColor(Color.WHITE);
+				if (highlightInvert) {
+					g2d.fillRect(0, 0, highlightLeft, getHeight());
+					g2d.fillRect(highlightRight, 0,
+							getWidth() - highlightRight, getHeight());
+				} else {
+					g2d.fillRect(highlightLeft, 0, highlightRight
+							- highlightLeft, getHeight());
+				}
+				g2d.dispose();
 			};
 		};
 
@@ -389,6 +416,13 @@ public class HistogramTool implements GUITool, ObjectRecogniser {
 
 		public void updateImage(BufferedImage image) {
 			histogramImage = image;
+			imagePanel.repaint();
+		}
+
+		public void setHighlight(int left, int right, boolean invert) {
+			highlightLeft = HISTOGRAM_WIDTH * left / 256;
+			highlightRight = HISTOGRAM_WIDTH * right / 256;
+			highlightInvert = invert;
 			imagePanel.repaint();
 		}
 	}
