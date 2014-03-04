@@ -89,7 +89,7 @@ public class GeneralStrategy implements Strategy {
 		float c = (float) (ballY - slope * ballX);
 		// attacker's case
 		if (isAttacker) {
-			
+
 			if (ballY > 345 && isAttacker) {
 				targetY = ballY - 40;
 				catchDist = 37.2;
@@ -172,7 +172,9 @@ public class GeneralStrategy implements Strategy {
 			if (!defenderHasArrived) {
 				toExecute = travelTo(robot, targetX, targetY, catchThresh,
 						RotDistSpeed);
-				System.out.println("dist: " + RotDistSpeed[1] + " slope: " + slope + " x: " + ballX + " y: " + ballY + " target y: " + targetY + " c: " + c);
+				System.out.println("dist: " + RotDistSpeed[1] + " slope: "
+						+ slope + " x: " + ballX + " y: " + ballY
+						+ " target y: " + targetY + " c: " + c);
 				if (toExecute == Operation.DO_NOTHING) {
 					defenderHasArrived = true;
 				}
@@ -208,17 +210,19 @@ public class GeneralStrategy implements Strategy {
 		attackerHasArrived = false;
 		Operation toExecute = Operation.DO_NOTHING;
 		float toTravelX;
-		if ((Math.abs(enemyDefenderRobotX - rightCheck) < 50 || Math.abs(enemyDefenderRobotX - leftCheck) < 50) && (enemyDefenderRobotY < goalY[2] || enemyDefenderRobotY > goalY[0] ) ) {
+		if ((Math.abs(enemyDefenderRobotX - rightCheck) < 50 || Math
+				.abs(enemyDefenderRobotX - leftCheck) < 50)
+				&& (enemyDefenderRobotY < goalY[2] || enemyDefenderRobotY > goalY[0])) {
 			toTravelX = goalY[0] - 60;
 		} else {
 			toTravelX = goalY[1];
 		}
 		if (!scoringAttackerHasArrived) {
-		toExecute = travelToNoArc(robot, (leftCheck + rightCheck) / 2,
-				toTravelX, 20, RadDistSpeedRot);
-		if (toExecute == Operation.DO_NOTHING) {
-			scoringAttackerHasArrived = true;
-		}
+			toExecute = travelToNoArc(robot, (leftCheck + rightCheck) / 2,
+					toTravelX, 20, RadDistSpeedRot);
+			if (toExecute == Operation.DO_NOTHING) {
+				scoringAttackerHasArrived = true;
+			}
 		}
 		if (toExecute == Operation.DO_NOTHING) {
 			float aimY = goalY[1];
