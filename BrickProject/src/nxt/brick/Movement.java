@@ -1,8 +1,11 @@
 package nxt.brick;
 
 import lejos.nxt.Motor;
+import lejos.nxt.MotorPort;
+import lejos.nxt.NXTMotor;
 import lejos.nxt.NXTRegulatedMotor;
 import lejos.robotics.navigation.DifferentialPilot;
+import lejos.util.Delay;
 
 /**
  * The Movement class. Handles the actual driving and movement of the robot, once
@@ -20,6 +23,7 @@ public class Movement extends DifferentialPilot {
 	static NXTRegulatedMotor LEFT_WHEEL = Motor.B;
 	static NXTRegulatedMotor RIGHT_WHEEL = Motor.C;
 	static NXTRegulatedMotor KICKER = Motor.A;
+	static NXTMotor KICKER_UNREGULATED = new NXTMotor(MotorPort.A);
 	static final int TYRE_DIAMETER = 56;
 
 	public int maxPilotSpeed;					// 90 for tests
@@ -38,8 +42,7 @@ public class Movement extends DifferentialPilot {
 	public Movement(double trackWidth) {
 		super(TYRE_DIAMETER, trackWidth, LEFT_WHEEL, RIGHT_WHEEL);
 		floatWheels();
-		KICKER.resetTachoCount();
-		prepKicker();
+		resetCatcher();
 	}
 	
 	public void setMaxPilotSpeed(int speed) {
@@ -101,6 +104,18 @@ public class Movement extends DifferentialPilot {
 	
 	public boolean isReady() {
 		return true;
+	}
+
+	public void resetCatcher() {
+		kickerIsDown = true;
+		KICKER.suspendRegulation();
+		KICKER_UNREGULATED.setPower(30);
+		KICKER_UNREGULATED.forward();
+		Delay.msDelay(500);
+		KICKER_UNREGULATED.flt();
+		Delay.msDelay(500);
+		KICKER.resetTachoCount();
+		prepKicker();
 	}
 
 }

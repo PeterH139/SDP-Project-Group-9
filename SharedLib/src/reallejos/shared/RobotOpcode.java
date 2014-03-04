@@ -12,6 +12,7 @@ public class RobotOpcode {
 	public static final int KICK = 9;
 	public static final int QUIT = 10;
 	public static final int CATCH = 11;
+	public static final int RESET_CATCHER = 12;
 	public static final int TEST = 14;
 	public static final int TESTINT = 15;
 	public static final int TESTDOUBLE = 16;

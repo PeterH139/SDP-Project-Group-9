@@ -103,7 +103,6 @@ public class RunVision {
 
 			HistogramTool histogramTool = new HistogramTool(gui, pitchConstants);
 			gui.addTool(histogramTool, "Colour Thresholds");
-			vision.addRecogniser(histogramTool);
 
 			PitchModelView pmvTool = new PitchModelView(gui, pitchConstants,
 					pitch, distortionFix, dynamicWorldState);
@@ -117,6 +116,8 @@ public class RunVision {
 					pitchConstants, distortionFix, pitch));
 			vision.addRecogniser(new RobotRecogniser(vision, worldState,
 					pitchConstants, distortionFix, pitch));
+			
+			vision.addRecogniser(histogramTool);
 
 			StrategySelectorTool stratSelect = new StrategySelectorTool(gui,
 					strategyController);

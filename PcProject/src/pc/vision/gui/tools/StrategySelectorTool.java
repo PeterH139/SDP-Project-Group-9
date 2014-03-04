@@ -19,6 +19,7 @@ import lejos.pc.comm.NXTInfo;
 import pc.comms.BrickCommServer;
 import pc.comms.BrickControlGUI;
 import pc.comms.BtInfo;
+import pc.comms.RobotCommand;
 import pc.strategy.StrategyController;
 import pc.strategy.StrategyController.StrategyType;
 import pc.vision.gui.GUITool;
@@ -96,6 +97,7 @@ public class StrategySelectorTool implements GUITool {
 		private JLabel statusLabel;
 		private JButton connectBtn;
 		private JButton disconnectBtn;
+		private JButton resetCatcherBtn;
 
 		public ConnectionControl(String role, final BrickCommServer bcs,
 				final NXTInfo target) {
@@ -111,7 +113,7 @@ public class StrategySelectorTool implements GUITool {
 			connectBtn.addActionListener(new ActionListener() {
 
 				@Override
-				public void actionPerformed(ActionEvent arg0) {
+				public void actionPerformed(ActionEvent event) {
 					try {
 						BrickControlGUI.guiConnect(bcs, target);
 					} catch (NXTCommException e) {
@@ -124,11 +126,21 @@ public class StrategySelectorTool implements GUITool {
 			disconnectBtn.addActionListener(new ActionListener() {
 
 				@Override
-				public void actionPerformed(ActionEvent e) {
+				public void actionPerformed(ActionEvent event) {
 					bcs.close();
 				}
 			});
 			add(disconnectBtn);
+			
+			resetCatcherBtn = new JButton("Reset catcher");
+			resetCatcherBtn.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent event) {
+					bcs.execute(new RobotCommand.ResetCatcher());
+				}
+			});
+			add(resetCatcherBtn);
 
 			stateChanged();
 		}
@@ -140,6 +152,7 @@ public class StrategySelectorTool implements GUITool {
 			statusLabel.setText(role + ": " + status);
 			connectBtn.setVisible(!bcs.isConnected());
 			disconnectBtn.setVisible(bcs.isConnected());
+			resetCatcherBtn.setVisible(bcs.isConnected());
 		}
 	}
 

@@ -160,4 +160,11 @@ public class RobotCommand {
 			outputStream.writeInt(travelSpeed);
 		}
 	}
+	
+	public static class ResetCatcher extends GenericCommand {
+		@Override
+		protected int getOpcode() {
+			return RobotOpcode.RESET_CATCHER;
+		}
+	}
 }
