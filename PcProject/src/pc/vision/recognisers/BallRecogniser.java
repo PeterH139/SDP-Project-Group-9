@@ -67,6 +67,14 @@ public class BallRecogniser implements ObjectRecogniser {
 		}
 
 		Vector2f ballPosition = vision.calculatePosition(ballPoints);
+		
+		if (ballPosition.x != 0 || ballPosition.y != 0) {
+			debugGraphics.setColor(Color.red);
+			debugGraphics.drawLine(0, (int) ballPosition.y, 640,
+					(int) ballPosition.y);
+			debugGraphics.drawLine((int) ballPosition.x, 0, (int) ballPosition.x,
+					480);
+		}
 
 		if (ballPosition.x == 0 && ballPosition.y == 0) {
 			ballPosition = previousBallPosition;

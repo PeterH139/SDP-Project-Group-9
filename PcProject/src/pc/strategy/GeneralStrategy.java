@@ -2,6 +2,7 @@ package pc.strategy;
 
 import pc.strategy.interfaces.Strategy;
 import pc.world.oldmodel.WorldState;
+import pc.world.Pitch;
 
 public class GeneralStrategy implements Strategy {
 
@@ -71,19 +72,24 @@ public class GeneralStrategy implements Strategy {
 		Operation toExecute = Operation.DO_NOTHING;
 		boolean isAttacker = robot == RobotType.ATTACKER;
 		isBallCatchable = true;
+	
+
+		double distanceToBall = isAttacker ? Math.hypot(ballX - attackerRobotX,
+				ballY - attackerRobotY) : Math.hypot(ballX - defenderRobotX,
+				ballY - defenderRobotY);
+		double angToBall = isAttacker ? calculateAngle(attackerRobotX,
+				attackerRobotY, attackerOrientation, ballX, ballY)
+				: calculateAngle(defenderRobotX, defenderRobotY,
+						defenderOrientation, ballX, ballY);
+		double catchDist = 32;
+		int catchThresh = 32;
+		float targetY = ballY;
+		float targetX = ballX;
+		double slope = 0;
+		float c = (float) (ballY - slope * ballX);
+		// attacker's case
 		if (isAttacker) {
-			double distanceToBall = isAttacker ? Math.hypot(ballX
-					- attackerRobotX, ballY - attackerRobotY) : Math.hypot(
-					ballX - defenderRobotX, ballY - defenderRobotY);
-			double angToBall = isAttacker ? calculateAngle(attackerRobotX,
-					attackerRobotY, attackerOrientation, ballX, ballY)
-					: calculateAngle(defenderRobotX, defenderRobotY,
-							defenderOrientation, ballX, ballY);
-			double catchDist = 32;
-			int catchThresh = 33;
-			float targetY = ballY;
-			// System.out.println("dist from divider: " + Math.abs(leftCheck -
-			// ballX) + " and the other: " + Math.abs(rightCheck - ballX));
+			
 			if (ballY > 345 && isAttacker) {
 				targetY = ballY - 40;
 				catchDist = 37.2;
@@ -123,13 +129,67 @@ public class GeneralStrategy implements Strategy {
 				RotDistSpeed[4] = isAttacker ? Math.abs(angToBall) : Math
 						.abs(angToBall);
 			}
+
+			// defender's case
 		} else {
-			defenderHasArrived = false;
-			toExecute = travelTo(robot, ballX, ballY, 33, RotDistSpeed);
-		}
-		System.out.println("BallIsCatchable : " + isBallCatchable);
-		if (toExecute == Operation.DO_NOTHING && isBallCatchable) {
-			toExecute = isAttacker ? Operation.ATKCATCH : Operation.DEFCATCH;
+			if (ballX < 87 && !isAttacker) {
+				targetX = 120;
+				catchDist = 37.2;
+				catchThresh = 15;
+				if (ballY < 135) {
+					slope = 0.45;
+					c -= 10;
+
+				} else if (ballY > 287) {
+					slope = -0.44;
+					c += 10;
+				}
+				targetY = (float) (slope * targetX + c);
+				if (Math.abs(defenderCheck - ballX) < 20) {
+					catchDist = 200;
+					catchThresh = 200;
+				}
+			} else if (ballX > 538 && !isAttacker) {
+				targetX = 498;
+				catchDist = 37.2;
+				catchThresh = 15;
+				if (ballY < 135) {
+					slope = 0.43;
+					c -= 20;
+					targetY = (float) (slope * targetX - c);
+				} else if (ballY > 287) {
+					slope = -0.39;
+					c += 20;
+					targetY = (float) (slope * targetX + c);
+				}
+				if (Math.abs(defenderCheck - ballX) < 20) {
+					catchDist = 200;
+					catchThresh = 200;
+				}
+			} else {
+				defenderHasArrived = false;
+			}
+			if (!defenderHasArrived) {
+				toExecute = travelTo(robot, targetX, targetY, catchThresh,
+						RotDistSpeed);
+				System.out.println("dist: " + RotDistSpeed[1] + " slope: " + slope + " x: " + ballX + " y: " + ballY + " target y: " + targetY + " c: " + c);
+				if (toExecute == Operation.DO_NOTHING) {
+					defenderHasArrived = true;
+				}
+			} else {
+				if (Math.abs(angToBall) > 2) {
+					toExecute = Operation.DEFROTATE;
+					RotDistSpeed[3] = isAttacker ? angToBall : angToBall / 3;
+				} else if (Math.abs(distanceToBall) > catchDist) {
+					toExecute = Operation.DEFTRAVEL;
+					RotDistSpeed[1] = isAttacker ? distanceToBall
+							: -distanceToBall / 3;
+					RotDistSpeed[2] = isAttacker ? Math.abs(distanceToBall)
+							: Math.abs(distanceToBall) / 3;
+				}
+				RotDistSpeed[4] = isAttacker ? Math.abs(angToBall) : Math
+						.abs(angToBall);
+			}
 		}
 		// TODO: implement some form of check for whether the ball is
 		// against
@@ -138,7 +198,9 @@ public class GeneralStrategy implements Strategy {
 		// && Math.abs(angToBall) < 25) {
 		// toExecute = Operation.DO_NOTHING;
 		// }
-
+		if (toExecute = Operation.DO_NOTHING && isBallCatchable) {
+			toExecute = isAttacker? Operation.ATKCATCH: Operation.DEFCATCH;
+		}
 		return toExecute;
 	}
 
@@ -223,8 +285,6 @@ public class GeneralStrategy implements Strategy {
 					DistSpeedRot[1] = isAttacker ? -dist : -dist / 3;
 					DistSpeedRot[2] = isAttacker ? Math.abs(dist) * 3 : 30;
 				}
-				// System.out.println("angle 1 : " + Math.abs(ang1) + "dist: " +
-				// Math.abs(dist));
 			} else {
 				if (Math.abs(ang1) > 15) {
 					toExecute = isAttacker ? Operation.ATKROTATE
@@ -297,6 +357,7 @@ public class GeneralStrategy implements Strategy {
 
 	public Operation passBall(RobotType passer, RobotType receiver,
 			double[] RotDistSpeed) {
+		defenderHasArrived = false;
 		Operation toExecute = Operation.DO_NOTHING;
 		if (!defenderHasArrived) {
 			toExecute = travelToNoArc(passer, defenderResetX, defenderResetY,

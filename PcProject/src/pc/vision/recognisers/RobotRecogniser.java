@@ -35,6 +35,10 @@ public class RobotRecogniser implements ObjectRecogniser {
 			yellowAtk = new SearchReturn(),
 			blueAtk = new SearchReturn(),
 			yellowDef = new SearchReturn();
+	private SearchReturn blueDef = new SearchReturn();
+	private SearchReturn yellowAtk = new SearchReturn();
+	private SearchReturn blueAtk= new SearchReturn();
+	private SearchReturn yellowDef= new SearchReturn();
 	private SearchReturn blueDefPrev = new SearchReturn(),
 			yellowDefPrev = new SearchReturn(),
 			blueAtkPrev = new SearchReturn(),
@@ -51,6 +55,23 @@ public class RobotRecogniser implements ObjectRecogniser {
 		this.pitch = pitch;
 	}
 
+	private static void drawRobotPos(Graphics2D debugGraphics, SearchReturn pos) {
+		if (pos.pos.x == 0 && pos.pos.y == 0)
+			return;
+		Graphics2D g = (Graphics2D) debugGraphics.create();
+		g.translate(pos.pos.x, pos.pos.y);
+		g.rotate(Math.toRadians(pos.angle + 90));
+		g.setColor(Color.RED);
+		g.drawOval(-2, -2, 5, 5);
+		g.drawLine(0, -15, 0, -2);
+		// Draw an arrow
+		int[] xPoints = { -3, 3, 0 };
+		int[] yPoints = { 0, 0, -7 };
+		g.translate(0, -14);
+		g.fillPolygon(xPoints, yPoints, xPoints.length);
+		g.dispose();
+	}
+	
 	@Override
 	public void processFrame(PixelInfo[][] pixels, BufferedImage frame,
 			Graphics2D debugGraphics, BufferedImage debugOverlay,
@@ -84,6 +105,12 @@ public class RobotRecogniser implements ObjectRecogniser {
 			blueDef = searchColumn(pixels, debugOverlay, dividers[2],
 					frame.getWidth() - rightBuffer, true);
 		}
+		
+		// Debugging Graphics
+		drawRobotPos(debugGraphics, yellowAtk);
+		drawRobotPos(debugGraphics, yellowDef);
+		drawRobotPos(debugGraphics, blueAtk);
+		drawRobotPos(debugGraphics, blueDef);
 
 		// Reset to default
 		blueAtkNotOnPitch = false;

@@ -35,15 +35,15 @@ public class PassingStrategy extends GeneralStrategy {
 	@Override
 	public void sendWorldState(WorldState worldState) {
 		super.sendWorldState(worldState);
-		if (ballX == 0 || ballY == 0 || attackerRobotX == 0
-				|| attackerRobotY == 0 || attackerOrientation == 0
-				|| defenderRobotX == 0 || defenderRobotY == 0
-				|| defenderOrientation == 0) {
-			synchronized (this.controlThread) {
-				this.controlThread.operation = Operation.DO_NOTHING;
-			}
-			return;
-		}
+//		if (ballX == 0 || ballY == 0 || attackerRobotX == 0
+//				|| attackerRobotY == 0 || attackerOrientation == 0
+//				|| defenderRobotX == 0 || defenderRobotY == 0
+//				|| defenderOrientation == 0) {
+//			synchronized (this.controlThread) {
+//				this.controlThread.operation = Operation.DO_NOTHING;
+//			}
+//			return;
+//		}
 
 		synchronized (this.controlThread) {
 			this.controlThread.operation = Operation.DO_NOTHING;

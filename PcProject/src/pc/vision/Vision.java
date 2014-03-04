@@ -2,6 +2,7 @@ package pc.vision;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
@@ -84,10 +85,13 @@ public class Vision implements VideoReceiver {
 	 * @param counter
 	 *            The index of the current frame
 	 */
-	public void sendFrame(BufferedImage frame, float delta, int counter, long timestamp) {
+	public void sendFrame(BufferedImage frame, float delta, int counter,
+			long timestamp) {
 		BufferedImage debugOverlay = new BufferedImage(frame.getWidth(),
 				frame.getHeight(), BufferedImage.TYPE_INT_ARGB);
 		Graphics2D debugGraphics = (Graphics2D) debugOverlay.getGraphics();
+		debugGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+				RenderingHints.VALUE_ANTIALIAS_ON);
 
 		int top = pitchConstants.getPitchTop();
 		int left = pitchConstants.getPitchLeft();
