@@ -158,9 +158,9 @@ public class GeneralStrategy implements Strategy {
 					c -= 20;
 					targetY = (float) (slope * targetX - c);
 				} else if (ballY > 287) {
-					slope = -0.39;
+					slope = 0.39;
 					c += 20;
-					targetY = (float) (slope * targetX + c);
+					targetY = (float) (slope * targetX - c);
 				}
 				if (Math.abs(defenderCheck - ballX) < 20) {
 					catchDist = 200;
@@ -198,7 +198,7 @@ public class GeneralStrategy implements Strategy {
 		// && Math.abs(angToBall) < 25) {
 		// toExecute = Operation.DO_NOTHING;
 		// }
-		if (toExecute = Operation.DO_NOTHING && isBallCatchable) {
+		if (toExecute == Operation.DO_NOTHING && isBallCatchable) {
 			toExecute = isAttacker? Operation.ATKCATCH: Operation.DEFCATCH;
 		}
 		return toExecute;
