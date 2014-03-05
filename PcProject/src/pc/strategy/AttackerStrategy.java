@@ -84,7 +84,7 @@ public class AttackerStrategy extends GeneralStrategy {
 					controlThread.rotateSpeed = (int) RadDistSpeedRot[4];
 				}
 				// kicks if detected false catch
-				if (ballCaughtAttacker && (Math.hypot(ballX - attackerRobotX, ballY - attackerRobotY) > 90)) {
+				if (ballCaughtAttacker && (Math.hypot(ballX - attackerRobotX, ballY - attackerRobotY) > 60)) {
 					controlThread.operation = Operation.ATKKICK;
 				}
 			}

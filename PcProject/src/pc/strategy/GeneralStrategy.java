@@ -68,6 +68,7 @@ public class GeneralStrategy implements Strategy {
 	}
 
 	public Operation catchBall(RobotType robot, double[] RotDistSpeed) {
+		defenderHasArrived = false;
 		scoringAttackerHasArrived = false;
 		Operation toExecute = Operation.DO_NOTHING;
 		boolean isAttacker = robot == RobotType.ATTACKER;
@@ -170,8 +171,10 @@ public class GeneralStrategy implements Strategy {
 //				defenderHasArrived = false;
 //			}
 //			if (!defenderHasArrived) {
+			if (Math.abs(defenderCheck - ballX) > 15) {
 				toExecute = travelTo(robot, ballX, ballY, catchThresh,
 						RotDistSpeed);
+			}
 //				System.out.println("dist: " + RotDistSpeed[1] + " slope: "
 //						+ slope + " x: " + ballX + " y: " + ballY
 //						+ " target y: " + targetY + " c: " + c);
@@ -210,17 +213,17 @@ public class GeneralStrategy implements Strategy {
 		attackerHasArrived = false;
 		Operation toExecute = Operation.DO_NOTHING;
 		float toTravelX;
-		System.out.println("enemyY: " + enemyDefenderRobotY + "goal[0], goal[2] :" + goalY[0] +" " + goalY[2]);
+		//System.out.println("enemyY: " + enemyDefenderRobotY + "goal[0], goal[2] :" + goalY[0] +" " + goalY[2]);
 		if ((Math.abs(enemyDefenderRobotX - rightCheck) < 50 || Math
 				.abs(enemyDefenderRobotX - leftCheck) < 50)
-				&& (enemyDefenderRobotY < goalY[2] || enemyDefenderRobotY > goalY[0])) {
+				&& (enemyDefenderRobotY < goalY[2] && enemyDefenderRobotY > goalY[0])) {
 			toTravelX = goalY[0] - 60;
 		} else {
 			toTravelX = goalY[1];
 		}
 		if (!scoringAttackerHasArrived) {
 			toExecute = travelToNoArc(robot, (leftCheck + rightCheck) / 2,
-					toTravelX, 10, RadDistSpeedRot);
+					toTravelX, 20, RadDistSpeedRot);
 			if (toExecute == Operation.DO_NOTHING) {
 				scoringAttackerHasArrived = true;
 			}
@@ -236,7 +239,7 @@ public class GeneralStrategy implements Strategy {
 				double ang1 = 0;
 				if (Math.abs(enemyDefenderRobotX - rightCheck) < 50 && (enemyDefenderRobotY < goalY[2] && enemyDefenderRobotY > goalY[0])) {
 					ang1 = calculateAngle(attackerRobotX, attackerRobotY,
-							attackerOrientation, (rightCheck + 560) / 2, 69);
+							attackerOrientation, ((rightCheck + 540) / 2) - 25, 69);
 				} else if (Math.abs(enemyDefenderRobotX - leftCheck) < 50 && (enemyDefenderRobotY < goalY[2] && enemyDefenderRobotY > goalY[0])) {
 					ang1 = calculateAngle(attackerRobotX, attackerRobotY,
 							attackerOrientation, (leftCheck + 170) / 2, 69);
@@ -245,7 +248,7 @@ public class GeneralStrategy implements Strategy {
 							attackerOrientation, goalX, aimY);
 				}
 				// System.out.println("angle to goal: " + ang1);
-				if (Math.abs(ang1) > 2) {
+				if (Math.abs(ang1) > 3) {
 					toExecute = Operation.ATKROTATE;
 					RadDistSpeedRot[3] = (int) ang1;
 					RadDistSpeedRot[4] = (int) Math.abs(ang1) * 1.5;
@@ -362,14 +365,15 @@ public class GeneralStrategy implements Strategy {
 
 	public Operation passBall(RobotType passer, RobotType receiver,
 			double[] RotDistSpeed) {
-		defenderHasArrived = false;
 		Operation toExecute = Operation.DO_NOTHING;
 		if (!defenderHasArrived) {
 			toExecute = travelToNoArc(passer, defenderResetX, defenderResetY,
-					23, RotDistSpeed);
-		}
-		if (toExecute == Operation.DO_NOTHING) {
+					20, RotDistSpeed);
+			if (toExecute == Operation.DO_NOTHING) {
 			defenderHasArrived = true;
+			}
+		} else {
+		
 			float targetY = 220;
 			if (enemyAttackerRobotY > 220) {
 				targetY = 69;
@@ -378,9 +382,9 @@ public class GeneralStrategy implements Strategy {
 			}
 			float targetX = attackerRobotX;
 			if (leftCheck > defenderCheck) {
-				targetX = (defenderCheck + leftCheck) / 2;
+				targetX = ((defenderCheck + leftCheck) / 2) - 18;
 			} else {
-				targetX = (rightCheck + defenderCheck) / 2;
+				targetX = ((rightCheck + defenderCheck) / 2) + 18;
 			}
 			double attackerAngle = calculateAngle(attackerRobotX,
 					attackerRobotY, attackerOrientation, (leftCheck + rightCheck) / 2,
@@ -397,22 +401,23 @@ public class GeneralStrategy implements Strategy {
 				RotDistSpeed[3] = -(int) attackerAngle;
 			} else {
 
-				if (Math.abs(angleToPass) > 10) {
+				if (Math.abs(angleToPass) > 5) {
 					RotDistSpeed[3] = (int) angleToPass / 3;
 				} else {
 					RotDistSpeed[3] = 0;
 				}
 				if (Math.abs(dist) > 30) {
 					RotDistSpeed[1] = (int) (dist);
-				} else {
+				} else if (Math.abs(dist) < 30 && Math.abs(angleToPass) < 5){
 					RotDistSpeed[1] = 0;
 					toExecute = Operation.DEFKICK;
 				}
 
 			}
 		}
-		return toExecute;
-	}
+			return toExecute;
+		}
+
 
 	public Operation returnToOrigin(RobotType robot, double[] RotDistSpeed) {
 		Operation toExecute = Operation.DO_NOTHING;
