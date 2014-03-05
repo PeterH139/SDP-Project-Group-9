@@ -171,7 +171,7 @@ public class GeneralStrategy implements Strategy {
 //				defenderHasArrived = false;
 //			}
 //			if (!defenderHasArrived) {
-			if (Math.abs(defenderCheck - ballX) > 15) {
+			if (Math.abs(defenderCheck - ballX) > 25) {
 				toExecute = travelTo(robot, ballX, ballY, catchThresh,
 						RotDistSpeed);
 			}
@@ -203,7 +203,7 @@ public class GeneralStrategy implements Strategy {
 		// && Math.abs(angToBall) < 25) {
 		// toExecute = Operation.DO_NOTHING;
 		// }
-		if (toExecute == Operation.DO_NOTHING && isBallCatchable) {
+		if (toExecute == Operation.DO_NOTHING && isBallCatchable && Math.abs(defenderCheck - ballX) > 25) {
 			toExecute = isAttacker? Operation.ATKCATCH: Operation.DEFCATCH;
 		}
 		return toExecute;
@@ -242,7 +242,7 @@ public class GeneralStrategy implements Strategy {
 							attackerOrientation, ((rightCheck + 540) / 2) - 25, 69);
 				} else if (Math.abs(enemyDefenderRobotX - leftCheck) < 50 && (enemyDefenderRobotY < goalY[2] && enemyDefenderRobotY > goalY[0])) {
 					ang1 = calculateAngle(attackerRobotX, attackerRobotY,
-							attackerOrientation, (leftCheck + 170) / 2, 69);
+							attackerOrientation, ((leftCheck + 170) / 2) + 10, 69);
 				} else {
 					ang1 = calculateAngle(attackerRobotX, attackerRobotY,
 							attackerOrientation, goalX, aimY);
