@@ -3,12 +3,15 @@ package pc.world;
 import java.awt.Rectangle;
 
 public class RobotModel {
-	// Sample robot model. Will need different models for our attacker/defender
-	// and potentially some of exotic opponent robots
-	public static final RobotModel GENERIC_ROBOT = new RobotModel(
+	public static final RobotModel ATTACKER_ROBOT = new RobotModel(
 			new Rectangle(-35, -30, 80, 80),
 			new Rectangle(-50, -90, 100, 140),
 			new Rectangle(-35, -80, 70, 35));
+	
+	public static final RobotModel GENERIC_ROBOT = new RobotModel(
+			new Rectangle(-35, -30, 80, 80),
+			new Rectangle(-60, -60, 120, 120),
+			null);
 
 
 	private Rectangle plate; // Origin is robot position

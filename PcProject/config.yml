@@ -1,7 +1,4 @@
 # All lengths are in millimetres
-objects:
-  ballRadius: 16
-
 pitch:
   main:
     size: [1200, 690]

@@ -8,6 +8,7 @@
 package pc.world;
 
 import java.awt.Polygon;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.util.List;
 import java.util.Map;
@@ -73,9 +74,6 @@ public class Pitch extends Observable {
 				setPitchCenterFrameX(pitchCenter.get(0));
 				setPitchCenterFrameY(pitchCenter.get(1));
 				setPitchFrameWidth((Integer) frameProjection.get("widthPx"));
-				
-				Map<String, Object> objects = (Map<String, Object>) topData.get("objects");
-				setBallRadius((Integer) objects.get("ballRadius"));
 			}
 		});
 	}
@@ -153,14 +151,6 @@ public class Pitch extends Observable {
 		polygon.addPoint(-halfPitchWidth, halfPitchHeight - getCornerCutoffY());
 		polygon.addPoint(-halfPitchWidth, -halfPitchHeight + getCornerCutoffY());
 		return polygon;
-	}
-
-	public int getBallRadius() {
-		return ballRadius;
-	}
-
-	protected void setBallRadius(int ballRadius) {
-		this.ballRadius = ballRadius;
 	}
 
 	public int getPitchCenterFrameX() {
