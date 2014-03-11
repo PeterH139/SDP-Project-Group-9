@@ -43,7 +43,7 @@ public class Oracle {
 				//get future point
 				prediction = Calculations.PredictNextPoint(history);
 				//check for boundary violation
-				boolean boundaryCheck = true;
+				boolean boundaryCheck = false;
 				
 				if(boundaryCheck){
 					//correct
@@ -52,13 +52,13 @@ public class Oracle {
 					if(prediction.getY() > _boundaryTop)
 						prediction = Calculations.CalculateBounceCoordinate(prediction, CorrectionType.TOP_OR_BOTTOM, _boundaryTop);
 					//Bottom violation
-					if(prediction.getY() < _boundaryBottom)
+					else if(prediction.getY() < _boundaryBottom)
 						prediction = Calculations.CalculateBounceCoordinate(prediction, CorrectionType.TOP_OR_BOTTOM, _boundaryBottom);
 					//LEFT violation
-					if(prediction.getX() < _boundaryLeft)
+					else if(prediction.getX() < _boundaryLeft)
 						prediction = Calculations.CalculateBounceCoordinate(prediction, CorrectionType.LEFT_OR_RIGHT, _boundaryLeft);
 					//Right violation
-					if(prediction.getY() > _boundaryRight)
+					else if(prediction.getY() > _boundaryRight)
 						prediction = Calculations.CalculateBounceCoordinate(prediction, CorrectionType.LEFT_OR_RIGHT, _boundaryRight);
 					
 				}

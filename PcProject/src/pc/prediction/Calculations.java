@@ -26,7 +26,11 @@ public final class Calculations {
 	public static float GetSlopeOfLine(Point2 a, Point2 b){
 		return (a.getX()-b.getY())/(a.getY()-b.getY());		
 	}
-	
+	/**
+	 * [0] is the distance in moment t (current time - 1)
+	 * [1] is the distance in moment t-1 (current time - 2)
+	 * [2] is the distance in moment t-2 (current time - 3)
+	 * */
 	public static float LinearPrediction(float[] data){
 		float v1,v2,v3,a1_2,a2_3, acc_decay;
 		v1 = data[data.length-1];
@@ -38,8 +42,10 @@ public final class Calculations {
 	   // System.out.println(a1_2);
 	    //System.out.println(a2_3);
 	    //System.out.println(acc_decay);
-		
-		return v1 - (a1_2 - acc_decay);
+		if(v1 - (a1_2 - acc_decay) > 0)
+			return v1 - (a1_2 - acc_decay);
+		else
+			return 0;
 	}
 	
 	public enum CorrectionType{
@@ -94,9 +100,10 @@ public final class Calculations {
 		distances[0] = GetDistance(history.get(size - 4), history.get(size-3));
 		distances[1] = GetDistance(history.get(size - 3), history.get(size-2));
 		distances[2] = GetDistance(history.get(size - 2), history.get(size-1));
-		
+		//System.out.println(String.format("%f %f %f",distances[0], distances[1], distances[2]));
 		//Get predicted distance
 		float prediction = LinearPrediction(distances);
+		//System.out.println(prediction);
 		Point2 pred = GetPointViaDistance(prediction, history.get(size-2), history.get(size-1));
 		
 		
