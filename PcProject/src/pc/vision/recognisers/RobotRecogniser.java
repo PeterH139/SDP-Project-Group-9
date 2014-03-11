@@ -3,14 +3,13 @@ package pc.vision.recognisers;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Point;
+import java.awt.Polygon;
 import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-
-import org.apache.bcel.generic.DASTORE;
 
 import pc.vision.DistortionFix;
 import pc.vision.PitchConstants;
@@ -34,11 +33,16 @@ public class RobotRecogniser implements ObjectRecogniser {
 	private PitchConstants pitchConstants;
 	private DistortionFix distortionFix;
 	private Pitch pitch;
-	private SearchReturn blueDef, yellowAtk, blueAtk, yellowDef;
-	private SearchReturn blueDefPrev = new SearchReturn();
-	private SearchReturn yellowDefPrev = new SearchReturn();
-	private SearchReturn blueAtkPrev = new SearchReturn();
-	private SearchReturn yellowAtkPrev = new SearchReturn();
+	private SearchReturn blueDef = new SearchReturn();
+	private SearchReturn yellowAtk = new SearchReturn();
+	private SearchReturn blueAtk = new SearchReturn();
+	private SearchReturn yellowDef = new SearchReturn();
+	private SearchReturn blueDefPrev = new SearchReturn(),
+			yellowDefPrev = new SearchReturn(),
+			blueAtkPrev = new SearchReturn(),
+			yellowAtkPrev = new SearchReturn();
+	private boolean blueAtkNotOnPitch, blueDefNotOnPitch, yellowAtkNotOnPitch,
+			yellowDefNotOnPitch;
 
 	public RobotRecogniser(Vision vision, WorldState worldState,
 			PitchConstants pitchConstants, DistortionFix distortionFix,
@@ -48,6 +52,23 @@ public class RobotRecogniser implements ObjectRecogniser {
 		this.pitchConstants = pitchConstants;
 		this.distortionFix = distortionFix;
 		this.pitch = pitch;
+	}
+
+	private static void drawRobotPos(Graphics2D debugGraphics, SearchReturn pos) {
+		if (pos.pos.x == 0 && pos.pos.y == 0)
+			return;
+		Graphics2D g = (Graphics2D) debugGraphics.create();
+		g.translate(pos.pos.x, pos.pos.y);
+		g.rotate(Math.toRadians(pos.angle + 90));
+		g.setColor(Color.RED);
+		g.drawOval(-2, -2, 5, 5);
+		g.drawLine(0, -15, 0, -2);
+		// Draw an arrow
+		int[] xPoints = { -3, 3, 0 };
+		int[] yPoints = { 0, 0, -7 };
+		g.translate(0, -14);
+		g.fillPolygon(xPoints, yPoints, xPoints.length);
+		g.dispose();
 	}
 
 	@Override
@@ -84,8 +105,22 @@ public class RobotRecogniser implements ObjectRecogniser {
 					frame.getWidth() - rightBuffer, true);
 		}
 
+		// Debugging Graphics
+		drawRobotPos(debugGraphics, yellowAtk);
+		drawRobotPos(debugGraphics, yellowDef);
+		drawRobotPos(debugGraphics, blueAtk);
+		drawRobotPos(debugGraphics, blueDef);
+
+		// Reset to default
+		blueAtkNotOnPitch = false;
+		blueDefNotOnPitch = false;
+		yellowAtkNotOnPitch = false;
+		yellowDefNotOnPitch = false;
+
+		// Determine if the plates are on the pitch or not.
 		if (blueAtk.pos.x == 0 && blueAtk.pos.y == 0) {
 			blueAtk = blueAtkPrev;
+			blueAtkNotOnPitch = true;
 		} else {
 			Point2D.Double point = new Point2D.Double(blueAtk.pos.x,
 					blueAtk.pos.y);
@@ -97,6 +132,7 @@ public class RobotRecogniser implements ObjectRecogniser {
 
 		if (blueDef.pos.x == 0 && blueDef.pos.y == 0) {
 			blueDef = blueDefPrev;
+			blueDefNotOnPitch = true;
 		} else {
 			Point2D.Double point = new Point2D.Double(blueDef.pos.x,
 					blueDef.pos.y);
@@ -108,6 +144,7 @@ public class RobotRecogniser implements ObjectRecogniser {
 
 		if (yellowAtk.pos.x == 0 && yellowAtk.pos.y == 0) {
 			yellowAtk = yellowAtkPrev;
+			yellowAtkNotOnPitch = true;
 		} else {
 			Point2D.Double point = new Point2D.Double(yellowAtk.pos.x,
 					yellowAtk.pos.y);
@@ -119,6 +156,7 @@ public class RobotRecogniser implements ObjectRecogniser {
 
 		if (yellowDef.pos.x == 0 && yellowDef.pos.y == 0) {
 			yellowDef = yellowDefPrev;
+			yellowDefNotOnPitch = true;
 		} else {
 			Point2D.Double point = new Point2D.Double(yellowDef.pos.x,
 					yellowDef.pos.y);
@@ -134,10 +172,6 @@ public class RobotRecogniser implements ObjectRecogniser {
 		yellowDefPrev = yellowDef;
 		yellowAtkPrev = yellowAtk;
 
-		// TODO: Using the previous position values and the time between frames,
-		// calculate the velocities of the robots and the ball.
-		// #Peter: Should this be done in the new world model?
-
 		// #Peter: Robots are now decided based on which colour plates we are
 		// using.
 		MovingObject attackerRobot, defenderRobot, enemyAttackerRobot, enemyDefenderRobot;
@@ -150,7 +184,10 @@ public class RobotRecogniser implements ObjectRecogniser {
 					yellowAtk.pos.y, yellowAtk.angle);
 			enemyDefenderRobot = new MovingObject(yellowDef.pos.x,
 					yellowDef.pos.y, yellowDef.angle);
-
+			worldState.attackerNotOnPitch = blueAtkNotOnPitch;
+			worldState.defenderNotOnPitch = blueDefNotOnPitch;
+			worldState.enemyAttackerNotOnPitch = yellowAtkNotOnPitch;
+			worldState.enemyDefenderNotOnPitch = yellowDefNotOnPitch;
 		} else {
 			attackerRobot = new MovingObject(yellowAtk.pos.x, yellowAtk.pos.y,
 					yellowAtk.angle);
@@ -160,6 +197,10 @@ public class RobotRecogniser implements ObjectRecogniser {
 					blueAtk.angle);
 			enemyDefenderRobot = new MovingObject(blueDef.pos.x, blueDef.pos.y,
 					blueDef.angle);
+			worldState.attackerNotOnPitch = yellowAtkNotOnPitch;
+			worldState.defenderNotOnPitch = yellowDefNotOnPitch;
+			worldState.enemyAttackerNotOnPitch = blueAtkNotOnPitch;
+			worldState.enemyDefenderNotOnPitch = blueDefNotOnPitch;
 		}
 
 		worldState.setAttackerRobot(attackerRobot);
@@ -328,51 +369,47 @@ public class RobotRecogniser implements ObjectRecogniser {
 		private DynamicWorldState dynamicWorldState;
 		private Pitch pitch;
 
+		private static final Stroke STROKE = new BasicStroke(3);
 		private static final Stroke EXTENTS_STROKE = new BasicStroke(1,
 				BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 1,
 				new float[] { 10 }, 10);
+		private static final Shape ARROW = new Polygon(new int[] { -10, 10, 0 },
+				new int[] { 5, 5, -13 }, 3);
 
 		public ViewProvider(DynamicWorldState dynamicWorldState, Pitch pitch) {
 			this.dynamicWorldState = dynamicWorldState;
 			this.pitch = pitch;
 		}
 
-		private void drawRobot(DirectedPoint pos, Color color,
-				Graphics2D graphics, RobotModel robotModel) {
-			if (pos == null)
-				return;
-			Graphics2D g = (Graphics2D) graphics.create();
-			g.setColor(color);
-			g.translate(pos.getX(), pos.getY());
-			g.rotate(pos.getDirection() + Math.PI / 2);
+		private void drawRobot(DynamicWorldState.Robot robot, Color color,
+				Graphics2D graphics) {
+			graphics.setColor(color);
+			graphics.setStroke(STROKE);
 
-			g.setStroke(new BasicStroke(3));
-			Rectangle r = robotModel.getPlate();
-			g.drawRect(r.x, r.y, r.width, r.height);
+			if (robot.getPlate() != null)
+				graphics.draw(robot.getPlate());
 
-			g.translate(r.getCenterX(), r.getCenterY());
+			if (robot.getPlateCenterTransform() != null)
+				graphics.fill(robot.getPlateCenterTransform()
+						.createTransformedShape(ARROW));
 
-			r = robotModel.getCatcher();
-			g.setColor(Color.WHITE);
-			g.drawRect(r.x, r.y, r.width, r.height);
+			if (robot.getCatcher() != null) {
+				graphics.setColor(Color.WHITE);
+				graphics.draw(robot.getCatcher());
+			}
 
-			g.setStroke(EXTENTS_STROKE);
-			r = robotModel.getExtents();
-			g.drawRect(r.x, r.y, r.width, r.height);
-
-			g.dispose();
+			if (robot.getExtents() != null) {
+				graphics.setStroke(EXTENTS_STROKE);
+				graphics.draw(robot.getExtents());
+			}
 		}
 
 		@Override
 		public void drawOnPitch(Graphics2D g) {
-			drawRobot(dynamicWorldState.getAttacker(), Color.GREEN, g,
-					RobotModel.GENERIC_ROBOT);
-			drawRobot(dynamicWorldState.getDefender(), Color.YELLOW, g,
-					RobotModel.GENERIC_ROBOT);
-			drawRobot(dynamicWorldState.getEnemyAttacker(), Color.DARK_GRAY, g,
-					RobotModel.GENERIC_ROBOT);
-			drawRobot(dynamicWorldState.getEnemyDefender(), Color.DARK_GRAY, g,
-					RobotModel.GENERIC_ROBOT);
+			drawRobot(dynamicWorldState.getAttacker(), Color.GREEN, g);
+			drawRobot(dynamicWorldState.getDefender(), Color.YELLOW, g);
+			drawRobot(dynamicWorldState.getEnemyAttacker(), Color.DARK_GRAY, g);
+			drawRobot(dynamicWorldState.getEnemyDefender(), Color.DARK_GRAY, g);
 		}
 	}
 }

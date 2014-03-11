@@ -3,6 +3,7 @@ package pc.vision.recognisers;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -67,6 +68,14 @@ public class BallRecogniser implements ObjectRecogniser {
 		}
 
 		Vector2f ballPosition = vision.calculatePosition(ballPoints);
+		
+		if (ballPosition.x != 0 || ballPosition.y != 0) {
+			debugGraphics.setColor(Color.red);
+			debugGraphics.drawLine(0, (int) ballPosition.y, 640,
+					(int) ballPosition.y);
+			debugGraphics.drawLine((int) ballPosition.x, 0, (int) ballPosition.x,
+					480);
+		}
 
 		if (ballPosition.x == 0 && ballPosition.y == 0) {
 			ballPosition = previousBallPosition;
@@ -104,12 +113,10 @@ public class BallRecogniser implements ObjectRecogniser {
 		
 		@Override
 		public void drawOnPitch(Graphics2D g) {
-			Point ballPos = dynamicWorldState.getBall();
-			if (ballPos != null) {
+			Shape ball = dynamicWorldState.getBall().getShape();
+			if (ball != null) {
 				g.setColor(Color.RED);
-				int radius = pitch.getBallRadius();
-				g.fillOval((int) (ballPos.x - radius),
-						(int) (ballPos.y - radius), 2 * radius, 2 * radius);
+				g.fill(ball);
 			}
 		}
 	}

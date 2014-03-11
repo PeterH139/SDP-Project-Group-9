@@ -89,6 +89,10 @@ public class BrickCommClient {
 		this.rc.getMovementController().setTravelSpeed(speed);
 		this.rc.getMovementController().travel(distance, true);
 	}
+	
+	private void handleResetCatcher() throws IOException {
+		this.rc.getMovementController().resetCatcher();
+	}
 
 	private void handleTest() throws IOException {
 		this.pcOutput.writeBoolean(true);
@@ -150,6 +154,9 @@ public class BrickCommClient {
 					break;
 				case RobotOpcode.CATCH:
 					handleCatch();
+					break;
+				case RobotOpcode.RESET_CATCHER:
+					handleResetCatcher();
 					break;
 				case RobotOpcode.TEST:
 					handleTest();

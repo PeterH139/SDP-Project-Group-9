@@ -13,7 +13,8 @@ public class PassingStrategy extends GeneralStrategy {
 	private BrickCommServer defenderBrick;
 	private ControlThread controlThread;
 	private boolean stopControlThread;
-
+	private int numberOfLostBalls = 0;
+	
 	public PassingStrategy(BrickCommServer attackerBrick,
 			BrickCommServer defenderBrick) {
 		this.attackerBrick = attackerBrick;
@@ -35,21 +36,21 @@ public class PassingStrategy extends GeneralStrategy {
 	@Override
 	public void sendWorldState(WorldState worldState) {
 		super.sendWorldState(worldState);
-		if (ballX == 0 || ballY == 0 || attackerRobotX == 0
-				|| attackerRobotY == 0 || attackerOrientation == 0
-				|| defenderRobotX == 0 || defenderRobotY == 0
-				|| defenderOrientation == 0) {
-			synchronized (this.controlThread) {
-				this.controlThread.operation = Operation.DO_NOTHING;
-			}
-			return;
-		}
+//		if (ballX == 0 || ballY == 0 || attackerRobotX == 0
+//				|| attackerRobotY == 0 || attackerOrientation == 0
+//				|| defenderRobotX == 0 || defenderRobotY == 0
+//				|| defenderOrientation == 0) {
+//			synchronized (this.controlThread) {
+//				this.controlThread.operation = Operation.DO_NOTHING;
+//			}
+//			return;
+//		}
 
 		synchronized (this.controlThread) {
 			this.controlThread.operation = Operation.DO_NOTHING;
 
 			if (!this.ballCaughtDefender) {
-				double[] RotDistSpeed = new double[4];
+				double[] RotDistSpeed = new double[5];
 				this.controlThread.operation = catchBall(RobotType.DEFENDER,
 						RotDistSpeed);
 				this.controlThread.radius = RotDistSpeed[0];
@@ -69,9 +70,10 @@ public class PassingStrategy extends GeneralStrategy {
 				controlThread.rotateSpeed = (int) RadDistSpeedRot[4];
 			}
 			// kicks if detected false catch
-			if (ballCaughtDefender && (Math.hypot(ballX - defenderRobotX, ballY - defenderRobotY) > 45)) {
+			
+			if (ballCaughtDefender && (Math.hypot(ballX - defenderRobotX, ballY - defenderRobotY) > 50)) {
 				controlThread.operation = Operation.DEFKICK;
-			}
+			} 
 		}
 
 	}
@@ -107,9 +109,9 @@ public class PassingStrategy extends GeneralStrategy {
 						radius = this.radius;
 					}
 
-					System.out.println("ballCaught: " + ballCaughtDefender + " op: "
-							+ op.toString() + " rotateBy: " + rotateBy
-							+ " travelDist: " + travelDist);
+//					System.out.println("ballCaught: " + ballCaughtDefender + " op: "
+//							+ op.toString() + " rotateBy: " + rotateBy
+//							+ " travelDist: " + travelDist);
 
 					switch (op) {
 					case DO_NOTHING:
@@ -130,7 +132,7 @@ public class PassingStrategy extends GeneralStrategy {
 						break;
 					case DEFKICK:
 						if (System.currentTimeMillis() - lastKickerEventTime > 1000) {
-							defenderBrick.execute(new RobotCommand.Kick(20));
+							defenderBrick.execute(new RobotCommand.Kick(15));
 							ballCaughtDefender = false;
 							lastKickerEventTime = System.currentTimeMillis();
 						}

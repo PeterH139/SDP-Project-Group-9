@@ -37,6 +37,7 @@ public class AttackerStrategy extends GeneralStrategy {
 		} else {
 			this.ballInEnemyAttackerArea = false;
 		}
+		//System.out.println("ballX: " + ballX + " ballY: " + ballY);
 		if ((ballX < leftCheck || ballX > rightCheck)
 				&& !ballInEnemyAttackerArea) {
 			synchronized (controlThread) {
@@ -73,7 +74,6 @@ public class AttackerStrategy extends GeneralStrategy {
 					controlThread.rotateSpeed = (int) RadDistSpeedRot[3];
 
 				} else {
-					attackerHasArrived = false;
 					double[] RadDistSpeedRot = new double[5];
 					controlThread.operation = scoreGoal(RobotType.ATTACKER,
 							RadDistSpeedRot);
@@ -84,7 +84,7 @@ public class AttackerStrategy extends GeneralStrategy {
 					controlThread.rotateSpeed = (int) RadDistSpeedRot[4];
 				}
 				// kicks if detected false catch
-				if (ballCaughtAttacker && (Math.hypot(ballX - attackerRobotX, ballY - attackerRobotY) > 45)) {
+				if (ballCaughtAttacker && (Math.hypot(ballX - attackerRobotX, ballY - attackerRobotY) > 60)) {
 					controlThread.operation = Operation.ATKKICK;
 				}
 			}
@@ -132,6 +132,14 @@ public class AttackerStrategy extends GeneralStrategy {
 						if (System.currentTimeMillis() - lastKickerEventTime > 1000) {
 							brick.execute(new RobotCommand.Catch());
 							ballCaughtAttacker = true;
+							lastKickerEventTime = System.currentTimeMillis();
+						}
+						break;
+					case ATKMOVEKICK:
+						if (System.currentTimeMillis() - lastKickerEventTime > 1000) {
+							brick.execute(new RobotCommand.Travel(100, 10000));
+							brick.execute(new RobotCommand.Kick(100));
+							ballCaughtAttacker = false;
 							lastKickerEventTime = System.currentTimeMillis();
 						}
 						break;

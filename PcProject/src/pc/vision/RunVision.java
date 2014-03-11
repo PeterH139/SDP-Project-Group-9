@@ -13,6 +13,7 @@ import org.apache.commons.cli.ParseException;
 
 import pc.strategy.StrategyController;
 import pc.vision.gui.VisionGUI;
+import pc.vision.gui.tools.AlignmentTool;
 import pc.vision.gui.tools.ColourThresholdConfigTool;
 import pc.vision.gui.tools.HistogramTool;
 import pc.vision.gui.tools.PitchModelView;
@@ -102,7 +103,6 @@ public class RunVision {
 
 			HistogramTool histogramTool = new HistogramTool(gui, pitchConstants);
 			gui.addTool(histogramTool, "Colour Thresholds");
-			vision.addRecogniser(histogramTool);
 
 			PitchModelView pmvTool = new PitchModelView(gui, pitchConstants,
 					pitch, distortionFix, dynamicWorldState);
@@ -116,10 +116,16 @@ public class RunVision {
 					pitchConstants, distortionFix, pitch));
 			vision.addRecogniser(new RobotRecogniser(vision, worldState,
 					pitchConstants, distortionFix, pitch));
+			
+			vision.addRecogniser(histogramTool);
 
 			StrategySelectorTool stratSelect = new StrategySelectorTool(gui,
 					strategyController);
 			gui.addTool(stratSelect, "Robot and strategy control");
+			
+			AlignmentTool alignmentTool = new AlignmentTool(gui);
+			gui.addTool(alignmentTool, "Alignment");
+			vision.addRecogniser(alignmentTool.new FrameDisplay());
 
 			vStream.addReceiver(pmvTool);
 			vStream.addReceiver(distortionFix);
