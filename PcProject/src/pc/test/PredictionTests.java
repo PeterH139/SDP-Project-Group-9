@@ -79,6 +79,7 @@ public class PredictionTests {
 		travelPath.add(p8);
 		travelPath.add(p9);
 		
+		/*
 		float[] velocities = new float[travelPath.size()];
 		float[] data = new float[3];
 		float prediction = 0;
@@ -94,23 +95,42 @@ public class PredictionTests {
 			if(i > 1)
 				System.out.println("Prediction: "+prediction+" Actual distance: "+velocities[i-1]);
 		}
+		*/
 		
+		//Point2 t_pred = Calculations.PredictNextPoint(travelPath);
+		//System.out.println(t_pred.getX()+" "+t_pred.getY());
 		//Linear prediction tests
 		//float[] trajectory1 = {10f, 8f, 7f, 6.75f }; 
 		//System.out.println(Calculations.LinearPrediction(trajectory1));
 		
 		
+		//boundary prediction tests, Right side
+		/*
+		Point2 r_1 = new Point2(5f,5f);
+		Point2 r_2 = new Point2(10f,10f);
+		Point2 corr = Calculations.CalculateBounceCoordinate(r_2, Calculations.CorrectionType.LEFT_OR_RIGHT, 7.5f);
+		System.out.println("X="+corr.getX()+" Y="+corr.getY());
+		corr = Calculations.CalculateBounceCoordinate(r_2, Calculations.CorrectionType.TOP_OR_BOTTOM, 7.5f);
+		System.out.println("X="+corr.getX()+" Y="+corr.getY());
+		*/
+		
+		Oracle tester = new Oracle(0, 100, 100, 0);
+		Point2 pred = tester.PredictState(travelPath, 1);
+		System.out.print(pred.getX() + " " + pred.getY());
+		 /* *
 		try {
 			String result = RunLinearPredictionAnalysis("/afs/inf.ed.ac.uk/user/s11/s1109056/Documents/test.txt");
 			System.out.println(result);
 		} catch (SAXException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
 		
 	}
 	
-	private static String RunLinearPredictionAnalysis(String fileName) throws SAXException{
+	
+	
+ 	private static String RunLinearPredictionAnalysis(String fileName) throws SAXException{
 		//Open file and parse as an xml document
 		File source = new File(fileName);
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
