@@ -1,13 +1,10 @@
 package pc.strategy;
 
-import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
 import pc.comms.BrickCommServer;
 import pc.comms.RobotCommand;
-import pc.strategy.GeneralStrategy.Operation;
-import pc.strategy.interfaces.Strategy;
 import pc.vision.Vector2f;
 import pc.world.oldmodel.WorldState;
 
@@ -64,8 +61,8 @@ public class InterceptorStrategy extends GeneralStrategy {
 				|| defenderOrientation <= 0.5
 				|| Math.hypot(0, defenderRobotY - targetY) < 10) {
 			synchronized (controlThread) {
-				controlThread.rotateBy = 0;
-				controlThread.travelDist = 0;
+				controlThread.operation.rotateBy = 0;
+				controlThread.operation.travelDistance = 0;
 			}
 			return;
 		}
@@ -91,28 +88,25 @@ public class InterceptorStrategy extends GeneralStrategy {
 		}
 
 		synchronized (controlThread) {
-			double[] DistSpeedRot = new double[5];
 			if (ballInAttackerArea) {
 				controlThread.operation = travelToNoArc(RobotType.DEFENDER,
-						defenderResetX, defenderResetY, 20, DistSpeedRot);
+						defenderResetX, defenderResetY, 20);
 			} else {
-			controlThread.rotateBy = (int) ang1;
-			controlThread.travelDist = (int) (dist * 0.8);
-			controlThread.operation = Operation.DEFTRAVEL;
+			controlThread.operation.rotateBy = (int) ang1;
+			controlThread.operation.travelDistance = (int) (dist * 0.8);
+			controlThread.operation.op = Operation.Type.DEFTRAVEL;
 			}
 			if (ballCaughtDefender
 					&& (Math.hypot(ballX - defenderRobotX, ballY
 							- defenderRobotY) > 45)) {
-				controlThread.operation = Operation.DEFKICK;
+				controlThread.operation.op = Operation.Type.DEFKICK;
 			}
 
 		}
 	}
 
 	private class ControlThread extends Thread {
-		public Operation operation = Operation.DO_NOTHING;
-		public int rotateBy = 0;
-		public int travelDist = 0;
+		public Operation operation = new Operation();
 		private ControlThread controlThread;
 		private long lastKickerEventTime = 0;
 
@@ -125,12 +119,12 @@ public class InterceptorStrategy extends GeneralStrategy {
 		public void run() {
 			try {
 				while (true) {
-					Operation op;
+					Operation.Type op;
 					int rotateBy, travelDist;
 					synchronized (this) {
-						op = this.operation;
-						rotateBy = this.rotateBy;
-						travelDist = this.travelDist;
+						op = this.operation.op;
+						rotateBy = this.operation.rotateBy;
+						travelDist = this.operation.travelDistance;
 					}
 
 					switch (op) {

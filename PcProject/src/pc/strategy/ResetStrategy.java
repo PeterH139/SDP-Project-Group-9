@@ -31,22 +31,13 @@ public class ResetStrategy extends GeneralStrategy{
 	@Override
 	public void sendWorldState(WorldState worldState) {
 		super.sendWorldState(worldState);
-		double[] rotDistSpeed = new double[4];
 		synchronized(controlThread){
-			controlThread.operation = returnToOrigin(robotType, rotDistSpeed);
-			controlThread.radius = rotDistSpeed[0];
-			controlThread.travelDist = (int) rotDistSpeed[1];
-			controlThread.travelSpeed = (int) rotDistSpeed[2];
-			controlThread.rotateBy = (int) rotDistSpeed[3];
+			controlThread.operation = returnToOrigin(robotType);
 		}
 	}
 	
 	private class ControlThread extends Thread {
-		public Operation operation = Operation.DO_NOTHING;
-		public int rotateBy = 0;
-		public int travelDist = 0;
-		public int travelSpeed = 0;
-		public double radius = 0;
+		public Operation operation = new Operation();
 
 		public ControlThread() {
 			super("Robot control thread");
@@ -58,14 +49,14 @@ public class ResetStrategy extends GeneralStrategy{
 			try {
 				while (!stopControlThread) {
 					int travelDist, rotateBy, travelSpeed;
-					Operation op;
+					Operation.Type op;
 					double radius;
 					synchronized (this) {
-						op = this.operation;
-						rotateBy = this.rotateBy;
-						travelDist = this.travelDist;
-						travelSpeed = this.travelSpeed;
-						radius = this.radius;
+						op = this.operation.op;
+						rotateBy = this.operation.rotateBy;
+						travelDist = this.operation.travelDistance;
+						travelSpeed = this.operation.travelSpeed;
+						radius = this.operation.radius;
 					}
 
 //					System.out.println("op: " + op.toString() + " rotateBy: "
