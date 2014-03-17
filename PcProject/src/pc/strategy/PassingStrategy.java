@@ -37,7 +37,6 @@ public class PassingStrategy extends GeneralStrategy {
 			this.controlThread.operation.op = Operation.Type.DO_NOTHING;
 			if (!this.ballCaughtDefender) {
 				this.controlThread.operation = catchBall(RobotType.DEFENDER);
-
 			} else {
 				this.controlThread.operation = passBall(RobotType.DEFENDER,
 						RobotType.ATTACKER);
