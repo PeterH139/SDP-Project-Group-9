@@ -1,11 +1,7 @@
 package pc.strategy;
 
-import java.io.IOException;
-
 import pc.comms.BrickCommServer;
 import pc.comms.RobotCommand;
-import pc.strategy.GeneralStrategy.Operation;
-import pc.strategy.interfaces.Strategy;
 import pc.world.oldmodel.WorldState;
 
 /**
@@ -70,81 +66,73 @@ public class MarkingStrategy extends GeneralStrategy {
 				- robotY);
 
 		synchronized (this.controlThread) {
-			this.controlThread.operation = Operation.DO_NOTHING;
+			this.controlThread.operation.op = Operation.Type.DO_NOTHING;
 
 			if (Math.abs(robotToTargetDistance) > 15) {
 				
 				//Decide if we'll go forward or backwards
 				if (Math.abs(robotToTargetAngle) < 90) {
-					this.controlThread.travelDist = (int) robotToTargetDistance;
+					this.controlThread.operation.travelDistance = (int) robotToTargetDistance;
 				} else {
-					this.controlThread.travelDist = (int) -robotToTargetDistance;
+					this.controlThread.operation.travelDistance = (int) -robotToTargetDistance;
 				}
 				
 				//Decide if we need to go in a straight line or arc to the target
 				if (Math.abs(robotToTargetAngle) > 45) {
-					controlThread.operation= Operation.ROTATE;
-					controlThread.rotateBy = (int) -robotToTargetAngle;
+					controlThread.operation.op = Operation.Type.ATKROTATE;
+					controlThread.operation.rotateBy = (int) -robotToTargetAngle;
 				}
 				else if (Math.abs(robotToTargetAngle) > 150 || Math.abs(robotToTargetAngle) < 10) {
 					//Go in a straight line
-					this.controlThread.operation = Operation.TRAVEL;
+					this.controlThread.operation.op = Operation.Type.ATKTRAVEL;
 					//System.out.println("Straight line: " + targetY);
 				} //Now we decide if we need to go left or right 
 				else if (robotToTargetAngle > 10) {
-					this.controlThread.operation = Operation.ARC_LEFT;
+					this.controlThread.operation.op = Operation.Type.ATKARC_LEFT;
 					if (robotToTargetAngle > 90) {
 						//We're going backwards, so reverse the direction
-						this.controlThread.operation = Operation.ARC_RIGHT;
+						this.controlThread.operation.op = Operation.Type.ATKARC_RIGHT;
 					}
-					this.controlThread.radius = robotToTargetDistance * 10;
+					this.controlThread.operation.radius = robotToTargetDistance * 10;
 				} else if (robotToTargetAngle < 10) {
-					this.controlThread.operation = Operation.ARC_RIGHT;
+					this.controlThread.operation.op = Operation.Type.ATKARC_RIGHT;
 					if (robotToTargetAngle < -90) {
 						//We're going backwards, so reverse the direction
-						this.controlThread.operation = Operation.ARC_LEFT;
+						this.controlThread.operation.op = Operation.Type.ATKARC_LEFT;
 					}
-					this.controlThread.radius = robotToTargetDistance * 10;
+					this.controlThread.operation.radius = robotToTargetDistance * 10;
 				}
 
-				this.controlThread.travelSpeed = (int) (200);
+				this.controlThread.operation.travelSpeed = (int) (200);
 			} else {
 				if (robotO >= 0 && robotO <= 85) {
-					this.controlThread.operation = Operation.ROTATE;
-					this.controlThread.rotateBy = (int) (90 - robotO);
+					this.controlThread.operation.op = Operation.Type.ATKROTATE;
+					this.controlThread.operation.rotateBy = (int) (90 - robotO);
 				//	System.out.println("Rotating to align");
 				} else if (robotO >= 95 && robotO <= 179) {
-					this.controlThread.operation = Operation.ROTATE;
-					this.controlThread.rotateBy = (int) -(90 - robotO);
+					this.controlThread.operation.op = Operation.Type.ATKROTATE;
+					this.controlThread.operation.rotateBy = (int) -(90 - robotO);
 				//	System.out.println("Rotating to align");
 				} else if (robotO >= 180 && robotO <= 265) {
-					this.controlThread.operation = Operation.ROTATE;
-					this.controlThread.rotateBy = (int) (270 - robotO);
+					this.controlThread.operation.op = Operation.Type.ATKROTATE;
+					this.controlThread.operation.rotateBy = (int) (270 - robotO);
 				//	System.out.println("Rotating to align");
 				} else if (robotO >= 275 && robotO <= 360) {
-					this.controlThread.operation = Operation.ROTATE;
-					this.controlThread.rotateBy = (int) -(270 - robotO);
+					this.controlThread.operation.op = Operation.Type.ATKROTATE;
+					this.controlThread.operation.rotateBy = (int) -(270 - robotO);
 				//	System.out.println("Rotating to align");
 				} else {
-					this.controlThread.operation = Operation.DO_NOTHING;
+					this.controlThread.operation.op = Operation.Type.DO_NOTHING;
 				}
 			}
 			if (ballCaughtAttacker && (Math.hypot(ballX - attackerRobotX, ballY - attackerRobotY) > 45)) {
-				controlThread.operation = Operation.ATKKICK;
+				controlThread.operation.op = Operation.Type.ATKKICK;
 			}
 		}
 	}
 
-	public enum Operation {
-		DO_NOTHING, TRAVEL, ROTATE, ARC_LEFT, ARC_RIGHT, ATKKICK
-	}
-
 	private class ControlThread extends Thread {
-		public double radius = 0;
-		public Operation operation = Operation.DO_NOTHING;
-		public int rotateBy = 0;
-		public int travelDist = 0;
-		public int travelSpeed = 0;
+		public Operation operation = new Operation();
 		
 		private long lastKickerEventTime = 0;
 
@@ -158,14 +146,14 @@ public class MarkingStrategy extends GeneralStrategy {
 			try {
 				while (true) {
 					int travelDist, rotateBy, travelSpeed;
-					Operation op;
+					Operation.Type op;
 					double radius;
 					synchronized (this) {
-						op = this.operation;
-						rotateBy = this.rotateBy;
-						travelDist = this.travelDist;
-						travelSpeed = this.travelSpeed;
-						radius = this.radius;
+						op = this.operation.op;
+						rotateBy = this.operation.rotateBy;
+						travelDist = this.operation.travelDistance;
+						travelSpeed = this.operation.travelSpeed;
+						radius = this.operation.radius;
 					}
 
 
@@ -180,16 +168,16 @@ public class MarkingStrategy extends GeneralStrategy {
 							lastKickerEventTime = System.currentTimeMillis();
 						}
 						break;
-					case TRAVEL:
+					case ATKTRAVEL:
 						brick.executeSync(new RobotCommand.Travel(travelDist, travelSpeed));
 						break;
-					case ARC_LEFT:
+					case ATKARC_LEFT:
 						brick.executeSync(new RobotCommand.TravelArc(radius, travelDist, travelSpeed));
 						break;
-					case ARC_RIGHT:
+					case ATKARC_RIGHT:
 						brick.executeSync(new RobotCommand.TravelArc(-radius, travelDist, travelSpeed));
 						break;
-					case ROTATE:
+					case ATKROTATE:
 						brick.executeSync(new RobotCommand.Rotate(-rotateBy, Math.abs(rotateBy)));
 						break;
 					default:

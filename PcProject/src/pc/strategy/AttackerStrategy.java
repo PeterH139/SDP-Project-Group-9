@@ -2,6 +2,7 @@ package pc.strategy;
 
 import pc.comms.BrickCommServer;
 import pc.comms.RobotCommand;
+import pc.strategy.Operation;
 import pc.world.oldmodel.WorldState;
 
 public class AttackerStrategy extends GeneralStrategy {
@@ -37,67 +38,33 @@ public class AttackerStrategy extends GeneralStrategy {
 		} else {
 			this.ballInEnemyAttackerArea = false;
 		}
-		//System.out.println("ballX: " + ballX + " ballY: " + ballY);
 		if ((ballX < leftCheck || ballX > rightCheck)
 				&& !ballInEnemyAttackerArea) {
 			synchronized (controlThread) {
-				controlThread.operation = Operation.DO_NOTHING;
+				controlThread.operation.op = Operation.Type.DO_NOTHING;
 			}
 			return;
 		}
 
 		synchronized (controlThread) {
 			if (ballInEnemyAttackerArea) {
-				double[] rotDistSpeed = new double[5];
-				controlThread.operation = returnToOrigin(RobotType.ATTACKER, rotDistSpeed);
-				controlThread.radius = rotDistSpeed[0];
-				controlThread.travelDist = (int) rotDistSpeed[1];
-				controlThread.travelSpeed = (int) rotDistSpeed[2];
-				controlThread.rotateBy = (int) rotDistSpeed[3];
-				controlThread.rotateSpeed = (int) rotDistSpeed[4];
-				
-//				if (controlThread.operation == Operation.DO_NOTHING) {
-//				controlThread.operation = Operation.ATKROTATE;
-//				controlThread.rotateBy = (int) calculateAngle(attackerRobotX,
-//						attackerRobotY, attackerOrientation, ballX, ballY);
-//				controlThread.rotateSpeed = (int) Math.abs(controlThread.rotateBy * 3);
-//				}
+				controlThread.operation = returnToOrigin(RobotType.ATTACKER);			
 			} else {
 				if (!ballCaughtAttacker) {
-					double[] RadDistSpeedRot = new double[5];
-					controlThread.operation = catchBall(RobotType.ATTACKER,
-							RadDistSpeedRot);
-					controlThread.radius = RadDistSpeedRot[0];
-					controlThread.travelDist = (int) RadDistSpeedRot[1];
-					controlThread.travelSpeed = (int) RadDistSpeedRot[2];
-					controlThread.rotateBy = (int) RadDistSpeedRot[3];
-					controlThread.rotateSpeed = (int) RadDistSpeedRot[3];
-
+					controlThread.operation = catchBall(RobotType.ATTACKER);
 				} else {
-					double[] RadDistSpeedRot = new double[5];
-					controlThread.operation = scoreGoal(RobotType.ATTACKER,
-							RadDistSpeedRot);
-					controlThread.radius = (int) RadDistSpeedRot[0];
-					controlThread.travelDist = (int) RadDistSpeedRot[1];
-					controlThread.travelSpeed = (int) RadDistSpeedRot[2];
-					controlThread.rotateBy = (int) RadDistSpeedRot[3];
-					controlThread.rotateSpeed = (int) RadDistSpeedRot[4];
+					controlThread.operation = scoreGoal(RobotType.ATTACKER);
 				}
 				// kicks if detected false catch
 				if (ballCaughtAttacker && (Math.hypot(ballX - attackerRobotX, ballY - attackerRobotY) > 60)) {
-					controlThread.operation = Operation.ATKKICK;
+					controlThread.operation.op = Operation.Type.ATKKICK;
 				}
 			}
 		}
 	}
 
 	private class ControlThread extends Thread {
-		public Operation operation = Operation.DO_NOTHING;
-		public int rotateBy = 0;
-		public int travelDist = 0;
-		public int travelSpeed = 0;
-		public double radius = 0;
-		public int rotateSpeed = 0;
+		public Operation operation = new Operation();
 
 		private long lastKickerEventTime = 0;
 
@@ -110,15 +77,16 @@ public class AttackerStrategy extends GeneralStrategy {
 		public void run() {
 			try {
 				while (!stopControlThread) {
-					int travelDist, rotateBy, travelSpeed;
-					Operation op;
+					int travelDist, rotateBy, rotateSpeed, travelSpeed;
+					Operation.Type op;
 					double radius;
 					synchronized (this) {
-						op = this.operation;
-						rotateBy = this.rotateBy;
-						travelDist = this.travelDist;
-						travelSpeed = this.travelSpeed;
-						radius = this.radius;
+						op = this.operation.op;
+						rotateBy = this.operation.rotateBy;
+						rotateSpeed = this.operation.rotateSpeed;
+						travelDist = this.operation.travelDistance;
+						travelSpeed = this.operation.travelSpeed;
+						radius = this.operation.radius;
 					}
 
 					// System.out.println("ballcaught: " + ballCaught + "op: " +
