@@ -14,7 +14,8 @@ public class Logging {
 		mainLogger = Logger.getLogger("");
 		Date d = new Date();
 		try {
-			mainFileHandler = new FileHandler(d.toString()+".txt");
+			mainFileHandler = new FileHandler("loggs/"+d.toString()+".txt");
+			//mainFileHandler.
 		} catch (SecurityException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -79,6 +79,7 @@ public class PredictionTests {
 		travelPath.add(p8);
 		travelPath.add(p9);
 		
+		/*
 		float[] velocities = new float[travelPath.size()];
 		float[] data = new float[3];
 		float prediction = 0;
@@ -94,14 +95,31 @@ public class PredictionTests {
 			if(i > 1)
 				System.out.println("Prediction: "+prediction+" Actual distance: "+velocities[i-1]);
 		}
+		*/
 		
+		//Point2 t_pred = Calculations.PredictNextPoint(travelPath);
+		//System.out.println(t_pred.getX()+" "+t_pred.getY());
 		//Linear prediction tests
 		//float[] trajectory1 = {10f, 8f, 7f, 6.75f }; 
 		//System.out.println(Calculations.LinearPrediction(trajectory1));
 		
 		
+		//boundary prediction tests, Right side
+		/*
+		Point2 r_1 = new Point2(5f,5f);
+		Point2 r_2 = new Point2(10f,10f);
+		Point2 corr = Calculations.CalculateBounceCoordinate(r_2, Calculations.CorrectionType.LEFT_OR_RIGHT, 7.5f);
+		System.out.println("X="+corr.getX()+" Y="+corr.getY());
+		corr = Calculations.CalculateBounceCoordinate(r_2, Calculations.CorrectionType.TOP_OR_BOTTOM, 7.5f);
+		System.out.println("X="+corr.getX()+" Y="+corr.getY());
+		*/
+		
+		Oracle tester = new Oracle(0, 1000, 0, 1000);
+		Point2 pred = tester.PredictState(travelPath, 1);
+		//System.out.print(pred.getX() + " " + pred.getY());
+		 
 		try {
-			String result = RunLinearPredictionAnalysis("/afs/inf.ed.ac.uk/user/s11/s1109056/Documents/test.txt");
+			String result = RunLinearPredictionAnalysis("/afs/inf.ed.ac.uk/user/s11/s1109056/Documents/test.txt", tester);
 			System.out.println(result);
 		} catch (SAXException e) {
 			// TODO Auto-generated catch block
@@ -110,7 +128,9 @@ public class PredictionTests {
 		
 	}
 	
-	private static String RunLinearPredictionAnalysis(String fileName) throws SAXException{
+	
+	
+ 	private static String RunLinearPredictionAnalysis(String fileName, Oracle oracle) throws SAXException{
 		//Open file and parse as an xml document
 		File source = new File(fileName);
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -149,31 +169,33 @@ public class PredictionTests {
 			}			
 		}
 		
-		//Calculate velocity for each point
-		ArrayList<Float> velocities = new ArrayList<Float>();
-		for(int i=0; i < allPointSamples.size()-1; i++){
-			velocities.add(Calculations.GetDistance(allPointSamples.get(i), allPointSamples.get(i+1)));
-		}
+		
 		//run prediction analysis for all points, starting with the 3rd
-		long count_20 = 0, count_20_50 = 0, count_50 = 0; 
-		float data[] = {0, velocities.get(0), velocities.get(1)};
-		for(int i=2; i < velocities.size()-1; i++){
-			data[0] = data[1];
-			data[1] = data[2];
-			data[2] = velocities.get(i);
+		long count_10 = 0, count_10_20 = 0, count_20 = 0;
+		ArrayList<Point2> history = new ArrayList<Point2>();
+		history.add(null);
+		history.add(allPointSamples.get(0));
+		history.add(allPointSamples.get(1));
+		history.add(allPointSamples.get(2));
+		
+		for(int i=4; i < allPointSamples.size()-1; i++){
+
 			
-			float prediction = Calculations.LinearPrediction(data);
-			
+			history.add(allPointSamples.get(i));
+			Point2 prediction = oracle.PredictState(history, 1);
+			System.out.println("Prediction X="+prediction.getX()+" Prediction Y="+prediction.getY());
+			System.out.println("Actual X="+allPointSamples.get(i+1).getX()+" Actual Y="+allPointSamples.get(i+1).getY());
 			//after each computation, compare against the actual velocity
-			float diff = Math.abs(prediction - velocities.get(i+1));
-			if(diff < 20){
-				count_20 ++;
+			float diff_x = Math.abs(prediction.getX() - allPointSamples.get(i+1).getX());
+			float diff_y = Math.abs(prediction.getY() - allPointSamples.get(i+1).getY());
+			if(diff_x < 10 && diff_y < 10){
+				count_10 ++;
 			}
-			else if(diff > 20 && diff < 50){
-				count_20_50 ++;				
+			else if(diff_x > 10 && diff_x < 20 && diff_y > 10 && diff_y < 20){
+				count_10_20 ++;				
 			}
-			else if(diff > 50){
-				count_50 ++;				
+			else if(diff_x > 20 && diff_y > 20){
+				count_20 ++;				
 			}
 			
 		}
@@ -183,14 +205,14 @@ public class PredictionTests {
 			//not ok		
 		//if diff of 50+
 			//very bad
-		long totalCount = count_20 + count_20_50 + count_50;
+		long totalCount = count_10 + count_10_20 + count_20;
 		
-		String statistics = String.format("Difference of 20: %d \r\n" +
-										  "Difference of 20-50: %d, \r\n" +
-										  "Difference of more than 50: %d",
-										  count_20,
-										  count_20_50,
-										  count_50);
+		String statistics = String.format("Difference of 10: %d \r\n" +
+										  "Difference of 10-20: %d, \r\n" +
+										  "Difference of more than 20: %d",
+										  count_10,
+										  count_10_20,
+										  count_20);
 		//output overall statistics in string format
 		return statistics;
 	}
