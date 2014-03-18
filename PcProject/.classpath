@@ -11,6 +11,7 @@
 	<classpathentry kind="lib" path="lib/commons-cli-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/ij.jar"/>
 	<classpathentry kind="lib" path="lib/snakeyaml-1.13.jar"/>
+	<classpathentry kind="lib" path="lib/javaGeom-0.11.2.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/SharedLib"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
