@@ -229,18 +229,19 @@ public class GeneralStrategy implements Strategy {
 				} else {
 					aimY = goalY[2];
 				}
+//				System.out.println("AimY: " + aimY);
 				double ang1 = 0;
 				if (Math.abs(enemyDefenderRobotX - rightCheck) < 50 && (enemyDefenderRobotY < goalY[2] && enemyDefenderRobotY > goalY[0])) {
 					ang1 = calculateAngle(attackerRobotX, attackerRobotY,
 							attackerOrientation, ((rightCheck + 540) / 2) - 25, 69);
 				} else if (Math.abs(enemyDefenderRobotX - leftCheck) < 50 && (enemyDefenderRobotY < goalY[2] && enemyDefenderRobotY > goalY[0])) {
 					ang1 = calculateAngle(attackerRobotX, attackerRobotY,
-							attackerOrientation, ((leftCheck + 170) / 2) + 10, 69);
+							attackerOrientation, ((leftCheck + 170) / 2) + 5, 69);
 				} else {
 					ang1 = calculateAngle(attackerRobotX, attackerRobotY,
 							attackerOrientation, goalX, aimY);
 				}
-				// System.out.println("angle to goal: " + ang1);
+//				System.out.println("Angle to goal: " + ang1);
 				if (Math.abs(ang1) > 3) {
 					toExecute.op = Operation.Type.ATKROTATE;
 					toExecute.rotateBy = (int) ang1;

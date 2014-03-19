@@ -6,14 +6,13 @@ import java.util.ArrayList;
 
 import pc.comms.BrickCommServer;
 import pc.strategy.interfaces.Strategy;
-import pc.vision.Vision;
 import pc.vision.interfaces.WorldStateReceiver;
 import pc.world.oldmodel.WorldState;
 
 public class StrategyController implements WorldStateReceiver {
 
 	/** Measured in milliseconds */
-	public static final int STRATEGY_TICK = 250; // TODO: Test lower values for this and see where it breaks
+	public static final int STRATEGY_TICK = 100; // TODO: Test lower values for this and see where it breaks
 	
 	boolean haveReset = false;
 

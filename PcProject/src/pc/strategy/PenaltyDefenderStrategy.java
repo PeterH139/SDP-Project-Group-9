@@ -13,6 +13,7 @@ import pc.world.oldmodel.WorldState;
  * the robot will move to the centre of the goal.
  */
 public class PenaltyDefenderStrategy extends GeneralStrategy {
+	private static final int defenderOffset = 20; // Used to properly centre the robot at the target Y position.
 	private BrickCommServer brick;
 	private ControlThread controlThread;
 	private Deque<Vector2f> ballPositions = new ArrayDeque<Vector2f>();
@@ -42,7 +43,7 @@ public class PenaltyDefenderStrategy extends GeneralStrategy {
 
 		double slope = (enemyAttackerRobotY - ballY) / ((enemyAttackerRobotX - ballX) + 0.0001);
 		double c = ballY - slope * ballX;
-		boolean ballMovement =  Math.abs(enemyAttackerRobotX - ballX) < 10;
+		boolean noBallMovement =  Math.abs(enemyAttackerRobotX - ballX) < 10;
 		int targetY = (int) (slope * defenderRobotX + c);
 
 		if (defenderRobotX <= 0.5 || targetY <= 0.5 || defenderRobotY <= 0.5 /*|| ballMovement */
@@ -56,7 +57,7 @@ public class PenaltyDefenderStrategy extends GeneralStrategy {
 		double ang1 = calculateAngle(defenderRobotX, defenderRobotY, defenderOrientation, defenderRobotX, defenderRobotY - 50);
 		ang1 = ang1/3;
 		float dist;
-		if (ballMovement) {
+		if (noBallMovement) {
 			targetY = (int) ballY;
 		}
 		if (targetY > worldState.rightGoal[2]) {
@@ -64,6 +65,9 @@ public class PenaltyDefenderStrategy extends GeneralStrategy {
 		} else if (targetY < worldState.rightGoal[0]) {
 			targetY = (int) worldState.rightGoal[0];
 		}
+		
+		// Correct for defender plate not being in centre
+		targetY += defenderOffset;
 		
 		dist = targetY - defenderRobotY;
 	
