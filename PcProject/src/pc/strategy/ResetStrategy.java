@@ -92,8 +92,7 @@ public class ResetStrategy extends GeneralStrategy{
 					default:
 						break;
 					}
-					Thread.sleep(250); // TODO: Test lower values for this and
-										// see where it breaks.
+					Thread.sleep(StrategyController.STRATEGY_TICK);
 				}
 			}  catch (InterruptedException e) {
 				e.printStackTrace();

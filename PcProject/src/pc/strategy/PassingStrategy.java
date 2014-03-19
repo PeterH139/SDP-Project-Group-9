@@ -124,7 +124,7 @@ public class PassingStrategy extends GeneralStrategy {
 
 						break;
 					}
-					Thread.sleep(250);
+					Thread.sleep(StrategyController.STRATEGY_TICK);
 				}
 
 			} catch (InterruptedException e) {

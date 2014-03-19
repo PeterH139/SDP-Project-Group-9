@@ -183,10 +183,7 @@ public class MarkingStrategy extends GeneralStrategy {
 					default:
 						break;
 					}
-
-					// TODO Try lower values and see when it breaks
-					// TODO Maybe this should be defined as a constant?
-					Thread.sleep(250);
+					Thread.sleep(StrategyController.STRATEGY_TICK);
 				}
 			} catch (InterruptedException e) {
 				e.printStackTrace();

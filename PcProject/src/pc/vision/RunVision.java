@@ -74,7 +74,7 @@ public class RunVision {
 
 		try {
 			StrategyController strategyController = null;
-			strategyController = new StrategyController(vision);
+			strategyController = new StrategyController();
 			Vision.addWorldStateReceiver(strategyController);
 
 			final VideoStream vStream = new VideoStream(videoDevice, width,

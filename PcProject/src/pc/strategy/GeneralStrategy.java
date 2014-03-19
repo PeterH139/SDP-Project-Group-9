@@ -4,7 +4,7 @@ import pc.strategy.interfaces.Strategy;
 import pc.world.oldmodel.WorldState;
 
 public class GeneralStrategy implements Strategy {
-
+	
 	protected ControlThread controlThread;
 	protected float attackerRobotX;
 	protected float attackerRobotY;

@@ -11,34 +11,32 @@ import pc.vision.interfaces.WorldStateReceiver;
 import pc.world.oldmodel.WorldState;
 
 public class StrategyController implements WorldStateReceiver {
-	boolean haveReset = false;
 
-	private static final int DIVIDER_THRESHOLD = 35; // Used for checking if the
-														// robots are too close
-														// to the dividing
-														// lines.
+	/** Measured in milliseconds */
+	public static final int STRATEGY_TICK = 250; // TODO: Test lower values for this and see where it breaks
+	
+	boolean haveReset = false;
 
 	public enum StrategyType {
 		DO_NOTHING, PASSING, ATTACKING, DEFENDING, PENALTY_ATK, PENALTY_DEF, MARKING, RESET_ATK, RESET_DEF
+	}
+	
+	public enum BallLocation{
+		DEFENDER, ATTACKER, ENEMY_DEFENDER, ENEMY_ATTACKER
 	}
 
 	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
 	public BrickCommServer bcsAttacker, bcsDefender;
-	private boolean ballInDefenderArea = false;
-	private boolean ballInAttackerArea = false;
-	private boolean ballInEnemyAttackerArea = false;
-	private boolean ballInEnemyDefenderArea = false;
+	private BallLocation ballLocation;
 
-	private Vision vision;
 	private StrategyType currentStrategy = StrategyType.DO_NOTHING;
 
 	private boolean pauseStrategyController = true;
 	private static ArrayList<Strategy> currentStrategies = new ArrayList<Strategy>();
 	private static ArrayList<Strategy> removedStrategies = new ArrayList<Strategy>();
 
-	public StrategyController(Vision vision) {
-		this.vision = vision;
+	public StrategyController() {
 		this.bcsAttacker = new BrickCommServer();
 		this.bcsDefender = new BrickCommServer();
 	}
@@ -90,9 +88,9 @@ public class StrategyController implements WorldStateReceiver {
 		for (Strategy s : StrategyController.currentStrategies) {
 			s.stopControlThread();
 			StrategyController.removedStrategies.add(s);
-			// this.vision.removeWorldStateReciver(s);
 		}
 		StrategyController.currentStrategies = new ArrayList<Strategy>();
+		
 		switch (type) {
 		case DO_NOTHING:
 			break;
@@ -100,7 +98,6 @@ public class StrategyController implements WorldStateReceiver {
 			Strategy ps = new PassingStrategy(this.bcsAttacker,
 					this.bcsDefender);
 			StrategyController.currentStrategies.add(ps);
-			// this.vision.addWorldStateReceiver(ps);
 			ps.startControlThread();
 			break;
 		case ATTACKING:
@@ -108,7 +105,6 @@ public class StrategyController implements WorldStateReceiver {
 			Strategy ic = new InterceptorStrategy(this.bcsDefender);
 			StrategyController.currentStrategies.add(as);
 			StrategyController.currentStrategies.add(ic);
-			// this.vision.addWorldStateReceiver(as);
 			as.startControlThread();
 			ic.startControlThread();
 			break;
@@ -117,15 +113,12 @@ public class StrategyController implements WorldStateReceiver {
 			Strategy pds = new PenaltyDefenderStrategy(this.bcsDefender);
 			StrategyController.currentStrategies.add(pds);
 			StrategyController.currentStrategies.add(AS);
-			// this.vision.addWorldStateReceiver(ds);
-			// this.vision.addWorldStateReceiver(a);
 			pds.startControlThread();
 			AS.startControlThread();
 			break;
 		case PENALTY_ATK:
 			Strategy penAtk = new PenaltyAttackStrategy(this.bcsAttacker);
 			StrategyController.currentStrategies.add(penAtk);
-			// this.vision.addWorldStateReceiver(pen);
 			penAtk.startControlThread();
 			break;
 		case PENALTY_DEF:
@@ -138,7 +131,6 @@ public class StrategyController implements WorldStateReceiver {
 			Strategy ics = new InterceptorStrategy(this.bcsDefender);
 			StrategyController.currentStrategies.add(mar);
 			StrategyController.currentStrategies.add(ics);
-			// this.vision.addWorldStateReceiver(mar);
 			mar.startControlThread();
 			ics.startControlThread();
 			break;
@@ -170,8 +162,7 @@ public class StrategyController implements WorldStateReceiver {
 	public void sendWorldState(WorldState worldState) {
 		if (pauseStrategyController)
 			return;
-		// Check where the ball is, and make a decision on which strategies
-		// to
+		// Check where the ball is, and make a decision on which strategies to
 		// run based upon that.
 		int defenderCheck = (worldState.weAreShootingRight) ? worldState.dividers[0]
 				: worldState.dividers[2];
@@ -180,78 +171,51 @@ public class StrategyController implements WorldStateReceiver {
 		int rightCheck = (worldState.weAreShootingRight) ? worldState.dividers[2]
 				: worldState.dividers[1];
 		float ballX = worldState.getBall().x;
-		boolean prevBallInDefenderArea = this.ballInDefenderArea;
-		boolean prevBallInAttackerArea = this.ballInAttackerArea;
-		boolean prevBallInEnemyDefenderArea = this.ballInEnemyDefenderArea;
-		boolean prevBallInEnemyAttackerArea = this.ballInEnemyAttackerArea;
-		boolean prevHaveReset = this.haveReset;
+		// Mark zone the ball was in on the previous frame.
+		BallLocation prevBallLocation = this.ballLocation;
 
+		// Find where the ball is located on the pitch
 		if ((worldState.weAreShootingRight && ballX < defenderCheck)
 				|| (!worldState.weAreShootingRight && ballX > defenderCheck)) {
-			this.ballInDefenderArea = true;
-			this.ballInAttackerArea = false;
-			this.ballInEnemyDefenderArea = false;
-			this.ballInEnemyAttackerArea = false;
+			this.ballLocation = BallLocation.DEFENDER;
 		} else if (ballX > leftCheck && ballX < rightCheck) {
-			this.ballInDefenderArea = false;
-			this.ballInAttackerArea = true;
-			this.ballInEnemyDefenderArea = false;
-			this.ballInEnemyAttackerArea = false;
+			this.ballLocation = BallLocation.ATTACKER;
 		} else if (worldState.weAreShootingRight && ballX > defenderCheck
 				&& ballX < leftCheck || !worldState.weAreShootingRight
 				&& ballX < defenderCheck && ballX > rightCheck) {
-			this.ballInEnemyAttackerArea = true;
-			this.ballInEnemyDefenderArea = false;
-			this.ballInAttackerArea = false;
-			this.ballInDefenderArea = false;
+			this.ballLocation = BallLocation.ENEMY_ATTACKER;
 		} else if (!worldState.weAreShootingRight && (ballX < leftCheck)
 				|| worldState.weAreShootingRight && (ballX > rightCheck)) {
-			this.ballInEnemyAttackerArea = false;
-			this.ballInEnemyDefenderArea = true;
-			this.ballInAttackerArea = false;
-			this.ballInDefenderArea = false;
+			this.ballLocation = BallLocation.ENEMY_DEFENDER;
 		}
-		// System.out.println("BallAttacker: " + this.ballInAttackerArea +
-		// " ballDefender: " + this.ballInDefenderArea +
-		// " ballEnemyAttacker: " + this.ballInEnemyAttackerArea +
-		// " ballEnemyDefender: " + this.ballInEnemyDefenderArea);
-		boolean defXTooClose = Math.abs(worldState.getDefenderRobot().x
-				- defenderCheck) < DIVIDER_THRESHOLD;
-		boolean atkXTooClose = Math.abs(worldState.getAttackerRobot().x
-				- leftCheck) < DIVIDER_THRESHOLD
-				|| Math.abs(worldState.getAttackerRobot().x - rightCheck) < DIVIDER_THRESHOLD;
-		if (defXTooClose || atkXTooClose) {
-			haveReset = true;
-		} else {
-			haveReset = false;
-		}
+//		System.out.println("Ball Location: " + this.ballLocation);
+//		boolean defXTooClose = Math.abs(worldState.getDefenderRobot().x
+//				- defenderCheck) < DIVIDER_THRESHOLD;
+//		boolean atkXTooClose = Math.abs(worldState.getAttackerRobot().x
+//				- leftCheck) < DIVIDER_THRESHOLD
+//				|| Math.abs(worldState.getAttackerRobot().x - rightCheck) < DIVIDER_THRESHOLD;
+//		if (defXTooClose || atkXTooClose) {
+//			haveReset = true;
+//		} else {
+//			haveReset = false;
+//		}
 
-		if (/*
-			 * prevHaveReset != haveReset ||
-			 */prevBallInDefenderArea != this.ballInDefenderArea
-				|| prevBallInAttackerArea != this.ballInAttackerArea
-				|| prevBallInEnemyAttackerArea != this.ballInEnemyAttackerArea
-				|| prevBallInEnemyDefenderArea != this.ballInEnemyDefenderArea) {
-			// if (haveReset) {
-			// if (defXTooClose) {
-			// changeToStrategy(StrategyType.RESET_DEF);
-			// } else if (atkXTooClose) {
-			// changeToStrategy(StrategyType.RESET_ATK);
-			// }
-			// } else {
-			if (this.ballInDefenderArea) {
-				changeToStrategy(StrategyType.PASSING);
-			}
-			if (this.ballInAttackerArea) {
+		// Change strategy only if the ball has changed pitch area.
+		if (prevBallLocation != ballLocation){			
+			switch(this.ballLocation){
+			case ATTACKER:
 				changeToStrategy(StrategyType.ATTACKING);
-			}
-			if (this.ballInEnemyAttackerArea) {
+				break;
+			case DEFENDER:
+				changeToStrategy(StrategyType.PASSING);
+				break;
+			case ENEMY_ATTACKER:
 				changeToStrategy(StrategyType.DEFENDING);
-			}
-			if (this.ballInEnemyDefenderArea) {
+				break;
+			case ENEMY_DEFENDER:
 				changeToStrategy(StrategyType.MARKING);
+				break;
 			}
 		}
-		// }
 	}
 }

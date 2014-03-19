@@ -108,8 +108,7 @@ public class PenaltyDefenderStrategy extends GeneralStrategy {
 					} else if (travelDist != 0) {
 						brick.execute(new RobotCommand.Travel(travelDist / 3, Math.abs(travelDist) * 3 + 60));
 					}
-					Thread.sleep(250); // TODO: Test lower values for this and
-										// see where it breaks.
+					Thread.sleep(StrategyController.STRATEGY_TICK);
 				}
 //			} catch (IOException e) {
 //				e.printStackTrace();

@@ -150,7 +150,7 @@ public class InterceptorStrategy extends GeneralStrategy {
 					default:
 						break;
 					}
-					Thread.sleep(250); // TODO: Test lower values for this and
+					Thread.sleep(StrategyController.STRATEGY_TICK); // TODO: Test lower values for this and
 										// see where it breaks.
 				}
 				// } catch (IOException e) {
