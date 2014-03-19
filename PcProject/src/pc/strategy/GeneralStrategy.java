@@ -166,7 +166,7 @@ public class GeneralStrategy implements Strategy {
 //			}
 //			if (!defenderHasArrived) {
 			if (Math.abs(defenderCheck - ballX) > 25) {
-				toExecute = travelTo(robot, ballX, ballY, catchThresh);
+				toExecute = travelTo(robot, ballX, ballY, catchThresh - 2);
 			}
 //				System.out.println("dist: " + RotDistSpeed[1] + " slope: "
 //						+ slope + " x: " + ballX + " y: " + ballY
