@@ -4,7 +4,7 @@ import pc.strategy.interfaces.Strategy;
 import pc.world.oldmodel.WorldState;
 
 public class GeneralStrategy implements Strategy {
-	
+
 	protected ControlThread controlThread;
 	protected float attackerRobotX;
 	protected float attackerRobotY;
@@ -35,6 +35,8 @@ public class GeneralStrategy implements Strategy {
 	protected boolean defenderHasArrived;
 	protected boolean isBallCatchable;
 	protected boolean scoringAttackerHasArrived;
+	protected boolean ballIsOnEdge;
+	protected boolean catcherIsUp;
 
 	@Override
 	public void stopControlThread() {
@@ -68,7 +70,6 @@ public class GeneralStrategy implements Strategy {
 		Operation toExecute = new Operation();
 		boolean isAttacker = robot == RobotType.ATTACKER;
 		isBallCatchable = true;
-	
 
 		double distanceToBall = isAttacker ? Math.hypot(ballX - attackerRobotX,
 				ballY - attackerRobotY) : Math.hypot(ballX - defenderRobotX,
@@ -113,91 +114,119 @@ public class GeneralStrategy implements Strategy {
 			} else if (isBallCatchable) {
 				if (Math.abs(angToBall) > 2) {
 					toExecute.op = Operation.Type.ATKROTATE;
-					toExecute.rotateBy = (int) (isAttacker ? angToBall : angToBall / 3);
+					toExecute.rotateBy = (int) (isAttacker ? angToBall
+							: angToBall / 3);
 				} else if (Math.abs(distanceToBall) > catchDist) {
 					toExecute.op = Operation.Type.ATKTRAVEL;
 					toExecute.travelDistance = (int) (isAttacker ? distanceToBall
 							: distanceToBall / 3);
-					toExecute.travelSpeed = (int) (isAttacker ? Math.abs(distanceToBall)
-							: Math.abs(distanceToBall) / 3);
+					toExecute.travelSpeed = (int) (isAttacker ? Math
+							.abs(distanceToBall) : Math.abs(distanceToBall) / 3);
 				}
-				toExecute.rotateSpeed = (int) (isAttacker ? Math.abs(angToBall) : Math
-						.abs(angToBall));
+				toExecute.rotateSpeed = (int) (isAttacker ? Math.abs(angToBall)
+						: Math.abs(angToBall));
 			}
 
 			// defender's case
 		} else {
-//			if (ballX < 87 && !isAttacker) {
-//				targetX = 120;
-//				catchDist = 37.2;
-//				catchThresh = 15;
-//				if (ballY < 135) {
-//					slope = 0.45;
-//					c -= 10;
-//
-//				} else if (ballY > 287) {
-//					slope = -0.44;
-//					c += 10;
-//				}
-//				targetY = (float) (slope * targetX + c);
-//				if (Math.abs(defenderCheck - ballX) < 20) {
-//					catchDist = 200;
-//					catchThresh = 200;
-//				}
-//			} else if (ballX > 538 && !isAttacker) {
-//				targetX = 498;
-//				catchDist = 37.2;
-//				catchThresh = 15;
-//				if (ballY < 135) {
-//					slope = 0.43;
-//					c -= 20;
-//					targetY = (float) (slope * targetX - c);
-//				} else if (ballY > 287) {
-//					slope = 0.39;
-//					c += 20;
-//					targetY = (float) (slope * targetX - c);
-//				}
-//				if (Math.abs(defenderCheck - ballX) < 20) {
-//					catchDist = 200;
-//					catchThresh = 200;
-//				}
-//			} else {
-//				defenderHasArrived = false;
-//			}
-//			if (!defenderHasArrived) {
-			if (Math.abs(defenderCheck - ballX) > 25) {
-				toExecute = travelTo(robot, ballX, ballY, catchThresh - 2);
+			if (leftCheck > defenderCheck) {
+				// we are shooting right
+				int[] topPointTopSlope = { 99, 62 };
+				int[] botPointTopSlope = { 68, 129 };
+				int[] topPointBotSlope = { 65, 281 };
+				int[] botPointBotSlope = { 97, 348 };
+				int ballDistFromTopSlope = (int) (Math
+						.abs((/* x2-x1 */botPointTopSlope[0] - topPointTopSlope[0])
+								* (/* y1-y0 */topPointTopSlope[1] - ballY)
+								- (/* x1-x0 */topPointTopSlope[0] - ballX)
+								* (/* y2-y1 */botPointTopSlope[1] - topPointTopSlope[1])) / Math
+						.sqrt(Math
+								.pow((/* x2-x1 */botPointTopSlope[0] - topPointTopSlope[0]),
+										2)
+								+ Math.pow(/* y2-y1 */botPointTopSlope[1]
+										- topPointTopSlope[1], 2)));
+				int ballDistFromBotSlope = (int) (Math
+						.abs((/* x2-x1 */botPointBotSlope[0] - topPointBotSlope[0])
+								* (/* y1-y0 */topPointBotSlope[1] - ballY)
+								- (/* x1-x0 */topPointBotSlope[0] - ballX)
+								* (/* y2-y1 */botPointBotSlope[1] - topPointBotSlope[1])) / Math
+						.sqrt(Math
+								.pow((/* x2-x1 */botPointBotSlope[0] - topPointBotSlope[0]),
+										2)
+								+ Math.pow(/* y2-y1 */botPointBotSlope[1]
+										- topPointBotSlope[1], 2)));
+				if (ballDistFromBotSlope < 5 || ballDistFromTopSlope < 5
+						|| ballY > 345 || ballY < 80) {
+					ballIsOnEdge = true;
+				} else {
+					ballIsOnEdge = false;
+				}
+			} else {
+				// we are shooting left
+				int[] topPointTopSlope = { 546, 63 };
+				int[] botPointTopSlope = { 577, 129 };
+				int[] topPointBotSlope = { 580, 278 };
+				int[] botPointBotSlope = { 550, 347 };
+				int ballDistFromTopSlope = (int) (Math
+						.abs((/* x2-x1 */botPointTopSlope[0] - topPointTopSlope[0])
+								* (/* y1-y0 */topPointTopSlope[1] - ballY)
+								- (/* x1-x0 */topPointTopSlope[0] - ballX)
+								* (/* y2-y1 */botPointTopSlope[1] - topPointTopSlope[1])) / Math
+						.sqrt(Math
+								.pow((/* x2-x1 */botPointTopSlope[0] - topPointTopSlope[0]),
+										2)
+								+ Math.pow(/* y2-y1 */botPointTopSlope[1]
+										- topPointTopSlope[1], 2)));
+				int ballDistFromBotSlope = (int) (Math
+						.abs((/* x2-x1 */botPointBotSlope[0] - topPointBotSlope[0])
+								* (/* y1-y0 */topPointBotSlope[1] - ballY)
+								- (/* x1-x0 */topPointBotSlope[0] - ballX)
+								* (/* y2-y1 */botPointBotSlope[1] - topPointBotSlope[1])) / Math
+						.sqrt(Math
+								.pow((/* x2-x1 */botPointBotSlope[0] - topPointBotSlope[0]),
+										2)
+								+ Math.pow(/* y2-y1 */botPointBotSlope[1]
+										- topPointBotSlope[1], 2)));
+				if (ballDistFromBotSlope < 5 || ballDistFromTopSlope < 5
+						|| ballY > 345 || ballY < 80) {
+					ballIsOnEdge = true;
+				} else {
+					ballIsOnEdge = false;
+				}
+
 			}
-//				System.out.println("dist: " + RotDistSpeed[1] + " slope: "
-//						+ slope + " x: " + ballX + " y: " + ballY
-//						+ " target y: " + targetY + " c: " + c);
-//				if (toExecute == Operation.DO_NOTHING) {
-//					defenderHasArrived = true;
-//				}
-//			} else {
-//				if (Math.abs(angToBall) > 2) {
-//					toExecute = Operation.DEFROTATE;
-//					RotDistSpeed[3] = isAttacker ? angToBall : angToBall / 3;
-//				} else if (Math.abs(distanceToBall) > catchDist) {
-//					toExecute = Operation.DEFTRAVEL;
-//					RotDistSpeed[1] = isAttacker ? distanceToBall
-//							: -distanceToBall / 3;
-//					RotDistSpeed[2] = isAttacker ? Math.abs(distanceToBall)
-//							: Math.abs(distanceToBall) / 3;
-//				}
-//				RotDistSpeed[4] = isAttacker ? Math.abs(angToBall) : Math
-//						.abs(angToBall);
-//			}
+			if (ballIsOnEdge) {
+				if (catcherIsUp) {
+					toExecute.op = Operation.Type.DEFCATCH;
+					catcherIsUp = false;
+				}
+				if (toExecute.op == Operation.Type.DO_NOTHING) {
+					toExecute = travelTo(robot, ballX - 15, ballY, 30);
+				} else if (toExecute.op == Operation.Type.DO_NOTHING) {
+					double ang1 = calculateAngle(defenderRobotX,
+							defenderRobotY, defenderOrientation, goalX,
+							goalY[1]);
+					toExecute.op = Operation.Type.DEFROTATE;
+					toExecute.rotateBy = -(int) ang1;
+					toExecute.rotateSpeed = 100;
+
+				}
+			} else if (!ballIsOnEdge) {
+				if (!catcherIsUp) {
+					toExecute.op = Operation.Type.DEFKICK;
+					catcherIsUp = true;
+				}
+				
+				if (Math.abs(defenderCheck - ballX) > 25 && toExecute.op == Operation.Type.DO_NOTHING) {
+					toExecute = travelTo(robot, ballX, ballY, catchThresh - 2);
+				}
+			}
+
 		}
-		// TODO: implement some form of check for whether the ball is
-		// against
-		// the wall or not
-		// if (Math.abs(distanceToBall) < catchDist
-		// && Math.abs(angToBall) < 25) {
-		// toExecute = Operation.DO_NOTHING;
-		// }
-		if (toExecute.op == Operation.Type.DO_NOTHING && isBallCatchable && Math.abs(defenderCheck - ballX) > 25) {
-			toExecute.op = isAttacker? Operation.Type.ATKCATCH: Operation.Type.DEFCATCH;
+		if (toExecute.op == Operation.Type.DO_NOTHING && isBallCatchable
+				&& Math.abs(defenderCheck - ballX) > 25) {
+			toExecute.op = isAttacker ? Operation.Type.ATKCATCH
+					: Operation.Type.DEFCATCH;
 		}
 		return toExecute;
 	}
@@ -206,7 +235,8 @@ public class GeneralStrategy implements Strategy {
 		attackerHasArrived = false;
 		Operation toExecute = new Operation();
 		float toTravelX;
-		//System.out.println("enemyY: " + enemyDefenderRobotY + "goal[0], goal[2] :" + goalY[0] +" " + goalY[2]);
+		// System.out.println("enemyY: " + enemyDefenderRobotY +
+		// "goal[0], goal[2] :" + goalY[0] +" " + goalY[2]);
 		if ((Math.abs(enemyDefenderRobotX - rightCheck) < 50 || Math
 				.abs(enemyDefenderRobotX - leftCheck) < 50)
 				&& (enemyDefenderRobotY < goalY[2] && enemyDefenderRobotY > goalY[0])) {
@@ -229,19 +259,23 @@ public class GeneralStrategy implements Strategy {
 				} else {
 					aimY = goalY[2];
 				}
-//				System.out.println("AimY: " + aimY);
+				// System.out.println("AimY: " + aimY);
 				double ang1 = 0;
-				if (Math.abs(enemyDefenderRobotX - rightCheck) < 50 && (enemyDefenderRobotY < goalY[2] && enemyDefenderRobotY > goalY[0])) {
+				if (Math.abs(enemyDefenderRobotX - rightCheck) < 50
+						&& (enemyDefenderRobotY < goalY[2] && enemyDefenderRobotY > goalY[0])) {
 					ang1 = calculateAngle(attackerRobotX, attackerRobotY,
-							attackerOrientation, ((rightCheck + 540) / 2) - 25, 69);
-				} else if (Math.abs(enemyDefenderRobotX - leftCheck) < 50 && (enemyDefenderRobotY < goalY[2] && enemyDefenderRobotY > goalY[0])) {
+							attackerOrientation, ((rightCheck + 540) / 2) - 25,
+							69);
+				} else if (Math.abs(enemyDefenderRobotX - leftCheck) < 50
+						&& (enemyDefenderRobotY < goalY[2] && enemyDefenderRobotY > goalY[0])) {
 					ang1 = calculateAngle(attackerRobotX, attackerRobotY,
-							attackerOrientation, ((leftCheck + 170) / 2) + 5, 69);
+							attackerOrientation, ((leftCheck + 170) / 2) + 5,
+							69);
 				} else {
 					ang1 = calculateAngle(attackerRobotX, attackerRobotY,
 							attackerOrientation, goalX, aimY);
 				}
-//				System.out.println("Angle to goal: " + ang1);
+				// System.out.println("Angle to goal: " + ang1);
 				if (Math.abs(ang1) > 3) {
 					toExecute.op = Operation.Type.ATKROTATE;
 					toExecute.rotateBy = (int) ang1;
@@ -284,8 +318,10 @@ public class GeneralStrategy implements Strategy {
 				} else if (Math.abs(dist) > distThresh) {
 					toExecute.op = isAttacker ? Operation.Type.ATKTRAVEL
 							: Operation.Type.DEFTRAVEL;
-					toExecute.travelDistance = (int) (isAttacker ? -dist : -dist / 3);
-					toExecute.travelSpeed = (int) (isAttacker ? Math.abs(dist) * 3 : 30);
+					toExecute.travelDistance = (int) (isAttacker ? -dist
+							: -dist / 3);
+					toExecute.travelSpeed = (int) (isAttacker ? Math.abs(dist) * 3
+							: 30);
 				}
 			} else {
 				if (Math.abs(ang1) > 15) {
@@ -296,7 +332,8 @@ public class GeneralStrategy implements Strategy {
 				} else if (Math.abs(dist) > distThresh) {
 					toExecute.op = isAttacker ? Operation.Type.ATKTRAVEL
 							: Operation.Type.DEFTRAVEL;
-					toExecute.travelDistance = (int) (isAttacker ? dist : dist / 3);
+					toExecute.travelDistance = (int) (isAttacker ? dist
+							: dist / 3);
 					toExecute.travelSpeed = (int) (isAttacker ? dist * 3 : dist);
 				}
 			}
@@ -319,16 +356,19 @@ public class GeneralStrategy implements Strategy {
 				- defenderRobotX, travelToY - defenderRobotY)));
 		boolean haveArrived = (Math.abs(dist) < distThresh);
 		if (Math.abs(ang1) > 30) {
-			toExecute.op = isAttacker ? Operation.Type.ATKROTATE : Operation.Type.DEFROTATE;
+			toExecute.op = isAttacker ? Operation.Type.ATKROTATE
+					: Operation.Type.DEFROTATE;
 			toExecute.rotateBy = (int) (isAttacker ? ang1 : (ang1 / 3));
 			toExecute.rotateSpeed = Math.abs(toExecute.rotateBy);
 		} else if (!haveArrived) {
 			toExecute.travelSpeed = isAttacker ? (int) (Math.abs(dist) * 1.5)
 					: (int) (Math.abs(dist) / 2);
 			if (Math.abs(ang1) < 90) {
-				toExecute.travelDistance = isAttacker ? (int) dist : (int) (dist / 3);
+				toExecute.travelDistance = isAttacker ? (int) dist
+						: (int) (dist / 3);
 			} else {
-				toExecute.travelDistance = isAttacker ? (int) -dist : (int) -(dist / 3);
+				toExecute.travelDistance = isAttacker ? (int) -dist
+						: (int) -(dist / 3);
 			}
 			if (Math.abs(ang1) > 150 || Math.abs(ang1) < 10) {
 				toExecute.op = isAttacker ? Operation.Type.ATKTRAVEL
@@ -362,10 +402,10 @@ public class GeneralStrategy implements Strategy {
 			toExecute = travelToNoArc(passer, defenderResetX, defenderResetY,
 					20);
 			if (toExecute.op == Operation.Type.DO_NOTHING) {
-			defenderHasArrived = true;
+				defenderHasArrived = true;
 			}
 		} else {
-		
+
 			float targetY = 220;
 			if (enemyAttackerRobotY > 220) {
 				targetY = 69;
@@ -379,12 +419,12 @@ public class GeneralStrategy implements Strategy {
 				targetX = ((rightCheck + defenderCheck) / 2) + 18;
 			}
 			double attackerAngle = calculateAngle(attackerRobotX,
-					attackerRobotY, attackerOrientation, (leftCheck + rightCheck) / 2,
-					220);
+					attackerRobotY, attackerOrientation,
+					(leftCheck + rightCheck) / 2, 220);
 			double angleToPass = calculateAngle(defenderRobotX, defenderRobotY,
 					defenderOrientation, targetX, targetY);
-			double dist = Math.hypot(attackerRobotX - ((leftCheck + rightCheck) / 2),
-					attackerRobotY - 220);
+			double dist = Math.hypot(attackerRobotX
+					- ((leftCheck + rightCheck) / 2), attackerRobotY - 220);
 
 			toExecute.op = Operation.Type.ROTATENMOVE;
 			toExecute.travelSpeed = (int) (dist * 3);
@@ -400,24 +440,23 @@ public class GeneralStrategy implements Strategy {
 				}
 				if (Math.abs(dist) > 30) {
 					toExecute.travelDistance = (int) (dist);
-				} else if (Math.abs(dist) < 30 && Math.abs(angleToPass) < 5){
+				} else if (Math.abs(dist) < 30 && Math.abs(angleToPass) < 5) {
 					toExecute.travelDistance = 0;
 					toExecute.op = Operation.Type.DEFKICK;
 				}
 
 			}
 		}
-			return toExecute;
-		}
-
+		return toExecute;
+	}
 
 	public Operation returnToOrigin(RobotType robot) {
 		Operation toExecute = new Operation();
 		boolean isAttacker = robot == RobotType.ATTACKER;
 
 		toExecute = isAttacker ? travelToNoArc(robot, attackerResetX,
-				attackerRobotY, 10) : travelTo(robot,
-				defenderResetX, defenderRobotY, 10);
+				attackerRobotY, 10) : travelTo(robot, defenderResetX,
+				defenderRobotY, 10);
 
 		return toExecute;
 	}
