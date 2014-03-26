@@ -300,11 +300,8 @@ public class ColourThresholdConfigTool implements GUITool {
 			int bot = top + pitchConstants.getPitchHeight();
 			debugGraphics.setColor(Color.BLACK);
 			debugGraphics.drawLine(ds[0], bot, ds[0], top);
-			debugGraphics.drawString("1", ds[0], bot + 20);
 			debugGraphics.drawLine(ds[1], bot, ds[1], top);
-			debugGraphics.drawString("2", ds[1], bot + 20);
 			debugGraphics.drawLine(ds[2], bot, ds[2], top);
-			debugGraphics.drawString("3", ds[2], bot + 20);
 			
 			// Drawing the top and bottom pitch lines
 			float[] tb = pitchConstants.getTopBottom();
@@ -313,6 +310,13 @@ public class ColourThresholdConfigTool implements GUITool {
 			debugGraphics.setColor(Color.WHITE);
 			debugGraphics.drawLine(left, (int) tb[0], right, (int) tb[0]);
 			debugGraphics.drawLine(left, (int) tb[1], right, (int) tb[1]);
+			
+			// Draw labels
+			debugGraphics.drawString("top", left - 20, tb[0]);
+			debugGraphics.drawString("bot", left - 20, tb[1]);
+			debugGraphics.drawString("1", ds[0], bot + 20);
+			debugGraphics.drawString("2", ds[1], bot + 20);
+			debugGraphics.drawString("3", ds[2], bot + 20);
 		}
 
 	}
