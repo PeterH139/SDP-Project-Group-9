@@ -48,6 +48,7 @@ public class ColourThresholdConfigTool implements GUITool {
 	private int currentDivider;
 	private int currentLeftGoal;
 	private int currentRightGoal;
+	private int currentTopBottom;
 
 	// Mouse listener variables
 	boolean letterAdjustment = false;
@@ -74,7 +75,7 @@ public class ColourThresholdConfigTool implements GUITool {
 				System.out.println(anchor.y);
 				this.selection = new Rectangle(anchor);
 				break;
-			case VisionSettingsPanel.MOUSE_MODE_BLUE_T:
+			case VisionSettingsPanel.MOUSE_MODE_PITCH_TOP_BOTTOM:
 				mouseX = e.getX();
 				mouseY = e.getY();
 				break;
@@ -107,7 +108,7 @@ public class ColourThresholdConfigTool implements GUITool {
 				c = (int) Math.abs(e.getX() - anchor.x);
 				d = (int) Math.abs(e.getY() - anchor.y);
 				break;
-			case VisionSettingsPanel.MOUSE_MODE_BLUE_T:
+			case VisionSettingsPanel.MOUSE_MODE_PITCH_TOP_BOTTOM:
 				mouseX = e.getX();
 				mouseY = e.getY();
 				break;
@@ -170,17 +171,10 @@ public class ColourThresholdConfigTool implements GUITool {
 					}
 				}
 				break;
-			case VisionSettingsPanel.MOUSE_MODE_BLUE_T:
-				letterAdjustment = true;
-				/*
-				 * VisionGUI.this.selectorImage =
-				 * VisionGUI.this.letterTSelectorImage;
-				 * VisionGUI.this.currentFile = VisionGUI.this.imgLetterT; //
-				 * Get the center coordinates of the selector image in use
-				 * VisionGUI.this.imageCenterX = VisionGUI.this.selectorImage
-				 * .getWidth(null) / 2; VisionGUI.this.imageCenterY =
-				 * VisionGUI.this.selectorImage .getHeight(null) / 2;
-				 */
+			case VisionSettingsPanel.MOUSE_MODE_PITCH_TOP_BOTTOM:
+				System.out.println("Pitch Top and Bottom selection.");
+				pitchConstants.getTopBottom()[currentTopBottom] = e.getY();
+				currentTopBottom = (currentTopBottom + 1) % 2;
 				break;
 			case VisionSettingsPanel.MOUSE_MODE_LEFT_GOAL:
 				System.out.println("Left goal selection mode");
@@ -304,13 +298,21 @@ public class ColourThresholdConfigTool implements GUITool {
 			int[] ds = pitchConstants.getDividers();
 			int top = pitchConstants.getPitchTop();
 			int bot = top + pitchConstants.getPitchHeight();
-			debugGraphics.setColor(Color.WHITE);
+			debugGraphics.setColor(Color.BLACK);
 			debugGraphics.drawLine(ds[0], bot, ds[0], top);
 			debugGraphics.drawString("1", ds[0], bot + 20);
 			debugGraphics.drawLine(ds[1], bot, ds[1], top);
 			debugGraphics.drawString("2", ds[1], bot + 20);
 			debugGraphics.drawLine(ds[2], bot, ds[2], top);
 			debugGraphics.drawString("3", ds[2], bot + 20);
+			
+			// Drawing the top and bottom pitch lines
+			float[] tb = pitchConstants.getTopBottom();
+			int left = pitchConstants.getPitchLeft();
+			int right = left + pitchConstants.getPitchWidth();
+			debugGraphics.setColor(Color.WHITE);
+			debugGraphics.drawLine(left, (int) tb[0], right, (int) tb[0]);
+			debugGraphics.drawLine(left, (int) tb[1], right, (int) tb[1]);
 		}
 
 	}

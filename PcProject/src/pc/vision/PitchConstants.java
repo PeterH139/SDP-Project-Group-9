@@ -94,6 +94,7 @@ public class PitchConstants extends Observable {
 	
 	private float[] leftGoal = new float[3];
 	private float[] rightGoal = new float[3];
+	private float[] topBottom = new float[2];
 	
 	/**
 	 * Order of the values is top to bottom. 	
@@ -108,6 +109,13 @@ public class PitchConstants extends Observable {
 	 */
 	public float[] getRightGoal(){
 		return rightGoal;
+	}
+	/**
+	 * Order of values is top then bottom.
+	 * @return the array of x values for the top and bottom of the pitch.
+	 */
+	public float[] getTopBottom(){
+		return topBottom;
 	}
 	
 	public void setLeftGoal(float[] leftGoal){
@@ -323,6 +331,8 @@ public class PitchConstants extends Observable {
 			pitchDimFile.write(String.valueOf(this.rightGoal[0]) + "\n");
 			pitchDimFile.write(String.valueOf(this.rightGoal[1]) + "\n");
 			pitchDimFile.write(String.valueOf(this.rightGoal[2]) + "\n");
+			pitchDimFile.write(String.valueOf(this.topBottom[0]) + "\n");
+			pitchDimFile.write(String.valueOf(this.topBottom[1]) + "\n");
 			pitchDimFile.close();
 
 			FileWriter pitchFile = new FileWriter(new File("constants/pitch"
@@ -381,6 +391,9 @@ public class PitchConstants extends Observable {
 			this.rightGoal[0] = scannerDim.nextFloat();
 			this.rightGoal[1] = scannerDim.nextFloat();
 			this.rightGoal[2] = scannerDim.nextFloat();
+			
+			this.topBottom[0] = scannerDim.nextFloat();
+			this.topBottom[1] = scannerDim.nextFloat();
 
 			scannerDim.close();
 		} catch (Exception e) {
@@ -443,5 +456,16 @@ public class PitchConstants extends Observable {
 		this.dividers[0] = 70;
 		this.dividers[1] = 120;
 		this.dividers[2] = 170;
+		
+		this.leftGoal[0] = 20;
+		this.leftGoal[1] = 30;
+		this.leftGoal[2] = 40;
+		
+		this.rightGoal[0] = 20;
+		this.rightGoal[1] = 30;
+		this.rightGoal[2] = 40;
+		
+		this.topBottom[0] = 10;
+		this.topBottom[1] = 200;
 	}
 }
