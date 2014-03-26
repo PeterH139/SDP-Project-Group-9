@@ -35,8 +35,6 @@ public class GeneralStrategy implements Strategy {
 	protected boolean defenderHasArrived;
 	protected boolean isBallCatchable;
 	protected boolean scoringAttackerHasArrived;
-	protected boolean ballIsOnEdge;
-	protected boolean catcherIsUp;
 
 	@Override
 	public void stopControlThread() {
@@ -128,99 +126,11 @@ public class GeneralStrategy implements Strategy {
 			}
 
 			// defender's case
-		} else {
-			if (leftCheck > defenderCheck) {
-				// we are shooting right
-				int[] topPointTopSlope = { 99, 62 };
-				int[] botPointTopSlope = { 68, 129 };
-				int[] topPointBotSlope = { 65, 281 };
-				int[] botPointBotSlope = { 97, 348 };
-				int ballDistFromTopSlope = (int) (Math
-						.abs((/* x2-x1 */botPointTopSlope[0] - topPointTopSlope[0])
-								* (/* y1-y0 */topPointTopSlope[1] - ballY)
-								- (/* x1-x0 */topPointTopSlope[0] - ballX)
-								* (/* y2-y1 */botPointTopSlope[1] - topPointTopSlope[1])) / Math
-						.sqrt(Math
-								.pow((/* x2-x1 */botPointTopSlope[0] - topPointTopSlope[0]),
-										2)
-								+ Math.pow(/* y2-y1 */botPointTopSlope[1]
-										- topPointTopSlope[1], 2)));
-				int ballDistFromBotSlope = (int) (Math
-						.abs((/* x2-x1 */botPointBotSlope[0] - topPointBotSlope[0])
-								* (/* y1-y0 */topPointBotSlope[1] - ballY)
-								- (/* x1-x0 */topPointBotSlope[0] - ballX)
-								* (/* y2-y1 */botPointBotSlope[1] - topPointBotSlope[1])) / Math
-						.sqrt(Math
-								.pow((/* x2-x1 */botPointBotSlope[0] - topPointBotSlope[0]),
-										2)
-								+ Math.pow(/* y2-y1 */botPointBotSlope[1]
-										- topPointBotSlope[1], 2)));
-				if (ballDistFromBotSlope < 5 || ballDistFromTopSlope < 5
-						|| ballY > 345 || ballY < 80) {
-					ballIsOnEdge = true;
-				} else {
-					ballIsOnEdge = false;
-				}
-			} else {
-				// we are shooting left
-				int[] topPointTopSlope = { 546, 63 };
-				int[] botPointTopSlope = { 577, 129 };
-				int[] topPointBotSlope = { 580, 278 };
-				int[] botPointBotSlope = { 550, 347 };
-				int ballDistFromTopSlope = (int) (Math
-						.abs((/* x2-x1 */botPointTopSlope[0] - topPointTopSlope[0])
-								* (/* y1-y0 */topPointTopSlope[1] - ballY)
-								- (/* x1-x0 */topPointTopSlope[0] - ballX)
-								* (/* y2-y1 */botPointTopSlope[1] - topPointTopSlope[1])) / Math
-						.sqrt(Math
-								.pow((/* x2-x1 */botPointTopSlope[0] - topPointTopSlope[0]),
-										2)
-								+ Math.pow(/* y2-y1 */botPointTopSlope[1]
-										- topPointTopSlope[1], 2)));
-				int ballDistFromBotSlope = (int) (Math
-						.abs((/* x2-x1 */botPointBotSlope[0] - topPointBotSlope[0])
-								* (/* y1-y0 */topPointBotSlope[1] - ballY)
-								- (/* x1-x0 */topPointBotSlope[0] - ballX)
-								* (/* y2-y1 */botPointBotSlope[1] - topPointBotSlope[1])) / Math
-						.sqrt(Math
-								.pow((/* x2-x1 */botPointBotSlope[0] - topPointBotSlope[0]),
-										2)
-								+ Math.pow(/* y2-y1 */botPointBotSlope[1]
-										- topPointBotSlope[1], 2)));
-				if (ballDistFromBotSlope < 5 || ballDistFromTopSlope < 5
-						|| ballY > 345 || ballY < 80) {
-					ballIsOnEdge = true;
-				} else {
-					ballIsOnEdge = false;
-				}
-
-			}
-			if (ballIsOnEdge) {
-				if (catcherIsUp) {
-					toExecute.op = Operation.Type.DEFCATCH;
-					catcherIsUp = false;
-				}
-				if (toExecute.op == Operation.Type.DO_NOTHING) {
-					toExecute = travelTo(robot, ballX - 15, ballY, 30);
-				} else if (toExecute.op == Operation.Type.DO_NOTHING) {
-					double ang1 = calculateAngle(defenderRobotX,
-							defenderRobotY, defenderOrientation, goalX,
-							goalY[1]);
-					toExecute.op = Operation.Type.DEFROTATE;
-					toExecute.rotateBy = -(int) ang1;
-					toExecute.rotateSpeed = 100;
-
-				}
-			} else if (!ballIsOnEdge) {
-				if (!catcherIsUp) {
-					toExecute.op = Operation.Type.DEFKICK;
-					catcherIsUp = true;
-				}
-				
-				if (Math.abs(defenderCheck - ballX) > 25 && toExecute.op == Operation.Type.DO_NOTHING) {
+		} else {			
+				if (Math.abs(defenderCheck - ballX) > 20 && toExecute.op == Operation.Type.DO_NOTHING) {
 					toExecute = travelTo(robot, ballX, ballY, catchThresh - 2);
 				}
-			}
+			
 
 		}
 		if (toExecute.op == Operation.Type.DO_NOTHING && isBallCatchable

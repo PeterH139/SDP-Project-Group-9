@@ -1,7 +1,11 @@
 package pc.strategy;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
+
 import pc.comms.BrickCommServer;
 import pc.comms.RobotCommand;
+import pc.vision.Vector2f;
 import pc.world.oldmodel.WorldState;
 
 public class PassingStrategy extends GeneralStrategy {
@@ -10,8 +14,15 @@ public class PassingStrategy extends GeneralStrategy {
 	private BrickCommServer defenderBrick;
 	private ControlThread controlThread;
 	private boolean stopControlThread;
-	private int numberOfLostBalls = 0;
-	
+	protected boolean ballIsOnSlopeEdge;
+	protected boolean ballIsOnSideEdge;
+	protected boolean ballIsOnGoalLine;
+	protected boolean catcherIsUp = true;
+	protected boolean affectBallCaught = true;
+	protected boolean defenderHasArrived = false;
+	protected double distFromBall;
+	private Deque<Vector2f> ballPositions = new ArrayDeque<Vector2f>();
+
 	public PassingStrategy(BrickCommServer attackerBrick,
 			BrickCommServer defenderBrick) {
 		this.attackerBrick = attackerBrick;
@@ -33,18 +44,217 @@ public class PassingStrategy extends GeneralStrategy {
 	@Override
 	public void sendWorldState(WorldState worldState) {
 		super.sendWorldState(worldState);
+		distFromBall = Math.hypot(ballX - defenderRobotX, ballY
+				- defenderRobotY);
+		ballPositions.addLast(new Vector2f(worldState.getBall().x, worldState
+				.getBall().y));
+		if (ballPositions.size() > 3) {
+			ballPositions.removeFirst();
+		}
+		Vector2f ball3FramesAgo = ballPositions.getFirst();
+		float ballX1 = ball3FramesAgo.x, ballY1 = ball3FramesAgo.y;
+		float ballX2 = worldState.getBall().x, ballY2 = worldState.getBall().y;
+		boolean ballIsMoving = Math.abs(ballX2 - ballX1) > 10
+				|| Math.abs(ballY2 - ballY1) > 10;
+
 		synchronized (this.controlThread) {
 			this.controlThread.operation.op = Operation.Type.DO_NOTHING;
+			float targetX = ballX;
+			float targetY = ballY;
 			if (!this.ballCaughtDefender) {
-				this.controlThread.operation = catchBall(RobotType.DEFENDER);
+				if (leftCheck > defenderCheck) {
+					// we are shooting right
+					int[] topPointTopSlope = { 99, 62 };
+					int[] botPointTopSlope = { 68, 129 };
+					int[] topPointBotSlope = { 65, 281 };
+					int[] botPointBotSlope = { 97, 348 };
+					int ballDistFromGoalLine = (int) (Math
+							.abs((/* x2-x1 */botPointTopSlope[0] - topPointBotSlope[0])
+									* (/* y1-y0 */topPointBotSlope[1] - ballY)
+									- (/* x1-x0 */topPointBotSlope[0] - ballX)
+									* (/* y2-y1 */botPointTopSlope[1] - topPointBotSlope[1])) / Math
+							.sqrt(Math
+									.pow((/* x2-x1 */botPointTopSlope[0] - topPointBotSlope[0]),
+											2)
+									+ Math.pow(/* y2-y1 */botPointTopSlope[1]
+											- topPointBotSlope[1], 2)));
+					int ballDistFromTopSlope = (int) (Math
+							.abs((/* x2-x1 */botPointTopSlope[0] - topPointTopSlope[0])
+									* (/* y1-y0 */topPointTopSlope[1] - ballY)
+									- (/* x1-x0 */topPointTopSlope[0] - ballX)
+									* (/* y2-y1 */botPointTopSlope[1] - topPointTopSlope[1])) / Math
+							.sqrt(Math
+									.pow((/* x2-x1 */botPointTopSlope[0] - topPointTopSlope[0]),
+											2)
+									+ Math.pow(/* y2-y1 */botPointTopSlope[1]
+											- topPointTopSlope[1], 2)));
+					int ballDistFromBotSlope = (int) (Math
+							.abs((/* x2-x1 */botPointBotSlope[0] - topPointBotSlope[0])
+									* (/* y1-y0 */topPointBotSlope[1] - ballY)
+									- (/* x1-x0 */topPointBotSlope[0] - ballX)
+									* (/* y2-y1 */botPointBotSlope[1] - topPointBotSlope[1])) / Math
+							.sqrt(Math
+									.pow((/* x2-x1 */botPointBotSlope[0] - topPointBotSlope[0]),
+											2)
+									+ Math.pow(/* y2-y1 */botPointBotSlope[1]
+											- topPointBotSlope[1], 2)));
+					if (ballDistFromBotSlope < 10 || ballDistFromTopSlope < 10) {
+						ballIsOnSlopeEdge = true;
+						targetX = ballX + 40;
+					} else {
+						ballIsOnSlopeEdge = false;
+					}
+					if (ballDistFromGoalLine < 10) {
+						ballIsOnGoalLine = true;
+					} else {
+						ballIsOnGoalLine = false;
+					}
+				} else {
+					// we are shooting left
+					int[] topPointTopSlope = { 546, 63 };
+					int[] botPointTopSlope = { 577, 129 };
+					int[] topPointBotSlope = { 580, 278 };
+					int[] botPointBotSlope = { 550, 347 };
+					int ballDistFromGoalLine = (int) (Math
+							.abs((/* x2-x1 */botPointTopSlope[0] - topPointBotSlope[0])
+									* (/* y1-y0 */topPointBotSlope[1] - ballY)
+									- (/* x1-x0 */topPointBotSlope[0] - ballX)
+									* (/* y2-y1 */botPointTopSlope[1] - topPointBotSlope[1])) / Math
+							.sqrt(Math
+									.pow((/* x2-x1 */botPointTopSlope[0] - topPointBotSlope[0]),
+											2)
+									+ Math.pow(/* y2-y1 */botPointTopSlope[1]
+											- topPointBotSlope[1], 2)));
+					int ballDistFromTopSlope = (int) (Math
+							.abs((/* x2-x1 */botPointTopSlope[0] - topPointTopSlope[0])
+									* (/* y1-y0 */topPointTopSlope[1] - ballY)
+									- (/* x1-x0 */topPointTopSlope[0] - ballX)
+									* (/* y2-y1 */botPointTopSlope[1] - topPointTopSlope[1])) / Math
+							.sqrt(Math
+									.pow((/* x2-x1 */botPointTopSlope[0] - topPointTopSlope[0]),
+											2)
+									+ Math.pow(/* y2-y1 */botPointTopSlope[1]
+											- topPointTopSlope[1], 2)));
+					int ballDistFromBotSlope = (int) (Math
+							.abs((/* x2-x1 */botPointBotSlope[0] - topPointBotSlope[0])
+									* (/* y1-y0 */topPointBotSlope[1] - ballY)
+									- (/* x1-x0 */topPointBotSlope[0] - ballX)
+									* (/* y2-y1 */botPointBotSlope[1] - topPointBotSlope[1])) / Math
+							.sqrt(Math
+									.pow((/* x2-x1 */botPointBotSlope[0] - topPointBotSlope[0]),
+											2)
+									+ Math.pow(/* y2-y1 */botPointBotSlope[1]
+											- topPointBotSlope[1], 2)));
+					if (ballDistFromBotSlope < 10 || ballDistFromTopSlope < 10) {
+						ballIsOnSlopeEdge = true;
+						targetX = ballX - 40;
+					} else {
+						ballIsOnSlopeEdge = false;
+					}
+					if (ballDistFromGoalLine < 10) {
+						ballIsOnGoalLine = true;
+					} else {
+						ballIsOnGoalLine = false;
+					}
+
+				}
+				if (ballY > 345 || ballY < 80) {
+					ballIsOnSideEdge = true;
+				} else {
+					ballIsOnSideEdge = false;
+				}
+				if (ballY > 345) {
+					targetY = ballY - 40;
+				}
+				if (ballY < 80) {
+					targetY = ballY + 40;
+				}
+				if (!ballIsOnSlopeEdge && !ballIsOnSideEdge
+						&& !ballIsOnGoalLine) {
+					defenderHasArrived = false;
+					if (!catcherIsUp) {
+						this.controlThread.operation.op = Operation.Type.DEFKICK;
+					} else {
+						affectBallCaught = true;
+						this.controlThread.operation = catchBall(RobotType.DEFENDER);
+					}
+				} else {
+					if (catcherIsUp && !ballIsMoving) {
+						affectBallCaught = false;
+						this.controlThread.operation.op = Operation.Type.DEFCATCH;
+					} else {
+						if (!defenderHasArrived) {
+						if (ballIsOnSlopeEdge) {
+							if (Math.abs(defenderCheck - ballX) > 20) {
+								this.controlThread.operation = travelTo(
+										RobotType.DEFENDER, targetX, targetY,
+										15);
+							}
+						}
+						if (ballIsOnSideEdge) {
+							if (Math.abs(defenderCheck - ballX) > 20) {
+								this.controlThread.operation = travelTo(
+										RobotType.DEFENDER, targetX, targetY,
+										15);
+							}
+						}
+						if (ballIsOnGoalLine) {
+							if (Math.abs(defenderCheck - ballX) > 20) {
+								this.controlThread.operation = travelTo(
+										RobotType.DEFENDER, targetX, ballY, 40);
+							}
+						}
+						if (this.controlThread.operation.op == Operation.Type.DO_NOTHING) {
+							defenderHasArrived = true;
+						}
+						} else {
+							double angToBall = calculateAngle(defenderRobotX, defenderRobotY, defenderOrientation, ballX, ballY);
+							double distanceToBall = Math.hypot(ballX - defenderRobotX,
+									ballY - defenderRobotY);
+								if (Math.abs(angToBall) > 2) {
+									this.controlThread.operation.op = Operation.Type.DEFROTATE;
+									this.controlThread.operation.rotateBy = (int) (angToBall / 3);
+									
+								} else if (Math.abs(distanceToBall) > 45) {
+									this.controlThread.operation.op = Operation.Type.DEFTRAVEL;
+									this.controlThread.operation.travelDistance = -(int) (distanceToBall / 3);
+									this.controlThread.operation.travelSpeed = (int) (Math.abs(distanceToBall) / 3);
+								}
+								this.controlThread.operation.rotateSpeed = (int) (Math.abs(angToBall));
+							
+						}
+						
+						if (this.controlThread.operation.op == Operation.Type.DO_NOTHING
+								&& Math.abs(defenderCheck - ballX) > 20) {
+							this.controlThread.operation.op = Operation.Type.DEFROTATE;
+							if (ballIsOnSideEdge || ballIsOnSlopeEdge) {
+								if (worldState.weAreShootingRight) {
+									this.controlThread.operation.rotateBy = 100;
+								} else {
+									this.controlThread.operation.rotateBy = -100;
+								}
+							}
+							if (ballIsOnGoalLine) {
+								this.controlThread.operation.rotateBy = -(int) calculateAngle(
+										defenderRobotX, defenderRobotY,
+										defenderOrientation, defenderRobotX,
+										defenderRobotY - 50) / 3;
+							}
+							this.controlThread.operation.rotateSpeed = 50;
+						}
+					}
+
+				}
 			} else {
 				this.controlThread.operation = passBall(RobotType.DEFENDER,
 						RobotType.ATTACKER);
 			}
 			// kicks if detected false catch
-			if (ballCaughtDefender && (Math.hypot(ballX - defenderRobotX, ballY - defenderRobotY) > 50)) {
+			if (ballCaughtDefender
+					&& (Math.hypot(ballX - defenderRobotX, ballY
+							- defenderRobotY) > 50)) {
 				controlThread.operation.op = Operation.Type.DEFKICK;
-			} 
+			}
 		}
 
 	}
@@ -53,7 +263,7 @@ public class PassingStrategy extends GeneralStrategy {
 		public Operation operation = new Operation();
 
 		private long lastKickerEventTime = 0;
-		
+
 		public ControlThread() {
 			super("Robot control thread");
 			setDaemon(true);
@@ -74,43 +284,54 @@ public class PassingStrategy extends GeneralStrategy {
 						rotateSpeed = this.operation.rotateSpeed;
 						radius = this.operation.radius;
 					}
-
-//					System.out.println("ballCaught: " + ballCaughtDefender + " op: "
-//							+ op.toString() + " rotateBy: " + rotateBy
-//							+ " travelDist: " + travelDist);
-
+					System.out.println("Ball on slope Edge: "
+							+ ballIsOnSlopeEdge + " ball is on side edge: "
+							+ ballIsOnSideEdge + " Catcher is up: "
+							+ catcherIsUp);
+					System.out.println("ballCaught: " + ballCaughtDefender
+							+ " op: " + op);
 					switch (op) {
 					case DO_NOTHING:
 						break;
 					case ATKROTATE:
-						attackerBrick.executeSync(new RobotCommand.Rotate(rotateBy, Math.abs(rotateBy)));
+						attackerBrick.executeSync(new RobotCommand.Rotate(
+								rotateBy, Math.abs(rotateBy)));
 						break;
 					case ATKTRAVEL:
-						attackerBrick.executeSync(new RobotCommand.Travel(travelDist, travelSpeed));
+						attackerBrick.executeSync(new RobotCommand.Travel(
+								travelDist, travelSpeed));
 						break;
 					case DEFCATCH:
 						if (System.currentTimeMillis() - lastKickerEventTime > 1000) {
+							catcherIsUp = false;
 							defenderBrick.execute(new RobotCommand.Catch());
-							ballCaughtDefender = true;
+							if (affectBallCaught || distFromBall < 32) {
+								ballCaughtDefender = true;
+							}
 							lastKickerEventTime = System.currentTimeMillis();
 						}
 						break;
 					case DEFKICK:
 						if (System.currentTimeMillis() - lastKickerEventTime > 1000) {
+							catcherIsUp = true;
 							defenderBrick.execute(new RobotCommand.Kick(15));
 							ballCaughtDefender = false;
 							lastKickerEventTime = System.currentTimeMillis();
 						}
 						break;
 					case DEFROTATE:
-						defenderBrick.executeSync(new RobotCommand.Rotate(rotateBy, Math.abs(rotateBy)));
+						defenderBrick.executeSync(new RobotCommand.Rotate(
+								rotateBy, Math.abs(rotateBy)));
 						break;
 					case DEFTRAVEL:
-						defenderBrick.executeSync(new RobotCommand.Travel(travelDist, travelSpeed));
+						defenderBrick.executeSync(new RobotCommand.Travel(
+								travelDist, travelSpeed));
 						break;
 					case ROTATENMOVE:
-						attackerBrick.execute(new RobotCommand.Travel(travelDist, travelSpeed));
-						defenderBrick.execute(new RobotCommand.Rotate(rotateBy, Math.abs(rotateBy)));
+						attackerBrick.execute(new RobotCommand.Travel(
+								travelDist, travelSpeed));
+						defenderBrick.execute(new RobotCommand.Rotate(rotateBy,
+								Math.abs(rotateBy)));
 						break;
 					case DEFARC_LEFT:
 						defenderBrick.executeSync(new RobotCommand.TravelArc(
