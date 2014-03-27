@@ -256,7 +256,7 @@ public class PassingStrategy extends GeneralStrategy {
 									this.controlThread.operation.op = Operation.Type.DEFTRAVEL;
 									this.controlThread.operation.travelDistance = -(int) (distanceToBall / 3);
 									this.controlThread.operation.travelSpeed = (int) (Math.abs(distanceToBall) / 3);
-								} else if (ballIsOnDefCheck && Math.abs(distanceToBall) > 30) {
+								} else if (ballIsOnDefCheck && Math.abs(distanceToBall) > 25) {
 									this.controlThread.operation.op = Operation.Type.DEFTRAVEL;
 									this.controlThread.operation.travelDistance = -(int) (distanceToBall / 3);
 									this.controlThread.operation.travelSpeed = (int) (Math.abs(distanceToBall) / 3);
@@ -265,13 +265,21 @@ public class PassingStrategy extends GeneralStrategy {
 							
 						}
 						
-						if (distanceToBall < 40) {
+						if ((distanceToBall < 40 && !ballIsOnDefCheck) || this.controlThread.operation.op == Operation.Type.DO_NOTHING) {
 							this.controlThread.operation.op = Operation.Type.DEFROTATE;
 							if (ballIsOnSideEdge || ballIsOnSlopeEdge) {
 								if (worldState.weAreShootingRight) {
-									this.controlThread.operation.rotateBy = 100;
+									if (ballY < 220) {
+										this.controlThread.operation.rotateBy = 100;
+									} else {
+										this.controlThread.operation.rotateBy = -100;
+									}
 								} else {
-									this.controlThread.operation.rotateBy = -100;
+									if (ballY < 220) {
+										this.controlThread.operation.rotateBy = -100;
+									} else {
+										this.controlThread.operation.rotateBy = 100;
+									}
 								}
 							}
 							if (ballIsOnGoalLine) {

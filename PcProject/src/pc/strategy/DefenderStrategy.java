@@ -17,6 +17,7 @@ public class DefenderStrategy extends GeneralStrategy {
 	private BrickCommServer brick;
 	private ControlThread controlThread;
 	private Deque<Vector2f> ballPositions = new ArrayDeque<Vector2f>();
+	protected boolean catcherIsUp = true;
 
 	public DefenderStrategy(BrickCommServer brick) {
 		this.brick = brick;
@@ -101,7 +102,11 @@ public class DefenderStrategy extends GeneralStrategy {
 						rotateBy = this.rotateBy;
 						travelDist = this.travelDist;
 					}
-					if (rotateBy != 0) {
+					if (catcherIsUp) {
+						brick.execute(new RobotCommand.Catch());
+						catcherIsUp = false;
+					}
+					else if (rotateBy != 0) {
 						brick.execute(new RobotCommand.Rotate(rotateBy, Math.abs(rotateBy)));
 					} else if (travelDist != 0) {
 						brick.execute(new RobotCommand.Travel(travelDist / 3, Math.abs(travelDist) * 3 + 100));
