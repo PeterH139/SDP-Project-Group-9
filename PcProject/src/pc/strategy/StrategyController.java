@@ -14,8 +14,6 @@ public class StrategyController implements WorldStateReceiver {
 	/** Measured in milliseconds */
 	public static final int STRATEGY_TICK = 100; // TODO: Test lower values for this and see where it breaks
 	
-	boolean haveReset = false;
-
 	public enum StrategyType {
 		DO_NOTHING, PASSING, ATTACKING, DEFENDING, MARKING
 	}
@@ -23,15 +21,16 @@ public class StrategyController implements WorldStateReceiver {
 	public enum BallLocation{
 		DEFENDER, ATTACKER, ENEMY_DEFENDER, ENEMY_ATTACKER
 	}
-
 	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
-
 	public BrickCommServer bcsAttacker, bcsDefender;
 	private BallLocation ballLocation;
-
 	private StrategyType currentStrategy = StrategyType.DO_NOTHING;
-
 	private boolean pauseStrategyController = true;
+	
+	// Advanced Tactics flags
+	public static boolean confusionEnabled = false;
+	public static boolean bounceShotEnabled = false;
+	
 	private static ArrayList<Strategy> currentStrategies = new ArrayList<Strategy>();
 	private static ArrayList<Strategy> removedStrategies = new ArrayList<Strategy>();
 
@@ -52,7 +51,7 @@ public class StrategyController implements WorldStateReceiver {
 		boolean oldValue = pauseStrategyController;
 		pauseStrategyController = paused;
 		pcs.firePropertyChange("paused", oldValue, paused);
-	}
+	}	
 
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
 		pcs.addPropertyChangeListener(listener);

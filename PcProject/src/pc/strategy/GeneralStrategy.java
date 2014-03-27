@@ -1,5 +1,6 @@
 package pc.strategy;
 
+import pc.strategy.Operation.Type;
 import pc.strategy.interfaces.Strategy;
 import pc.vision.PitchConstants;
 import pc.world.oldmodel.WorldState;
@@ -39,6 +40,7 @@ public class GeneralStrategy implements Strategy {
 	protected boolean defenderHasArrived;
 	protected boolean isBallCatchable;
 	protected boolean scoringAttackerHasArrived;
+	protected boolean enemyDefenderNotOnPitch;
 
 	@Override
 	public void stopControlThread() {
@@ -149,15 +151,19 @@ public class GeneralStrategy implements Strategy {
 		attackerHasArrived = false;
 		Operation toExecute = new Operation();
 		float toTravelX;
-		// System.out.println("enemyY: " + enemyDefenderRobotY +
-		// "goal[0], goal[2] :" + goalY[0] +" " + goalY[2]);
 		if ((Math.abs(enemyDefenderRobotX - rightCheck) < 50 || Math
 				.abs(enemyDefenderRobotX - leftCheck) < 50)
-				&& (enemyDefenderRobotY < goalY[2] && enemyDefenderRobotY > goalY[0])) {
+				&& (enemyDefenderRobotY < goalY[2] + 15 && enemyDefenderRobotY > goalY[0] - 15)) {
 			toTravelX = goalY[0] - 60;
 		} else {
 			toTravelX = goalY[1];
 		}
+		
+		// If bounce shots aren't enabled, always go to the centre.
+		if (!StrategyController.bounceShotEnabled){
+			toTravelX = goalY[1];
+		}
+		
 		if (!scoringAttackerHasArrived) {
 			toExecute = travelToNoArc(robot, (leftCheck + rightCheck) / 2,
 					toTravelX, 20);
@@ -168,36 +174,49 @@ public class GeneralStrategy implements Strategy {
 		if (toExecute.op == Operation.Type.DO_NOTHING) {
 			float aimY = goalY[1];
 			if (robot == RobotType.ATTACKER) {
+				// Determine which side of the goal we should shoot at, and which way 
+				// we should fake shot.
 				if (enemyDefenderRobotY > goalY[1]) {
 					aimY = goalY[0];
+					toExecute.op = (goalX == 640) ? Type.ATKCONFUSEKICKRIGHT : Type.ATKCONFUSEKICKLEFT;
 				} else {
 					aimY = goalY[2];
+					toExecute.op = (goalX == 640) ? Type.ATKCONFUSEKICKLEFT : Type.ATKCONFUSEKICKRIGHT;
 				}
-				// System.out.println("AimY: " + aimY);
-				double ang1 = 0;
-				if (Math.abs(enemyDefenderRobotX - rightCheck) < 50
+				
+				// If the enemy defender is not on pitch, or we don't want you 
+				// to do it, then don't fake shot.
+				if (enemyDefenderNotOnPitch || !StrategyController.confusionEnabled){
+					toExecute.op = Type.ATKMOVEKICK;
+				}
+				
+				// Straight forward case
+				double ang1 = calculateAngle(attackerRobotX, attackerRobotY,
+						attackerOrientation, goalX, aimY);
+				
+				// Cases for when the defending robot is close to the line and we need to try
+				// a bounce shot against the wall. If we are doing a bounce shot there is no need to fake.
+				if(StrategyController.bounceShotEnabled){
+					if (Math.abs(enemyDefenderRobotX - rightCheck) < 50
 						&& (enemyDefenderRobotY < goalY[2] && enemyDefenderRobotY > goalY[0])) {
 					ang1 = calculateAngle(attackerRobotX, attackerRobotY,
-							attackerOrientation, ((rightCheck + 540) / 2) - 25,
-							69);
-				} else if (Math.abs(enemyDefenderRobotX - leftCheck) < 50
+							attackerOrientation, ((rightCheck + 540) / 2) - 25, 69);
+						toExecute.op = Operation.Type.ATKMOVEKICK;
+					} else if (Math.abs(enemyDefenderRobotX - leftCheck) < 50
 						&& (enemyDefenderRobotY < goalY[2] && enemyDefenderRobotY > goalY[0])) {
 					ang1 = calculateAngle(attackerRobotX, attackerRobotY,
-							attackerOrientation, ((leftCheck + 170) / 2) + 5,
-							69);
-				} else {
-					ang1 = calculateAngle(attackerRobotX, attackerRobotY,
-							attackerOrientation, goalX, aimY);
+							attackerOrientation, ((leftCheck + 170) / 2) + 5, 69);
+					toExecute.op = Operation.Type.ATKMOVEKICK;
+					}
 				}
+				
+				// Check we are pointing in the correct direction to score.
 				if (Math.abs(ang1) > 3) {
 					toExecute.op = Operation.Type.ATKROTATE;
 					toExecute.rotateBy = (int) ang1;
 					toExecute.rotateSpeed = (int) (Math.abs(ang1) * 1.5);
-				} else {
-					toExecute.op = Operation.Type.ATKCONFUSEKICK;
 				}
 			}
-
 		}
 
 		return toExecute;
@@ -389,7 +408,8 @@ public class GeneralStrategy implements Strategy {
 		ballY = worldState.getBall().y;
 		attackerOrientation = worldState.getAttackerRobot().orientation_angle;
 		defenderOrientation = worldState.getDefenderRobot().orientation_angle;
-
+		enemyDefenderNotOnPitch = worldState.enemyDefenderNotOnPitch;
+		
 		if (worldState.weAreShootingRight) {
 			leftCheck = worldState.dividers[1];
 			rightCheck = worldState.dividers[2];

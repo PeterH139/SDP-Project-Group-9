@@ -9,6 +9,7 @@ import java.beans.PropertyChangeListener;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -56,6 +57,7 @@ public class StrategySelectorTool implements GUITool {
 				BtInfo.MEOW));
 		contentPane.add(infoLabel);
 		contentPane.add(new StrategyPicker());
+		contentPane.add(new AdvancedStrategyEnabler());
 		updateInfoLabel();
 	}
 
@@ -220,6 +222,31 @@ public class StrategySelectorTool implements GUITool {
 			});
 		}
 
+	}
+	
+	@SuppressWarnings("serial")
+	public class AdvancedStrategyEnabler extends JPanel{
+		private JCheckBox confusionEnabled = new JCheckBox("Confuse Shot");
+		private JCheckBox bounceShotEnabled = new JCheckBox("Bounce Shot");
+		
+		public AdvancedStrategyEnabler(){
+			this.add(confusionEnabled);
+			this.add(bounceShotEnabled);
+			
+			confusionEnabled.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					StrategyController.confusionEnabled = confusionEnabled.isSelected();
+				}
+			});
+			
+			bounceShotEnabled.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					StrategyController.bounceShotEnabled = bounceShotEnabled.isSelected();
+				}
+			});
+		}
 	}
 
 }
