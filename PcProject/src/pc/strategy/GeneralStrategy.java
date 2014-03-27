@@ -99,7 +99,7 @@ public class GeneralStrategy implements Strategy {
 				if (Math.abs(leftCheck - ballX) < 15
 						|| Math.abs(rightCheck - ballX) < 15) {
 					isBallCatchable = false;
-				}
+				} 
 			} else if (ballDistFromTop < 10) {
 				targetY = ballY + 40;
 				catchDist = 37.2;

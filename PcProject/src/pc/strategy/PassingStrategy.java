@@ -5,6 +5,7 @@ import java.util.Deque;
 
 import pc.comms.BrickCommServer;
 import pc.comms.RobotCommand;
+import pc.strategy.GeneralStrategy.RobotType;
 import pc.vision.PitchConstants;
 import pc.vision.Position;
 import pc.vision.Vector2f;
@@ -23,7 +24,9 @@ public class PassingStrategy extends GeneralStrategy {
 	protected boolean catcherIsUp = true;
 	protected boolean affectBallCaught = true;
 	protected boolean defenderHasArrived = false;
+	protected boolean needReset = false;
 	protected double distFromBall;
+	protected int defenderDistFromGoal;
 	private Deque<Vector2f> ballPositions = new ArrayDeque<Vector2f>();
 
 	public PassingStrategy(BrickCommServer attackerBrick,
@@ -66,10 +69,12 @@ public class PassingStrategy extends GeneralStrategy {
 			float targetY = ballY;
 			int ballDistFromTop = (int) Math.abs(ballY - PitchConstants.getPitchOutlineTop());
 			int ballDistFromBot = (int) Math.abs(ballY - PitchConstants.getPitchOutlineBottom());
+			defenderDistFromGoal = 100;
 			Position[] p = PitchConstants.getPitchOutline();
 			if (!this.ballCaughtDefender) {
 				if (leftCheck > defenderCheck) {					
 					// we are shooting right
+					defenderDistFromGoal = (int) Math.abs(defenderRobotX - p[7].getX());
 					int[] topPointTopSlope = { p[0].getX(), p[0].getY() };
 					int[] botPointTopSlope = { p[7].getX(), p[7].getY() };
 					int[] topPointBotSlope = { p[6].getX(), p[6].getY() };
@@ -123,6 +128,7 @@ public class PassingStrategy extends GeneralStrategy {
 					}
 				} else {
 					// we are shooting left
+					defenderDistFromGoal = (int) Math.abs(defenderRobotX - p[1].getX());
 					int[] topPointTopSlope = { p[1].getX(), p[1].getY() };
 					int[] botPointTopSlope = { p[2].getX(),  p[2].getY() };
 					int[] topPointBotSlope = { p[3].getX(), p[3].getY()};
@@ -194,7 +200,7 @@ public class PassingStrategy extends GeneralStrategy {
 					targetY = ballY + 40;
 				}
 				if (ballDistFromBot < 10 && ballIsOnSlopeEdge) {
-					targetY = ballY - 20;
+					targetY = ballY - 21;
 				}
 				if (ballDistFromTop < 10 && ballIsOnSlopeEdge) {
 					targetY = ballY + 20;
@@ -226,6 +232,11 @@ public class PassingStrategy extends GeneralStrategy {
 										RobotType.DEFENDER, targetX, targetY,
 										15);
 						}
+						if (ballIsOnSideEdge && ballIsOnSlopeEdge) {
+							this.controlThread.operation = travelTo(
+									RobotType.DEFENDER, targetX, targetY,
+									22);
+						}
 						if (ballIsOnGoalLine) {
 								this.controlThread.operation = travelTo(
 										RobotType.DEFENDER, targetX, ballY, 40);						
@@ -256,7 +267,7 @@ public class PassingStrategy extends GeneralStrategy {
 									this.controlThread.operation.op = Operation.Type.DEFTRAVEL;
 									this.controlThread.operation.travelDistance = -(int) (distanceToBall / 3);
 									this.controlThread.operation.travelSpeed = (int) (Math.abs(distanceToBall) / 3);
-								} else if (ballIsOnDefCheck && Math.abs(distanceToBall) > 30) {
+								} else if (ballIsOnDefCheck && Math.abs(distanceToBall) > 25) {
 									this.controlThread.operation.op = Operation.Type.DEFTRAVEL;
 									this.controlThread.operation.travelDistance = -(int) (distanceToBall / 3);
 									this.controlThread.operation.travelSpeed = (int) (Math.abs(distanceToBall) / 3);
@@ -265,13 +276,21 @@ public class PassingStrategy extends GeneralStrategy {
 							
 						}
 						
-						if (distanceToBall < 40) {
+						if ((distanceToBall < 40 && !ballIsOnDefCheck) || this.controlThread.operation.op == Operation.Type.DO_NOTHING) {
 							this.controlThread.operation.op = Operation.Type.DEFROTATE;
 							if (ballIsOnSideEdge || ballIsOnSlopeEdge) {
 								if (worldState.weAreShootingRight) {
-									this.controlThread.operation.rotateBy = 100;
+									if (ballY < 220) {
+										this.controlThread.operation.rotateBy = 100;
+									} else {
+										this.controlThread.operation.rotateBy = -100;
+									}
 								} else {
-									this.controlThread.operation.rotateBy = -100;
+									if (ballY < 220) {
+										this.controlThread.operation.rotateBy = -100;
+									} else {
+										this.controlThread.operation.rotateBy = 100;
+									}
 								}
 							}
 							if (ballIsOnGoalLine) {
@@ -299,10 +318,19 @@ public class PassingStrategy extends GeneralStrategy {
 							- defenderRobotY) > 50)) {
 				controlThread.operation.op = Operation.Type.DEFKICK;
 			}
-			if (ballCaughtDefender && worldState.ballNotOnPitch) {
+			if ((ballCaughtDefender && worldState.ballNotOnPitch))  {
 				controlThread.operation.op = Operation.Type.DEFROTATE;
-				controlThread.operation.rotateBy = 180;
+				controlThread.operation.rotateBy = (int) calculateAngle(defenderRobotX, defenderRobotY, defenderOrientation, worldState.dividers[1], (PitchConstants.getPitchOutlineBottom() - PitchConstants.getPitchOutlineTop()));
 				controlThread.operation.rotateSpeed = 200;
+			}
+			if (needReset || (defenderDistFromGoal < 5 && (int) calculateAngle(defenderRobotX, defenderRobotY, defenderOrientation, worldState.dividers[1], (PitchConstants.getPitchOutlineBottom() - PitchConstants.getPitchOutlineTop())) > 45)) {
+				needReset = true;
+				controlThread.operation = travelToNoArc(RobotType.DEFENDER,
+						defenderResetX, defenderResetY, 20);
+				if (controlThread.operation.op == Operation.Type.DO_NOTHING) {
+					needReset = false;
+					defenderHasArrived = false;
+				}
 			}
 		}
 
@@ -333,7 +361,7 @@ public class PassingStrategy extends GeneralStrategy {
 						rotateSpeed = this.operation.rotateSpeed;
 						radius = this.operation.radius;
 					}
-					System.out.println("Ball on slope Edge: "
+					System.out.println("robot too close to goal: "  + (defenderDistFromGoal < 5) +  "Ball on slope Edge: "
 							+ ballIsOnSlopeEdge + " ball is on side edge: "
 							+ ballIsOnSideEdge + " Catcher is up: "
 							+ catcherIsUp);
