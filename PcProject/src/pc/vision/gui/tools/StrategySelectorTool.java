@@ -15,7 +15,6 @@ import javax.swing.JPanel;
 
 import lejos.pc.comm.NXTCommException;
 import lejos.pc.comm.NXTInfo;
-
 import pc.comms.BrickCommServer;
 import pc.comms.BrickControlGUI;
 import pc.comms.BtInfo;
@@ -24,7 +23,6 @@ import pc.strategy.StrategyController;
 import pc.strategy.StrategyController.StrategyType;
 import pc.vision.gui.GUITool;
 import pc.vision.gui.VisionGUI;
-import pc.world.oldmodel.WorldState;
 
 public class StrategySelectorTool implements GUITool {
 
@@ -88,6 +86,7 @@ public class StrategySelectorTool implements GUITool {
 		subWindow.dispose();
 	}
 
+	@SuppressWarnings("serial")
 	private static class ConnectionControl extends JPanel implements
 			BrickCommServer.StateChangeListener {
 		private String role;

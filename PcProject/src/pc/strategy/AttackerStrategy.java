@@ -127,6 +127,16 @@ public class AttackerStrategy extends GeneralStrategy {
 							lastKickerEventTime = System.currentTimeMillis();
 						}
 						break;
+					case ATKCONFUSEKICK:
+						if (System.currentTimeMillis() - lastKickerEventTime > 1000) {
+							brick.execute(new RobotCommand.Rotate(100, 100, false));
+							brick.execute(new RobotCommand.Rotate(-100, 100, false));
+							brick.execute(new RobotCommand.Travel(100, 10000));
+							brick.execute(new RobotCommand.Kick(100));
+							ballCaughtAttacker = false;
+							lastKickerEventTime = System.currentTimeMillis();
+						}
+						break;
 					case ATKROTATE:
 						brick.execute(new RobotCommand.Rotate(-rotateBy,
 								rotateSpeed));

@@ -9,6 +9,7 @@ import pc.vision.Vector2f;
 import pc.vision.interfaces.WorldStateReceiver;
 import pc.world.oldmodel.WorldState;
 
+@Deprecated
 public class TargetFollowerStrategy implements WorldStateReceiver {
 
 	private BrickCommServer brick;
