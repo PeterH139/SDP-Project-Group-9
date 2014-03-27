@@ -15,6 +15,7 @@ public class WorldState {
 	public float[] leftGoal;
 	public float[] rightGoal;
 	public boolean attackerNotOnPitch, enemyAttackerNotOnPitch, defenderNotOnPitch, enemyDefenderNotOnPitch;
+	public boolean ballNotOnPitch;
 
 	// #region new world model representation
 	// TODO: convert x/y to mm values
