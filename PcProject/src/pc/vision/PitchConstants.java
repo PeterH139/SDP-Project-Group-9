@@ -95,18 +95,26 @@ public class PitchConstants extends Observable {
 	private float[] leftGoal = new float[3];
 	private float[] rightGoal = new float[3];
 	
-	private Position[] pitchOutline = new Position[8];
+	private static Position[] pitchOutline = new Position[8];
 	
 	/**
 	 * Order of the values is clockwise from the top edge of the pitch
 	 * at the left side.
 	 * @return the array of Positions that make up the pitch walls
 	 */
-	public Position[] getPitchOutline() {
+	public static Position[] getPitchOutline() {
 		return pitchOutline;
 	}
 	
-	/**
+	public static int getPitchOutlineTop(){
+		return (pitchOutline[0].getY() + pitchOutline[1].getY()) / 2;
+	}
+	
+	public static int getPitchOutlineBottom(){
+		return (pitchOutline[4].getY() + pitchOutline[5].getY()) / 2;
+	}
+	
+		/**
 	 * Order of the values is top to bottom. 	
 	 * @return the array of y values for the left goal
 	 */
@@ -335,8 +343,8 @@ public class PitchConstants extends Observable {
 			pitchDimFile.write(String.valueOf(this.rightGoal[1]) + "\n");
 			pitchDimFile.write(String.valueOf(this.rightGoal[2]) + "\n");
 			for (int i = 0; i < 8; i++){
-				pitchDimFile.write(String.valueOf(this.pitchOutline[i].getX()) + "\n");
-				pitchDimFile.write(String.valueOf(this.pitchOutline[i].getY()) + "\n");
+				pitchDimFile.write(String.valueOf(PitchConstants.pitchOutline[i].getX()) + "\n");
+				pitchDimFile.write(String.valueOf(PitchConstants.pitchOutline[i].getY()) + "\n");
 			}
 			pitchDimFile.close();
 
@@ -400,7 +408,7 @@ public class PitchConstants extends Observable {
 			for (int i = 0; i < 8; i++){
 				int x = scannerDim.nextInt();
 				int y = scannerDim.nextInt();
-				this.pitchOutline[i] = new Position(x,y);
+				PitchConstants.pitchOutline[i] = new Position(x,y);
 			}
 
 			scannerDim.close();
@@ -474,7 +482,7 @@ public class PitchConstants extends Observable {
 		this.rightGoal[2] = 40;
 		
 		for (int i = 0; i < 8; i++){
-			this.pitchOutline[i] = new Position(0,0);
+			PitchConstants.pitchOutline[i] = new Position(0,0);
 		}
 	}
 }

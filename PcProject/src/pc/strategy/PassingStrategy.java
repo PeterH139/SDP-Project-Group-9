@@ -5,6 +5,8 @@ import java.util.Deque;
 
 import pc.comms.BrickCommServer;
 import pc.comms.RobotCommand;
+import pc.vision.PitchConstants;
+import pc.vision.Position;
 import pc.vision.Vector2f;
 import pc.world.oldmodel.WorldState;
 
@@ -61,13 +63,16 @@ public class PassingStrategy extends GeneralStrategy {
 			this.controlThread.operation.op = Operation.Type.DO_NOTHING;
 			float targetX = ballX;
 			float targetY = ballY;
+			int ballDistFromTop = (int) Math.abs(ballY - PitchConstants.getPitchOutlineTop());
+			int ballDistFromBot = (int) Math.abs(ballY - PitchConstants.getPitchOutlineBottom());
+			Position[] p = PitchConstants.getPitchOutline();
 			if (!this.ballCaughtDefender) {
-				if (leftCheck > defenderCheck) {
+				if (leftCheck > defenderCheck) {					
 					// we are shooting right
-					int[] topPointTopSlope = { 99, 62 };
-					int[] botPointTopSlope = { 68, 129 };
-					int[] topPointBotSlope = { 65, 281 };
-					int[] botPointBotSlope = { 97, 348 };
+					int[] topPointTopSlope = { p[0].getX(), p[0].getY() };
+					int[] botPointTopSlope = { p[7].getX(), p[7].getY() };
+					int[] topPointBotSlope = { p[6].getX(), p[6].getY() };
+					int[] botPointBotSlope = { p[5].getX(), p[5].getY() };
 					int ballDistFromGoalLine = (int) (Math
 							.abs((/* x2-x1 */botPointTopSlope[0] - topPointBotSlope[0])
 									* (/* y1-y0 */topPointBotSlope[1] - ballY)
@@ -111,10 +116,10 @@ public class PassingStrategy extends GeneralStrategy {
 					}
 				} else {
 					// we are shooting left
-					int[] topPointTopSlope = { 546, 63 };
-					int[] botPointTopSlope = { 577, 129 };
-					int[] topPointBotSlope = { 580, 278 };
-					int[] botPointBotSlope = { 550, 347 };
+					int[] topPointTopSlope = { p[1].getX(), p[1].getY() };
+					int[] botPointTopSlope = { p[2].getX(),  p[2].getY() };
+					int[] topPointBotSlope = { p[3].getX(), p[3].getY()};
+					int[] botPointBotSlope = { p[4].getX(), p[4].getY() };
 					int ballDistFromGoalLine = (int) (Math
 							.abs((/* x2-x1 */botPointTopSlope[0] - topPointBotSlope[0])
 									* (/* y1-y0 */topPointBotSlope[1] - ballY)
@@ -158,15 +163,15 @@ public class PassingStrategy extends GeneralStrategy {
 					}
 
 				}
-				if (ballY > 345 || ballY < 80) {
+				if (ballDistFromTop < 10 || ballDistFromBot < 10) {
 					ballIsOnSideEdge = true;
 				} else {
 					ballIsOnSideEdge = false;
 				}
-				if (ballY > 345) {
+				if (ballDistFromBot < 10) {
 					targetY = ballY - 40;
 				}
-				if (ballY < 80) {
+				if (ballDistFromTop < 10) {
 					targetY = ballY + 40;
 				}
 				if (!ballIsOnSlopeEdge && !ballIsOnSideEdge
