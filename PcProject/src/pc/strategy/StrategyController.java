@@ -17,7 +17,7 @@ public class StrategyController implements WorldStateReceiver {
 	boolean haveReset = false;
 
 	public enum StrategyType {
-		DO_NOTHING, PASSING, ATTACKING, DEFENDING, PENALTY_ATK, PENALTY_DEF, MARKING, RESET_ATK, RESET_DEF
+		DO_NOTHING, PASSING, ATTACKING, DEFENDING, MARKING
 	}
 	
 	public enum BallLocation{
@@ -109,21 +109,11 @@ public class StrategyController implements WorldStateReceiver {
 			break;
 		case DEFENDING:
 			Strategy AS = new AttackerStrategy(this.bcsAttacker);
-			Strategy pds = new PenaltyDefenderStrategy(this.bcsDefender);
+			Strategy pds = new DefenderStrategy(this.bcsDefender);
 			StrategyController.currentStrategies.add(pds);
 			StrategyController.currentStrategies.add(AS);
 			pds.startControlThread();
 			AS.startControlThread();
-			break;
-		case PENALTY_ATK:
-			Strategy penAtk = new PenaltyAttackStrategy(this.bcsAttacker);
-			StrategyController.currentStrategies.add(penAtk);
-			penAtk.startControlThread();
-			break;
-		case PENALTY_DEF:
-			Strategy penDef = new PenaltyDefenderStrategy(this.bcsDefender);
-			StrategyController.currentStrategies.add(penDef);
-			penDef.startControlThread();
 			break;
 		case MARKING:
 			Strategy mar = new MarkingStrategy(this.bcsAttacker);
@@ -132,22 +122,6 @@ public class StrategyController implements WorldStateReceiver {
 			StrategyController.currentStrategies.add(ics);
 			mar.startControlThread();
 			ics.startControlThread();
-			break;
-		case RESET_ATK:
-			Strategy res = new ResetStrategy(bcsAttacker, true);
-			Strategy pende = new PenaltyDefenderStrategy(bcsDefender);
-			StrategyController.currentStrategies.add(res);
-			StrategyController.currentStrategies.add(pende);
-			res.startControlThread();
-			pende.startControlThread();
-			break;
-		case RESET_DEF:
-			Strategy resa = new AttackerStrategy(bcsAttacker);
-			Strategy resd = new ResetStrategy(bcsDefender, false);
-			StrategyController.currentStrategies.add(resa);
-			StrategyController.currentStrategies.add(resd);
-			resa.startControlThread();
-			resd.startControlThread();
 			break;
 		default:
 			break;
@@ -187,17 +161,6 @@ public class StrategyController implements WorldStateReceiver {
 				|| worldState.weAreShootingRight && (ballX > rightCheck)) {
 			this.ballLocation = BallLocation.ENEMY_DEFENDER;
 		}
-//		System.out.println("Ball Location: " + this.ballLocation);
-//		boolean defXTooClose = Math.abs(worldState.getDefenderRobot().x
-//				- defenderCheck) < DIVIDER_THRESHOLD;
-//		boolean atkXTooClose = Math.abs(worldState.getAttackerRobot().x
-//				- leftCheck) < DIVIDER_THRESHOLD
-//				|| Math.abs(worldState.getAttackerRobot().x - rightCheck) < DIVIDER_THRESHOLD;
-//		if (defXTooClose || atkXTooClose) {
-//			haveReset = true;
-//		} else {
-//			haveReset = false;
-//		}
 
 		// Change strategy only if the ball has changed pitch area.
 		if (prevBallLocation != ballLocation){			

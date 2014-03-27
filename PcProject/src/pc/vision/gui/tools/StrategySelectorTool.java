@@ -161,7 +161,6 @@ public class StrategySelectorTool implements GUITool {
 		private JButton atkStrat = new JButton("Attacking");
 		private JButton defStrat = new JButton("Defending");
 		private JButton passStrat = new JButton("Passing");
-		private JButton penStrat = new JButton("Penalty");
 		private JButton marStrat = new JButton("Marking");
 		private JButton nullStrat = new JButton("Do nothing");
 		private JButton pauseController = new JButton("Pause");
@@ -171,7 +170,6 @@ public class StrategySelectorTool implements GUITool {
 			this.add(atkStrat);
 			this.add(defStrat);
 			this.add(passStrat);
-			this.add(penStrat);
 			this.add(marStrat);
 			this.add(nullStrat);
 			this.add(pauseController);
@@ -193,12 +191,6 @@ public class StrategySelectorTool implements GUITool {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					sc.changeToStrategy(StrategyType.PASSING);
-				}
-			});
-			penStrat.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					sc.changeToStrategy(StrategyType.PENALTY_ATK);
 				}
 			});
 			marStrat.addActionListener(new ActionListener() {

@@ -12,13 +12,13 @@ import pc.world.oldmodel.WorldState;
  * an incoming ball. If the ball is moving away from the robot then
  * the robot will move to the centre of the goal.
  */
-public class PenaltyDefenderStrategy extends GeneralStrategy {
+public class DefenderStrategy extends GeneralStrategy {
 	private static final int defenderOffset = 20; // Used to properly centre the robot at the target Y position.
 	private BrickCommServer brick;
 	private ControlThread controlThread;
 	private Deque<Vector2f> ballPositions = new ArrayDeque<Vector2f>();
 
-	public PenaltyDefenderStrategy(BrickCommServer brick) {
+	public DefenderStrategy(BrickCommServer brick) {
 		this.brick = brick;
 		controlThread = new ControlThread();
 	}
