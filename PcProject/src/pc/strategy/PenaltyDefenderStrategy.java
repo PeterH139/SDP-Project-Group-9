@@ -13,7 +13,7 @@ import pc.world.oldmodel.WorldState;
  * the robot will move to the centre of the goal.
  */
 public class PenaltyDefenderStrategy extends GeneralStrategy {
-	private static final int defenderOffset = 20; // Used to properly centre the robot at the target Y position.
+	private static final int defenderOffset = 15; // Used to properly centre the robot at the target Y position.
 	private BrickCommServer brick;
 	private ControlThread controlThread;
 	private Deque<Vector2f> ballPositions = new ArrayDeque<Vector2f>();
@@ -110,7 +110,7 @@ public class PenaltyDefenderStrategy extends GeneralStrategy {
 					if (rotateBy != 0) {
 						brick.execute(new RobotCommand.Rotate(rotateBy, Math.abs(rotateBy)));
 					} else if (travelDist != 0) {
-						brick.execute(new RobotCommand.Travel(travelDist / 3, Math.abs(travelDist) * 3 + 60));
+						brick.execute(new RobotCommand.Travel(travelDist / 3, Math.abs(travelDist) * 3 + 100));
 					}
 					Thread.sleep(StrategyController.STRATEGY_TICK);
 				}

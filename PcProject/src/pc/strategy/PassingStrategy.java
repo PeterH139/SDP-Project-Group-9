@@ -163,6 +163,12 @@ public class PassingStrategy extends GeneralStrategy {
 					} else {
 						ballIsOnSlopeEdge = false;
 					}
+						
+					if (ballDistFromBotSlope < 10) {
+						targetY = ballY - 10;
+					} else if (ballDistFromTopSlope < 10) {
+						targetY = ballY + 10;
+					}
 					if (ballDistFromGoalLine < 10) {
 						ballIsOnGoalLine = true;
 					} else {
@@ -187,6 +193,14 @@ public class PassingStrategy extends GeneralStrategy {
 				if (ballDistFromTop < 10) {
 					targetY = ballY + 40;
 				}
+				if (ballDistFromBot < 10 && ballIsOnSlopeEdge) {
+					targetY = ballY - 20;
+				}
+				if (ballDistFromTop < 10 && ballIsOnSlopeEdge) {
+					targetY = ballY + 20;
+				}
+				double distanceToBall = Math.hypot(ballX - defenderRobotX,
+						ballY - defenderRobotY);
 				if (!ballIsOnSlopeEdge && !ballIsOnSideEdge
 						&& !ballIsOnGoalLine && !ballIsOnDefCheck) {
 					defenderHasArrived = false;
@@ -197,7 +211,7 @@ public class PassingStrategy extends GeneralStrategy {
 						this.controlThread.operation = catchBall(RobotType.DEFENDER);
 					}
 				} else {
-					if (catcherIsUp && !ballIsMoving) {
+					if (catcherIsUp && !ballIsMoving && !ballIsOnDefCheck) {
 						affectBallCaught = false;
 						this.controlThread.operation.op = Operation.Type.DEFCATCH;
 					} else {
@@ -227,14 +241,22 @@ public class PassingStrategy extends GeneralStrategy {
 							defenderHasArrived = true;
 						}
 						} else {
-							double angToBall = calculateAngle(defenderRobotX, defenderRobotY, defenderOrientation, ballX, ballY);
-							double distanceToBall = Math.hypot(ballX - defenderRobotX,
-									ballY - defenderRobotY);
+							double angToBall;
+							if  (ballIsOnSideEdge && ballIsOnSlopeEdge) {
+								angToBall = calculateAngle(defenderRobotX, defenderRobotY, defenderOrientation, ballX, defenderRobotY);
+							} else {
+								angToBall = calculateAngle(defenderRobotX, defenderRobotY, defenderOrientation, ballX, ballY);
+
+							}
 								if (Math.abs(angToBall) > 2) {
 									this.controlThread.operation.op = Operation.Type.DEFROTATE;
 									this.controlThread.operation.rotateBy = (int) (angToBall / 3);
 									
-								} else if (Math.abs(distanceToBall) > 45) {
+								} else if (Math.abs(distanceToBall) > 40) {
+									this.controlThread.operation.op = Operation.Type.DEFTRAVEL;
+									this.controlThread.operation.travelDistance = -(int) (distanceToBall / 3);
+									this.controlThread.operation.travelSpeed = (int) (Math.abs(distanceToBall) / 3);
+								} else if (ballIsOnDefCheck && Math.abs(distanceToBall) > 30) {
 									this.controlThread.operation.op = Operation.Type.DEFTRAVEL;
 									this.controlThread.operation.travelDistance = -(int) (distanceToBall / 3);
 									this.controlThread.operation.travelSpeed = (int) (Math.abs(distanceToBall) / 3);
@@ -243,8 +265,7 @@ public class PassingStrategy extends GeneralStrategy {
 							
 						}
 						
-						if (this.controlThread.operation.op == Operation.Type.DO_NOTHING
-								&& Math.abs(defenderCheck - ballX) > 20) {
+						if (distanceToBall < 40) {
 							this.controlThread.operation.op = Operation.Type.DEFROTATE;
 							if (ballIsOnSideEdge || ballIsOnSlopeEdge) {
 								if (worldState.weAreShootingRight) {
@@ -259,8 +280,12 @@ public class PassingStrategy extends GeneralStrategy {
 										defenderOrientation, defenderRobotX,
 										defenderRobotY - 50) / 3;
 							}
-							this.controlThread.operation.rotateSpeed = 50;
-						}
+							if (ballIsOnDefCheck) {
+								this.controlThread.operation.op = Operation.Type.DEFCATCH;
+							}
+							this.controlThread.operation.rotateSpeed = 150;
+						} 
+						
 					}
 
 				}
@@ -273,6 +298,11 @@ public class PassingStrategy extends GeneralStrategy {
 					&& (Math.hypot(ballX - defenderRobotX, ballY
 							- defenderRobotY) > 50)) {
 				controlThread.operation.op = Operation.Type.DEFKICK;
+			}
+			if (ballCaughtDefender && worldState.ballNotOnPitch) {
+				controlThread.operation.op = Operation.Type.DEFROTATE;
+				controlThread.operation.rotateBy = 180;
+				controlThread.operation.rotateSpeed = 200;
 			}
 		}
 
