@@ -26,7 +26,7 @@ public class Movement extends DifferentialPilot {
 	static NXTMotor KICKER_UNREGULATED = new NXTMotor(MotorPort.A);
 	static final int TYRE_DIAMETER = 56;
 	public int maxPilotSpeed;
-	public static final int KICKER_UP_ANGLE = 70;
+	public static final int KICKER_UP_ANGLE = 60;
 	public static final int MAXIMUM_KICKER_SPEED = (int) KICKER.getMaxSpeed() + 100;
 	public static final int ACCELERATION = MAXIMUM_KICKER_SPEED * 8;
 	public static final int REVERSE_KICKER_DIRECTION = -1;
