@@ -26,18 +26,17 @@ public class BrickController {
 	
 	private static InputStream is;
 	private static OutputStream os;
-	RobotController rc;
+	static RobotController rc;
 	
 	public static void main(String[] args) {
 		
 	while(!die && !(Button.ESCAPE.isDown())) {
 		try {
-			
-		
 			NXTConnection connection = initializeBluetooth();
 			
 			int opcode = DO_NOTHING;
-	        int option1, option2, option3;
+	        @SuppressWarnings("unused")
+			int option1, option2, option3;
 	        
 	        while ((opcode != QUIT) && (opcode != FORCEQUIT) && !(Button.ESCAPE.isDown())) {
 
@@ -74,17 +73,17 @@ public class BrickController {
                 		LCD.clear();
                 		LCD.drawString("Kick", 0, 2);
                 		LCD.refresh();
-                		int kickerSpeed = 900;
+						int kickerSpeed = 900;
                 		if (option1 == 1) {
                 			kickerSpeed = Movement.MAXIMUM_KICKER_SPEED;
                 		}
                 		else if (option1 == 2) {
-                			kickerSpeed = Movement.MEDIUM_KICKER_SPEED;
+                			kickerSpeed = Movement.MAXIMUM_KICKER_SPEED / 2;
                 		}
                 		else if (option1 == 3) {
-                			kickerSpeed = Movement.LOW_KICKER_SPEED;               					
+                			kickerSpeed = Movement.MAXIMUM_KICKER_SPEED / 5;               					
                 		}
-                		//rc.getMovementController().kick(kickerSpeed);
+                		rc.getMovementController().kick(kickerSpeed);
                 		replytopc(opcode, os);
                 		break;
                 case QUIT: 

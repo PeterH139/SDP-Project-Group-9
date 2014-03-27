@@ -71,8 +71,9 @@ public class BrickCommClient {
 	private void handleRotateBy() throws IOException {
 		int angle = this.pcInput.readInt();
 		double speed = this.pcInput.readDouble();
+		boolean immediateReturn = this.pcInput.readBoolean();
 		this.rc.getMovementController().setRotateSpeed(speed);
-		this.rc.getMovementController().rotate(angle, true);
+		this.rc.getMovementController().rotate(angle, immediateReturn);
 	}
 
 	private void handleArcForwards() throws IOException {
@@ -99,18 +100,21 @@ public class BrickCommClient {
 		this.pcOutput.flush();
 	}
 
+	@SuppressWarnings("unused")
 	private void handleTestINT() throws IOException {
 		this.pcOutput.writeBoolean(true);
 		this.pcOutput.flush();
 		int test = this.pcInput.readInt();
 	}
 
+	@SuppressWarnings("unused")
 	private void handleTestDOUBLE() throws IOException {
 		this.pcOutput.writeBoolean(true);
 		this.pcOutput.flush();
 		double test = this.pcInput.readDouble();
 	}
 
+	@SuppressWarnings("unused")
 	private void handleTestINTANDDOUBLE() throws IOException {
 		this.pcOutput.writeBoolean(true);
 		this.pcOutput.flush();

@@ -15,7 +15,6 @@ import javax.swing.JPanel;
 
 import lejos.pc.comm.NXTCommException;
 import lejos.pc.comm.NXTInfo;
-
 import pc.comms.BrickCommServer;
 import pc.comms.BrickControlGUI;
 import pc.comms.BtInfo;
@@ -24,7 +23,6 @@ import pc.strategy.StrategyController;
 import pc.strategy.StrategyController.StrategyType;
 import pc.vision.gui.GUITool;
 import pc.vision.gui.VisionGUI;
-import pc.world.oldmodel.WorldState;
 
 public class StrategySelectorTool implements GUITool {
 
@@ -88,6 +86,7 @@ public class StrategySelectorTool implements GUITool {
 		subWindow.dispose();
 	}
 
+	@SuppressWarnings("serial")
 	private static class ConnectionControl extends JPanel implements
 			BrickCommServer.StateChangeListener {
 		private String role;
@@ -161,7 +160,6 @@ public class StrategySelectorTool implements GUITool {
 		private JButton atkStrat = new JButton("Attacking");
 		private JButton defStrat = new JButton("Defending");
 		private JButton passStrat = new JButton("Passing");
-		private JButton penStrat = new JButton("Penalty");
 		private JButton marStrat = new JButton("Marking");
 		private JButton nullStrat = new JButton("Do nothing");
 		private JButton pauseController = new JButton("Pause");
@@ -171,7 +169,6 @@ public class StrategySelectorTool implements GUITool {
 			this.add(atkStrat);
 			this.add(defStrat);
 			this.add(passStrat);
-			this.add(penStrat);
 			this.add(marStrat);
 			this.add(nullStrat);
 			this.add(pauseController);
@@ -193,12 +190,6 @@ public class StrategySelectorTool implements GUITool {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					sc.changeToStrategy(StrategyType.PASSING);
-				}
-			});
-			penStrat.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					sc.changeToStrategy(StrategyType.PENALTY_ATK);
 				}
 			});
 			marStrat.addActionListener(new ActionListener() {

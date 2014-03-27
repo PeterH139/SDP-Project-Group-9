@@ -8,17 +8,17 @@ import pc.comms.RobotCommand;
 import pc.vision.Vector2f;
 import pc.world.oldmodel.WorldState;
 
-/* This is a class that manages the strategy for the defender robot to intercept
+/** Manages the strategy for the defender robot to intercept
  * an incoming ball. If the ball is moving away from the robot then
  * the robot will move to the centre of the goal.
  */
-public class PenaltyDefenderStrategy extends GeneralStrategy {
-	private static final int defenderOffset = 15; // Used to properly centre the robot at the target Y position.
+public class DefenderStrategy extends GeneralStrategy {
+	private static final int defenderOffset = 20; // Used to properly centre the robot at the target Y position.
 	private BrickCommServer brick;
 	private ControlThread controlThread;
 	private Deque<Vector2f> ballPositions = new ArrayDeque<Vector2f>();
 
-	public PenaltyDefenderStrategy(BrickCommServer brick) {
+	public DefenderStrategy(BrickCommServer brick) {
 		this.brick = brick;
 		controlThread = new ControlThread();
 	}
@@ -66,12 +66,11 @@ public class PenaltyDefenderStrategy extends GeneralStrategy {
 			targetY = (int) worldState.rightGoal[0];
 		}
 		
-		// Correct for defender plate not being in centre
+		// Correct for defender plate not being in centre of robot
 		targetY += defenderOffset;
 		
 		dist = targetY - defenderRobotY;
 	
-		
 		if (Math.abs(ang1) < 3) {
 			ang1 = 0;
 		} else {
@@ -81,7 +80,6 @@ public class PenaltyDefenderStrategy extends GeneralStrategy {
 		synchronized (controlThread) {
 			controlThread.rotateBy = (int) ang1;
 			controlThread.travelDist = (int) (dist * 0.8);
-
 		}
 	}
 
@@ -103,10 +101,6 @@ public class PenaltyDefenderStrategy extends GeneralStrategy {
 						rotateBy = this.rotateBy;
 						travelDist = this.travelDist;
 					}
-					
-
-//					System.out.println(" rotateBy: "
-//							+ rotateBy + " travelDist: " + travelDist);
 					if (rotateBy != 0) {
 						brick.execute(new RobotCommand.Rotate(rotateBy, Math.abs(rotateBy)));
 					} else if (travelDist != 0) {
@@ -114,17 +108,9 @@ public class PenaltyDefenderStrategy extends GeneralStrategy {
 					}
 					Thread.sleep(StrategyController.STRATEGY_TICK);
 				}
-//			} catch (IOException e) {
-//				e.printStackTrace();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
-				
-			}
-		
-
-
-
-	
+	}
 }

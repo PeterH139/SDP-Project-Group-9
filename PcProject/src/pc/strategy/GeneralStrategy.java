@@ -189,13 +189,12 @@ public class GeneralStrategy implements Strategy {
 					ang1 = calculateAngle(attackerRobotX, attackerRobotY,
 							attackerOrientation, goalX, aimY);
 				}
-				// System.out.println("Angle to goal: " + ang1);
 				if (Math.abs(ang1) > 3) {
 					toExecute.op = Operation.Type.ATKROTATE;
 					toExecute.rotateBy = (int) ang1;
 					toExecute.rotateSpeed = (int) (Math.abs(ang1) * 1.5);
 				} else {
-					toExecute.op = Operation.Type.ATKMOVEKICK;
+					toExecute.op = Operation.Type.ATKCONFUSEKICK;
 				}
 			}
 
