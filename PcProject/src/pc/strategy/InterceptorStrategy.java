@@ -53,19 +53,6 @@ public class InterceptorStrategy extends GeneralStrategy {
 		double c = ballY1 - slope * ballX1;
 		boolean ballMovement = Math.abs(ballX2 - ballX1) < 10;
 		int targetY = (int) (slope * defenderRobotX + c);
-
-		if (defenderRobotX <= 0.5 || targetY <= 0.5 || defenderRobotY <= 0.5 /*
-																			 * ||
-																			 * ballMovement
-																			 */
-				|| defenderOrientation <= 0.5
-				|| Math.hypot(0, defenderRobotY - targetY) < 10) {
-			synchronized (controlThread) {
-				controlThread.operation.rotateBy = 0;
-				controlThread.operation.travelDistance = 0;
-			}
-			return;
-		}
 		double ang1 = calculateAngle(defenderRobotX, defenderRobotY,
 				defenderOrientation, defenderRobotX, defenderRobotY - 50);
 		ang1 = ang1 / 3;
@@ -81,12 +68,6 @@ public class InterceptorStrategy extends GeneralStrategy {
 
 		dist = targetY - defenderRobotY;
 
-		if (Math.abs(ang1) < 3) {
-			ang1 = 0;
-		} else {
-			dist = 0;
-		}
-
 		synchronized (controlThread) {
 			if (ballInAttackerArea) {
 				controlThread.operation = travelToNoArc(RobotType.DEFENDER,
@@ -94,12 +75,11 @@ public class InterceptorStrategy extends GeneralStrategy {
 			} else {
 			controlThread.operation.rotateBy = (int) ang1;
 			controlThread.operation.travelDistance = (int) (dist * 0.8);
-			controlThread.operation.op = Operation.Type.DEFTRAVEL;
-			}
-			if (ballCaughtDefender
-					&& (Math.hypot(ballX - defenderRobotX, ballY
-							- defenderRobotY) > 45)) {
-				controlThread.operation.op = Operation.Type.DEFKICK;
+			if (Math.abs(controlThread.operation.rotateBy) > 3) {
+				controlThread.operation.op = Operation.Type.DEFROTATE;
+			} else {
+				controlThread.operation.op = Operation.Type.DEFTRAVEL;
+				}	
 			}
 
 		}
@@ -126,15 +106,17 @@ public class InterceptorStrategy extends GeneralStrategy {
 						rotateBy = this.operation.rotateBy;
 						travelDist = this.operation.travelDistance;
 					}
-
+					System.out.println("operation: " + op + " rotateBy: "
+							 + rotateBy + " travelDist: " + travelDist);
 					switch (op) {
-					case DEFTRAVEL:
-						// System.out.println(" rotateBy: "
-						// + rotateBy + " travelDist: " + travelDist);
+					case DEFROTATE:
 						if (rotateBy != 0) {
-							brick.execute(new RobotCommand.Rotate(rotateBy,
-									Math.abs(rotateBy)));
-						} else if (travelDist != 0) {
+						brick.executeSync(new RobotCommand.Rotate(
+								rotateBy, Math.abs(rotateBy)));
+						}
+						break;
+					case DEFTRAVEL:
+						 if (travelDist != 0) {
 							brick.execute(new RobotCommand.Travel(
 									travelDist / 3,
 									Math.abs(travelDist) * 3 + 25));

@@ -5,6 +5,8 @@ import java.util.Deque;
 
 import pc.comms.BrickCommServer;
 import pc.comms.RobotCommand;
+import pc.strategy.Operation.Type;
+import pc.vision.PitchConstants;
 import pc.vision.Vector2f;
 import pc.world.oldmodel.WorldState;
 
@@ -13,7 +15,7 @@ import pc.world.oldmodel.WorldState;
  * the robot will move to the centre of the goal.
  */
 public class DefenderStrategy extends GeneralStrategy {
-	private static final int defenderOffset = 20; // Used to properly centre the robot at the target Y position.
+	private static final int defenderOffset = 0; // Used to properly centre the robot at the target Y position.
 	private BrickCommServer brick;
 	private ControlThread controlThread;
 	private Deque<Vector2f> ballPositions = new ArrayDeque<Vector2f>();
@@ -50,8 +52,8 @@ public class DefenderStrategy extends GeneralStrategy {
 		if (defenderRobotX <= 0.5 || targetY <= 0.5 || defenderRobotY <= 0.5 /*|| ballMovement */
 				|| defenderOrientation <= 0.5 || Math.hypot(0, defenderRobotY - targetY) < 10) {
 			synchronized (controlThread) {
-				controlThread.rotateBy = 0;
-				controlThread.travelDist = 0;
+				controlThread.operation.rotateBy = 0;
+				controlThread.operation.travelDistance = 0;
 			}
 			return;
 		}
@@ -79,14 +81,12 @@ public class DefenderStrategy extends GeneralStrategy {
 		}
 		
 		synchronized (controlThread) {
-			controlThread.rotateBy = (int) ang1;
-			controlThread.travelDist = (int) (dist * 0.8);
+			controlThread.operation.rotateBy = (int) ang1;
+			controlThread.operation.travelDistance = (int) (dist * 0.8);
 		}
 	}
-
 	private class ControlThread extends Thread {
-		public int rotateBy = 0;
-		public int travelDist = 0;
+		public Operation operation = new Operation();
 
 		public ControlThread() {
 			super("Robot control thread");
@@ -99,8 +99,8 @@ public class DefenderStrategy extends GeneralStrategy {
 				while (true) {
 					int rotateBy, travelDist;
 					synchronized (this) {
-						rotateBy = this.rotateBy;
-						travelDist = this.travelDist;
+						rotateBy = this.operation.rotateBy;
+						travelDist = this.operation.travelDistance;
 					}
 					if (catcherIsUp) {
 						brick.execute(new RobotCommand.Catch());
