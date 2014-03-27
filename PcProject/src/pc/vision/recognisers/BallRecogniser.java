@@ -77,8 +77,11 @@ public class BallRecogniser implements ObjectRecogniser {
 					480);
 		}
 
+		worldState.ballNotOnPitch = false;
+		
 		if (ballPosition.x == 0 && ballPosition.y == 0) {
 			ballPosition = previousBallPosition;
+			worldState.ballNotOnPitch = true;
 			// logger.Log("Ball Lost");
 		} else {
 			// Distortion fixing
@@ -93,7 +96,7 @@ public class BallRecogniser implements ObjectRecogniser {
 			// logger.Log("X="+ballPosition.x+" Y="+ballPosition.y);
 			// logger.Log("["+ballPosition.x+", "+ballPosition.y+"]");
 		}
-
+		
 		MovingObject ball_m = new MovingObject(ballPosition.x, ballPosition.y);
 		worldState.setBall(ball_m);
 
