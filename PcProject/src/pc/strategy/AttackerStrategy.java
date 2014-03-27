@@ -33,7 +33,8 @@ public class AttackerStrategy extends GeneralStrategy {
 		super.sendWorldState(worldState);
 
 		if (worldState.weAreShootingRight && ballX > defenderCheck
-				&& ballX < leftCheck || !worldState.weAreShootingRight && ballX < defenderCheck && ballX > rightCheck) {
+				&& ballX < leftCheck || !worldState.weAreShootingRight
+				&& ballX < defenderCheck && ballX > rightCheck) {
 			this.ballInEnemyAttackerArea = true;
 		} else {
 			this.ballInEnemyAttackerArea = false;
@@ -48,7 +49,7 @@ public class AttackerStrategy extends GeneralStrategy {
 
 		synchronized (controlThread) {
 			if (ballInEnemyAttackerArea) {
-				controlThread.operation = returnToOrigin(RobotType.ATTACKER);			
+				controlThread.operation = returnToOrigin(RobotType.ATTACKER);
 			} else {
 				if (!ballCaughtAttacker) {
 					controlThread.operation = catchBall(RobotType.ATTACKER);
@@ -56,7 +57,9 @@ public class AttackerStrategy extends GeneralStrategy {
 					controlThread.operation = scoreGoal(RobotType.ATTACKER);
 				}
 				// kicks if detected false catch
-				if (ballCaughtAttacker && (Math.hypot(ballX - attackerRobotX, ballY - attackerRobotY) > 60)) {
+				if (ballCaughtAttacker
+						&& (Math.hypot(ballX - attackerRobotX, ballY
+								- attackerRobotY) > 60)) {
 					controlThread.operation.op = Operation.Type.ATKKICK;
 				}
 			}
@@ -76,6 +79,7 @@ public class AttackerStrategy extends GeneralStrategy {
 		@Override
 		public void run() {
 			try {
+//				Operation.Type prevOp = null;
 				while (!stopControlThread) {
 					int travelDist, rotateBy, rotateSpeed, travelSpeed;
 					Operation.Type op;
@@ -89,9 +93,14 @@ public class AttackerStrategy extends GeneralStrategy {
 						radius = this.operation.radius;
 					}
 
-					// System.out.println("ballcaught: " + ballCaught + "op: " +
-					// op.toString() + " rotateBy: "
-					// + rotateBy + " travelDist: " + travelDist);
+//					if (prevOp != null) {
+//						if (!op.equals(prevOp)){
+//							System.out.println("op: " + op.toString() + " rotateBy: "
+//								+ rotateBy + " travelDist: " + travelDist
+//								+ "radius: " + radius);
+//						}
+//					}
+//					prevOp = op;
 
 					switch (op) {
 					case DO_NOTHING:
@@ -119,7 +128,8 @@ public class AttackerStrategy extends GeneralStrategy {
 						}
 						break;
 					case ATKROTATE:
-						brick.execute(new RobotCommand.Rotate(-rotateBy, rotateSpeed));
+						brick.execute(new RobotCommand.Rotate(-rotateBy,
+								rotateSpeed));
 						break;
 					case ATKTRAVEL:
 						brick.execute(new RobotCommand.Travel(travelDist,

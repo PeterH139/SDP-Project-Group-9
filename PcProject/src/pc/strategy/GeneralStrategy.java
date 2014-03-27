@@ -5,6 +5,9 @@ import pc.world.oldmodel.WorldState;
 
 public class GeneralStrategy implements Strategy {
 
+	private static final int ATTACKER_SPEED_CONSTANT = 50;
+	private static final int DEFENDER_SPEED_CONSTANT = 0;
+
 	protected ControlThread controlThread;
 	protected float attackerRobotX;
 	protected float attackerRobotY;
@@ -84,7 +87,6 @@ public class GeneralStrategy implements Strategy {
 		float c = (float) (ballY - slope * ballX);
 		// attacker's case
 		if (isAttacker) {
-
 			if (ballY > 345 && isAttacker) {
 				targetY = ballY - 40;
 				catchDist = 37.2;
@@ -126,12 +128,11 @@ public class GeneralStrategy implements Strategy {
 			}
 
 			// defender's case
-		} else {			
-				if (Math.abs(defenderCheck - ballX) > 20 && toExecute.op == Operation.Type.DO_NOTHING) {
-					toExecute = travelTo(robot, ballX, ballY, catchThresh - 2);
-				}
-			
-
+		} else {
+			if (Math.abs(defenderCheck - ballX) > 20
+					&& toExecute.op == Operation.Type.DO_NOTHING) {
+				toExecute = travelTo(robot, ballX, ballY, catchThresh - 2);
+			}
 		}
 		if (toExecute.op == Operation.Type.DO_NOTHING && isBallCatchable
 				&& Math.abs(defenderCheck - ballX) > 25) {
@@ -272,7 +273,8 @@ public class GeneralStrategy implements Strategy {
 			toExecute.rotateSpeed = Math.abs(toExecute.rotateBy);
 		} else if (!haveArrived) {
 			toExecute.travelSpeed = isAttacker ? (int) (Math.abs(dist) * 1.5)
-					: (int) (Math.abs(dist) / 2);
+					+ ATTACKER_SPEED_CONSTANT : (int) (Math.abs(dist) / 2)
+					+ DEFENDER_SPEED_CONSTANT;
 			if (Math.abs(ang1) < 90) {
 				toExecute.travelDistance = isAttacker ? (int) dist
 						: (int) (dist / 3);
@@ -291,7 +293,7 @@ public class GeneralStrategy implements Strategy {
 					toExecute.op = isAttacker ? Operation.Type.ATKARC_RIGHT
 							: Operation.Type.DEFARC_RIGHT;
 				}
-				toExecute.radius = isAttacker ? dist / 3 : -(dist / 3);
+				toExecute.radius = isAttacker ? dist * 3 : -(dist * 3);
 			} else if (ang1 < 0) {
 				if (ang1 < -90) {
 					toExecute.op = isAttacker ? Operation.Type.ATKARC_RIGHT
