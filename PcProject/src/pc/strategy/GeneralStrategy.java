@@ -1,6 +1,7 @@
 package pc.strategy;
 
 import pc.strategy.interfaces.Strategy;
+import pc.vision.PitchConstants;
 import pc.world.oldmodel.WorldState;
 
 public class GeneralStrategy implements Strategy {
@@ -85,9 +86,11 @@ public class GeneralStrategy implements Strategy {
 		float targetX = ballX;
 		double slope = 0;
 		float c = (float) (ballY - slope * ballX);
+		int ballDistFromTop = (int) Math.abs(ballY - PitchConstants.getPitchOutlineTop());
+		int ballDistFromBot = (int) Math.abs(ballY - PitchConstants.getPitchOutlineBottom());
 		// attacker's case
 		if (isAttacker) {
-			if (ballY > 345 && isAttacker) {
+			if (ballDistFromBot < 10) {
 				targetY = ballY - 40;
 				catchDist = 37.2;
 				catchThresh = 15;
@@ -95,7 +98,7 @@ public class GeneralStrategy implements Strategy {
 						|| Math.abs(rightCheck - ballX) < 15) {
 					isBallCatchable = false;
 				}
-			} else if (ballY < 80 && isAttacker) {
+			} else if (ballDistFromTop < 10) {
 				targetY = ballY + 40;
 				catchDist = 37.2;
 				catchThresh = 15;
