@@ -6,7 +6,6 @@ import lejos.nxt.Motor;
 import lejos.nxt.NXTRegulatedMotor;
 import lejos.util.Delay;
 import lejos.util.TextMenu;
-import nxt.brick.Movement;
 import nxt.brick.Striker;
 
 

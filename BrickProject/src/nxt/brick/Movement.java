@@ -25,13 +25,9 @@ public class Movement extends DifferentialPilot {
 	static NXTRegulatedMotor KICKER = Motor.A;
 	static NXTMotor KICKER_UNREGULATED = new NXTMotor(MotorPort.A);
 	static final int TYRE_DIAMETER = 56;
-
-	public int maxPilotSpeed;					// 90 for tests
-
-	// TODO: potential changes to be made here due to different robots
+	public int maxPilotSpeed;
+	public static final int KICKER_UP_ANGLE = 70;
 	public static final int MAXIMUM_KICKER_SPEED = (int) KICKER.getMaxSpeed() + 100;
-	public static final int MEDIUM_KICKER_SPEED = 600;
-	public static final int LOW_KICKER_SPEED = 300;
 	public static final int ACCELERATION = MAXIMUM_KICKER_SPEED * 8;
 	public static final int REVERSE_KICKER_DIRECTION = -1;
 	public static final int GEAR_RATIO = 5 * REVERSE_KICKER_DIRECTION;
@@ -67,7 +63,7 @@ public class Movement extends DifferentialPilot {
 		}
 		int prevSpeed = KICKER.getSpeed();
 		KICKER.setSpeed(50);
-		KICKER.rotate(80/GEAR_RATIO);
+		KICKER.rotate(KICKER_UP_ANGLE/GEAR_RATIO);
 		KICKER.setSpeed(prevSpeed);
 		kickerIsDown = false;
 	}
@@ -88,7 +84,7 @@ public class Movement extends DifferentialPilot {
 		// Kick
 		KICKER.rotate(120/GEAR_RATIO);
 		// Reset
-		KICKER.rotateTo(80/GEAR_RATIO);
+		KICKER.rotateTo(KICKER_UP_ANGLE/GEAR_RATIO);
 		
 		kickerIsDown = false;
 	}
