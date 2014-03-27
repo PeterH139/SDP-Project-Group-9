@@ -19,6 +19,7 @@ public class PassingStrategy extends GeneralStrategy {
 	protected boolean ballIsOnSlopeEdge;
 	protected boolean ballIsOnSideEdge;
 	protected boolean ballIsOnGoalLine;
+	protected boolean ballIsOnDefCheck;
 	protected boolean catcherIsUp = true;
 	protected boolean affectBallCaught = true;
 	protected boolean defenderHasArrived = false;
@@ -114,6 +115,12 @@ public class PassingStrategy extends GeneralStrategy {
 					} else {
 						ballIsOnGoalLine = false;
 					}
+					if (Math.abs(ballX - defenderCheck) < 20) {
+						ballIsOnDefCheck = true;
+						targetX = ballX - 40;
+					} else {
+						ballIsOnDefCheck = false;
+					}
 				} else {
 					// we are shooting left
 					int[] topPointTopSlope = { p[1].getX(), p[1].getY() };
@@ -161,6 +168,12 @@ public class PassingStrategy extends GeneralStrategy {
 					} else {
 						ballIsOnGoalLine = false;
 					}
+					if (Math.abs(ballX - defenderCheck) < 20) {
+						ballIsOnDefCheck = true;
+						targetX = ballX + 40;
+					} else {
+						ballIsOnDefCheck = false;
+					}
 
 				}
 				if (ballDistFromTop < 10 || ballDistFromBot < 10) {
@@ -175,7 +188,7 @@ public class PassingStrategy extends GeneralStrategy {
 					targetY = ballY + 40;
 				}
 				if (!ballIsOnSlopeEdge && !ballIsOnSideEdge
-						&& !ballIsOnGoalLine) {
+						&& !ballIsOnGoalLine && !ballIsOnDefCheck) {
 					defenderHasArrived = false;
 					if (!catcherIsUp) {
 						this.controlThread.operation.op = Operation.Type.DEFKICK;
@@ -190,24 +203,25 @@ public class PassingStrategy extends GeneralStrategy {
 					} else {
 						if (!defenderHasArrived) {
 						if (ballIsOnSlopeEdge) {
-							if (Math.abs(defenderCheck - ballX) > 20) {
 								this.controlThread.operation = travelTo(
 										RobotType.DEFENDER, targetX, targetY,
 										15);
-							}
 						}
 						if (ballIsOnSideEdge) {
-							if (Math.abs(defenderCheck - ballX) > 20) {
 								this.controlThread.operation = travelTo(
 										RobotType.DEFENDER, targetX, targetY,
 										15);
-							}
 						}
 						if (ballIsOnGoalLine) {
-							if (Math.abs(defenderCheck - ballX) > 20) {
 								this.controlThread.operation = travelTo(
-										RobotType.DEFENDER, targetX, ballY, 40);
-							}
+										RobotType.DEFENDER, targetX, ballY, 40);						
+						}
+						if (ballIsOnDefCheck) {
+							this.controlThread.operation = travelTo(
+									RobotType.DEFENDER, targetX, ballY, 15);
+						}
+						if (ballIsOnDefCheck && ballIsOnSideEdge) {
+							this.controlThread.operation.op = Operation.Type.DO_NOTHING;
 						}
 						if (this.controlThread.operation.op == Operation.Type.DO_NOTHING) {
 							defenderHasArrived = true;
