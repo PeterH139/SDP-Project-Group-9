@@ -16,6 +16,7 @@ import javax.swing.event.MouseInputAdapter;
 import pc.vision.DistortionFix;
 import pc.vision.PitchConstants;
 import pc.vision.PixelInfo;
+import pc.vision.Position;
 import pc.vision.VideoStream;
 import pc.vision.YAMLConfig;
 import pc.vision.gui.GUITool;
@@ -49,6 +50,7 @@ public class ColourThresholdConfigTool implements GUITool {
 	private int currentLeftGoal;
 	private int currentRightGoal;
 	private int currentTopBottom;
+	private int currentPitchOutline;
 
 	// Mouse listener variables
 	boolean letterAdjustment = false;
@@ -172,9 +174,9 @@ public class ColourThresholdConfigTool implements GUITool {
 				}
 				break;
 			case VisionSettingsPanel.MOUSE_MODE_PITCH_TOP_BOTTOM:
-				System.out.println("Pitch Top and Bottom selection.");
-				pitchConstants.getTopBottom()[currentTopBottom] = e.getY();
-				currentTopBottom = (currentTopBottom + 1) % 2;
+				System.out.println("Pitch outline selection.");
+				pitchConstants.getPitchOutline()[currentPitchOutline] = new Position(e.getX(),e.getY());
+				currentPitchOutline = (currentPitchOutline + 1) % 8;
 				break;
 			case VisionSettingsPanel.MOUSE_MODE_LEFT_GOAL:
 				System.out.println("Left goal selection mode");
@@ -183,6 +185,7 @@ public class ColourThresholdConfigTool implements GUITool {
 				break;
 			case VisionSettingsPanel.MOUSE_MODE_RIGHT_GOAL:
 				System.out.println("Right goal selection mode");
+
 				pitchConstants.getRightGoal()[currentRightGoal] = e.getY();
 				currentRightGoal = (currentRightGoal + 1) % 3;
 				break;
@@ -303,17 +306,16 @@ public class ColourThresholdConfigTool implements GUITool {
 			debugGraphics.drawLine(ds[1], bot, ds[1], top);
 			debugGraphics.drawLine(ds[2], bot, ds[2], top);
 			
-			// Drawing the top and bottom pitch lines
-			float[] tb = pitchConstants.getTopBottom();
-			int left = pitchConstants.getPitchLeft();
-			int right = left + pitchConstants.getPitchWidth();
+			// Drawing the pitch outline
+			Position[] out = pitchConstants.getPitchOutline();
 			debugGraphics.setColor(Color.WHITE);
-			debugGraphics.drawLine(left, (int) tb[0], right, (int) tb[0]);
-			debugGraphics.drawLine(left, (int) tb[1], right, (int) tb[1]);
-			
+			for (int i = 0; i < 8; i++){
+				// mod 8's so that the final line gets drawn back to the initial point.
+				debugGraphics.drawLine(out[i].getX(), out[i].getY(), 
+						out[(i+1)%8].getX(), out[(i+1)%8].getY());
+			}
+
 			// Draw labels
-			debugGraphics.drawString("top", left - 20, tb[0]);
-			debugGraphics.drawString("bot", left - 20, tb[1]);
 			debugGraphics.drawString("1", ds[0], bot + 20);
 			debugGraphics.drawString("2", ds[1], bot + 20);
 			debugGraphics.drawString("3", ds[2], bot + 20);

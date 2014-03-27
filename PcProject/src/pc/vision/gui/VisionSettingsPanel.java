@@ -337,7 +337,7 @@ public class VisionSettingsPanel extends JPanel {
 		gbc_mouseModePitchLabel.insets = new Insets(0, 0, 5, 5);
 		gbc_mouseModePitchLabel.gridx = 1;
 		gbc_mouseModePitchLabel.gridy = 2;
-		JLabel mouseModePitchLabel = new JLabel("Pitch Boundary Selection");
+		JLabel mouseModePitchLabel = new JLabel("Black Border Selection");
 		mouseModePitchLabel.setHorizontalAlignment(SwingConstants.LEFT);
 		mouseModePitchLabel.addMouseListener(new MouseAdapter() {
 			@Override
@@ -367,7 +367,7 @@ public class VisionSettingsPanel extends JPanel {
 		gbc_mouseModeBlueLabel.insets = new Insets(0, 0, 5, 5);
 		gbc_mouseModeBlueLabel.gridx = 1;
 		gbc_mouseModeBlueLabel.gridy = 3;
-		JLabel mouseModeBlueLabel = new JLabel("Pitch Top & Bottom Selection");
+		JLabel mouseModeBlueLabel = new JLabel("Pitch Outline Selection");
 		mouseModeBlueLabel.setHorizontalAlignment(SwingConstants.LEFT);
 		mouseModeBlueLabel.addMouseListener(new MouseAdapter() {
 			@Override

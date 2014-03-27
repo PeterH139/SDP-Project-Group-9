@@ -94,7 +94,17 @@ public class PitchConstants extends Observable {
 	
 	private float[] leftGoal = new float[3];
 	private float[] rightGoal = new float[3];
-	private float[] topBottom = new float[2];
+	
+	private Position[] pitchOutline = new Position[8];
+	
+	/**
+	 * Order of the values is clockwise from the top edge of the pitch
+	 * at the left side.
+	 * @return the array of Positions that make up the pitch walls
+	 */
+	public Position[] getPitchOutline() {
+		return pitchOutline;
+	}
 	
 	/**
 	 * Order of the values is top to bottom. 	
@@ -109,13 +119,6 @@ public class PitchConstants extends Observable {
 	 */
 	public float[] getRightGoal(){
 		return rightGoal;
-	}
-	/**
-	 * Order of values is top then bottom.
-	 * @return the array of x values for the top and bottom of the pitch.
-	 */
-	public float[] getTopBottom(){
-		return topBottom;
 	}
 	
 	public void setLeftGoal(float[] leftGoal){
@@ -331,8 +334,10 @@ public class PitchConstants extends Observable {
 			pitchDimFile.write(String.valueOf(this.rightGoal[0]) + "\n");
 			pitchDimFile.write(String.valueOf(this.rightGoal[1]) + "\n");
 			pitchDimFile.write(String.valueOf(this.rightGoal[2]) + "\n");
-			pitchDimFile.write(String.valueOf(this.topBottom[0]) + "\n");
-			pitchDimFile.write(String.valueOf(this.topBottom[1]) + "\n");
+			for (int i = 0; i < 8; i++){
+				pitchDimFile.write(String.valueOf(this.pitchOutline[i].getX()) + "\n");
+				pitchDimFile.write(String.valueOf(this.pitchOutline[i].getY()) + "\n");
+			}
 			pitchDimFile.close();
 
 			FileWriter pitchFile = new FileWriter(new File("constants/pitch"
@@ -392,8 +397,11 @@ public class PitchConstants extends Observable {
 			this.rightGoal[1] = scannerDim.nextFloat();
 			this.rightGoal[2] = scannerDim.nextFloat();
 			
-			this.topBottom[0] = scannerDim.nextFloat();
-			this.topBottom[1] = scannerDim.nextFloat();
+			for (int i = 0; i < 8; i++){
+				int x = scannerDim.nextInt();
+				int y = scannerDim.nextInt();
+				this.pitchOutline[i] = new Position(x,y);
+			}
 
 			scannerDim.close();
 		} catch (Exception e) {
@@ -465,7 +473,8 @@ public class PitchConstants extends Observable {
 		this.rightGoal[1] = 30;
 		this.rightGoal[2] = 40;
 		
-		this.topBottom[0] = 10;
-		this.topBottom[1] = 200;
+		for (int i = 0; i < 8; i++){
+			this.pitchOutline[i] = new Position(0,0);
+		}
 	}
 }
