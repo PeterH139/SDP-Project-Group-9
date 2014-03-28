@@ -1,0 +1,10 @@
+Things to do
+---
+
+Add a timer for false catch detection - the robot cannot detect a false catch for 1 or 2 seconds after catching. This is to prevent the instant release of the ball when the ball is blocked from vision on the far side of the pitch, but an actual catch has been made.
+
+Improve passing strategy's reliablity, and think about upping the pass power on the defender.
+
+GUI option to turn on and off using Interceptor Strategy instead of Defender Strategy for defending against robots using confusion tactics.
+
+Reset attacker to middle of its zone instead of its own X coordinate.
