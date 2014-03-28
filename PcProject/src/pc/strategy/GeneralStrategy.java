@@ -94,7 +94,7 @@ public class GeneralStrategy implements Strategy {
 		if (isAttacker) {
 			if (ballDistFromBot < 10) {
 				targetY = ballY - 40;
-				catchDist = 37.2;
+				catchDist = 35;
 				catchThresh = 15;
 				if (Math.abs(leftCheck - ballX) < 15
 						|| Math.abs(rightCheck - ballX) < 15) {
@@ -102,7 +102,7 @@ public class GeneralStrategy implements Strategy {
 				} 
 			} else if (ballDistFromTop < 10) {
 				targetY = ballY + 40;
-				catchDist = 37.2;
+				catchDist = 35;
 				catchThresh = 15;
 				if (Math.abs(leftCheck - ballX) < 15
 						|| Math.abs(rightCheck - ballX) < 15) {

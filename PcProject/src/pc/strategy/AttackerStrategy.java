@@ -11,6 +11,9 @@ public class AttackerStrategy extends GeneralStrategy {
 	private ControlThread controlThread;
 	private boolean stopControlThread;
 	private boolean ballInEnemyAttackerArea = false;
+	private boolean justCaught = true;
+	private long timeOfCatch = 0;
+	private boolean timeOfCatchOn = true;
 
 	public AttackerStrategy(BrickCommServer brick) {
 		this.brick = brick;
@@ -46,20 +49,39 @@ public class AttackerStrategy extends GeneralStrategy {
 			}
 			return;
 		}
-
+		long timeSinceCatch = System.currentTimeMillis() - timeOfCatch;
 		synchronized (controlThread) {
 			if (ballInEnemyAttackerArea) {
 				controlThread.operation = returnToOrigin(RobotType.ATTACKER);
 			} else {
 				if (!ballCaughtAttacker) {
 					controlThread.operation = catchBall(RobotType.ATTACKER);
+					justCaught = true;
+					timeOfCatchOn = true;
 				} else {
 					controlThread.operation = scoreGoal(RobotType.ATTACKER);
+					if (justCaught) {
+						controlThread.operation.op = Operation.Type.ATKROTATE;
+						controlThread.operation.rotateBy = (int) calculateAngle(attackerRobotX, attackerRobotY, attackerOrientation, leftCheck, attackerRobotY);
+						controlThread.operation.rotateSpeed = 50;
+						if (Math.abs(controlThread.operation.rotateBy) < 30) {
+							controlThread.operation.op = Operation.Type.DO_NOTHING;
+						}
+						if (controlThread.operation.op == Operation.Type.DO_NOTHING) {
+							justCaught = false;
+						}
+					}
+					if (controlThread.operation.op == Operation.Type.ATKTRAVEL && controlThread.operation.travelDistance < 0){
+						if (timeOfCatchOn) {
+							timeOfCatch = System.currentTimeMillis();
+							timeOfCatchOn = false;
+						}
+					}
 				}
 				// kicks if detected false catch
 				if (ballCaughtAttacker
 						&& (Math.hypot(ballX - attackerRobotX, ballY
-								- attackerRobotY) > 60)) {
+								- attackerRobotY) > 60) && timeSinceCatch > 3000) {
 					controlThread.operation.op = Operation.Type.ATKKICK;
 				}
 			}
@@ -95,9 +117,9 @@ public class AttackerStrategy extends GeneralStrategy {
 
 //					if (prevOp != null) {
 //						if (!op.equals(prevOp)){
-//							System.out.println("op: " + op.toString() + " rotateBy: "
-//								+ rotateBy + " travelDist: " + travelDist
-//								+ "radius: " + radius);
+							System.out.println("justCaught: " + justCaught + " op: " + op.toString() + " rotateBy: "
+								+ rotateBy + " travelDist: " + travelDist
+								+ "radius: " + radius);
 //						}
 //					}
 //					prevOp = op;
@@ -107,6 +129,7 @@ public class AttackerStrategy extends GeneralStrategy {
 						break;
 					case ATKCATCH:
 						if (System.currentTimeMillis() - lastKickerEventTime > 1000) {
+							timeOfCatch = System.currentTimeMillis();
 							brick.execute(new RobotCommand.Catch());
 							ballCaughtAttacker = true;
 							lastKickerEventTime = System.currentTimeMillis();

@@ -106,8 +106,8 @@ public class InterceptorStrategy extends GeneralStrategy {
 						rotateBy = this.operation.rotateBy;
 						travelDist = this.operation.travelDistance;
 					}
-					System.out.println("operation: " + op + " rotateBy: "
-							 + rotateBy + " travelDist: " + travelDist);
+//					System.out.println("operation: " + op + " rotateBy: "
+//							 + rotateBy + " travelDist: " + travelDist);
 					switch (op) {
 					case DEFROTATE:
 						if (rotateBy != 0) {
