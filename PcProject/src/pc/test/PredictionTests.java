@@ -1,7 +1,7 @@
 /**
  * Name: PredictionTests.java
  * Author: Dimitar Petrov
- * Description: Provides tests for the computation methods in PredictionTests
+ * Description: Provides tests for the computation methods in Prediction
  * Yes, i know it is a dumb way to test, I will change it when I have time.
  * */
 
