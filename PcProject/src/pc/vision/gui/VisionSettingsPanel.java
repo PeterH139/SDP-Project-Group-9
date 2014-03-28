@@ -22,7 +22,6 @@ import pc.vision.DistortionFix;
 import pc.vision.PitchConstants;
 import pc.vision.VideoStream;
 import pc.vision.YAMLConfig;
-import pc.world.Pitch;
 import pc.world.oldmodel.WorldState;
 
 /**
@@ -38,7 +37,7 @@ import pc.world.oldmodel.WorldState;
 public class VisionSettingsPanel extends JPanel {
 	public static final int MOUSE_MODE_OFF = 0;
 	public static final int MOUSE_MODE_PITCH_BOUNDARY = 1;
-	public static final int MOUSE_MODE_BLUE_T = 2;
+	public static final int MOUSE_MODE_PITCH_TOP_BOTTOM = 2;
 	public static final int MOUSE_MODE_LEFT_GOAL = 3;
 	public static final int MOUSE_MODE_RIGHT_GOAL = 4;
 	public static final int MOUSE_MODE_DIVISIONS = 5;
@@ -338,7 +337,7 @@ public class VisionSettingsPanel extends JPanel {
 		gbc_mouseModePitchLabel.insets = new Insets(0, 0, 5, 5);
 		gbc_mouseModePitchLabel.gridx = 1;
 		gbc_mouseModePitchLabel.gridy = 2;
-		JLabel mouseModePitchLabel = new JLabel("Pitch Boundary Selection");
+		JLabel mouseModePitchLabel = new JLabel("Black Border Selection");
 		mouseModePitchLabel.setHorizontalAlignment(SwingConstants.LEFT);
 		mouseModePitchLabel.addMouseListener(new MouseAdapter() {
 			@Override
@@ -359,7 +358,7 @@ public class VisionSettingsPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				if (VisionSettingsPanel.this.rdbtnMouseModeBlue.isSelected())
-					setMouseMode(MOUSE_MODE_BLUE_T);
+					setMouseMode(MOUSE_MODE_PITCH_TOP_BOTTOM);
 			}
 		});
 
@@ -368,7 +367,7 @@ public class VisionSettingsPanel extends JPanel {
 		gbc_mouseModeBlueLabel.insets = new Insets(0, 0, 5, 5);
 		gbc_mouseModeBlueLabel.gridx = 1;
 		gbc_mouseModeBlueLabel.gridy = 3;
-		JLabel mouseModeBlueLabel = new JLabel("Blue T Plate Selection");
+		JLabel mouseModeBlueLabel = new JLabel("Pitch Outline Selection");
 		mouseModeBlueLabel.setHorizontalAlignment(SwingConstants.LEFT);
 		mouseModeBlueLabel.addMouseListener(new MouseAdapter() {
 			@Override

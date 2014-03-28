@@ -9,6 +9,7 @@ import pc.vision.Vector2f;
 import pc.vision.interfaces.WorldStateReceiver;
 import pc.world.oldmodel.WorldState;
 
+@Deprecated
 public class TargetFollowerStrategy implements WorldStateReceiver {
 
 	private BrickCommServer brick;
@@ -140,7 +141,7 @@ public class TargetFollowerStrategy implements WorldStateReceiver {
 						break;
 					}
 
-					Thread.sleep(300);
+					Thread.sleep(StrategyController.STRATEGY_TICK);
 				}
 			} catch (IOException e) {
 				e.printStackTrace();

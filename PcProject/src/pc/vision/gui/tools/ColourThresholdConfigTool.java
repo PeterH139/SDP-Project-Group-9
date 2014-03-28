@@ -16,6 +16,7 @@ import javax.swing.event.MouseInputAdapter;
 import pc.vision.DistortionFix;
 import pc.vision.PitchConstants;
 import pc.vision.PixelInfo;
+import pc.vision.Position;
 import pc.vision.VideoStream;
 import pc.vision.YAMLConfig;
 import pc.vision.gui.GUITool;
@@ -48,6 +49,8 @@ public class ColourThresholdConfigTool implements GUITool {
 	private int currentDivider;
 	private int currentLeftGoal;
 	private int currentRightGoal;
+	private int currentTopBottom;
+	private int currentPitchOutline;
 
 	// Mouse listener variables
 	boolean letterAdjustment = false;
@@ -74,7 +77,7 @@ public class ColourThresholdConfigTool implements GUITool {
 				System.out.println(anchor.y);
 				this.selection = new Rectangle(anchor);
 				break;
-			case VisionSettingsPanel.MOUSE_MODE_BLUE_T:
+			case VisionSettingsPanel.MOUSE_MODE_PITCH_TOP_BOTTOM:
 				mouseX = e.getX();
 				mouseY = e.getY();
 				break;
@@ -107,7 +110,7 @@ public class ColourThresholdConfigTool implements GUITool {
 				c = (int) Math.abs(e.getX() - anchor.x);
 				d = (int) Math.abs(e.getY() - anchor.y);
 				break;
-			case VisionSettingsPanel.MOUSE_MODE_BLUE_T:
+			case VisionSettingsPanel.MOUSE_MODE_PITCH_TOP_BOTTOM:
 				mouseX = e.getX();
 				mouseY = e.getY();
 				break;
@@ -170,17 +173,10 @@ public class ColourThresholdConfigTool implements GUITool {
 					}
 				}
 				break;
-			case VisionSettingsPanel.MOUSE_MODE_BLUE_T:
-				letterAdjustment = true;
-				/*
-				 * VisionGUI.this.selectorImage =
-				 * VisionGUI.this.letterTSelectorImage;
-				 * VisionGUI.this.currentFile = VisionGUI.this.imgLetterT; //
-				 * Get the center coordinates of the selector image in use
-				 * VisionGUI.this.imageCenterX = VisionGUI.this.selectorImage
-				 * .getWidth(null) / 2; VisionGUI.this.imageCenterY =
-				 * VisionGUI.this.selectorImage .getHeight(null) / 2;
-				 */
+			case VisionSettingsPanel.MOUSE_MODE_PITCH_TOP_BOTTOM:
+				System.out.println("Pitch outline selection.");
+				pitchConstants.getPitchOutline()[currentPitchOutline] = new Position(e.getX(),e.getY());
+				currentPitchOutline = (currentPitchOutline + 1) % 8;
 				break;
 			case VisionSettingsPanel.MOUSE_MODE_LEFT_GOAL:
 				System.out.println("Left goal selection mode");
@@ -189,6 +185,7 @@ public class ColourThresholdConfigTool implements GUITool {
 				break;
 			case VisionSettingsPanel.MOUSE_MODE_RIGHT_GOAL:
 				System.out.println("Right goal selection mode");
+
 				pitchConstants.getRightGoal()[currentRightGoal] = e.getY();
 				currentRightGoal = (currentRightGoal + 1) % 3;
 				break;
@@ -304,12 +301,23 @@ public class ColourThresholdConfigTool implements GUITool {
 			int[] ds = pitchConstants.getDividers();
 			int top = pitchConstants.getPitchTop();
 			int bot = top + pitchConstants.getPitchHeight();
-			debugGraphics.setColor(Color.WHITE);
+			debugGraphics.setColor(Color.BLACK);
 			debugGraphics.drawLine(ds[0], bot, ds[0], top);
-			debugGraphics.drawString("1", ds[0], bot + 20);
 			debugGraphics.drawLine(ds[1], bot, ds[1], top);
-			debugGraphics.drawString("2", ds[1], bot + 20);
 			debugGraphics.drawLine(ds[2], bot, ds[2], top);
+			
+			// Drawing the pitch outline
+			Position[] out = pitchConstants.getPitchOutline();
+			debugGraphics.setColor(Color.WHITE);
+			for (int i = 0; i < 8; i++){
+				// mod 8's so that the final line gets drawn back to the initial point.
+				debugGraphics.drawLine(out[i].getX(), out[i].getY(), 
+						out[(i+1)%8].getX(), out[(i+1)%8].getY());
+			}
+
+			// Draw labels
+			debugGraphics.drawString("1", ds[0], bot + 20);
+			debugGraphics.drawString("2", ds[1], bot + 20);
 			debugGraphics.drawString("3", ds[2], bot + 20);
 		}
 

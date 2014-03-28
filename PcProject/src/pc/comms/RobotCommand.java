@@ -92,10 +92,16 @@ public class RobotCommand {
 	public static class Rotate extends GenericCommand {
 		private int angle;
 		private double speed; // Is double necessary here?
+		private boolean immediateReturn;
 
-		public Rotate(int angle, double speed) {
+		public Rotate(int angle, double speed, boolean immediateReturn){
 			this.angle = angle;
 			this.speed = speed;
+			this.immediateReturn = immediateReturn;
+		}
+		
+		public Rotate(int angle, double speed) {
+			this(angle, speed, true);
 		}
 
 		@Override
@@ -109,6 +115,7 @@ public class RobotCommand {
 			super.sendToBrick(outputStream);
 			outputStream.writeInt(angle);
 			outputStream.writeDouble(speed);
+			outputStream.writeBoolean(immediateReturn);
 		}
 	}
 

@@ -5,19 +5,23 @@ import java.util.Deque;
 
 import pc.comms.BrickCommServer;
 import pc.comms.RobotCommand;
+import pc.strategy.Operation.Type;
+import pc.vision.PitchConstants;
 import pc.vision.Vector2f;
 import pc.world.oldmodel.WorldState;
 
-/* This is a class that manages the strategy for the defender robot to intercept
+/** Manages the strategy for the defender robot to intercept
  * an incoming ball. If the ball is moving away from the robot then
  * the robot will move to the centre of the goal.
  */
-public class PenaltyDefenderStrategy extends GeneralStrategy {
+public class DefenderStrategy extends GeneralStrategy {
+	private static final int defenderOffset = 0; // Used to properly centre the robot at the target Y position.
 	private BrickCommServer brick;
 	private ControlThread controlThread;
 	private Deque<Vector2f> ballPositions = new ArrayDeque<Vector2f>();
+	protected boolean catcherIsUp = true;
 
-	public PenaltyDefenderStrategy(BrickCommServer brick) {
+	public DefenderStrategy(BrickCommServer brick) {
 		this.brick = brick;
 		controlThread = new ControlThread();
 	}
@@ -42,21 +46,21 @@ public class PenaltyDefenderStrategy extends GeneralStrategy {
 
 		double slope = (enemyAttackerRobotY - ballY) / ((enemyAttackerRobotX - ballX) + 0.0001);
 		double c = ballY - slope * ballX;
-		boolean ballMovement =  Math.abs(enemyAttackerRobotX - ballX) < 10;
+		boolean noBallMovement =  Math.abs(enemyAttackerRobotX - ballX) < 10;
 		int targetY = (int) (slope * defenderRobotX + c);
 
 		if (defenderRobotX <= 0.5 || targetY <= 0.5 || defenderRobotY <= 0.5 /*|| ballMovement */
 				|| defenderOrientation <= 0.5 || Math.hypot(0, defenderRobotY - targetY) < 10) {
 			synchronized (controlThread) {
-				controlThread.rotateBy = 0;
-				controlThread.travelDist = 0;
+				controlThread.operation.rotateBy = 0;
+				controlThread.operation.travelDistance = 0;
 			}
 			return;
 		}
 		double ang1 = calculateAngle(defenderRobotX, defenderRobotY, defenderOrientation, defenderRobotX, defenderRobotY - 50);
 		ang1 = ang1/3;
 		float dist;
-		if (ballMovement) {
+		if (noBallMovement) {
 			targetY = (int) ballY;
 		}
 		if (targetY > worldState.rightGoal[2]) {
@@ -65,9 +69,11 @@ public class PenaltyDefenderStrategy extends GeneralStrategy {
 			targetY = (int) worldState.rightGoal[0];
 		}
 		
+		// Correct for defender plate not being in centre of robot
+		targetY += defenderOffset;
+		
 		dist = targetY - defenderRobotY;
 	
-		
 		if (Math.abs(ang1) < 3) {
 			ang1 = 0;
 		} else {
@@ -75,15 +81,12 @@ public class PenaltyDefenderStrategy extends GeneralStrategy {
 		}
 		
 		synchronized (controlThread) {
-			controlThread.rotateBy = (int) ang1;
-			controlThread.travelDist = (int) (dist * 0.8);
-
+			controlThread.operation.rotateBy = (int) ang1;
+			controlThread.operation.travelDistance = (int) (dist * 0.8);
 		}
 	}
-
 	private class ControlThread extends Thread {
-		public int rotateBy = 0;
-		public int travelDist = 0;
+		public Operation operation = new Operation();
 
 		public ControlThread() {
 			super("Robot control thread");
@@ -96,32 +99,23 @@ public class PenaltyDefenderStrategy extends GeneralStrategy {
 				while (true) {
 					int rotateBy, travelDist;
 					synchronized (this) {
-						rotateBy = this.rotateBy;
-						travelDist = this.travelDist;
+						rotateBy = this.operation.rotateBy;
+						travelDist = this.operation.travelDistance;
 					}
-					
-
-//					System.out.println(" rotateBy: "
-//							+ rotateBy + " travelDist: " + travelDist);
-					if (rotateBy != 0) {
+					if (catcherIsUp) {
+						brick.execute(new RobotCommand.Catch());
+						catcherIsUp = false;
+					}
+					else if (rotateBy != 0) {
 						brick.execute(new RobotCommand.Rotate(rotateBy, Math.abs(rotateBy)));
 					} else if (travelDist != 0) {
-						brick.execute(new RobotCommand.Travel(travelDist / 3, Math.abs(travelDist) * 3 + 60));
+						brick.execute(new RobotCommand.Travel(travelDist / 3, Math.abs(travelDist) * 3 + 100));
 					}
-					Thread.sleep(250); // TODO: Test lower values for this and
-										// see where it breaks.
+					Thread.sleep(StrategyController.STRATEGY_TICK);
 				}
-//			} catch (IOException e) {
-//				e.printStackTrace();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
-				
-			}
-		
-
-
-
-	
+	}
 }

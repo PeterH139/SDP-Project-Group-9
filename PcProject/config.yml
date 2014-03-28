@@ -13,7 +13,7 @@ pitch:
       rotate: 0.5 # degrees CW
 
     videoFrameProjection:
-      centerPx: [313, 217]
+      centerPx: [325, 210]
       widthPx: 525
 
   side:

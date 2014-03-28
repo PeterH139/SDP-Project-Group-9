@@ -95,7 +95,26 @@ public class PitchConstants extends Observable {
 	private float[] leftGoal = new float[3];
 	private float[] rightGoal = new float[3];
 	
+	private static Position[] pitchOutline = new Position[8];
+	
 	/**
+	 * Order of the values is clockwise from the top edge of the pitch
+	 * at the left side.
+	 * @return the array of Positions that make up the pitch walls
+	 */
+	public static Position[] getPitchOutline() {
+		return pitchOutline;
+	}
+	
+	public static int getPitchOutlineTop(){
+		return (pitchOutline[0].getY() + pitchOutline[1].getY()) / 2;
+	}
+	
+	public static int getPitchOutlineBottom(){
+		return (pitchOutline[4].getY() + pitchOutline[5].getY()) / 2;
+	}
+	
+		/**
 	 * Order of the values is top to bottom. 	
 	 * @return the array of y values for the left goal
 	 */
@@ -323,6 +342,10 @@ public class PitchConstants extends Observable {
 			pitchDimFile.write(String.valueOf(this.rightGoal[0]) + "\n");
 			pitchDimFile.write(String.valueOf(this.rightGoal[1]) + "\n");
 			pitchDimFile.write(String.valueOf(this.rightGoal[2]) + "\n");
+			for (int i = 0; i < 8; i++){
+				pitchDimFile.write(String.valueOf(PitchConstants.pitchOutline[i].getX()) + "\n");
+				pitchDimFile.write(String.valueOf(PitchConstants.pitchOutline[i].getY()) + "\n");
+			}
 			pitchDimFile.close();
 
 			FileWriter pitchFile = new FileWriter(new File("constants/pitch"
@@ -381,6 +404,12 @@ public class PitchConstants extends Observable {
 			this.rightGoal[0] = scannerDim.nextFloat();
 			this.rightGoal[1] = scannerDim.nextFloat();
 			this.rightGoal[2] = scannerDim.nextFloat();
+			
+			for (int i = 0; i < 8; i++){
+				int x = scannerDim.nextInt();
+				int y = scannerDim.nextInt();
+				PitchConstants.pitchOutline[i] = new Position(x,y);
+			}
 
 			scannerDim.close();
 		} catch (Exception e) {
@@ -443,5 +472,17 @@ public class PitchConstants extends Observable {
 		this.dividers[0] = 70;
 		this.dividers[1] = 120;
 		this.dividers[2] = 170;
+		
+		this.leftGoal[0] = 20;
+		this.leftGoal[1] = 30;
+		this.leftGoal[2] = 40;
+		
+		this.rightGoal[0] = 20;
+		this.rightGoal[1] = 30;
+		this.rightGoal[2] = 40;
+		
+		for (int i = 0; i < 8; i++){
+			PitchConstants.pitchOutline[i] = new Position(0,0);
+		}
 	}
 }
