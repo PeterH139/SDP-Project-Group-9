@@ -49,14 +49,6 @@ public class DefenderStrategy extends GeneralStrategy {
 		boolean noBallMovement =  Math.abs(enemyAttackerRobotX - ballX) < 10;
 		int targetY = (int) (slope * defenderRobotX + c);
 
-		if (defenderRobotX <= 0.5 || targetY <= 0.5 || defenderRobotY <= 0.5 /*|| ballMovement */
-				|| defenderOrientation <= 0.5 || Math.hypot(0, defenderRobotY - targetY) < 10) {
-			synchronized (controlThread) {
-				controlThread.operation.rotateBy = 0;
-				controlThread.operation.travelDistance = 0;
-			}
-			return;
-		}
 		double ang1 = calculateAngle(defenderRobotX, defenderRobotY, defenderOrientation, defenderRobotX, defenderRobotY - 50);
 		ang1 = ang1/3;
 		float dist;
@@ -74,7 +66,7 @@ public class DefenderStrategy extends GeneralStrategy {
 		
 		dist = targetY - defenderRobotY;
 	
-		if (Math.abs(ang1) < 3) {
+		if (Math.abs(ang1) < 5) {
 			ang1 = 0;
 		} else {
 			dist = 0;
