@@ -5,6 +5,7 @@ import java.util.Deque;
 
 import pc.comms.BrickCommServer;
 import pc.comms.RobotCommand;
+import pc.strategy.GeneralStrategy.RobotType;
 import pc.strategy.Operation.Type;
 import pc.vision.PitchConstants;
 import pc.vision.Vector2f;
@@ -19,6 +20,7 @@ public class DefenderStrategy extends GeneralStrategy {
 	private BrickCommServer brick;
 	private ControlThread controlThread;
 	private Deque<Vector2f> ballPositions = new ArrayDeque<Vector2f>();
+	private boolean haveReset = false;
 	protected boolean catcherIsUp = true;
 
 	public DefenderStrategy(BrickCommServer brick) {
@@ -73,13 +75,35 @@ public class DefenderStrategy extends GeneralStrategy {
 		}
 		
 		synchronized (controlThread) {
+			if (catcherIsUp) {
+				controlThread.operation.op = Operation.Type.DEFCATCH;
+				catcherIsUp = false;
+			} else {
+			if (Math.abs(defenderRobotX - defenderCheck) < 40 && !haveReset) {
+				controlThread.operation = travelToNoArc(RobotType.DEFENDER,
+						defenderResetX, defenderResetY, 20);
+				if (controlThread.operation.op == Operation.Type.DO_NOTHING) {
+					haveReset = true;
+				}
+			} else {
+				haveReset = false;
 			controlThread.operation.rotateBy = (int) ang1;
 			controlThread.operation.travelDistance = (int) (dist * 0.8);
+			if (Math.abs(controlThread.operation.rotateBy) > 3) {
+				controlThread.operation.op = Operation.Type.DEFROTATE;
+			} else {
+				controlThread.operation.op = Operation.Type.DEFTRAVEL;
+				}	
+			}
+
 		}
+		}
+		
 	}
 	private class ControlThread extends Thread {
 		public Operation operation = new Operation();
-
+		private ControlThread controlThread;
+		private long lastKickerEventTime = 0;
 		public ControlThread() {
 			super("Robot control thread");
 			setDaemon(true);
@@ -89,19 +113,41 @@ public class DefenderStrategy extends GeneralStrategy {
 		public void run() {
 			try {
 				while (true) {
+					Operation.Type op;
 					int rotateBy, travelDist;
 					synchronized (this) {
+						op = this.operation.op;
 						rotateBy = this.operation.rotateBy;
 						travelDist = this.operation.travelDistance;
 					}
-					if (catcherIsUp) {
+//					System.out.println("operation: " + op + " rotateBy: "
+//							 + rotateBy + " travelDist: " + travelDist);
+					switch (op) {
+					case DEFCATCH :
 						brick.execute(new RobotCommand.Catch());
-						catcherIsUp = false;
-					}
-					else if (rotateBy != 0) {
-						brick.execute(new RobotCommand.Rotate(rotateBy, Math.abs(rotateBy)));
-					} else if (travelDist != 0) {
-						brick.execute(new RobotCommand.Travel(travelDist / 3, Math.abs(travelDist) * 3 + 100));
+						break;
+					case DEFROTATE:
+						if (rotateBy != 0) {
+						brick.executeSync(new RobotCommand.Rotate(
+								rotateBy, Math.abs(rotateBy)));
+						}
+						break;
+					case DEFTRAVEL:
+						 if (travelDist != 0) {
+							brick.execute(new RobotCommand.Travel(
+									travelDist / 3,
+									Math.abs(travelDist) * 3 + 25));
+						}
+						break;
+					case DEFKICK:
+						if (System.currentTimeMillis() - lastKickerEventTime > 1000) {
+						//	brick.execute(new RobotCommand.Kick(30));
+							ballCaughtDefender = false;
+							lastKickerEventTime = System.currentTimeMillis();
+						}
+						break;
+					default:
+						break;
 					}
 					Thread.sleep(StrategyController.STRATEGY_TICK);
 				}
