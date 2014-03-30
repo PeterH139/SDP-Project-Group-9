@@ -116,10 +116,15 @@ public class PredictionTests {
 		
 		Oracle tester = new Oracle(0, 1000, 0, 1000);
 		Point2 pred = tester.PredictState(travelPath, 1);
+		
+		ArrayList<Point2> singleSample = new ArrayList<Point2>();
+		singleSample.add(new Point2(7,7));
+		Point2 pred2 = Calculations.PredictNextPoint(singleSample);
+		System.out.print(pred2.getX() + " " + pred2.getY());
 		//System.out.print(pred.getX() + " " + pred.getY());
 		 
 		try {
-			String result = RunLinearPredictionAnalysis("/afs/inf.ed.ac.uk/user/s11/s1109056/Documents/test.txt", tester);
+			String result = RunLinearPredictionAnalysis("/afs/inf.ed.ac.uk/user/s11/s1109056/Documents/test1.txt", tester);
 			System.out.println(result);
 		} catch (SAXException e) {
 			// TODO Auto-generated catch block

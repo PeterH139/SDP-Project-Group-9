@@ -1,6 +1,6 @@
 package pc.prediction;
 import pc.world.oldmodel.Point2;
-
+import java.math.*;
 import java.util.ArrayList;
 
 public final class Calculations {
@@ -92,21 +92,46 @@ public final class Calculations {
 	
 	
 	public static Point2 PredictNextPoint(ArrayList<Point2> history){
-		if(history.size() < 4)
-			throw new IllegalArgumentException("Cannot make a prediction based on less than 4 points");
-		int size = history.size();
-		//compute distance traveled for the last 4 points
-		float[] distances = new float[4];
-		distances[0] = GetDistance(history.get(size - 4), history.get(size-3));
-		distances[1] = GetDistance(history.get(size - 3), history.get(size-2));
-		distances[2] = GetDistance(history.get(size - 2), history.get(size-1));
-		//System.out.println(String.format("%f %f %f",distances[0], distances[1], distances[2]));
-		//Get predicted distance
-		float prediction = LinearPrediction(distances);
-		//System.out.println(prediction);
-		Point2 pred = GetPointViaDistance(prediction, history.get(size-2), history.get(size-1));
-		
-		
-		return pred;
+		if(history.size() == 0)
+			return new Point2(0,0);
+		if(history.size() < 4){
+			//if we have 1 point, need to have object orientation and apply a constant
+			//if(history.size() > 0){
+				//mock
+				double orientation = 0.785;
+				//initial kick multiplier. Needs to be adjusted
+				double multiplier = 3;
+				double tg = Math.tan(orientation);
+				float X0 = history.get(0).getX();
+				float Y0 = history.get(0).getY();
+				double b = X0 -  Y0 / tg;
+				//new point
+				double X1,Y1;
+				Y1 = Y0*multiplier;
+				X1 = b + Y1/tg;
+				
+				Point2 prediction = new Point2((float)X1,(float)Y1);
+				return prediction;
+			//}
+			//if we have 2 or 3 points, use a constant for prediction
+			
+			//throw new IllegalArgumentException("Cannot make a prediction based on less than 4 points");
+		}
+		else{
+			int size = history.size();
+			//compute distance travelled for the last 4 points
+			float[] distances = new float[4];
+			distances[0] = GetDistance(history.get(size - 4), history.get(size-3));
+			distances[1] = GetDistance(history.get(size - 3), history.get(size-2));
+			distances[2] = GetDistance(history.get(size - 2), history.get(size-1));
+			//System.out.println(String.format("%f %f %f",distances[0], distances[1], distances[2]));
+			//Get predicted distance
+			float prediction = LinearPrediction(distances);
+			//System.out.println(prediction);
+			Point2 pred = GetPointViaDistance(prediction, history.get(size-2), history.get(size-1));
+			
+			
+			return pred;
+		}
 	}
 }

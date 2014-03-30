@@ -99,6 +99,16 @@ public class BallRecogniser implements ObjectRecogniser {
 		
 		MovingObject ball_m = new MovingObject(ballPosition.x, ballPosition.y);
 		worldState.setBall(ball_m);
+		
+		//get prediction and compare #debugging
+		//MovingObject ball_predicted_position = worldState.predictNextState(1);
+		//float diff_x = ball_m.x - ball_predicted_position.x;
+		//float diff_y = ball_m.y - ball_predicted_position.y;
+		//System.out.println("diff x = "+diff_x+" | diff y = "+ diff_y);
+		//System.out.println("X0="+ball_m.x);
+		//System.out.println("X1="+ball_predicted_position.x);
+		//update ball history
+		worldState.updateBallPositionHistory(ball_m);
 
 		Point2D position = new Point2D.Double(ballPosition.x, ballPosition.y);
 		pitch.framePointToModel(position);

@@ -6,6 +6,9 @@
  */
 package pc.world.oldmodel;
 
+import java.awt.Point;
+import java.util.ArrayList;
+import pc.prediction.*;
 import pc.world.Pitch;
 
 public class WorldState {
@@ -16,7 +19,8 @@ public class WorldState {
 	public float[] rightGoal;
 	public boolean attackerNotOnPitch, enemyAttackerNotOnPitch, defenderNotOnPitch, enemyDefenderNotOnPitch;
 	public boolean ballNotOnPitch;
-
+	private ArrayList<Point2> ballPositionHistory = new ArrayList<Point2>();
+	
 	// #region new world model representation
 	// TODO: convert x/y to mm values
 	// TODO: center to be the center of the field
@@ -42,6 +46,8 @@ public class WorldState {
 	// Flags
 	public boolean weAreBlue, weAreShootingRight;
 
+	//Oracle for prediction
+	private Oracle predictor = null;
 	/**
 	 * Added for legacy purposes
 	 * */
@@ -49,15 +55,16 @@ public class WorldState {
 	}
 
 	/**
-	 * Constructor, use it for initial world model initialization once the play
+	 * Constructor, use it for initial world model initialisation once the play
 	 * field data has been assembled
 	 */
 	public WorldState(Pitch field) {
 		this.playingField = field;
+		InitialiseOracle(field);		
 	}
 
 	/**
-	 * Constructor, use it for initial world model initialization once the
+	 * Constructor, use it for initial world model initialisation once the
 	 * playing field data has been assembled
 	 */
 	public WorldState(Pitch field, MovingObject defenderRobot,
@@ -69,6 +76,7 @@ public class WorldState {
 		this.enemyAttackerRobot = enemyAttackerRobot;
 		this.enemyDefenderRobot = enemyDefenderRobot;
 		this.ball = ball;
+		InitialiseOracle(field);
 	}
 
 	// get methods
@@ -175,6 +183,33 @@ public class WorldState {
 		this.defenderRobot = defenderRobot;
 	}
 
+
+	public ArrayList<Point2> getBallPositionHistory() {
+		return ballPositionHistory;
+	}
+
+	public void setBallPositionHistory(ArrayList<Point2> ballPositionHistory) {
+		this.ballPositionHistory = ballPositionHistory;
+	}
+	
+	public void updateBallPositionHistory(MovingObject ballPosition){
+		Point2 ballToPoint = new Point2(ballPosition.x,ballPosition.y);
+		this.ballPositionHistory.add(ballToPoint);
+		if(this.ballPositionHistory.size() > 5)
+			this.ballPositionHistory.remove(0);
+	}
 	// #endregion
 
+	//methods for implementation of the prediction system with the world state
+	public MovingObject predictNextState(int framesForward){
+		Point2 prediction = this.predictor.PredictState(ballPositionHistory, framesForward);
+		MovingObject next_state = new MovingObject(prediction.getX(),prediction.getY());
+		return next_state;
+	}	
+	
+	private void InitialiseOracle(Pitch field){
+		//Needs to be changed to use constants for top, bottom, left, right from
+		// the pitch object, I can't find them.
+		this.predictor = new Oracle(300,300,600,600);
+	}
 }

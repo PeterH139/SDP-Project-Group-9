@@ -6,7 +6,7 @@ public class StaticWorldState {
 	private Point ball;
 	private DirectedPoint attacker, defender;
 	private DirectedPoint enemyAttacker, enemyDefender;
-
+	
 	public Point getBall() {
 		return ball;
 	}
@@ -46,5 +46,4 @@ public class StaticWorldState {
 	public void setEnemyDefender(DirectedPoint enemyDefender) {
 		this.enemyDefender = enemyDefender;
 	}
-
 }
