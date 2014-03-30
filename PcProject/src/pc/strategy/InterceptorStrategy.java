@@ -124,7 +124,7 @@ public class InterceptorStrategy extends GeneralStrategy {
 						break;
 					case DEFKICK:
 						if (System.currentTimeMillis() - lastKickerEventTime > 1000) {
-							brick.execute(new RobotCommand.Kick(30));
+						//	brick.execute(new RobotCommand.Kick(30));
 							ballCaughtDefender = false;
 							lastKickerEventTime = System.currentTimeMillis();
 						}

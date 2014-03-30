@@ -3,6 +3,7 @@ package pc.strategy;
 import pc.comms.BrickCommServer;
 import pc.comms.RobotCommand;
 import pc.strategy.Operation;
+import pc.vision.PitchConstants;
 import pc.world.oldmodel.WorldState;
 
 public class AttackerStrategy extends GeneralStrategy {
@@ -12,8 +13,7 @@ public class AttackerStrategy extends GeneralStrategy {
 	private boolean stopControlThread;
 	private boolean ballInEnemyAttackerArea = false;
 	private boolean justCaught = true;
-	private long timeOfCatch = 0;
-	private boolean timeOfCatchOn = true;
+	private boolean fromSide = false;
 
 	public AttackerStrategy(BrickCommServer brick) {
 		this.brick = brick;
@@ -49,39 +49,36 @@ public class AttackerStrategy extends GeneralStrategy {
 			}
 			return;
 		}
-		long timeSinceCatch = System.currentTimeMillis() - timeOfCatch;
+		if (Math.abs(ballY - PitchConstants.getPitchOutlineTop()) < 10 || Math.abs(ballY - PitchConstants.getPitchOutlineBottom()) < 10 ) {
+			fromSide = true;
+		} else {
+			fromSide = false;
+		}
 		synchronized (controlThread) {
-			if (ballInEnemyAttackerArea) {
+			if (ballInEnemyAttackerArea) { 
 				controlThread.operation = returnToOrigin(RobotType.ATTACKER);
 			} else {
 				if (!ballCaughtAttacker) {
 					controlThread.operation = catchBall(RobotType.ATTACKER);
 					justCaught = true;
-					timeOfCatchOn = true;
 				} else {
 					controlThread.operation = scoreGoal(RobotType.ATTACKER);
-					if (justCaught) {
+					if (justCaught && fromSide) {
 						controlThread.operation.op = Operation.Type.ATKROTATE;
 						controlThread.operation.rotateBy = (int) calculateAngle(attackerRobotX, attackerRobotY, attackerOrientation, leftCheck, attackerRobotY);
 						controlThread.operation.rotateSpeed = 50;
-						if (Math.abs(controlThread.operation.rotateBy) < 30) {
+						if (Math.abs(controlThread.operation.rotateBy) < 10) {
 							controlThread.operation.op = Operation.Type.DO_NOTHING;
 						}
 						if (controlThread.operation.op == Operation.Type.DO_NOTHING) {
 							justCaught = false;
 						}
 					}
-					if (controlThread.operation.op == Operation.Type.ATKTRAVEL && controlThread.operation.travelDistance < 0){
-						if (timeOfCatchOn) {
-							timeOfCatch = System.currentTimeMillis();
-							timeOfCatchOn = false;
-						}
-					}
 				}
 				// kicks if detected false catch
 				if (ballCaughtAttacker
 						&& (Math.hypot(ballX - attackerRobotX, ballY
-								- attackerRobotY) > 60) && timeSinceCatch > 3000) {
+								- attackerRobotY) > 60) && !worldState.ballNotOnPitch) {
 					controlThread.operation.op = Operation.Type.ATKKICK;
 				}
 			}
@@ -117,9 +114,9 @@ public class AttackerStrategy extends GeneralStrategy {
 
 //					if (prevOp != null) {
 //						if (!op.equals(prevOp)){
-							System.out.println("justCaught: " + justCaught + " op: " + op.toString() + " rotateBy: "
-								+ rotateBy + " travelDist: " + travelDist
-								+ "radius: " + radius);
+//							System.out.println("justCaught: " + justCaught + " op: " + op.toString() + " rotateBy: "
+//								+ rotateBy + " travelDist: " + travelDist
+//								+ "radius: " + radius);
 //						}
 //					}
 //					prevOp = op;
@@ -129,7 +126,6 @@ public class AttackerStrategy extends GeneralStrategy {
 						break;
 					case ATKCATCH:
 						if (System.currentTimeMillis() - lastKickerEventTime > 1000) {
-							timeOfCatch = System.currentTimeMillis();
 							brick.execute(new RobotCommand.Catch());
 							ballCaughtAttacker = true;
 							lastKickerEventTime = System.currentTimeMillis();
@@ -153,7 +149,7 @@ public class AttackerStrategy extends GeneralStrategy {
 					case ATKCONFUSEKICKRIGHT:
 						if (System.currentTimeMillis() - lastKickerEventTime > 1000) {
 							brick.execute(new RobotCommand.Rotate(75, 100, false));
-							brick.execute(new RobotCommand.Rotate(-120, 1000, false));
+							brick.execute(new RobotCommand.Rotate(-105, 1000, false));
 							brick.execute(new RobotCommand.Travel(100, 10000));
 							brick.execute(new RobotCommand.Kick(100));
 							ballCaughtAttacker = false;
@@ -163,7 +159,7 @@ public class AttackerStrategy extends GeneralStrategy {
 					case ATKCONFUSEKICKLEFT:
 						if (System.currentTimeMillis() - lastKickerEventTime > 1000) {
 							brick.execute(new RobotCommand.Rotate(-75, 100, false));
-							brick.execute(new RobotCommand.Rotate(120, 1000, false));
+							brick.execute(new RobotCommand.Rotate(105, 1000, false));
 							brick.execute(new RobotCommand.Travel(100, 10000));
 							brick.execute(new RobotCommand.Kick(100));
 							ballCaughtAttacker = false;
