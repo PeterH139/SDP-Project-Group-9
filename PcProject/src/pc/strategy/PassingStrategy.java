@@ -247,7 +247,7 @@ public class PassingStrategy extends GeneralStrategy {
 			}
 
 		}
-		if (ballDistFromTop < 20 || ballDistFromBot < 20) {
+		if (ballDistFromTop < 15 || ballDistFromBot < 15) {
 			ballIsOnSideEdge = true;
 		} else {
 			ballIsOnSideEdge = false;
@@ -273,7 +273,7 @@ public class PassingStrategy extends GeneralStrategy {
 			if (!this.ballCaughtDefender) {
 				passTimerOn = false;
 				if (!ballIsOnSlopeEdge && !ballIsOnSideEdge && !ballIsOnGoalLine
-						 && !robotIsOnGoalLine) {
+						 && !robotIsOnGoalLine && !ballIsOnDefCheck) {
 					defenderHasArrived = false;
 					if (!catcherIsUp) {
 						this.controlThread.operation.op = Operation.Type.DEFKICK;
@@ -405,7 +405,7 @@ public class PassingStrategy extends GeneralStrategy {
 										if (ballIsOnDefCheck) {
 											this.controlThread.operation.op = Operation.Type.DEFCATCH;
 										}
-										this.controlThread.operation.rotateSpeed = 150;
+										this.controlThread.operation.rotateSpeed = 50;
 										defenderHasArrivedAtSafe = true;
 									}
 								}

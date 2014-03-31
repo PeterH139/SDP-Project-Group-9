@@ -1,5 +1,6 @@
 package pc.strategy;
 
+import pc.prediction.Calculations;
 import pc.strategy.Operation.Type;
 import pc.strategy.interfaces.Strategy;
 import pc.vision.PitchConstants;
@@ -160,8 +161,8 @@ public class GeneralStrategy implements Strategy {
 		attackerHasArrived = false;
 		Operation toExecute = new Operation();
 		float toTravelX;
-		if ((Math.abs(enemyDefenderRobotX - rightCheck) < 50 || Math
-				.abs(enemyDefenderRobotX - leftCheck) < 50)
+		if ((Math.abs(enemyDefenderRobotX - rightCheck) < 80 || Math
+				.abs(enemyDefenderRobotX - leftCheck) < 80)
 				&& (enemyDefenderRobotY < goalY[2] + 15 && enemyDefenderRobotY > goalY[0] - 15)) {
 			toTravelX = goalY[0] - 60;
 		} else {
@@ -218,27 +219,23 @@ public class GeneralStrategy implements Strategy {
 							&& (enemyDefenderRobotY < goalY[2] && enemyDefenderRobotY > goalY[0])) {
 						float wallX = ((rightCheck + 540) / 2) - 20;
 						float wallY = PitchConstants.getPitchOutlineTop();
-						ang1 = calculateAngle(attackerRobotX, attackerRobotY,
-								attackerOrientation,
-								wallX, wallY);
-						angToShoot = 90 - calculateAngle(attackerRobotX, attackerRobotY,
-								0,
-								wallX, wallY);
-						reflexAng = -calculateAngle(wallX, wallY, 90, goalY[0] + 20, goalX);
-						System.out.println("angToShoot: " + angToShoot + " reflexAng: " + reflexAng);
+						// ang1 = calculateAngle(attackerRobotX, attackerRobotY,
+						// attackerOrientation,
+						// wallX, wallY);
+						ang1 = Calculations.GetBounceAngle(attackerRobotX,
+								attackerRobotY, attackerOrientation, goalX,
+								goalY[0] - 20);
 						toExecute.op = Operation.Type.ATKMOVEKICK;
 					} else if (Math.abs(enemyDefenderRobotX - leftCheck) < 80
 							&& (enemyDefenderRobotY < goalY[2] && enemyDefenderRobotY > goalY[0])) {
 						float wallX = ((leftCheck + 170) / 2) + 5;
 						float wallY = PitchConstants.getPitchOutlineTop();
-						ang1 = calculateAngle(attackerRobotX, attackerRobotY,
-								attackerOrientation,
-								wallX, wallY);
-						angToShoot = 90 - calculateAngle(attackerRobotX, attackerRobotY,
-								0,
-								wallX, wallY);
-						reflexAng = -calculateAngle(wallX, wallY, 90, goalY[0] + 20, goalX);
-						System.out.println("angToShoot: " + angToShoot + " reflexAng: " + reflexAng);
+						// ang1 = calculateAngle(attackerRobotX, attackerRobotY,
+						// attackerOrientation,
+						// wallX, wallY);
+						ang1 = Calculations.GetBounceAngle(attackerRobotX,
+								attackerRobotY, attackerOrientation, goalX,
+								goalY[0] - 20);
 						toExecute.op = Operation.Type.ATKMOVEKICK;
 					}
 				}

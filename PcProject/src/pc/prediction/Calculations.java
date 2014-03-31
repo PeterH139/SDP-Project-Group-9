@@ -145,9 +145,9 @@ public final class Calculations {
 		
 		int bottom_boundary = PitchConstants.getPitchOutlineBottom();
 		int top_boundary = PitchConstants.getPitchOutlineTop();
-		
-		if(robotOrientation > 180)
-			robotOrientation = robotOrientation - 360;
+		double robotRad = Math.toRadians(robotOrientation);
+		if (robotRad > Math.PI)
+			robotRad -= 2 * Math.PI;
 		
 		//Get X and Y velocities
 		double x1 = (double) robotX;
@@ -157,9 +157,9 @@ public final class Calculations {
 		double y3;
 		double x3 = Math.abs((x1-x2)*0.5);
 		//check which wall we are bouncing off
-		if(Math.abs(y1) > Math.abs((top_boundary - bottom_boundary)*0.5))
-			y3 = bottom_boundary;
-		else
+//		if(Math.abs(y1) > Math.abs((top_boundary - bottom_boundary)*0.5))
+//			y3 = bottom_boundary;
+//		else
 			y3 = top_boundary;		
 		
 		double a = Math.abs(y3-y2);
@@ -181,12 +181,14 @@ public final class Calculations {
 			choice_angle = right_angle - (right_angle - left_angle)*0.5;
 		
 		float fl_choice_angle = (float) (Math.PI/2 - choice_angle);
-		float angle_to_turn = fl_choice_angle - robotOrientation;
+		float angle_to_turn = (float) (fl_choice_angle - (robotRad));
+		angle_to_turn = (float) Math.toDegrees(angle_to_turn);
+		System.out.println("left angle: " + Math.toDegrees(left_angle) + " right angle: " + Math.toDegrees(right_angle) + " choice angle: " + Math.toDegrees(choice_angle) + " fl_choice_angle: " + Math.toDegrees(fl_choice_angle) + " angle to turn: " + angle_to_turn);
 		//the angle the robot needs to turn
-		if(y3 == bottom_boundary)
-			System.out.println("Bouncing off bottom boundary |Angle to turn = "+angle_to_turn);
-		if(y3 == top_boundary)
-			System.out.println("Bouncing off top boundary |Angle to turn = "+angle_to_turn);
+//		if(y3 == bottom_boundary)
+//			//System.out.println("Bouncing off bottom boundary |Angle to turn = "+angle_to_turn);
+//		if(y3 == top_boundary)
+			//System.out.println("Bouncing off top boundary |Angle to turn = "+angle_to_turn);
 		
 		return angle_to_turn;
 	}
