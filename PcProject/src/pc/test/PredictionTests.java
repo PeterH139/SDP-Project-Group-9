@@ -120,9 +120,12 @@ public class PredictionTests {
 		ArrayList<Point2> singleSample = new ArrayList<Point2>();
 		singleSample.add(new Point2(7,7));
 		Point2 pred2 = Calculations.PredictNextPoint(singleSample);
-		System.out.print(pred2.getX() + " " + pred2.getY());
+		
+		float angle = Calculations.GetBounceAngle(26.0f, 26.0f, 2.3f, -13.0f, -13.0f);
+		System.out.println("Angle is: "+angle);
+		//System.out.print(pred2.getX() + " " + pred2.getY());
 		//System.out.print(pred.getX() + " " + pred.getY());
-		 
+		 /*
 		try {
 			String result = RunLinearPredictionAnalysis("/afs/inf.ed.ac.uk/user/s11/s1109056/Documents/test1.txt", tester);
 			System.out.println(result);
@@ -130,7 +133,7 @@ public class PredictionTests {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+		*/
 	}
 	
 	
