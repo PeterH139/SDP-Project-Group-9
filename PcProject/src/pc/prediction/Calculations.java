@@ -197,6 +197,11 @@ public final class Calculations {
 		if(angle_to_turn > 180)
 			angle_to_turn = angle_to_turn - 360;
 		//the angle the robot needs to turn
+		if(y3 == bottom_boundary)
+			System.out.println("Bouncing off bottom boundary |Angle to turn = "+angle_to_turn);
+		if(y3 == top_boundary)
+			System.out.println("Bouncing off top boundary |Angle to turn = "+angle_to_turn);
+		
 		return angle_to_turn;
 	}
 	
