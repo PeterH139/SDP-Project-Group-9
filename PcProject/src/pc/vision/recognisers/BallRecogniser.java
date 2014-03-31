@@ -108,7 +108,7 @@ public class BallRecogniser implements ObjectRecogniser {
 		//System.out.println("X0="+ball_m.x);
 		//System.out.println("X1="+ball_predicted_position.x);
 		//update ball history
-		worldState.updateBallPositionHistory(ball_m);
+		//worldState.updateBallPositionHistory(ball_m);
 
 		Point2D position = new Point2D.Double(ballPosition.x, ballPosition.y);
 		pitch.framePointToModel(position);

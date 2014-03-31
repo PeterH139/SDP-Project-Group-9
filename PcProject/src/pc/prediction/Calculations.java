@@ -154,7 +154,7 @@ public final class Calculations {
 		double y3;
 		double x3 = Math.abs((x1-x2)*0.5);
 		//check which wall we are bouncing off
-		if(Math.abs(y1) < Math.abs((top_boundary - bottom_boundary)*0.5))
+		if(Math.abs(y1) > Math.abs((top_boundary - bottom_boundary)*0.5))
 			y3 = bottom_boundary;
 		else
 			y3 = top_boundary;		
@@ -177,9 +177,13 @@ public final class Calculations {
 		else if(left_angle < right_angle)
 			choice_angle = right_angle - (right_angle - left_angle)*0.5;
 		
-		float fl_choice_angle = (float) Math.toDegrees(Math.PI/2 - choice_angle);
+		float fl_choice_angle;
+		if(y3 == bottom_boundary)
+			fl_choice_angle = (float) Math.toDegrees(Math.PI/2 + choice_angle);
+		else
+			fl_choice_angle = (float) Math.toDegrees(Math.PI/2 - choice_angle);
 		//the angle the robot needs to turn
-		return robotOrientation - fl_choice_angle;
+		return (360 - robotOrientation) + fl_choice_angle;
 	}
 	
 	private float CheckAngle(double x_position, double y_position, double x_velocity, double y_velocity, float[] goalCoordinates, float[] boundaries, int simulation_time){
