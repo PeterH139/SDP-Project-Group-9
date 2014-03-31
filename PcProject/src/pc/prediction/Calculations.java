@@ -140,9 +140,10 @@ public final class Calculations {
 	/**
 	 * returns the angle from which a bounce shot can be scored, from the position
 	 * supplied
+	 * @param bounce_direction 0 for automatic, 1 for top, -1 for bottom bounce
 	 * */
 	public static float GetBounceAngle(float robotX, float robotY,
-			float robotOrientation, float targetX, float targetY){
+			float robotOrientation, float targetX, float targetY, int bounce_direction){
 		
 		int bottom_boundary = PitchConstants.getPitchOutlineBottom();
 		int top_boundary = PitchConstants.getPitchOutlineTop();
@@ -161,11 +162,19 @@ public final class Calculations {
 		double y2 = (double) targetY;
 		double y3;
 		//check which wall we are bouncing off
-		if(Math.abs(y1) > Math.abs((top_boundary - bottom_boundary)*0.5))
+		if(bounce_direction == 0)
+		{
+			if(Math.abs(y1) > Math.abs((top_boundary - bottom_boundary)*0.5))
+				y3 = bottom_boundary;
+			else
+				y3 = top_boundary;		
+		}
+		else if(bounce_direction == -1){
 			y3 = bottom_boundary;
-		else
-			y3 = top_boundary;		
-
+		}
+		else{
+			y3 = top_boundary;
+		}
 		
 		double z = Math.abs(x1-x2);
 		

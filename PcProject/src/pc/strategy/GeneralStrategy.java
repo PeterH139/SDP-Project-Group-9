@@ -233,7 +233,7 @@ public class GeneralStrategy implements Strategy {
 						}
 						ang1 = Calculations.GetBounceAngle(attackerRobotX,
 								attackerRobotY, attackerOrientation, goalX,
-								goalTarget);
+								goalTarget, 0);
 						toExecute.op = Operation.Type.ATKMOVEKICK;
 					} else if (Math.abs(enemyDefenderRobotX - leftCheck) < 80
 							&& (enemyDefenderRobotY < goalY[2] && enemyDefenderRobotY > goalY[0])) {
@@ -245,7 +245,7 @@ public class GeneralStrategy implements Strategy {
 						}
 						ang1 = Calculations.GetBounceAngle(attackerRobotX,
 								attackerRobotY, attackerOrientation, goalX,
-								goalTarget);
+								goalTarget, 0);
 						toExecute.op = Operation.Type.ATKMOVEKICK;
 					}
 				}
