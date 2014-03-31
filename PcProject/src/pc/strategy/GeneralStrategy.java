@@ -161,10 +161,18 @@ public class GeneralStrategy implements Strategy {
 		attackerHasArrived = false;
 		Operation toExecute = new Operation();
 		float toTravelX;
+		int distanceFromTop = (int) Math.abs(attackerRobotY
+				- PitchConstants.getPitchOutlineTop());
+		int distanceFromBot = (int) Math.abs(attackerRobotY
+				- PitchConstants.getPitchOutlineBottom());
 		if ((Math.abs(enemyDefenderRobotX - rightCheck) < 80 || Math
 				.abs(enemyDefenderRobotX - leftCheck) < 80)
 				&& (enemyDefenderRobotY < goalY[2] + 15 && enemyDefenderRobotY > goalY[0] - 15)) {
-			toTravelX = goalY[0] - 60;
+			if (distanceFromBot > distanceFromTop) {
+				toTravelX = goalY[0] - 60;
+			} else {
+				toTravelX = goalY[2] + 60;
+			}
 		} else {
 			toTravelX = goalY[1];
 		}
@@ -217,25 +225,27 @@ public class GeneralStrategy implements Strategy {
 				if (StrategyController.bounceShotEnabled) {
 					if (Math.abs(enemyDefenderRobotX - rightCheck) < 80
 							&& (enemyDefenderRobotY < goalY[2] && enemyDefenderRobotY > goalY[0])) {
-						float wallX = ((rightCheck + 540) / 2) - 20;
-						float wallY = PitchConstants.getPitchOutlineTop();
-						// ang1 = calculateAngle(attackerRobotX, attackerRobotY,
-						// attackerOrientation,
-						// wallX, wallY);
+						float goalTarget = goalY[1];
+						if (distanceFromBot > distanceFromTop) {
+							goalTarget = goalY[0];
+						} else {
+							goalTarget = goalY[2];
+						}
 						ang1 = Calculations.GetBounceAngle(attackerRobotX,
 								attackerRobotY, attackerOrientation, goalX,
-								goalY[0] - 20);
+								goalTarget);
 						toExecute.op = Operation.Type.ATKMOVEKICK;
 					} else if (Math.abs(enemyDefenderRobotX - leftCheck) < 80
 							&& (enemyDefenderRobotY < goalY[2] && enemyDefenderRobotY > goalY[0])) {
-						float wallX = ((leftCheck + 170) / 2) + 5;
-						float wallY = PitchConstants.getPitchOutlineTop();
-						// ang1 = calculateAngle(attackerRobotX, attackerRobotY,
-						// attackerOrientation,
-						// wallX, wallY);
+						float goalTarget = goalY[1];
+						if (distanceFromBot > distanceFromTop) {
+							goalTarget = goalY[0];
+						} else {
+							goalTarget = goalY[2];
+						}
 						ang1 = Calculations.GetBounceAngle(attackerRobotX,
 								attackerRobotY, attackerOrientation, goalX,
-								goalY[0] - 20);
+								goalTarget);
 						toExecute.op = Operation.Type.ATKMOVEKICK;
 					}
 				}
