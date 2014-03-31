@@ -1,4 +1,5 @@
 package pc.prediction;
+import pc.strategy.GeneralStrategy;
 import pc.vision.PitchConstants;
 import pc.world.oldmodel.Point2;
 import java.math.*;
@@ -155,18 +156,27 @@ public final class Calculations {
 		double x2 = (double) targetX;
 		double y2 = (double) targetY;
 		double y3;
-		double x3 = Math.abs((x1-x2)*0.5);
 		//check which wall we are bouncing off
-//		if(Math.abs(y1) > Math.abs((top_boundary - bottom_boundary)*0.5))
-//			y3 = bottom_boundary;
-//		else
+		if(Math.abs(y1) > Math.abs((top_boundary - bottom_boundary)*0.5))
+			y3 = bottom_boundary;
+		else
 			y3 = top_boundary;		
+
+		
+		double z = Math.abs(x1-x2);
 		
 		double a = Math.abs(y3-y2);
-		double b = Math.abs(x3-x2);
-
-		double c = Math.abs(y3-y1);
-		double d = Math.abs(x3-x1);
+		double d = Math.abs(y3-y1);
+		//calculate the coordinates of the middle point
+		double c = (z*d)/(a+d);
+		double b = z - c;
+		
+		double x3;
+		if(x2 > x1)
+			x3 = x1 + c;
+		else
+			x3 = x2 + b;
+		
 		//tangent values
 		double tan_val_left = a/b;
 		double tan_val_right = c/d;
@@ -174,11 +184,21 @@ public final class Calculations {
 		double left_angle = Math.atan(tan_val_left);
 		double right_angle = Math.atan(tan_val_right);
 		double choice_angle = right_angle;
+		//REWORK IN PROGRESS
+		choice_angle = GeneralStrategy.calculateAngle(robotX, robotY, robotOrientation, (float) x3, (float) y3);
 		
-		if(left_angle > right_angle)
-			choice_angle = right_angle + (left_angle - right_angle)*0.5;
-		else if(left_angle < right_angle)
-			choice_angle = right_angle - (right_angle - left_angle)*0.5;
+		/*
+		//if(left_angle > right_angle)
+		//	choice_angle = right_angle + (left_angle - right_angle)*0.5;
+		//else if(left_angle < right_angle)
+		//	choice_angle = right_angle - (right_angle - left_angle)*0.5;
+		
+		//convert choice angle to the type the orientation is using
+		double choice_angle_deg = Math.toDegrees(choice_angle);
+		double adjusted_choice_angle = choice_angle_deg;
+		if(choice_angle_deg < 90)
+			adjusted_choice_angle = 
+		
 		
 		float fl_choice_angle = (float) (Math.PI/2 - choice_angle);
 		float angle_to_turn = (float) (fl_choice_angle - (robotRad));
@@ -189,8 +209,8 @@ public final class Calculations {
 //			//System.out.println("Bouncing off bottom boundary |Angle to turn = "+angle_to_turn);
 //		if(y3 == top_boundary)
 			//System.out.println("Bouncing off top boundary |Angle to turn = "+angle_to_turn);
-		
-		return angle_to_turn;
+		*/
+		return (float)choice_angle;
 	}
 	
 	private float CheckAngle(double x_position, double y_position, double x_velocity, double y_velocity, float[] goalCoordinates, float[] boundaries, int simulation_time){
