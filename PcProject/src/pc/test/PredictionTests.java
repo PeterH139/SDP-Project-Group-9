@@ -121,7 +121,7 @@ public class PredictionTests {
 		singleSample.add(new Point2(7,7));
 		Point2 pred2 = Calculations.PredictNextPoint(singleSample);
 		
-		float angle = Calculations.GetBounceAngle(26.0f, 26.0f, 2.3f, -13.0f, -13.0f);
+		float angle = Calculations.GetBounceAngle(-35.0f, -150.0f, 80f, -60f, -60.0f);
 		System.out.println("Angle is: "+angle);
 		//System.out.print(pred2.getX() + " " + pred2.getY());
 		//System.out.print(pred.getX() + " " + pred.getY());

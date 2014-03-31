@@ -146,6 +146,10 @@ public final class Calculations {
 		
 		int bottom_boundary = PitchConstants.getPitchOutlineBottom();
 		int top_boundary = PitchConstants.getPitchOutlineTop();
+		
+		//int bottom_boundary = 20;
+		//int top_boundary = 600;
+		
 		double robotRad = Math.toRadians(robotOrientation);
 		if (robotRad > Math.PI)
 			robotRad -= 2 * Math.PI;
