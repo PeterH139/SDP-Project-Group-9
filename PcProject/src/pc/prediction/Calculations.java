@@ -1,4 +1,5 @@
 package pc.prediction;
+import pc.vision.PitchConstants;
 import pc.world.oldmodel.Point2;
 import java.math.*;
 import java.util.ArrayList;
@@ -133,5 +134,66 @@ public final class Calculations {
 			
 			return pred;
 		}
+	}
+
+	/**
+	 * returns the angle from which a bounce shot can be scored, from the position
+	 * supplied
+	 * */
+	public static float GetBounceAngle(float robotX, float robotY,
+			float robotOrientation, float targetX, float targetY){
+		
+		int bottom_boundary = PitchConstants.getPitchOutlineBottom();
+		int top_boundary = PitchConstants.getPitchOutlineTop();
+				
+		//Get X and Y velocities
+		double x1 = (double) robotX;
+		double y1 = (double) robotY;
+		double x2 = (double) targetX;
+		double y2 = (double) targetY;
+		double y3;
+		double x3 = Math.abs((x1-x2)*0.5);
+		//check which wall we are bouncing off
+		if(Math.abs(y1) > Math.abs((top_boundary - bottom_boundary)*0.5))
+			y3 = bottom_boundary;
+		else
+			y3 = top_boundary;		
+		
+		double a = Math.abs(y3-y2);
+		double b = Math.abs(x3-x2);
+
+		double c = Math.abs(y3-y1);
+		double d = Math.abs(x3-x1);
+		//tangent values
+		double tan_val_left = a/b;
+		double tan_val_right = c/d;
+		
+		double left_angle = Math.atan(tan_val_left);
+		double right_angle = Math.atan(tan_val_right);
+		double choice_angle = right_angle;
+		
+		if(left_angle > right_angle)
+			choice_angle = right_angle + (left_angle - right_angle)*0.5;
+		else if(left_angle < right_angle)
+			choice_angle = right_angle - (right_angle - left_angle)*0.5;
+		
+		float fl_choice_angle = (float) Math.toDegrees(Math.PI/2 - choice_angle);
+		//the angle the robot needs to turn
+		return robotOrientation - fl_choice_angle;
+	}
+	
+	private float CheckAngle(double x_position, double y_position, double x_velocity, double y_velocity, float[] goalCoordinates, float[] boundaries, int simulation_time){
+		float top_boundary = boundaries[0];
+		float bottom_boundary = boundaries[1];
+		float left_boundary = boundaries[2];
+		float right_boundary = boundaries[3];
+		float goal_top_threshold = goalCoordinates[0];
+		float goal_bottom_threshold = goalCoordinates[1];
+		PitchConstants.getPitchOutlineBottom();
+		for(int i=0; i< simulation_time; i++){
+			//inc
+		}
+		
+		return 0;
 	}
 }
