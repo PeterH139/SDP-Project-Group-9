@@ -60,7 +60,7 @@ public class PassingStrategy extends GeneralStrategy {
 				- defenderRobotY);
 		ballPositions.addLast(new Vector2f(worldState.getBall().x, worldState
 				.getBall().y));
-		if (ballPositions.size() > 5) {
+		if (ballPositions.size() > 20) {
 			ballPositions.removeFirst();
 		}
 		Vector2f ball3FramesAgo = ballPositions.getFirst();
@@ -273,7 +273,7 @@ public class PassingStrategy extends GeneralStrategy {
 			if (!this.ballCaughtDefender) {
 				passTimerOn = false;
 				if (!ballIsOnSlopeEdge && !ballIsOnSideEdge && !ballIsOnGoalLine
-						&& !ballIsOnDefCheck && !robotIsOnGoalLine) {
+						 && !robotIsOnGoalLine) {
 					defenderHasArrived = false;
 					if (!catcherIsUp) {
 						this.controlThread.operation.op = Operation.Type.DEFKICK;
@@ -369,7 +369,7 @@ public class PassingStrategy extends GeneralStrategy {
 										this.controlThread.operation.travelSpeed = (int) (Math
 												.abs(distanceToBall) / 3) + 15;
 									} else if (ballIsOnDefCheck
-											&& Math.abs(distanceToBall) > 22) {
+											&& Math.abs(distanceToBall) > 25) {
 										this.controlThread.operation.op = Operation.Type.DEFTRAVEL;
 										this.controlThread.operation.travelDistance = -(int) (distanceToBall / 3);
 										this.controlThread.operation.travelSpeed = (int) (Math
@@ -523,7 +523,7 @@ public class PassingStrategy extends GeneralStrategy {
 					case DEFKICK:
 						if (System.currentTimeMillis() - lastKickerEventTime > 1000) {
 							catcherIsUp = true;
-							if (Math.abs(defenderAngleToGoal) > 45) {
+							if (Math.abs(defenderAngleToGoal) > 30) {
 								defenderBrick.execute(new RobotCommand.Kick(15));
 							}
 							ballCaughtDefender = false;

@@ -46,6 +46,7 @@ public class GeneralStrategy implements Strategy {
 	protected boolean isBallCatchable;
 	protected boolean scoringAttackerHasArrived;
 	protected boolean enemyDefenderNotOnPitch;
+	protected boolean attackerNotOnPitch;
 
 	@Override
 	public void stopControlThread() {
@@ -144,7 +145,7 @@ public class GeneralStrategy implements Strategy {
 			passingAttackerHasArrived = false;
 			if (Math.abs(defenderCheck - ballX) > 20
 					&& toExecute.op == Operation.Type.DO_NOTHING) {
-				toExecute = travelTo(robot, ballX, ballY, catchThresh - 3);
+				toExecute = travelTo(robot, ballX, ballY, catchThresh - 2);
 			}
 		}
 		if (toExecute.op == Operation.Type.DO_NOTHING && isBallCatchable
@@ -205,23 +206,39 @@ public class GeneralStrategy implements Strategy {
 				// Straight forward case
 				double ang1 = calculateAngle(attackerRobotX, attackerRobotY,
 						attackerOrientation, goalX, aimY);
+				double angToShoot = 0;
+				double reflexAng = 0;
 
 				// Cases for when the defending robot is close to the line and
 				// we need to try
 				// a bounce shot against the wall. If we are doing a bounce shot
 				// there is no need to fake.
 				if (StrategyController.bounceShotEnabled) {
-					if (Math.abs(enemyDefenderRobotX - rightCheck) < 50
+					if (Math.abs(enemyDefenderRobotX - rightCheck) < 80
 							&& (enemyDefenderRobotY < goalY[2] && enemyDefenderRobotY > goalY[0])) {
+						float wallX = ((rightCheck + 540) / 2) - 20;
+						float wallY = PitchConstants.getPitchOutlineTop();
 						ang1 = calculateAngle(attackerRobotX, attackerRobotY,
 								attackerOrientation,
-								((rightCheck + 540) / 2) - 25, 69);
+								wallX, wallY);
+						angToShoot = 90 - calculateAngle(attackerRobotX, attackerRobotY,
+								0,
+								wallX, wallY);
+						reflexAng = -calculateAngle(wallX, wallY, 90, goalY[0] + 20, goalX);
+						System.out.println("angToShoot: " + angToShoot + " reflexAng: " + reflexAng);
 						toExecute.op = Operation.Type.ATKMOVEKICK;
-					} else if (Math.abs(enemyDefenderRobotX - leftCheck) < 50
+					} else if (Math.abs(enemyDefenderRobotX - leftCheck) < 80
 							&& (enemyDefenderRobotY < goalY[2] && enemyDefenderRobotY > goalY[0])) {
+						float wallX = ((leftCheck + 170) / 2) + 5;
+						float wallY = PitchConstants.getPitchOutlineTop();
 						ang1 = calculateAngle(attackerRobotX, attackerRobotY,
 								attackerOrientation,
-								((leftCheck + 170) / 2) + 5, 69);
+								wallX, wallY);
+						angToShoot = 90 - calculateAngle(attackerRobotX, attackerRobotY,
+								0,
+								wallX, wallY);
+						reflexAng = -calculateAngle(wallX, wallY, 90, goalY[0] + 20, goalX);
+						System.out.println("angToShoot: " + angToShoot + " reflexAng: " + reflexAng);
 						toExecute.op = Operation.Type.ATKMOVEKICK;
 					}
 				}
@@ -396,43 +413,50 @@ public class GeneralStrategy implements Strategy {
 			if (leftCheck > defenderCheck) {
 				targetX = ((defenderCheck + leftCheck) / 2) - 18;
 			} else {
-				targetX = ((rightCheck + defenderCheck) / 2)  + 18 ;
+				targetX = ((rightCheck + defenderCheck) / 2) + 18;
 			}
 			double attackerAngle = calculateAngle(attackerRobotX,
-					attackerRobotY, attackerOrientation,
-					attackerResetX, attackerResetY);
+					attackerRobotY, attackerOrientation, attackerResetX,
+					attackerResetY);
 			double angleToPass = calculateAngle(defenderRobotX, defenderRobotY,
 					defenderOrientation, targetX, targetY);
-			double dist = Math.hypot(attackerRobotX-
-					attackerResetX, attackerRobotY - attackerResetY);
+			double dist = Math.hypot(attackerRobotX - attackerResetX,
+					attackerRobotY - attackerResetY);
 			double attackerAngleToBall = calculateAngle(attackerRobotX,
 					attackerRobotY, attackerOrientation, targetX, targetY);
-
-			toExecute.op = Operation.Type.ROTATENMOVE;
-			toExecute.travelSpeed = (int) (dist * 3);
-			if (Math.abs(attackerAngle) > 15 && !passingAttackerHasArrived) {
-				toExecute.op = Operation.Type.ATKROTATE;
-				toExecute.rotateBy = -(int) attackerAngle;
-			} else {
-
+			if (attackerNotOnPitch) {
+				toExecute.op = Operation.Type.DEFROTATE;
 				if (Math.abs(angleToPass) > 5) {
 					toExecute.rotateBy = (int) angleToPass / 3;
+				} else
+					toExecute.op = Operation.Type.DEFKICKSTRONG;
+			} else {
+				toExecute.op = Operation.Type.ROTATENMOVE;
+				toExecute.travelSpeed = (int) (dist * 3);
+				if (Math.abs(attackerAngle) > 15 && !passingAttackerHasArrived) {
+					toExecute.op = Operation.Type.ATKROTATE;
+					toExecute.rotateBy = -(int) attackerAngle;
 				} else {
-					toExecute.rotateBy = 0;
-				}
-				if (Math.abs(dist) > 30 && !passingAttackerHasArrived) {
-					toExecute.travelDistance = (int) (dist);
-				} else if (Math.abs(dist) < 30 && Math.abs(angleToPass) < 5) {
-					passingAttackerHasArrived = true;
-					if (attackerAngleToBall > 10) {
-						toExecute.op = Operation.Type.ATKROTATE;
-						toExecute.rotateBy = -(int) attackerAngleToBall;
-					} else {
-						toExecute.travelDistance = 0;
-						toExecute.op = Operation.Type.DEFKICKSTRONG;
-					}
-				}
 
+					if (Math.abs(angleToPass) > 5) {
+						toExecute.rotateBy = (int) angleToPass / 3;
+					} else {
+						toExecute.rotateBy = 0;
+					}
+					if (Math.abs(dist) > 30 && !passingAttackerHasArrived) {
+						toExecute.travelDistance = (int) (dist);
+					} else if (Math.abs(dist) < 30 && Math.abs(angleToPass) < 5) {
+						passingAttackerHasArrived = true;
+						if (attackerAngleToBall > 10) {
+							toExecute.op = Operation.Type.ATKROTATE;
+							toExecute.rotateBy = -(int) attackerAngleToBall;
+						} else {
+							toExecute.travelDistance = 0;
+							toExecute.op = Operation.Type.DEFKICK;
+						}
+					}
+
+				}
 			}
 		}
 		return toExecute;
@@ -466,6 +490,7 @@ public class GeneralStrategy implements Strategy {
 		enemyDefenderNotOnPitch = worldState.enemyDefenderNotOnPitch;
 		topOfPitch = PitchConstants.getPitchOutlineTop();
 		botOfPitch = PitchConstants.getPitchOutlineBottom();
+		attackerNotOnPitch = worldState.attackerNotOnPitch;
 		if (worldState.weAreShootingRight) {
 			leftCheck = worldState.dividers[1];
 			rightCheck = worldState.dividers[2];
