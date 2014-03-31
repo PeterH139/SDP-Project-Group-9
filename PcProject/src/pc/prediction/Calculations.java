@@ -145,7 +145,10 @@ public final class Calculations {
 		
 		int bottom_boundary = PitchConstants.getPitchOutlineBottom();
 		int top_boundary = PitchConstants.getPitchOutlineTop();
-				
+		
+		if(robotOrientation > 180)
+			robotOrientation = robotOrientation - 360;
+		
 		//Get X and Y velocities
 		double x1 = (double) robotX;
 		double y1 = (double) robotY;
