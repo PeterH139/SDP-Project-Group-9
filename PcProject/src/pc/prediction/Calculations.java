@@ -154,7 +154,7 @@ public final class Calculations {
 		double y3;
 		double x3 = Math.abs((x1-x2)*0.5);
 		//check which wall we are bouncing off
-		if(Math.abs(y1) > Math.abs((top_boundary - bottom_boundary)*0.5))
+		if(Math.abs(y1) < Math.abs((top_boundary - bottom_boundary)*0.5))
 			y3 = bottom_boundary;
 		else
 			y3 = top_boundary;		
