@@ -115,11 +115,14 @@ public class StrategyController implements WorldStateReceiver {
 			AS.startControlThread();
 			break;
 		case MARKING:
+			Strategy newMar = new newMarkingStrategy(this.bcsAttacker);
 			Strategy mar = new MarkingStrategy(this.bcsAttacker);
 			Strategy ics = new InterceptorStrategy(this.bcsDefender);
-			StrategyController.currentStrategies.add(mar);
+			//StrategyController.currentStrategies.add(mar);
+			StrategyController.currentStrategies.add(newMar);
 			StrategyController.currentStrategies.add(ics);
-			mar.startControlThread();
+			newMar.startControlThread();
+			//mar.startControlThread();
 			ics.startControlThread();
 			break;
 		default:

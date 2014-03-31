@@ -170,10 +170,10 @@ public final class Calculations {
 				y3 = top_boundary;		
 		}
 		else if(bounce_direction == -1){
-			y3 = bottom_boundary;
+			y3 = bottom_boundary + 20;
 		}
 		else{
-			y3 = top_boundary;
+			y3 = top_boundary - 30;
 		}
 		
 		double z = Math.abs(x1-x2);

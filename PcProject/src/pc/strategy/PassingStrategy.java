@@ -27,7 +27,7 @@ public class PassingStrategy extends GeneralStrategy {
 	protected boolean defenderHasArrived = false;
 	protected boolean defenderHasArrivedAtSafe = false;
 	protected boolean defenderIsSafe = false;
-	protected boolean needReset = false;
+	private boolean needReset = false;
 	protected double defenderAngleToGoal;
 	protected double distFromBall;
 	private Deque<Vector2f> ballPositions = new ArrayDeque<Vector2f>();
@@ -275,7 +275,7 @@ public class PassingStrategy extends GeneralStrategy {
 				if (!ballIsOnSlopeEdge && !ballIsOnSideEdge && !ballIsOnGoalLine
 						 && !robotIsOnGoalLine && !ballIsOnDefCheck) {
 					defenderHasArrived = false;
-					if (!catcherIsUp) {
+					if (!catcherIsUp && Math.abs(defenderAngleToGoal) > 45) {
 						this.controlThread.operation.op = Operation.Type.DEFKICK;
 					} else {
 						if (!defenderHasArrivedAtSafe && !defenderIsSafe) {
@@ -523,9 +523,7 @@ public class PassingStrategy extends GeneralStrategy {
 					case DEFKICK:
 						if (System.currentTimeMillis() - lastKickerEventTime > 1000) {
 							catcherIsUp = true;
-							if (Math.abs(defenderAngleToGoal) > 30) {
-								defenderBrick.execute(new RobotCommand.Kick(15));
-							}
+							defenderBrick.execute(new RobotCommand.Kick(15));
 							ballCaughtDefender = false;
 							lastKickerEventTime = System.currentTimeMillis();
 						}
@@ -555,6 +553,11 @@ public class PassingStrategy extends GeneralStrategy {
 						defenderBrick.execute(new RobotCommand.Rotate(rotateBy,
 								Math.abs(rotateBy)));
 						break;
+					case MOVENROTATE:
+						defenderBrick.executeSync(new RobotCommand.Travel(
+								travelDist, travelSpeed));
+						attackerBrick.executeSync(new RobotCommand.Rotate(
+								rotateBy, Math.abs(rotateBy)));
 					case DEFARC_LEFT:
 						defenderBrick.executeSync(new RobotCommand.TravelArc(
 								radius, travelDist, travelSpeed));

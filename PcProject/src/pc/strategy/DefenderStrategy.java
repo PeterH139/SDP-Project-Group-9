@@ -50,17 +50,26 @@ public class DefenderStrategy extends GeneralStrategy {
 		double c = ballY - slope * ballX;
 		boolean noBallMovement =  Math.abs(enemyAttackerRobotX - ballX) < 10;
 		int targetY = (int) (slope * defenderRobotX + c);
-
+		double enemyAngleToUs = calculateAngle(enemyAttackerRobotX, enemyDefenderRobotY, enemyAttackerOrientation, defenderRobotX, defenderRobotY);
 		double ang1 = calculateAngle(defenderRobotX, defenderRobotY, defenderOrientation, defenderRobotX, defenderRobotY - 50);
 		ang1 = ang1/3;
 		float dist;
 		if (noBallMovement) {
 			targetY = (int) ballY;
 		}
-		if (targetY > worldState.rightGoal[2]) {
-			targetY = (int) worldState.rightGoal[2];
-		} else if (targetY < worldState.rightGoal[0]) {
-			targetY = (int) worldState.rightGoal[0];
+		if (worldState.ballNotOnPitch) {
+			Math.tan(enemyAngleToUs);
+			double d = Math.abs(enemyAttackerRobotX - defenderRobotX) / Math.tan(enemyAngleToUs);
+			if (enemyAngleToUs > 0) {
+				targetY = (int) (defenderRobotY - d);
+			} else {
+				targetY = (int) (defenderRobotY + d);
+			}
+		}
+		if (targetY > ourGoalEdges[2]) {
+			targetY = (int) ourGoalEdges[2];
+		} else if (targetY < ourGoalEdges[0]) {
+			targetY = (int) ourGoalEdges[0];
 		}
 		
 		// Correct for defender plate not being in centre of robot
