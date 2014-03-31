@@ -4,8 +4,6 @@ import pc.world.oldmodel.Point2;
 import java.math.*;
 import java.util.ArrayList;
 
-import javax.crypto.spec.PSource;
-
 public final class Calculations {
 	
 	/**
@@ -179,23 +177,8 @@ public final class Calculations {
 		else if(left_angle < right_angle)
 			choice_angle = right_angle - (right_angle - left_angle)*0.5;
 		
-		float fl_choice_angle;
-		if(y3 == bottom_boundary)
-			fl_choice_angle = (float) Math.toDegrees(choice_angle - Math.PI/2);
-		else
-			fl_choice_angle = (float) Math.toDegrees(Math.PI/2 - choice_angle);
-		
-		//convertion of angles to 0-360
-		float pos_robotOrientation = robotOrientation;
-		if(pos_robotOrientation < 0)
-			pos_robotOrientation = 360 + pos_robotOrientation;
-		float pos_choice_angle = fl_choice_angle;
-		if(pos_choice_angle < 0)
-			pos_choice_angle = 360 + pos_choice_angle;
-		
-		float angle_to_turn = pos_choice_angle - pos_robotOrientation;
-		if(angle_to_turn > 180)
-			angle_to_turn = angle_to_turn - 360;
+		float fl_choice_angle = (float) (Math.PI/2 - choice_angle);
+		float angle_to_turn = fl_choice_angle - robotOrientation;
 		//the angle the robot needs to turn
 		if(y3 == bottom_boundary)
 			System.out.println("Bouncing off bottom boundary |Angle to turn = "+angle_to_turn);
