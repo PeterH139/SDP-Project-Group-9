@@ -226,63 +226,40 @@ public class GeneralStrategy implements Strategy {
 				// a bounce shot against the wall. If we are doing a bounce shot
 				// there is no need to fake.
 				if (StrategyController.bounceShotEnabled && !isInCenter) {
+					float goalTarget = goalY[1];
+					boolean doBounce = false;
 					if (distanceFromBot > distanceFromTop) {
 						if (Math.abs(enemyDefenderRobotX - rightCheck) < 60
 								 && (enemyDefenderRobotY > goalY[0])) {
-							float goalTarget = goalY[1];
-							if (distanceFromBot > distanceFromTop) {
-								goalTarget = goalY[0];
-							} else {
-								goalTarget = goalY[2];
-							}
-							ang1 = Calculations.GetBounceAngle(attackerRobotX,
-									attackerRobotY, attackerOrientation, goalX,
-									goalTarget, 0);
-							toExecute.op = Operation.Type.ATKMOVEKICK;
+							goalTarget = goalY[0];
+							doBounce = true;
 						} else if (Math.abs(enemyDefenderRobotX - leftCheck) < 60
 								&& (enemyDefenderRobotY > goalY[0])) {
-							float goalTarget = goalY[1];
-							if (distanceFromBot > distanceFromTop) {
-								goalTarget = goalY[0];
-							} else {
-								goalTarget = goalY[2];
-							}
-							ang1 = Calculations.GetBounceAngle(attackerRobotX,
-									attackerRobotY, attackerOrientation, goalX,
-									goalTarget, 0);
-							toExecute.op = Operation.Type.ATKMOVEKICK;
+							goalTarget = goalY[0];
+							doBounce = true;
 						}
 					} else {
 						if (Math.abs(enemyDefenderRobotX - rightCheck) < 60
 								 && (enemyDefenderRobotY < goalY[2])) {
-							float goalTarget = goalY[1];
-							if (distanceFromBot > distanceFromTop) {
-								goalTarget = goalY[0];
-							} else {
-								goalTarget = goalY[2];
-							}
-							ang1 = Calculations.GetBounceAngle(attackerRobotX,
-									attackerRobotY, attackerOrientation, goalX,
-									goalTarget, 0);
-							toExecute.op = Operation.Type.ATKMOVEKICK;
+							goalTarget = goalY[2];
+							doBounce = true;
 						} else if (Math.abs(enemyDefenderRobotX - leftCheck) < 60
 								&& (enemyDefenderRobotY < goalY[2])) {
-							float goalTarget = goalY[1];
-							if (distanceFromBot > distanceFromTop) {
-								goalTarget = goalY[0];
-							} else {
-								goalTarget = goalY[2];
-							}
-							ang1 = Calculations.GetBounceAngle(attackerRobotX,
-									attackerRobotY, attackerOrientation, goalX,
-									goalTarget, 0);
-							toExecute.op = Operation.Type.ATKMOVEKICK;
+							goalTarget = goalY[2];
+							doBounce = true;
 						}
 					}
+					if (doBounce){
+						ang1 = Calculations.GetBounceAngle(attackerRobotX,
+								attackerRobotY, attackerOrientation, goalX,
+								goalTarget, 0);
+						toExecute.op = Operation.Type.ATKMOVEKICK;
+					}
 				}
-
+				
 				// Check we are pointing in the correct direction to score.
-				if (Math.abs(ang1) > 3) {
+				// 2 degree threshold seems to work best.
+				if (Math.abs(ang1) > 2) {
 					toExecute.op = Operation.Type.ATKROTATE;
 					toExecute.rotateBy = (int) ang1;
 					toExecute.rotateSpeed = (int) (Math.abs(ang1) * 1.5);
@@ -513,7 +490,7 @@ public class GeneralStrategy implements Strategy {
 		boolean isAttacker = robot == RobotType.ATTACKER;
 
 		toExecute = isAttacker ? travelToNoArc(robot, attackerResetX,
-				attackerRobotY, 10) : travelToNoArc(robot, defenderResetX,
+				attackerResetY, 10) : travelToNoArc(robot, defenderResetX,
 				defenderRobotY, 10);
 
 		return toExecute;
@@ -542,7 +519,7 @@ public class GeneralStrategy implements Strategy {
 			leftCheck = worldState.dividers[1];
 			rightCheck = worldState.dividers[2];
 			defenderCheck = worldState.dividers[0];
-			defenderResetX = (defenderCheck / 2) + 20;
+			defenderResetX = (defenderCheck / 2) + 30;
 			attackerResetX = ((leftCheck + rightCheck) / 2) + 15;
 			goalX = 640;
 			ourGoalX = 0;

@@ -16,7 +16,7 @@ public class InterceptorStrategy extends GeneralStrategy {
 	private BrickCommServer brick;
 	private ControlThread controlThread;
 	private Deque<Vector2f> ballPositions = new ArrayDeque<Vector2f>();
-
+	private boolean needReset = false;
 	public InterceptorStrategy(BrickCommServer brick) {
 		this.brick = brick;
 		controlThread = new ControlThread();
@@ -60,18 +60,22 @@ public class InterceptorStrategy extends GeneralStrategy {
 		if (ballMovement) {
 			targetY = (int) ballY;
 		}
-		if (targetY > worldState.rightGoal[2]) {
-			targetY = (int) worldState.rightGoal[2];
-		} else if (targetY < worldState.rightGoal[0]) {
-			targetY = (int) worldState.rightGoal[0];
+		if (targetY > ourGoalEdges[2]) {
+			targetY = (int) ourGoalEdges[2];
+		} else if (targetY < ourGoalEdges[0]) {
+			targetY = (int) ourGoalEdges[0];
 		}
 
 		dist = targetY - defenderRobotY;
 
 		synchronized (controlThread) {
-			if (ballInAttackerArea) {
+			if (ballInAttackerArea || Math.abs(defenderResetY - defenderCheck) < 30 || needReset) {
+				needReset = true;
 				controlThread.operation = travelToNoArc(RobotType.DEFENDER,
 						defenderResetX, defenderResetY, 20);
+				if (controlThread.operation.op == Operation.Type.DO_NOTHING) {
+					needReset = false;
+				}
 			} else {
 			controlThread.operation.rotateBy = (int) ang1;
 			controlThread.operation.travelDistance = (int) (dist * 0.8);

@@ -30,6 +30,7 @@ public class StrategyController implements WorldStateReceiver {
 	// Advanced Tactics flags
 	public static boolean confusionEnabled = false;
 	public static boolean bounceShotEnabled = false;
+	public static boolean interceptorDefenceEnabled = false;
 	
 	private static ArrayList<Strategy> currentStrategies = new ArrayList<Strategy>();
 	private static ArrayList<Strategy> removedStrategies = new ArrayList<Strategy>();
@@ -108,21 +109,24 @@ public class StrategyController implements WorldStateReceiver {
 			break;
 		case DEFENDING:
 			Strategy AS = new AttackerStrategy(this.bcsAttacker);
-			Strategy pds = new DefenderStrategy(this.bcsDefender);
-			StrategyController.currentStrategies.add(pds);
 			StrategyController.currentStrategies.add(AS);
-			pds.startControlThread();
 			AS.startControlThread();
+			if (interceptorDefenceEnabled){
+				Strategy inter = new InterceptorStrategy(this.bcsDefender);
+				StrategyController.currentStrategies.add(inter);
+				inter.startControlThread();
+			} else {
+				Strategy pds = new DefenderStrategy(this.bcsDefender);
+				StrategyController.currentStrategies.add(pds);
+				pds.startControlThread();
+			}
 			break;
 		case MARKING:
 			Strategy newMar = new newMarkingStrategy(this.bcsAttacker);
-			Strategy mar = new MarkingStrategy(this.bcsAttacker);
 			Strategy ics = new InterceptorStrategy(this.bcsDefender);
-			//StrategyController.currentStrategies.add(mar);
 			StrategyController.currentStrategies.add(newMar);
 			StrategyController.currentStrategies.add(ics);
 			newMar.startControlThread();
-			//mar.startControlThread();
 			ics.startControlThread();
 			break;
 		default:

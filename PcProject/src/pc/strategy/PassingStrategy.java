@@ -452,7 +452,6 @@ public class PassingStrategy extends GeneralStrategy {
 							worldState.dividers[1],
 							(PitchConstants.getPitchOutlineBottom() - PitchConstants
 									.getPitchOutlineTop())) > 90)) {
-				System.out.println("robot must be reset");
 				needReset = true;
 				controlThread.operation = travelToNoArc(RobotType.DEFENDER,
 						defenderResetX, defenderResetY, 20);

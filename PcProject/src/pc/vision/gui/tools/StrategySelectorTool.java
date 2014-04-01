@@ -228,10 +228,12 @@ public class StrategySelectorTool implements GUITool {
 	public class AdvancedStrategyEnabler extends JPanel{
 		private JCheckBox confusionEnabled = new JCheckBox("Confuse Shot");
 		private JCheckBox bounceShotEnabled = new JCheckBox("Bounce Shot");
+		private JCheckBox interceptorDefence = new JCheckBox("Interceptor Defence");
 		
 		public AdvancedStrategyEnabler(){
 			this.add(confusionEnabled);
 			this.add(bounceShotEnabled);
+			this.add(interceptorDefence);
 			
 			confusionEnabled.addActionListener(new ActionListener() {
 				@Override
@@ -244,6 +246,14 @@ public class StrategySelectorTool implements GUITool {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					StrategyController.bounceShotEnabled = bounceShotEnabled.isSelected();
+				}
+			});
+			
+			interceptorDefence.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					StrategyController.interceptorDefenceEnabled = interceptorDefence.isSelected();
 				}
 			});
 		}
