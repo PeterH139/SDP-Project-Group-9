@@ -14,6 +14,8 @@ public class AttackerStrategy extends GeneralStrategy {
 	private boolean ballInEnemyAttackerArea = false;
 	private boolean justCaught = true;
 	private boolean fromSide = false;
+	private boolean timerOn = false;
+	private long kickTimer = 0;
 
 	public AttackerStrategy(BrickCommServer brick) {
 		this.brick = brick;
@@ -61,8 +63,13 @@ public class AttackerStrategy extends GeneralStrategy {
 				if (!ballCaughtAttacker) {
 					controlThread.operation = catchBall(RobotType.ATTACKER);
 					justCaught = true;
+					timerOn = false;
 				} else {
 					controlThread.operation = scoreGoal(RobotType.ATTACKER);
+					if (!timerOn) {
+					timerOn = true;
+					kickTimer = System.currentTimeMillis();
+					}
 					if (justCaught && fromSide) {
 						controlThread.operation.op = Operation.Type.ATKROTATE;
 						controlThread.operation.rotateBy = (int) calculateAngle(attackerRobotX, attackerRobotY, attackerOrientation, leftCheck, attackerRobotY);
@@ -74,11 +81,12 @@ public class AttackerStrategy extends GeneralStrategy {
 							justCaught = false;
 						}
 					}
+					
 				}
 				// kicks if detected false catch
-				if (ballCaughtAttacker
+				if ((timerOn && (System.currentTimeMillis() - kickTimer) > 8000) || (ballCaughtAttacker
 						&& (Math.hypot(ballX - attackerRobotX, ballY
-								- attackerRobotY) > 60) && !worldState.ballNotOnPitch) {
+								- attackerRobotY) > 60) && !worldState.ballNotOnPitch)) {
 					controlThread.operation.op = Operation.Type.ATKKICK;
 				}
 			}

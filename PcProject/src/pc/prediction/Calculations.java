@@ -143,7 +143,7 @@ public final class Calculations {
 	 * @param bounce_direction 0 for automatic, 1 for top, -1 for bottom bounce
 	 * */
 	public static float GetBounceAngle(float robotX, float robotY,
-			float robotOrientation, float targetX, float targetY, int bounce_direction){
+			float robotOrientation, float targetX, float targetY, int bounce_direction, float pitchMid){
 		
 		int bottom_boundary = PitchConstants.getPitchOutlineBottom();
 		int top_boundary = PitchConstants.getPitchOutlineTop();
@@ -164,7 +164,7 @@ public final class Calculations {
 		//check which wall we are bouncing off
 		if(bounce_direction == 0)
 		{
-			if(Math.abs(y1) > Math.abs((top_boundary - bottom_boundary)*0.5))
+			if(Math.abs(y1) > pitchMid)
 				y3 = bottom_boundary;
 			else
 				y3 = top_boundary;		

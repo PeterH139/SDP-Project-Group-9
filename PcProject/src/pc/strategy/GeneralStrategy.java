@@ -189,7 +189,7 @@ public class GeneralStrategy implements Strategy {
 		}
 		if (!scoringAttackerHasArrived) {
 			toExecute = travelToNoArc(robot, (leftCheck + rightCheck) / 2,
-					toTravelY, 30);
+					toTravelY, 20);
 			if (toExecute.op == Operation.Type.DO_NOTHING) {
 				scoringAttackerHasArrived = true;
 			}
@@ -220,7 +220,7 @@ public class GeneralStrategy implements Strategy {
 				// Straight forward case
 				double ang1 = calculateAngle(attackerRobotX, attackerRobotY,
 						attackerOrientation, goalX, aimY);
-
+				
 				// Cases for when the defending robot is close to the line and
 				// we need to try
 				// a bounce shot against the wall. If we are doing a bounce shot
@@ -253,9 +253,8 @@ public class GeneralStrategy implements Strategy {
 					if (doBounce){
 						ang1 = Calculations.GetBounceAngle(attackerRobotX,
 								attackerRobotY, attackerOrientation, goalX,
-								goalTarget, 0);
+								goalTarget, 0, goalY[1]);
 						toExecute.op = Operation.Type.ATKMOVEKICK;
-					//	System.out.println("ang1: " + ang1);
 					}
 				}
 				
@@ -442,7 +441,7 @@ public class GeneralStrategy implements Strategy {
 									 
 			double angleToPass = Calculations.GetBounceAngle(defenderRobotX,
 					defenderRobotY, defenderOrientation, attackerRobotX,
-					attackerRobotY, bounceDirection);
+					attackerRobotY, bounceDirection, goalY[1]);
 			double dist = 
 							  Math.hypot(attackerRobotX - attackerResetX,
 							  attackerRobotY - attackerResetY);
