@@ -523,7 +523,7 @@ public class PassingStrategy extends GeneralStrategy {
 					case DEFKICK:
 						if (System.currentTimeMillis() - lastKickerEventTime > 1000) {
 							catcherIsUp = true;
-							defenderBrick.execute(new RobotCommand.Kick(12));
+							defenderBrick.execute(new RobotCommand.Kick(15));
 							ballCaughtDefender = false;
 							lastKickerEventTime = System.currentTimeMillis();
 						}

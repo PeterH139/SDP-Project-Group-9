@@ -474,9 +474,10 @@ public class GeneralStrategy implements Strategy {
 						if (Math.abs(attackerAngleToBall) > 10) {
 							toExecute.op = Operation.Type.ATKROTATE;
 							toExecute.rotateBy = -(int) attackerAngleToBall;
-						} else if (Math.abs(angleToPass) < 3) {
+						} // XXX: CHANGED THIS ELSE IF TO AN IF.
+						if (Math.abs(angleToPass) < 3) {
 							toExecute.travelDistance = 0;
-							toExecute.op = Operation.Type.DEFKICK;
+							toExecute.op = Operation.Type.DEFKICKSTRONG;
 						}
 					}
 

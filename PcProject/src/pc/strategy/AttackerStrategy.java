@@ -8,7 +8,7 @@ import pc.world.oldmodel.WorldState;
 
 public class AttackerStrategy extends GeneralStrategy {
 
-	private static final int KICK_TIMEOUT = 12000;
+	private static final int KICK_TIMEOUT = 120000000;
 	
 	private BrickCommServer brick;
 	private ControlThread controlThread;
