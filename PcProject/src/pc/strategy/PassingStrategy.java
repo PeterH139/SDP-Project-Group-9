@@ -533,7 +533,7 @@ public class PassingStrategy extends GeneralStrategy {
 							catcherIsUp = true;
 							defenderBrick.execute(new RobotCommand.Travel(-50, 100000));
 							if (Math.abs(defenderAngleToGoal) > 45) {
-								defenderBrick.execute(new RobotCommand.Kick(15));
+								defenderBrick.execute(new RobotCommand.Kick(25));
 							}
 							ballCaughtDefender = false;
 							lastKickerEventTime = System.currentTimeMillis();
