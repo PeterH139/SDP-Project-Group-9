@@ -71,9 +71,8 @@ public class InterceptorStrategy extends GeneralStrategy {
 		synchronized (controlThread) {
 			if (ballInAttackerArea || Math.abs(defenderRobotX - defenderCheck) < 20 ||  Math.abs(defenderRobotX - ourGoalX) < 40 || needReset) {
 				needReset = true;
-				controlThread.operation = worldState.weAreShootingRight? travelToNoArc(RobotType.DEFENDER,
-						defenderResetX + 15, defenderResetY, 20) : travelToNoArc(RobotType.DEFENDER,
-								defenderResetX - 15, defenderResetY, 20);
+				controlThread.operation = travelToNoArc(RobotType.DEFENDER,
+						defenderResetX, defenderResetY, 20);
 				if (controlThread.operation.op == Operation.Type.DO_NOTHING) {
 					needReset = false;
 				}

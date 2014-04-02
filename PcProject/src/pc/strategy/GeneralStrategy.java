@@ -249,12 +249,13 @@ public class GeneralStrategy implements Strategy {
 							doBounce = true;
 						}
 					}
-					System.out.println("do bounce: " + doBounce);
+					
 					if (doBounce){
 						ang1 = Calculations.GetBounceAngle(attackerRobotX,
 								attackerRobotY, attackerOrientation, goalX,
 								goalTarget, 0);
 						toExecute.op = Operation.Type.ATKMOVEKICK;
+					//	System.out.println("ang1: " + ang1);
 					}
 				}
 				
@@ -520,10 +521,10 @@ public class GeneralStrategy implements Strategy {
 			leftCheck = worldState.dividers[1];
 			rightCheck = worldState.dividers[2];
 			defenderCheck = worldState.dividers[0];
-			defenderResetX = (defenderCheck / 2) + 30;
+			defenderResetX = ((defenderCheck - PitchConstants.getPitchOutline()[7].getX()) / 2) + 20;
 			attackerResetX = ((leftCheck + rightCheck) / 2) + 15;
-			goalX = 640;
-			ourGoalX = 0;
+			goalX = PitchConstants.getPitchOutline()[2].getX();
+			ourGoalX = PitchConstants.getPitchOutline()[7].getX();
 			goalY = worldState.rightGoal;
 			ourGoalEdges[0] = PitchConstants.getPitchOutline()[7].getY();
 			ourGoalEdges[1] = worldState.leftGoal[1];
@@ -533,10 +534,10 @@ public class GeneralStrategy implements Strategy {
 			leftCheck = worldState.dividers[0];
 			rightCheck = worldState.dividers[1];
 			defenderCheck = worldState.dividers[2];
-			defenderResetX = ((defenderCheck + 640) / 2) - 30;
+			defenderResetX = ((PitchConstants.getPitchOutline()[2].getX() - defenderCheck) / 2) + defenderCheck - 20;
 			attackerResetX = ((leftCheck + rightCheck) / 2) - 15;
-			goalX = 0;
-			ourGoalX = 640;
+			goalX = PitchConstants.getPitchOutline()[7].getX();
+			ourGoalX = PitchConstants.getPitchOutline()[2].getX();
 			goalY = worldState.leftGoal;
 			ourGoalEdges[0] = PitchConstants.getPitchOutline()[2].getY();
 			ourGoalEdges[1] = worldState.rightGoal[1];
