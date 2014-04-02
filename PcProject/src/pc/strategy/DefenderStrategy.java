@@ -110,7 +110,6 @@ public class DefenderStrategy extends GeneralStrategy {
 	}
 	private class ControlThread extends Thread {
 		public Operation operation = new Operation();
-		private ControlThread controlThread;
 		private long lastKickerEventTime = 0;
 		public ControlThread() {
 			super("Robot control thread");

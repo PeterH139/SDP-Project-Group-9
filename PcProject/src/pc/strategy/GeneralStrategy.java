@@ -520,9 +520,9 @@ public class GeneralStrategy implements Strategy {
 			leftCheck = worldState.dividers[1];
 			rightCheck = worldState.dividers[2];
 			defenderCheck = worldState.dividers[0];
-			defenderResetX = ((defenderCheck - PitchConstants.getPitchOutline()[7].getX()) / 2) + 20;
+			defenderResetX = ((defenderCheck - PitchConstants.getPitchOutline()[7].getX()) / 2) + PitchConstants.getPitchOutline()[7].getX() + 20;
 			attackerResetX = ((leftCheck + rightCheck) / 2) + 15;
-			goalX = PitchConstants.getPitchOutline()[2].getX();
+			goalX = 640;
 			ourGoalX = PitchConstants.getPitchOutline()[7].getX();
 			goalY = worldState.rightGoal;
 			ourGoalEdges[0] = PitchConstants.getPitchOutline()[7].getY();
@@ -535,7 +535,7 @@ public class GeneralStrategy implements Strategy {
 			defenderCheck = worldState.dividers[2];
 			defenderResetX = ((PitchConstants.getPitchOutline()[2].getX() - defenderCheck) / 2) + defenderCheck - 20;
 			attackerResetX = ((leftCheck + rightCheck) / 2) - 15;
-			goalX = PitchConstants.getPitchOutline()[7].getX();
+			goalX = 0;
 			ourGoalX = PitchConstants.getPitchOutline()[2].getX();
 			goalY = worldState.leftGoal;
 			ourGoalEdges[0] = PitchConstants.getPitchOutline()[2].getY();
