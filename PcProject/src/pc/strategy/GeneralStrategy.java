@@ -542,8 +542,8 @@ public class GeneralStrategy implements Strategy {
 			ourGoalEdges[2] = PitchConstants.getPitchOutline()[3].getY();
 			ourGoalY = worldState.rightGoal;
 		}
-		attackerResetY = 220;
-		defenderResetY = 220;
+		attackerResetY = (PitchConstants.getPitchOutlineBottom() + PitchConstants.getPitchOutlineTop())/2;
+		defenderResetY = (PitchConstants.getPitchOutlineBottom() + PitchConstants.getPitchOutlineTop())/2;
 
 	}
 

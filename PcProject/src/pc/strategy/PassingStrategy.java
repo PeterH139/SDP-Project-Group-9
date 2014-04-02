@@ -1,5 +1,6 @@
 package pc.strategy;
 
+import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
@@ -309,13 +310,13 @@ public class PassingStrategy extends GeneralStrategy {
 									//System.out
 								//			.println("Ball on slope edge, scoup it out");
 									this.controlThread.operation = travelToNoArcNoReverse(
-											RobotType.DEFENDER, targetX, targetY, 15);
+											RobotType.DEFENDER, targetX, targetY, 20);
 								}
 								if (ballIsOnSideEdge) {
 								//	System.out
 								//			.println("Ball on side edge, scoup it out");
 									this.controlThread.operation = travelToNoArcNoReverse(
-											RobotType.DEFENDER, targetX, targetY, 15);
+											RobotType.DEFENDER, targetX, targetY, 20);
 								}
 								if (ballIsOnSideEdge && ballIsOnSlopeEdge) {
 									//System.out.println("Ball in corner, scoup it out");
@@ -451,7 +452,7 @@ public class PassingStrategy extends GeneralStrategy {
 							defenderOrientation,
 							worldState.dividers[1],
 							(PitchConstants.getPitchOutlineBottom() - PitchConstants
-									.getPitchOutlineTop())) > 90)) {
+									.getPitchOutlineTop())) < 90)) {
 				needReset = true;
 				controlThread.operation = travelToNoArc(RobotType.DEFENDER,
 						defenderResetX, defenderResetY, 20);
@@ -572,7 +573,7 @@ public class PassingStrategy extends GeneralStrategy {
 					Thread.sleep(StrategyController.STRATEGY_TICK);
 				}
 
-			} catch (InterruptedException e) {
+			}	catch (Exception e) {
 				e.printStackTrace();
 			}
 
