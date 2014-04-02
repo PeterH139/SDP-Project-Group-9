@@ -173,7 +173,7 @@ public final class Calculations {
 			y3 = bottom_boundary + 20;
 		}
 		else{
-			y3 = top_boundary - 30;
+			y3 = top_boundary- 50;
 		}
 		
 		double z = Math.abs(x1-x2);

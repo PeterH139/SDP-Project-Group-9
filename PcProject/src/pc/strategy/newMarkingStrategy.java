@@ -45,16 +45,20 @@ public class newMarkingStrategy extends GeneralStrategy {
 				.getBall().y));
 		if (ballPositions.size() > 3)
 			ballPositions.removeFirst();
-
+		
 		double slope = (enemyDefenderRobotY - ballY) / ((enemyDefenderRobotX - ballX) + 0.0001);
 		double c = ballY - slope * ballX;
 		boolean noBallMovement =  Math.abs(enemyDefenderRobotX - ballX) < 10;
 		int targetY = (int) (slope * attackerRobotX + c);
 		double ang1 = calculateAngle(attackerRobotX, attackerRobotY, attackerOrientation, attackerRobotX, attackerRobotY - 50);
 		float dist;
-		
+		float ballDistFromCenter = Math.abs(ballX - worldState.dividers[1]);
+		float enemyDefDistFromCenter = Math.abs(enemyDefenderRobotX - worldState.dividers[1]);
+		if (ballDistFromCenter > enemyDefDistFromCenter) {
+			targetY = (int) ballY;
+		}
 		if (targetY > PitchConstants.getPitchOutline()[5].getY()) {
-			targetY = PitchConstants.getPitchOutline()[5].getY() - 50;
+			targetY = PitchConstants.getPitchOutline()[5].getY() - 60;
 		} else if (targetY <  PitchConstants.getPitchOutline()[0].getY()) {
 			targetY =  PitchConstants.getPitchOutline()[0].getY() + 50;
 		}

@@ -320,7 +320,7 @@ public class PassingStrategy extends GeneralStrategy {
 								if (ballIsOnSideEdge && ballIsOnSlopeEdge) {
 									//System.out.println("Ball in corner, scoup it out");
 									this.controlThread.operation = travelToNoArcNoReverse(
-											RobotType.DEFENDER, targetX, targetY, 22);
+											RobotType.DEFENDER, targetX, targetY, 30);
 								}
 								if (ballIsOnGoalLine) {
 								//	System.out
@@ -522,7 +522,7 @@ public class PassingStrategy extends GeneralStrategy {
 					case DEFKICK:
 						if (System.currentTimeMillis() - lastKickerEventTime > 1000) {
 							catcherIsUp = true;
-							defenderBrick.execute(new RobotCommand.Kick(15));
+							defenderBrick.execute(new RobotCommand.Kick(12));
 							ballCaughtDefender = false;
 							lastKickerEventTime = System.currentTimeMillis();
 						}

@@ -50,6 +50,7 @@ public class GeneralStrategy implements Strategy {
 	protected boolean scoringAttackerHasArrived;
 	protected boolean enemyDefenderNotOnPitch;
 	protected boolean attackerNotOnPitch;
+	private int BOUNCE_SHOT_DISTANCE = 50;
 
 	@Override
 	public void stopControlThread() {
@@ -162,34 +163,33 @@ public class GeneralStrategy implements Strategy {
 	public Operation scoreGoal(RobotType robot) {
 		attackerHasArrived = false;
 		Operation toExecute = new Operation();
-		float toTravelX;
+		float toTravelY;
 		boolean isInCenter;
 		int distanceFromTop = (int) Math.abs(attackerRobotY
 				- PitchConstants.getPitchOutlineTop());
 		int distanceFromBot = (int) Math.abs(attackerRobotY
 				- PitchConstants.getPitchOutlineBottom());
-		if ((Math.abs(enemyDefenderRobotX - rightCheck) < 60 || Math
-				.abs(enemyDefenderRobotX - leftCheck) < 60)
+		if ((Math.abs(enemyDefenderRobotX - rightCheck) < BOUNCE_SHOT_DISTANCE || Math
+				.abs(enemyDefenderRobotX - leftCheck) < BOUNCE_SHOT_DISTANCE)
 				&& (enemyDefenderRobotY < goalY[2] + 15 && enemyDefenderRobotY > goalY[0] - 15)) {
 			isInCenter = false;
 			if (distanceFromBot > distanceFromTop) {
-				toTravelX = goalY[0] - 60;
+				toTravelY = goalY[0] - 60;
 			} else {
-				toTravelX = goalY[2] + 60;
+				toTravelY = goalY[2] + 60;
 			}
 		} else {
-			toTravelX = goalY[1];
+			toTravelY = goalY[1];
 			isInCenter = true;
 		}
 
 		// If bounce shots aren't enabled, always go to the centre.
 		if (!StrategyController.bounceShotEnabled) {
-			toTravelX = goalY[1];
+			toTravelY = goalY[1];
 		}
-
 		if (!scoringAttackerHasArrived) {
 			toExecute = travelToNoArc(robot, (leftCheck + rightCheck) / 2,
-					toTravelX, 20);
+					toTravelY, 30);
 			if (toExecute.op == Operation.Type.DO_NOTHING) {
 				scoringAttackerHasArrived = true;
 			}
@@ -229,26 +229,27 @@ public class GeneralStrategy implements Strategy {
 					float goalTarget = goalY[1];
 					boolean doBounce = false;
 					if (distanceFromBot > distanceFromTop) {
-						if (Math.abs(enemyDefenderRobotX - rightCheck) < 60
+						if (Math.abs(enemyDefenderRobotX - rightCheck) < BOUNCE_SHOT_DISTANCE
 								 && (enemyDefenderRobotY > goalY[0])) {
 							goalTarget = goalY[0];
 							doBounce = true;
-						} else if (Math.abs(enemyDefenderRobotX - leftCheck) < 60
+						} else if (Math.abs(enemyDefenderRobotX - leftCheck) < BOUNCE_SHOT_DISTANCE
 								&& (enemyDefenderRobotY > goalY[0])) {
 							goalTarget = goalY[0];
 							doBounce = true;
 						}
 					} else {
-						if (Math.abs(enemyDefenderRobotX - rightCheck) < 60
+						if (Math.abs(enemyDefenderRobotX - rightCheck) < BOUNCE_SHOT_DISTANCE
 								 && (enemyDefenderRobotY < goalY[2])) {
 							goalTarget = goalY[2];
 							doBounce = true;
-						} else if (Math.abs(enemyDefenderRobotX - leftCheck) < 60
+						} else if (Math.abs(enemyDefenderRobotX - leftCheck) < BOUNCE_SHOT_DISTANCE
 								&& (enemyDefenderRobotY < goalY[2])) {
 							goalTarget = goalY[2];
 							doBounce = true;
 						}
 					}
+					System.out.println("do bounce: " + doBounce);
 					if (doBounce){
 						ang1 = Calculations.GetBounceAngle(attackerRobotX,
 								attackerRobotY, attackerOrientation, goalX,
@@ -433,18 +434,18 @@ public class GeneralStrategy implements Strategy {
 			} else {
 				targetX = ((rightCheck + defenderCheck) / 2);
 			}
-			double attackerAngle = 0; /*
-									 * calculateAngle(attackerRobotX,
-									 * attackerRobotY, attackerOrientation,
-									 * attackerResetX, attackerResetY);
-									 */
+			double attackerAngle =  
+									  calculateAngle(attackerRobotX,
+									  attackerRobotY, attackerOrientation,
+									  attackerResetX, attackerResetY);
+									 
 			double angleToPass = Calculations.GetBounceAngle(defenderRobotX,
 					defenderRobotY, defenderOrientation, attackerRobotX,
 					attackerRobotY, bounceDirection);
-			double dist = 0;/*
-							 * Math.hypot(attackerRobotX - attackerResetX,
-							 * attackerRobotY - attackerResetY);
-							 */
+			double dist = 
+							  Math.hypot(attackerRobotX - attackerResetX,
+							  attackerRobotY - attackerResetY);
+							 
 			double attackerAngleToBall = calculateAngle(attackerRobotX,
 					attackerRobotY, attackerOrientation, targetX, targetY);
 			if (attackerNotOnPitch) {

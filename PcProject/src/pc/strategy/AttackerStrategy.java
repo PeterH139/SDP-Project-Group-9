@@ -49,7 +49,7 @@ public class AttackerStrategy extends GeneralStrategy {
 			}
 			return;
 		}
-		if (Math.abs(ballY - PitchConstants.getPitchOutlineTop()) < 10 || Math.abs(ballY - PitchConstants.getPitchOutlineBottom()) < 10 ) {
+		if (Math.abs(ballY - PitchConstants.getPitchOutlineTop()) < 20 || Math.abs(ballY - PitchConstants.getPitchOutlineBottom()) < 20 ) {
 			fromSide = true;
 		} else {
 			fromSide = false;
