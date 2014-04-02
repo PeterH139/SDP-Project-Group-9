@@ -8,6 +8,8 @@ import pc.world.oldmodel.WorldState;
 
 public class AttackerStrategy extends GeneralStrategy {
 
+	private static final int KICK_TIMEOUT = 12000;
+	
 	private BrickCommServer brick;
 	private ControlThread controlThread;
 	private boolean stopControlThread;
@@ -84,7 +86,7 @@ public class AttackerStrategy extends GeneralStrategy {
 					
 				}
 				// kicks if detected false catch
-				if ((timerOn && (System.currentTimeMillis() - kickTimer) > 8000) || (ballCaughtAttacker
+				if ((timerOn && (System.currentTimeMillis() - kickTimer) > KICK_TIMEOUT) || (ballCaughtAttacker
 						&& (Math.hypot(ballX - attackerRobotX, ballY
 								- attackerRobotY) > 60) && !worldState.ballNotOnPitch)) {
 					controlThread.operation.op = Operation.Type.ATKKICK;
