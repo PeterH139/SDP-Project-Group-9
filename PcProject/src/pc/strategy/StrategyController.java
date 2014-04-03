@@ -31,6 +31,7 @@ public class StrategyController implements WorldStateReceiver {
 	public static boolean confusionEnabled = false;
 	public static boolean bounceShotEnabled = false;
 	public static boolean interceptorDefenceEnabled = false;
+	public static boolean bouncePassEnabled = false;
 	
 	private static ArrayList<Strategy> currentStrategies = new ArrayList<Strategy>();
 	private static ArrayList<Strategy> removedStrategies = new ArrayList<Strategy>();

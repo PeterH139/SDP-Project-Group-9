@@ -248,21 +248,21 @@ public class PassingStrategy extends GeneralStrategy {
 			}
 
 		}
-		if (ballDistFromTop < 15 || ballDistFromBot < 15) {
+		if (ballDistFromTop < 22 || ballDistFromBot < 22) {
 			ballIsOnSideEdge = true;
 		} else {
 			ballIsOnSideEdge = false;
 		}
-		if (ballDistFromBot < 15) {
+		if (ballDistFromBot < 22) {
 			targetY = ballY - 40;
 		}
-		if (ballDistFromTop < 15) {
+		if (ballDistFromTop < 22) {
 			targetY = ballY + 40;
 		}
-		if (ballDistFromBot < 15 && ballIsOnSlopeEdge) {
+		if (ballDistFromBot < 22 && ballIsOnSlopeEdge) {
 			targetY = ballY - 21;
 		}
-		if (ballDistFromTop < 15 && ballIsOnSlopeEdge) {
+		if (ballDistFromTop < 22 && ballIsOnSlopeEdge) {
 			targetY = ballY + 20;
 		}
 
@@ -316,7 +316,7 @@ public class PassingStrategy extends GeneralStrategy {
 								//	System.out
 								//			.println("Ball on side edge, scoup it out");
 									this.controlThread.operation = travelToNoArcNoReverse(
-											RobotType.DEFENDER, targetX, targetY, 20);
+											RobotType.DEFENDER, targetX, targetY, 30);
 								}
 								if (ballIsOnSideEdge && ballIsOnSlopeEdge) {
 									//System.out.println("Ball in corner, scoup it out");
@@ -524,6 +524,16 @@ public class PassingStrategy extends GeneralStrategy {
 						if (System.currentTimeMillis() - lastKickerEventTime > 1000) {
 							catcherIsUp = true;
 							defenderBrick.execute(new RobotCommand.Kick(15));
+							ballCaughtDefender = false;
+							lastKickerEventTime = System.currentTimeMillis();
+						}
+						break;
+					case DEFCONFUSEKICK:
+						if (System.currentTimeMillis() - lastKickerEventTime > 1000) {
+							defenderBrick.execute(new RobotCommand.Rotate(25, 33, false));
+							defenderBrick.execute(new RobotCommand.Rotate(-37 , 1000, false));
+							defenderBrick.execute(new RobotCommand.Travel(-50, 10000));
+							defenderBrick.execute(new RobotCommand.Kick(100));
 							ballCaughtDefender = false;
 							lastKickerEventTime = System.currentTimeMillis();
 						}

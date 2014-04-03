@@ -438,19 +438,35 @@ public class GeneralStrategy implements Strategy {
 									  calculateAngle(attackerRobotX,
 									  attackerRobotY, attackerOrientation,
 									  attackerResetX, attackerResetY);
-									 
-			double angleToPass = Calculations.GetBounceAngle(defenderRobotX,
-					defenderRobotY, defenderOrientation, attackerRobotX,
-					attackerRobotY, bounceDirection, goalY[1]);
+			double angleToPass = 0;
+			if (StrategyController.bouncePassEnabled) {
+				if (leftCheck > defenderCheck) {
+					angleToPass = Calculations.GetBounceAngle(defenderRobotX,
+							defenderRobotY, defenderOrientation, attackerRobotX - 20,
+							attackerRobotY, bounceDirection, goalY[1]);
+				} else {
+					angleToPass = Calculations.GetBounceAngle(defenderRobotX,
+							defenderRobotY, defenderOrientation, attackerRobotX + 20,
+							attackerRobotY, bounceDirection, goalY[1]);
+				}
+				
+			} else {
+				angleToPass = calculateAngle(defenderRobotX,
+				defenderRobotY, defenderOrientation, attackerRobotX,
+				attackerRobotY);
+			}
+			if (attackerNotOnPitch) {
+				angleToPass = calculateAngle(defenderRobotX,defenderRobotY, defenderOrientation, goalX, goalY[2]);
+			}
 			double dist = 
 							  Math.hypot(attackerRobotX - attackerResetX,
 							  attackerRobotY - attackerResetY);
 							 
-			double attackerAngleToBall = calculateAngle(attackerRobotX,
-					attackerRobotY, attackerOrientation, targetX, targetY);
+			double attackerAngleToDefender = calculateAngle(attackerRobotX,
+					attackerRobotY, attackerOrientation, defenderRobotX, defenderRobotY);
 			if (attackerNotOnPitch) {
 				toExecute.op = Operation.Type.DEFROTATE;
-				if (Math.abs(angleToPass) > 5) {
+				if (Math.abs(angleToPass) > 3) {
 					toExecute.rotateBy = (int) angleToPass / 3;
 				} else
 					toExecute.op = Operation.Type.DEFKICKSTRONG;
@@ -471,13 +487,17 @@ public class GeneralStrategy implements Strategy {
 						toExecute.travelDistance = (int) (dist);
 					} else if (Math.abs(dist) < 30 || passingAttackerHasArrived) {
 						passingAttackerHasArrived = true;
-						if (Math.abs(attackerAngleToBall) > 10) {
+						if (Math.abs(attackerAngleToDefender) > 10) {
 							toExecute.op = Operation.Type.ATKROTATE;
-							toExecute.rotateBy = -(int) attackerAngleToBall;
+							toExecute.rotateBy = -(int) attackerAngleToDefender;
 						} // XXX: CHANGED THIS ELSE IF TO AN IF.
-						if (Math.abs(angleToPass) < 3) {
+						if (Math.abs(angleToPass) < 4) {
 							toExecute.travelDistance = 0;
-							toExecute.op = Operation.Type.DEFKICKSTRONG;
+							if (StrategyController.bouncePassEnabled) {
+								toExecute.op = Operation.Type.DEFKICKSTRONG;
+							} else {
+								toExecute.op = Operation.Type.DEFCONFUSEKICK;
+							}
 						}
 					}
 

@@ -57,10 +57,10 @@ public class DefenderStrategy extends GeneralStrategy {
 		if (noBallMovement) {
 			targetY = (int) ballY;
 		}
-		if (worldState.ballNotOnPitch) {
+		if (worldState.ballNotOnPitch ) {
 			// Get equation of line through enemyAttacker along its orientation
 			double enemyAngleToHorizontal = calculateAngle(enemyAttackerRobotX, enemyAttackerRobotY, enemyAttackerOrientation, defenderRobotX, enemyAttackerRobotY);
-			double m = Math.tan(enemyAngleToHorizontal);
+			double m = enemyAngleToHorizontal / 180;
 			double n = enemyAttackerRobotY - m * enemyAttackerRobotX;
 			// Find intersection with defenderX
 			targetY = (int) (m * defenderRobotX + n);
