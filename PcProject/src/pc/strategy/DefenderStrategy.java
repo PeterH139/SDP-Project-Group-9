@@ -50,20 +50,29 @@ public class DefenderStrategy extends GeneralStrategy {
 		double c = ballY - slope * ballX;
 		boolean noBallMovement =  Math.abs(enemyAttackerRobotX - ballX) < 10;
 		int targetY = (int) (slope * defenderRobotX + c);
-		double enemyAngleToUs = calculateAngle(enemyAttackerRobotX, enemyDefenderRobotY, enemyAttackerOrientation, defenderRobotX, defenderRobotY);
 		double ang1 = calculateAngle(defenderRobotX, defenderRobotY, defenderOrientation, defenderRobotX, defenderRobotY - 50);
 		ang1 = ang1/3;
 		float dist;
 		if (noBallMovement) {
 			targetY = (int) ballY;
 		}
-		if (worldState.ballNotOnPitch ) {
+		if (worldState.ballNotOnPitch) {
 			// Get equation of line through enemyAttacker along its orientation
-			double enemyAngleToHorizontal = calculateAngle(enemyAttackerRobotX, enemyAttackerRobotY, enemyAttackerOrientation, defenderRobotX, enemyAttackerRobotY);
-			double m = enemyAngleToHorizontal / 180;
-			double n = enemyAttackerRobotY - m * enemyAttackerRobotX;
-			// Find intersection with defenderX
-			targetY = (int) (m * defenderRobotX + n);
+			double enemyAngleToUs = calculateAngle(enemyAttackerRobotX, enemyAttackerRobotY, enemyAttackerOrientation, defenderRobotX, defenderRobotY);
+			boolean directionCheck = Math.signum(enemyAngleToUs) >= 0 ? true : false;
+			enemyAngleToUs = Math.abs(enemyAngleToUs);
+			double angleFromUsToEnemy = Math.abs(calculateAngle(defenderRobotX, defenderRobotY, defenderOrientation, enemyAttackerRobotX, enemyAttackerRobotY));
+			
+			double distanceBetweenRobots = Math.hypot(enemyAttackerRobotX - defenderRobotX,
+					enemyAttackerRobotY - defenderRobotY);
+			// Using sin rule to work out the distance we need to travel.
+			double thirdAngle = 180 - Math.abs(enemyAngleToUs) - angleFromUsToEnemy;
+			double d = distanceBetweenRobots * Math.sin(Math.toRadians(Math.abs(enemyAngleToUs))) / Math.sin(Math.toRadians(thirdAngle));
+			if (directionCheck) {
+				targetY = (int) (defenderRobotY - d);
+			} else {
+				targetY = (int) (defenderRobotY + d);
+			}
 		}
 		if (targetY > ourGoalEdges[2]) {
 			targetY = (int) ourGoalEdges[2];
