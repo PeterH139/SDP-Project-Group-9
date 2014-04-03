@@ -45,18 +45,26 @@ public class DefenderStrategy extends GeneralStrategy {
 				.getBall().y));
 		if (ballPositions.size() > 3)
 			ballPositions.removeFirst();
-
+		float ballX = this.ballX;
+		float ballY = this.ballY;
+		if (worldState.ballNotOnPitch) {
+			ballX = enemyAttackerRobotX
+					+ 10 * (float) Math.cos(Math.toRadians(enemyAttackerOrientation));
+			ballY = enemyAttackerRobotY
+					+ 10 * (float) Math.sin(Math.toRadians(enemyAttackerOrientation));
+		}
 		double slope = (enemyAttackerRobotY - ballY) / ((enemyAttackerRobotX - ballX) + 0.0001);
 		double c = ballY - slope * ballX;
-		boolean noBallMovement =  Math.abs(enemyAttackerRobotX - ballX) < 10;
 		int targetY = (int) (slope * defenderRobotX + c);
 		double ang1 = calculateAngle(defenderRobotX, defenderRobotY, defenderOrientation, defenderRobotX, defenderRobotY - 50);
 		ang1 = ang1/3;
 		float dist;
+		/*
+		boolean noBallMovement =  Math.abs(enemyAttackerRobotX - ballX) < 10;
 		if (noBallMovement) {
 			targetY = (int) ballY;
-		}
-		if (worldState.ballNotOnPitch) {
+		}*/
+		/*if (worldState.ballNotOnPitch) {
 			// Get equation of line through enemyAttacker along its orientation
 			double enemyAngleToUs = calculateAngle(enemyAttackerRobotX, enemyAttackerRobotY, enemyAttackerOrientation, defenderRobotX, defenderRobotY);
 			boolean directionCheck = Math.signum(enemyAngleToUs) >= 0 ? true : false;
@@ -73,7 +81,7 @@ public class DefenderStrategy extends GeneralStrategy {
 			} else {
 				targetY = (int) (defenderRobotY + d);
 			}
-		}
+		}*/
 		if (targetY > ourGoalEdges[2]) {
 			targetY = (int) ourGoalEdges[2];
 		} else if (targetY < ourGoalEdges[0]) {
@@ -106,7 +114,7 @@ public class DefenderStrategy extends GeneralStrategy {
 				haveReset = false;
 			controlThread.operation.rotateBy = (int) ang1;
 			controlThread.operation.travelDistance = (int) (dist * 0.8);
-			if (Math.abs(controlThread.operation.rotateBy) > 3) {
+			if (Math.abs(controlThread.operation.rotateBy) > 0) {
 				controlThread.operation.op = Operation.Type.DEFROTATE;
 			} else {
 				controlThread.operation.op = Operation.Type.DEFTRAVEL;
