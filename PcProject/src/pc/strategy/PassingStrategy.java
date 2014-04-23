@@ -531,7 +531,7 @@ public class PassingStrategy extends GeneralStrategy {
 					case DEFCONFUSEKICK:
 						if (System.currentTimeMillis() - lastKickerEventTime > 1000) {
 							defenderBrick.execute(new RobotCommand.Rotate(25, 33, false));
-							defenderBrick.execute(new RobotCommand.Rotate(-37 , 1000, false));
+							defenderBrick.execute(new RobotCommand.Rotate(-33 , 1000, false));
 							defenderBrick.execute(new RobotCommand.Travel(-50, 10000));
 							defenderBrick.execute(new RobotCommand.Kick(100));
 							ballCaughtDefender = false;
