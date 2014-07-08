@@ -45,43 +45,26 @@ public class DefenderStrategy extends GeneralStrategy {
 				.getBall().y));
 		if (ballPositions.size() > 3)
 			ballPositions.removeFirst();
-		float ballX = this.ballX;
-		float ballY = this.ballY;
-		if (worldState.ballNotOnPitch) {
-			ballX = enemyAttackerRobotX
-					+ 10 * (float) Math.cos(Math.toRadians(enemyAttackerOrientation));
-			ballY = enemyAttackerRobotY
-					+ 10 * (float) Math.sin(Math.toRadians(enemyAttackerOrientation));
-		}
+
 		double slope = (enemyAttackerRobotY - ballY) / ((enemyAttackerRobotX - ballX) + 0.0001);
 		double c = ballY - slope * ballX;
+		boolean noBallMovement =  Math.abs(enemyAttackerRobotX - ballX) < 10;
 		int targetY = (int) (slope * defenderRobotX + c);
+		double enemyAngleToUs = calculateAngle(enemyAttackerRobotX, enemyDefenderRobotY, enemyAttackerOrientation, defenderRobotX, defenderRobotY);
 		double ang1 = calculateAngle(defenderRobotX, defenderRobotY, defenderOrientation, defenderRobotX, defenderRobotY - 50);
 		ang1 = ang1/3;
 		float dist;
-		/*
-		boolean noBallMovement =  Math.abs(enemyAttackerRobotX - ballX) < 10;
 		if (noBallMovement) {
 			targetY = (int) ballY;
-		}*/
-		/*if (worldState.ballNotOnPitch) {
+		}
+		if (worldState.ballNotOnPitch ) {
 			// Get equation of line through enemyAttacker along its orientation
-			double enemyAngleToUs = calculateAngle(enemyAttackerRobotX, enemyAttackerRobotY, enemyAttackerOrientation, defenderRobotX, defenderRobotY);
-			boolean directionCheck = Math.signum(enemyAngleToUs) >= 0 ? true : false;
-			enemyAngleToUs = Math.abs(enemyAngleToUs);
-			double angleFromUsToEnemy = Math.abs(calculateAngle(defenderRobotX, defenderRobotY, defenderOrientation, enemyAttackerRobotX, enemyAttackerRobotY));
-			
-			double distanceBetweenRobots = Math.hypot(enemyAttackerRobotX - defenderRobotX,
-					enemyAttackerRobotY - defenderRobotY);
-			// Using sin rule to work out the distance we need to travel.
-			double thirdAngle = 180 - Math.abs(enemyAngleToUs) - angleFromUsToEnemy;
-			double d = distanceBetweenRobots * Math.sin(Math.toRadians(Math.abs(enemyAngleToUs))) / Math.sin(Math.toRadians(thirdAngle));
-			if (directionCheck) {
-				targetY = (int) (defenderRobotY - d);
-			} else {
-				targetY = (int) (defenderRobotY + d);
-			}
-		}*/
+			double enemyAngleToHorizontal = calculateAngle(enemyAttackerRobotX, enemyAttackerRobotY, enemyAttackerOrientation, defenderRobotX, enemyAttackerRobotY);
+			double m = enemyAngleToHorizontal / 180;
+			double n = enemyAttackerRobotY - m * enemyAttackerRobotX;
+			// Find intersection with defenderX
+			targetY = (int) (m * defenderRobotX + n);
+		}
 		if (targetY > ourGoalEdges[2]) {
 			targetY = (int) ourGoalEdges[2];
 		} else if (targetY < ourGoalEdges[0]) {
@@ -114,7 +97,7 @@ public class DefenderStrategy extends GeneralStrategy {
 				haveReset = false;
 			controlThread.operation.rotateBy = (int) ang1;
 			controlThread.operation.travelDistance = (int) (dist * 0.8);
-			if (Math.abs(controlThread.operation.rotateBy) > 0) {
+			if (Math.abs(controlThread.operation.rotateBy) > 3) {
 				controlThread.operation.op = Operation.Type.DEFROTATE;
 			} else {
 				controlThread.operation.op = Operation.Type.DEFTRAVEL;

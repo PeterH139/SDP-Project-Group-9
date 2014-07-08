@@ -201,7 +201,7 @@ public class BrickCommClient {
 			}
 		});
 		
-		boolean isKeeper = Bluetooth.getFriendlyName().equals("MEOW");
+		boolean isKeeper = Bluetooth.getFriendlyName().equals("Demo A");
 		System.out.println("Mode: " + (isKeeper ? "Keeper" : "Attacker"));
 
 		RobotController rc = new RobotController(isKeeper);

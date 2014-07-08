@@ -55,6 +55,10 @@ public class StrategySelectorTool implements GUITool {
 				BtInfo.group10));
 		contentPane.add(new ConnectionControl("Defender", sc.bcsDefender,
 				BtInfo.MEOW));
+		contentPane.add(new ConnectionControl("Attacker", sc.bcsAttacker,
+				BtInfo.DemoD));
+		contentPane.add(new ConnectionControl("Defender", sc.bcsDefender,
+				BtInfo.DemoA));
 		contentPane.add(infoLabel);
 		contentPane.add(new StrategyPicker());
 		contentPane.add(new AdvancedStrategyEnabler());

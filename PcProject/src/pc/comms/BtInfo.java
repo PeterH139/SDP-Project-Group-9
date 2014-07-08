@@ -20,5 +20,10 @@ public class BtInfo {
 			"MEOW", "0016530A284F");
 	public static final NXTInfo group10 = new NXTInfo(NXTCommFactory.BLUETOOTH,
 			"group10", "001653077601");
+	
+	public static final NXTInfo DemoA= new NXTInfo(NXTCommFactory.BLUETOOTH,
+			"DemoA", "00165307D71E");
+	public static final NXTInfo DemoD = new NXTInfo(NXTCommFactory.BLUETOOTH,
+			"DemoD", "0016530970C6");
 
 }
